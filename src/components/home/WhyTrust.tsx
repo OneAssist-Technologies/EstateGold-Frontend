@@ -1,0 +1,135 @@
+// components/home/WhyTrust.tsx
+
+import Image from "next/image";
+import {
+  ShieldCheck,
+  Users,
+  BadgeCheck,
+  Clock3,
+} from "lucide-react";
+import trustProperty from "../../assests/trust-property.jpg";
+
+<Image
+  src={trustProperty}
+  alt="Luxury Interior"
+  className="rounded-3xl"
+/>
+
+const features = [
+  {
+    icon: ShieldCheck,
+    title: "100% Verified Listings",
+    description:
+      "Every property is physically verified before listing.",
+  },
+  {
+    icon: Users,
+    title: "Direct Owner Contact",
+    description:
+      "Connect directly with owners. Zero brokerage.",
+  },
+  {
+    icon: BadgeCheck,
+    title: "Legal Assistance",
+    description:
+      "Documentation, registration and loan guidance.",
+  },
+  {
+    icon: Clock3,
+    title: "24/7 Support",
+    description:
+      "Dedicated support throughout your property journey.",
+  },
+];
+
+export default function WhyTrust() {
+  return (
+    <section className="py-24 bg-white">
+      <div className="max-w-7xl mx-auto px-6">
+
+        <div className="grid lg:grid-cols-2 gap-16 items-center">
+
+          <div>
+
+            <p className="uppercase tracking-widest text-[#C89B1C]">
+              Our Promise
+            </p>
+
+            <h2 className="text-5xl font-bold mt-4">
+              Why 50,000+ Families Trust EstateGold
+            </h2>
+
+            <div className="mt-10 space-y-8">
+
+              {features.map((item) => (
+                <div
+                  key={item.title}
+                  className="flex gap-5"
+                >
+                  <div
+                    className="
+                    h-14
+                    w-14
+                    rounded-2xl
+                    bg-[#F8F3E8]
+                    flex
+                    items-center
+                    justify-center
+                    "
+                  >
+                    <item.icon
+                      size={24}
+                      className="text-[#C89B1C]"
+                    />
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-xl">
+                      {item.title}
+                    </h4>
+
+                    <p className="text-gray-600 mt-2">
+                      {item.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
+
+            </div>
+          </div>
+
+          <div className="relative">
+            <Image
+              src={trustProperty}
+              alt="Luxury Interior"
+              width={700}
+              height={700}
+              className="rounded-3xl"
+            />
+
+            <div
+              className="
+              absolute
+              bottom-6
+              left-6
+              bg-white
+              p-6
+              rounded-2xl
+              shadow-xl
+              "
+            >
+              <p className="text-3xl font-bold">
+                ₹2.3 Lakhs
+              </p>
+
+              <p className="text-gray-500">
+                Average brokerage saved
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  );
+}
