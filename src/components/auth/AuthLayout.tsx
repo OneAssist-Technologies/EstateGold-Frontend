@@ -35,7 +35,8 @@ export default function AuthLayout({
           alt="EstateGold"
           fill
           priority
-            className="object-cover zoom-image"
+          sizes="(max-width: 1024px) 0vw, 50vw"
+          className="object-cover zoom-image"
         />
 
         <div className="absolute inset-0 bg-[#8f6c08]/60" />

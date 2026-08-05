@@ -46,6 +46,12 @@ const menu = [
     href: "/admin/locations",
   },
   {
+    title: "Role Requests",
+    icon: Shield,
+    href: "/admin/role-requests",
+    badge: 3,
+  },
+  {
     title: "Analytics",
     icon: BarChart3,
     href: "/admin/analytics",
@@ -224,6 +230,16 @@ export default function AdminSidebar() {
   "
 >
 
+  {/* Profile */}
+  <div className="flex items-center gap-3 mb-4 px-2">
+    <div className="h-10 w-10 rounded-full bg-[#C89B1C] text-black font-bold flex items-center justify-center text-sm shadow-md">
+      A
+    </div>
+    <div>
+      <h4 className="text-sm font-bold text-white leading-tight">Admin User</h4>
+      <p className="text-xs text-gray-400">Administrator</p>
+    </div>
+  </div>
 
   {/* Sign Out */}
 

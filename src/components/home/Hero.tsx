@@ -15,7 +15,8 @@ export default function Hero() {
     fill
     priority
     quality={100}
-   className="object-cover animate-[kenburns_20s_ease-in-out_infinite]"
+    sizes="100vw"
+    className="object-cover animate-[kenburns_20s_ease-in-out_infinite]"
   />
 
   <div
