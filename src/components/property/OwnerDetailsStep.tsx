@@ -245,19 +245,17 @@ export default function OwnerDetailsStep({
             />
 
             <input
-              value={
-                formData.ownerPhone
-              }
-              onChange={(e) =>
-                setFormData(
-                  (prev) => ({
-                    ...prev,
-                    ownerPhone:
-                      e.target.value,
-                  })
-                )
-              }
-              placeholder="+91 Primary number"
+              type="tel"
+              maxLength={10}
+              value={formData.ownerPhone}
+              onChange={(e) => {
+                const val = e.target.value.replace(/\D/g, "").slice(0, 10);
+                setFormData((prev) => ({
+                  ...prev,
+                  ownerPhone: val,
+                }));
+              }}
+              placeholder="10-digit Primary number"
               className="
                 w-full
                 h-14

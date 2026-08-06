@@ -85,7 +85,7 @@ export default function PropertyDetailsModal({
 
             <img
               src={
-                property.images?.[0]
+                property.photos?.[0] || "/placeholder.jpg"
               }
               alt=""
               className="
@@ -98,7 +98,7 @@ export default function PropertyDetailsModal({
             <div className="p-8">
 
               <h2 className="text-3xl font-bold">
-                {property.title}
+                {property.bedrooms} BHK {property.propertyType} in {property.locality}
               </h2>
 
               <div className="flex items-center gap-2 mt-3 text-[#666]">
@@ -163,7 +163,7 @@ export default function PropertyDetailsModal({
                 </p>
 
                 <p>
-                  {property.phone}
+                  {property.ownerPhone}
                 </p>
               </div>
 

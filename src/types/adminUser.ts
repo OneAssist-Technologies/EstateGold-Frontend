@@ -17,9 +17,13 @@ export interface AdminUser {
 
 export interface UserStats {
   totalBuyers: number;
+  verifiedBuyers?: number;
   totalSellers: number;
+  verifiedSellers?: number;
+  totalAgents?: number;
   verifiedAgents: number;
   totalUsers: number;
+  verifiedUsers?: number;
 }
 
 export interface GetUsersResponse {
