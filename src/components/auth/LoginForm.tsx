@@ -14,92 +14,68 @@ import {
   Lock,
   Eye,
   EyeOff,
+  AlertCircle,
 } from "lucide-react";
 
 export default function LoginForm() {
   const router = useRouter();
   const { login } = useAuth();
 
-  const [email, setEmail] =
-    useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
-  const [password, setPassword] =
-    useState("");
-
-  const [showPassword, setShowPassword] =
-    useState(false);
-
-  const [loading, setLoading] =
-    useState(false);
-
-  const handleLogin = async (
-    e: React.FormEvent
-  ) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg("");
 
     try {
       setLoading(true);
+      const response = await api.post("/login", {
+        email,
+        password,
+      });
 
-      const response =
-        await api.post("/login",
-         
-          {
-            email,
-            password,
-          }
-        );
-
-    //   localStorage.setItem(
-    //     "token",
-    //     response.data.token
-    //   );
-
-    //   localStorage.setItem(
-    //     "user",
-    //     JSON.stringify(
-    //       response.data.user
-    //     )
-    //   );
-    login(
-  response.data.user,
-  response.data.token
-);
+      login(response.data.user, response.data.token);
 
       if (response.data.user.role === "admin") {
-  window.location.href = "/admin";
-} else {
-  window.location.href = "/";
-}
+        window.location.href = "/admin";
+      } else {
+        window.location.href = "/";
+      }
     } catch (error: unknown) {
-  if (axios.isAxiosError(error)) {
-    alert(
-      error.response?.data?.message ||
-      "Invalid credentials"
-    );
-  } else {
-    alert("Something went wrong");
-  }
-}
+      if (axios.isAxiosError(error)) {
+        setErrorMsg(
+          error.response?.data?.message || "Invalid credentials or password"
+        );
+      } else {
+        setErrorMsg("Something went wrong. Please try again.");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="w-full">
-     <Link
-    href="/"
-    className="
-      inline-flex
-      items-center
-      gap-2
-      text-[#C89B1C]
-      font-medium
-      hover:gap-3
-      transition-all
-      mb-4
-    "
-  >
-    <ArrowLeft size={18} />
-    Back to Home
-  </Link>
+      <Link
+        href="/"
+        className="
+          inline-flex
+          items-center
+          gap-2
+          text-[#C89B1C]
+          font-medium
+          hover:gap-3
+          transition-all
+          mb-4
+        "
+      >
+        <ArrowLeft size={18} />
+        Back to Home
+      </Link>
 
       <div className="lg:hidden text-center mb-10">
         <h1 className="text-4xl font-bold text-[#C89B1C]">
@@ -108,17 +84,22 @@ export default function LoginForm() {
       </div>
 
       {/* Heading */}
-
-      <div className="mb-10">
+      <div className="mb-8">
         <h2 className="text-5xl font-bold text-gray-900">
           Welcome Back
         </h2>
 
         <p className="mt-4 text-lg text-gray-500">
-          Sign in to continue your
-          property journey
+          Sign in to continue your property journey
         </p>
       </div>
+
+      {errorMsg && (
+        <div className="mb-6 p-4 rounded-2xl bg-red-50 border border-red-200 flex items-center gap-3 text-red-700 text-sm font-medium">
+          <AlertCircle size={20} className="shrink-0 text-red-500" />
+          <span>{errorMsg}</span>
+        </div>
+      )}
 
       {/* Form */}
 

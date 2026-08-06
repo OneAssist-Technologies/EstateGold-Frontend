@@ -288,17 +288,16 @@ export default function RequestCallbackModal({
                     <PhoneCall size={18} />
 
                     <input
-
+                      type="tel"
                       name="phone"
-
+                      maxLength={10}
                       value={form.phone}
-
-                      onChange={handleChange}
-
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, "").slice(0, 10);
+                        setForm((prev) => ({ ...prev, phone: val }));
+                      }}
                       className="flex-1 ml-3 outline-none"
-
-                      placeholder="Mobile Number"
-
+                      placeholder="Mobile Number (10 digits)"
                     />
 
                   </div>

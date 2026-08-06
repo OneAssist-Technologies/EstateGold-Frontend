@@ -95,15 +95,15 @@ export default function LocationTable({
                 </td>
 
                 {/* Coordinates */}
-                <td className="px-6 py-4 text-sm text-gray-500">
-                  <div>{location.latitude.toFixed(4)}</div>
-                  <div>{location.longitude.toFixed(4)}</div>
+                <td className="px-6 py-4 text-sm text-gray-500 font-mono">
+                  <div>{(location.latitude || 0).toFixed(4)}</div>
+                  <div>{(location.longitude || 0).toFixed(4)}</div>
                 </td>
 
                 {/* Listings */}
                 <td className="px-6 py-4 text-center">
                   <span className="font-semibold">
-                    {location.activeListings.toLocaleString()}
+                    {(location.activeListings || 0).toLocaleString()}
                   </span>
                 </td>
 

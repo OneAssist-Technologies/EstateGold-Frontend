@@ -16,12 +16,17 @@ import {
   Mail,
   Phone,
   Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Trash2,
+  AlertTriangle,
 } from "lucide-react";
 import { AdminUser, UserStats } from "@/src/types/adminUser";
 import {
   getUsers,
   toggleUserVerify,
   toggleUserStatus,
+  deleteUser,
 } from "@/src/services/adminUserService";
 
 export default function UserManagement() {
@@ -33,11 +38,17 @@ export default function UserManagement() {
   const [viewModalOpen, setViewModalOpen] = useState<boolean>(false);
   const [actionLoading, setActionLoading] = useState<boolean>(false);
 
+  const [page, setPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [total, setTotal] = useState<number>(0);
+  const [limit] = useState<number>(10);
+
   const [stats, setStats] = useState<UserStats>({
     totalBuyers: 0,
     totalSellers: 0,
     verifiedAgents: 0,
     totalUsers: 0,
+    verifiedUsers: 0,
   });
 
   const todayDate = useMemo(() => {
@@ -55,16 +66,25 @@ export default function UserManagement() {
       const res = await getUsers({
         role: activeTab,
         search,
+        page,
+        limit,
       });
 
       if (res.success) {
         setUsers(res.users);
+        setTotalPages(res.pages || 1);
+        setTotal(res.total || 0);
+
         if (res.stats) {
           setStats({
             totalBuyers: res.stats.totalBuyers || 0,
+            verifiedBuyers: res.stats.verifiedBuyers || 0,
             totalSellers: res.stats.totalSellers || 0,
+            verifiedSellers: res.stats.verifiedSellers || 0,
+            totalAgents: res.stats.totalAgents || 0,
             verifiedAgents: res.stats.verifiedAgents || 0,
             totalUsers: res.stats.totalUsers || res.total || 0,
+            verifiedUsers: res.stats.verifiedUsers || 0,
           });
         }
       }
@@ -75,9 +95,79 @@ export default function UserManagement() {
     }
   };
 
+  // Reset to page 1 on tab or search change
+  useEffect(() => {
+    setPage(1);
+  }, [activeTab, search]);
+
   useEffect(() => {
     loadUserData();
-  }, [activeTab, search]);
+  }, [activeTab, search, page]);
+
+  const [reasonModalOpen, setReasonModalOpen] = useState<boolean>(false);
+  const [reasonType, setReasonType] = useState<"suspend" | "delete">("suspend");
+  const [targetUser, setTargetUser] = useState<AdminUser | null>(null);
+  const [actionReason, setActionReason] = useState<string>("");
+  const [reasonError, setReasonError] = useState<string>("");
+
+  const openReasonModal = (user: AdminUser, type: "suspend" | "delete") => {
+    setTargetUser(user);
+    setReasonType(type);
+    setActionReason("");
+    setReasonError("");
+    setReasonModalOpen(true);
+  };
+
+  const handleConfirmReasonAction = async () => {
+    if (!actionReason.trim()) {
+      setReasonError(`Please provide a reason to ${reasonType} this user.`);
+      return;
+    }
+
+    if (!targetUser) return;
+
+    try {
+      setActionLoading(true);
+      if (reasonType === "delete") {
+        await deleteUser(targetUser._id, actionReason.trim());
+        if (selectedUser && selectedUser._id === targetUser._id) {
+          setViewModalOpen(false);
+        }
+      } else {
+        await toggleUserStatus(targetUser._id, actionReason.trim());
+        if (selectedUser && selectedUser._id === targetUser._id) {
+          setSelectedUser((prev) =>
+            prev ? { ...prev, isActive: false } : null
+          );
+        }
+      }
+
+      setReasonModalOpen(false);
+      await loadUserData();
+    } catch (err: unknown) {
+      console.error(`Failed to ${reasonType} user:`, err);
+      setReasonError(`Failed to ${reasonType} user. Please try again.`);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleReactivateUser = async (userId: string) => {
+    try {
+      setActionLoading(true);
+      await toggleUserStatus(userId);
+      await loadUserData();
+      if (selectedUser && selectedUser._id === userId) {
+        setSelectedUser((prev) =>
+          prev ? { ...prev, isActive: true } : null
+        );
+      }
+    } catch (err) {
+      console.error("Failed to reactivate user:", err);
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   const handleToggleVerify = async (userId: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
@@ -191,25 +281,100 @@ export default function UserManagement() {
 
       {/* Main Content Area */}
       <div className="p-8 flex-1">
-        {/* Filter Tabs */}
-        <div className="flex items-center gap-3 mb-6">
-          {[
-            { key: "all", label: "All Users" },
-            { key: "buyer", label: "Buyers" },
-            { key: "seller", label: "Sellers" },
-          ].map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`px-6 py-2.5 rounded-full text-sm font-semibold transition-all ${
-                activeTab === tab.key
-                  ? "bg-[#B8860B] text-white shadow-sm"
-                  : "bg-[#EFECE6] text-[#6B6557] hover:bg-[#E5E0D6]"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+        {/* Top Header Controls: Filter Tabs (Left) & Dynamic Small Stat Cards (Right) */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+          {/* Left: Filter Tabs */}
+          <div className="flex items-center gap-2.5 flex-wrap">
+            {[
+              { key: "all", label: "All Users" },
+              { key: "buyer", label: "Buyers" },
+              { key: "seller", label: "Sellers" },
+              { key: "agent", label: "Agents" },
+            ].map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all cursor-pointer ${
+                  activeTab === tab.key
+                    ? "bg-[#B8860B] text-white shadow-sm"
+                    : "bg-[#EFECE6] text-[#6B6557] hover:bg-[#E5E0D6]"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Right: Dynamic Small Stat Cards */}
+          <div className="flex items-center gap-3 flex-wrap">
+            {activeTab === "all" && (
+              <>
+                <div className="bg-white rounded-2xl border border-[#ECE7DB] px-4 py-2 shadow-xs flex items-center gap-3">
+                  <span className="text-lg font-bold font-serif text-[#4338CA]">
+                    {stats.totalUsers.toLocaleString()}
+                  </span>
+                  <span className="text-xs font-semibold text-[#8C847B]">Total Users</span>
+                </div>
+                <div className="bg-[#ECFDF5] rounded-2xl border border-emerald-200 px-4 py-2 shadow-xs flex items-center gap-3">
+                  <span className="text-lg font-bold font-serif text-[#10B981]">
+                    {(stats.verifiedUsers || 0).toLocaleString()}
+                  </span>
+                  <span className="text-xs font-semibold text-[#047857]">Verified Users</span>
+                </div>
+              </>
+            )}
+
+            {activeTab === "buyer" && (
+              <>
+                <div className="bg-white rounded-2xl border border-[#ECE7DB] px-4 py-2 shadow-xs flex items-center gap-3">
+                  <span className="text-lg font-bold font-serif text-[#4338CA]">
+                    {stats.totalBuyers.toLocaleString()}
+                  </span>
+                  <span className="text-xs font-semibold text-[#8C847B]">Total Buyers</span>
+                </div>
+                <div className="bg-[#ECFDF5] rounded-2xl border border-emerald-200 px-4 py-2 shadow-xs flex items-center gap-3">
+                  <span className="text-lg font-bold font-serif text-[#10B981]">
+                    {(stats.verifiedBuyers || 0).toLocaleString()}
+                  </span>
+                  <span className="text-xs font-semibold text-[#047857]">Verified Buyers</span>
+                </div>
+              </>
+            )}
+
+            {activeTab === "seller" && (
+              <>
+                <div className="bg-white rounded-2xl border border-[#ECE7DB] px-4 py-2 shadow-xs flex items-center gap-3">
+                  <span className="text-lg font-bold font-serif text-[#B8860B]">
+                    {stats.totalSellers.toLocaleString()}
+                  </span>
+                  <span className="text-xs font-semibold text-[#8C847B]">Total Sellers</span>
+                </div>
+                <div className="bg-[#FFF4E5] rounded-2xl border border-amber-200 px-4 py-2 shadow-xs flex items-center gap-3">
+                  <span className="text-lg font-bold font-serif text-[#D97706]">
+                    {(stats.verifiedSellers || 0).toLocaleString()}
+                  </span>
+                  <span className="text-xs font-semibold text-[#B45309]">Verified Sellers</span>
+                </div>
+              </>
+            )}
+
+            {activeTab === "agent" && (
+              <>
+                <div className="bg-white rounded-2xl border border-[#ECE7DB] px-4 py-2 shadow-xs flex items-center gap-3">
+                  <span className="text-lg font-bold font-serif text-[#9333EA]">
+                    {(stats.totalAgents || 0).toLocaleString()}
+                  </span>
+                  <span className="text-xs font-semibold text-[#8C847B]">Total Agents</span>
+                </div>
+                <div className="bg-[#ECFDF5] rounded-2xl border border-emerald-200 px-4 py-2 shadow-xs flex items-center gap-3">
+                  <span className="text-lg font-bold font-serif text-[#10B981]">
+                    {stats.verifiedAgents.toLocaleString()}
+                  </span>
+                  <span className="text-xs font-semibold text-[#047857]">Verified Agents</span>
+                </div>
+              </>
+            )}
+          </div>
         </div>
 
         {/* Users Table Card */}
@@ -309,30 +474,29 @@ export default function UserManagement() {
                         {/* Actions */}
                         <td className="py-4 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
+                            {/* View Eye Button */}
                             <button
                               onClick={() => {
                                 setSelectedUser(user);
                                 setViewModalOpen(true);
                               }}
                               title="View User Details"
-                              className="h-8 w-8 rounded-full bg-[#EBF3FF] text-[#3B82F6] hover:bg-[#DBEAFE] flex items-center justify-center transition-all"
+                              className="h-8 w-8 rounded-full bg-[#EBF3FF] text-[#3B82F6] hover:bg-[#DBEAFE] flex items-center justify-center transition-all cursor-pointer"
                             >
                               <Eye size={16} />
                             </button>
 
-                            {(user.role === "agent" || user.role === "seller") && (
-                              <button
-                                onClick={(e) => handleToggleVerify(user._id, e)}
-                                title={user.isVerified ? "Verified" : "Verify User"}
-                                className={`h-8 w-8 rounded-full flex items-center justify-center transition-all ${
-                                  user.isVerified
-                                    ? "bg-[#ECFDF5] text-[#059669] hover:bg-[#D1FAE5]"
-                                    : "bg-gray-100 text-gray-400 hover:bg-emerald-50 hover:text-emerald-600"
-                                }`}
-                              >
-                                <Check size={16} />
-                              </button>
-                            )}
+                            {/* Delete User Button */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openReasonModal(user, "delete");
+                              }}
+                              title="Delete User"
+                              className="h-8 w-8 rounded-full bg-red-50 text-red-500 hover:bg-red-100 flex items-center justify-center transition-all cursor-pointer"
+                            >
+                              <Trash2 size={16} />
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -342,55 +506,86 @@ export default function UserManagement() {
               </tbody>
             </table>
           </div>
+
+          {/* Premium Pagination Footer */}
+          <div className="mt-6 pt-4 border-t border-[#F0ECE1] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-medium text-[#736B63]">
+            {/* Left: Range Info */}
+            <div>
+              Showing{" "}
+              <span className="font-bold text-[#1C1917]">
+                {total === 0 ? 0 : (page - 1) * limit + 1}
+              </span>{" "}
+              to{" "}
+              <span className="font-bold text-[#1C1917]">
+                {Math.min(page * limit, total)}
+              </span>{" "}
+              of <span className="font-bold text-[#1C1917]">{total}</span> users
+            </div>
+
+            {/* Center: Pagination Buttons */}
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => setPage((p) => Math.max(p - 1, 1))}
+                disabled={page <= 1 || loading}
+                className="h-9 px-3 rounded-xl border border-[#E8E1D4] bg-white flex items-center gap-1 hover:border-[#C89B1C] hover:bg-[#FFF9EC] disabled:opacity-40 disabled:hover:bg-white disabled:hover:border-[#E8E1D4] transition-all cursor-pointer"
+              >
+                <ChevronLeft size={15} />
+                <span>Prev</span>
+              </button>
+
+              {/* Page Number Buttons */}
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter((p) => {
+                  return p === 1 || p === totalPages || Math.abs(p - page) <= 1;
+                })
+                .map((p, idx, array) => {
+                  const prevPage = array[idx - 1];
+                  const showEllipsis = prevPage && p - prevPage > 1;
+
+                  return (
+                    <div key={p} className="flex items-center gap-1.5">
+                      {showEllipsis && <span className="px-1 text-gray-400">...</span>}
+                      <button
+                        onClick={() => setPage(p)}
+                        className={`h-9 w-9 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                          page === p
+                            ? "bg-[#B8860B] text-white shadow-sm"
+                            : "border border-[#E8E1D4] bg-white text-[#4A453F] hover:border-[#C89B1C] hover:bg-[#FFF9EC]"
+                        }`}
+                      >
+                        {p}
+                      </button>
+                    </div>
+                  );
+                })}
+
+              <button
+                onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+                disabled={page >= totalPages || loading}
+                className="h-9 px-3 rounded-xl border border-[#E8E1D4] bg-white flex items-center gap-1 hover:border-[#C89B1C] hover:bg-[#FFF9EC] disabled:opacity-40 disabled:hover:bg-white disabled:hover:border-[#E8E1D4] transition-all cursor-pointer"
+              >
+                <span>Next</span>
+                <ChevronRight size={15} />
+              </button>
+            </div>
+
+            {/* Right: Direct Page Selector */}
+            <div className="flex items-center gap-2">
+              <span>Go to page:</span>
+              <select
+                value={page}
+                onChange={(e) => setPage(Number(e.target.value))}
+                className="h-9 px-3 rounded-xl border border-[#E8E1D4] bg-[#FAFAF8] text-xs font-bold text-[#1C1917] outline-none focus:border-[#C89B1C] cursor-pointer"
+              >
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                  <option key={p} value={p}>
+                    Page {p}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
         </motion.div>
-
-        {/* 3 Stat Cards Below Table */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          {/* Card 1: Total Buyers */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-white rounded-3xl border border-[#ECE7DB] p-7 text-center shadow-xs hover:shadow-md transition-shadow"
-          >
-            <p className="text-3xl lg:text-4xl font-serif font-bold text-[#4338CA] tracking-tight">
-              {stats.totalBuyers.toLocaleString()}
-            </p>
-            <p className="text-sm font-medium text-[#8C847B] mt-1">
-              Total Buyers
-            </p>
-          </motion.div>
-
-          {/* Card 2: Total Sellers */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-white rounded-3xl border border-[#ECE7DB] p-7 text-center shadow-xs hover:shadow-md transition-shadow"
-          >
-            <p className="text-3xl lg:text-4xl font-serif font-bold text-[#B8860B] tracking-tight">
-              {stats.totalSellers.toLocaleString()}
-            </p>
-            <p className="text-sm font-medium text-[#8C847B] mt-1">
-              Total Sellers
-            </p>
-          </motion.div>
-
-          {/* Card 3: Verified Agents */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="bg-white rounded-3xl border border-[#ECE7DB] p-7 text-center shadow-xs hover:shadow-md transition-shadow"
-          >
-            <p className="text-3xl lg:text-4xl font-serif font-bold text-[#10B981] tracking-tight">
-              {stats.verifiedAgents.toLocaleString()}
-            </p>
-            <p className="text-sm font-medium text-[#8C847B] mt-1">
-              Verified Agents
-            </p>
-          </motion.div>
-        </div>
       </div>
 
       {/* Floating Help Button */}
@@ -485,13 +680,13 @@ export default function UserManagement() {
               </div>
 
               {/* Modal Actions */}
-              <div className="mt-8 pt-6 border-t border-[#F0ECE1] flex items-center justify-between gap-4">
+              <div className="mt-8 pt-6 border-t border-[#F0ECE1] flex items-center justify-between gap-3 flex-wrap">
                 <button
                   disabled={actionLoading}
                   onClick={() => handleToggleVerify(selectedUser._id)}
-                  className={`flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold transition-all ${
+                  className={`flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
                     selectedUser.isVerified
-                      ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      ? "bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100"
                       : "bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm"
                   }`}
                 >
@@ -500,14 +695,115 @@ export default function UserManagement() {
 
                 <button
                   disabled={actionLoading}
-                  onClick={() => handleToggleStatus(selectedUser._id)}
-                  className={`flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold transition-all ${
+                  onClick={() => {
+                    if (selectedUser.isActive) {
+                      openReasonModal(selectedUser, "suspend");
+                    } else {
+                      handleReactivateUser(selectedUser._id);
+                    }
+                  }}
+                  className={`flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
                     selectedUser.isActive
-                      ? "bg-red-50 text-red-600 border border-red-200 hover:bg-red-100"
+                      ? "bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100"
                       : "bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
                   }`}
                 >
                   {selectedUser.isActive ? "Suspend Account" : "Activate Account"}
+                </button>
+
+                <button
+                  disabled={actionLoading}
+                  onClick={() => openReasonModal(selectedUser, "delete")}
+                  className="py-2.5 px-4 rounded-xl text-sm font-semibold bg-red-600 text-white hover:bg-red-700 shadow-sm transition-all cursor-pointer"
+                >
+                  Delete
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Reason Modal for Suspend & Delete */}
+      <AnimatePresence>
+        {reasonModalOpen && targetUser && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-3xl max-w-md w-full p-6 lg:p-8 shadow-2xl border border-[#ECE7DB] relative"
+            >
+              <button
+                onClick={() => setReasonModalOpen(false)}
+                className="absolute top-5 right-5 p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-all cursor-pointer"
+              >
+                <X size={20} />
+              </button>
+
+              <div className="flex items-center gap-3 mb-4">
+                <div
+                  className={`h-12 w-12 rounded-2xl flex items-center justify-center ${
+                    reasonType === "delete"
+                      ? "bg-red-100 text-red-600"
+                      : "bg-amber-100 text-amber-600"
+                  }`}
+                >
+                  {reasonType === "delete" ? <Trash2 size={24} /> : <AlertTriangle size={24} />}
+                </div>
+                <div>
+                  <h3 className="text-xl font-serif font-bold text-[#1C1917]">
+                    {reasonType === "delete" ? "Delete User Account" : "Suspend User Account"}
+                  </h3>
+                  <p className="text-xs text-gray-500">{targetUser.fullName} ({targetUser.email})</p>
+                </div>
+              </div>
+
+              <p className="text-sm text-[#4A453F] mb-4">
+                Please provide a reason to {reasonType} this user account. This reason is required and will be logged.
+              </p>
+
+              <div className="mb-5">
+                <textarea
+                  rows={3}
+                  value={actionReason}
+                  onChange={(e) => {
+                    setActionReason(e.target.value);
+                    if (reasonError) setReasonError("");
+                  }}
+                  placeholder={`Enter reason for ${reasonType === "delete" ? "deletion" : "suspension"}...`}
+                  className={`w-full p-3 text-sm rounded-xl border ${
+                    reasonError ? "border-red-500 focus:ring-red-500" : "border-[#E8E1D4] focus:border-[#C89B1C]"
+                  } outline-none transition-all`}
+                />
+                {reasonError && (
+                  <p className="text-xs text-red-500 mt-1 font-medium">{reasonError}</p>
+                )}
+              </div>
+
+              <div className="flex items-center gap-3 justify-end">
+                <button
+                  type="button"
+                  onClick={() => setReasonModalOpen(false)}
+                  className="px-4 py-2.5 rounded-xl border border-[#E8E1D4] text-sm font-semibold text-[#4A453F] hover:bg-gray-50 transition-all cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={actionLoading || !actionReason.trim()}
+                  onClick={handleConfirmReasonAction}
+                  className={`px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all cursor-pointer disabled:opacity-50 ${
+                    reasonType === "delete"
+                      ? "bg-red-600 hover:bg-red-700 shadow-sm"
+                      : "bg-amber-600 hover:bg-amber-700 shadow-sm"
+                  }`}
+                >
+                  {actionLoading
+                    ? "Processing..."
+                    : reasonType === "delete"
+                    ? "Confirm Delete"
+                    : "Confirm Suspend"}
                 </button>
               </div>
             </motion.div>

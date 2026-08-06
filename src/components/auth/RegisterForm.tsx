@@ -283,8 +283,12 @@ export default function RegisterForm() {
             <input
               type="tel"
               placeholder="Mobile Number (10 digits)"
+              maxLength={10}
               value={form.phone}
-              onChange={(e) => handleInputChange("phone", e.target.value)}
+              onChange={(e) => {
+                const sanitized = e.target.value.replace(/\D/g, "").slice(0, 10);
+                handleInputChange("phone", sanitized);
+              }}
               className={`
                 w-full
                 h-16
@@ -299,7 +303,10 @@ export default function RegisterForm() {
             />
           </div>
           {errors.phone && (
-            <p className="mt-1.5 ml-2 text-xs font-medium text-red-500">{errors.phone}</p>
+            <p className="mt-1.5 ml-2 text-xs font-medium text-red-500 flex items-center gap-1">
+              <AlertCircle size={14} />
+              {errors.phone}
+            </p>
           )}
         </div>
 
@@ -467,7 +474,10 @@ export default function RegisterForm() {
             </button>
           </div>
           {errors.password && (
-            <p className="mt-1.5 ml-2 text-xs font-medium text-red-500">{errors.password}</p>
+            <p className="mt-1.5 ml-2 text-xs font-medium text-red-500 flex items-center gap-1">
+              <AlertCircle size={14} />
+              {errors.password}
+            </p>
           )}
         </div>
 
@@ -511,15 +521,16 @@ export default function RegisterForm() {
                 right-5
                 top-1/2
                 -translate-y-1/2
-                text-gray-400
-                hover:text-gray-600
+                text-[#C89B1C]
+                hover:text-[#b68c17]
               "
             >
               {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
           {errors.confirmPassword && (
-            <p className="mt-1.5 ml-2 text-xs font-medium text-red-500">
+            <p className="mt-1.5 ml-2 text-xs font-medium text-red-500 flex items-center gap-1">
+              <AlertCircle size={14} />
               {errors.confirmPassword}
             </p>
           )}

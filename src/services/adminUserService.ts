@@ -18,7 +18,14 @@ export const toggleUserVerify = async (id: string) => {
   return response.data;
 };
 
-export const toggleUserStatus = async (id: string) => {
-  const response = await api.patch(`/admin/users/${id}/status`);
+export const toggleUserStatus = async (id: string, reason?: string) => {
+  const response = await api.patch(`/admin/users/${id}/status`, { reason });
+  return response.data;
+};
+
+export const deleteUser = async (id: string, reason: string) => {
+  const response = await api.delete(`/admin/users/${id}`, {
+    data: { reason },
+  });
   return response.data;
 };
