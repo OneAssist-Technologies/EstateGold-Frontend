@@ -19,6 +19,8 @@ export default function Hero() {
     className="object-cover animate-[kenburns_20s_ease-in-out_infinite]"
   />
 
+  
+
   <div
   className="
     absolute
