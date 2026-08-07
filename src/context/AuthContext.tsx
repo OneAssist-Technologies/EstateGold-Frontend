@@ -12,7 +12,16 @@ export interface User {
   _id: string;
   fullName: string;
   email: string;
+  phone?: string;
   role: "buyer" | "seller" | "agent" | "admin";
+  roles?: string[];
+  isVerified?: boolean;
+  isActive?: boolean;
+  verificationStatus?: "none" | "pending" | "approved" | "rejected";
+  rejectionReason?: string;
+  experience?: string;
+  agencyName?: string;
+  reraNumber?: string;
 }
 
 interface AuthContextType {
@@ -26,6 +35,7 @@ interface AuthContextType {
   ) => void;
 
   logout: () => void;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext =
@@ -45,24 +55,33 @@ export function AuthProvider({
     useState(true);
 
   useEffect(() => {
-    try {
-      const storedUser = localStorage.getItem("user");
+    const initAuth = async () => {
+      try {
+        const storedUser = localStorage.getItem("user");
+        const token = localStorage.getItem("token");
 
-      if (storedUser && storedUser !== "undefined" && storedUser !== "null") {
-        setUser(JSON.parse(storedUser));
-      } else {
-        localStorage.removeItem("user");
-        localStorage.removeItem("token");
+        if (storedUser && storedUser !== "undefined" && storedUser !== "null") {
+          setUser(JSON.parse(storedUser));
+        }
+
+        if (token) {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/get-profile`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await response.json();
+          if (data.success && data.user) {
+            setUser(data.user);
+            localStorage.setItem("user", JSON.stringify(data.user));
+          }
+        }
+      } catch (error) {
+        console.error("Auth Error:", error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Auth Error:", error);
-      localStorage.removeItem("user");
-      localStorage.removeItem("token");
-    } finally {
-      setLoading(false);
-    }
+    };
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    initAuth();
   }, []);
 
   const login = (userData: User, token: string) => {
@@ -83,9 +102,23 @@ export function AuthProvider({
     );
 
     setUser(null);
+  };
 
-    window.location.href =
-      "/";
+  const refreshUser = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/get-profile`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      if (data.success && data.user) {
+        setUser(data.user);
+        localStorage.setItem("user", JSON.stringify(data.user));
+      }
+    } catch (e) {
+      console.error("Refresh user error:", e);
+    }
   };
 
   return (
@@ -97,6 +130,7 @@ export function AuthProvider({
           !!user,
         login,
         logout,
+        refreshUser,
       }}
     >
       {children}

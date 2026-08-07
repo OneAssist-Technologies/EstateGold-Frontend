@@ -1,5 +1,5 @@
-// import Navbar from "../components/layout/Navbar";
 "use client";
+
 import Footer from "../components/layout/Footer";
 import Navbar from "../components/layout/Navbar";
 import Hero from "../components/home/Hero";

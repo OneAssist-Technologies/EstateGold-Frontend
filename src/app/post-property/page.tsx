@@ -9,7 +9,7 @@ import {
   AnimatePresence,
   motion,
 } from "framer-motion";
-import { ArrowLeft, ArrowRight,CheckCircle2 } from "lucide-react";
+import { ArrowLeft, ArrowRight,CheckCircle2, User, Building2, ShieldCheck, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import PropertyStepper from "../../components/property/PropertyStepper";
 import PropertyTypeStep from "../../components/property/PropertyTypeStep";
@@ -20,6 +20,7 @@ import AmenitiesStep from "../../components/property/AmenitiesStep";
 import PricePhotosStep from "../../components/property/PricePhotoStep";
 import NeighbourhoodStep
 from "../../components/property/NeighbourhoodStep";
+import AgentPendingVerification from "@/src/components/auth/AgentPendingVerification";
 
 import api from "../../services/api";
 import { PropertyFormData } from "../../types/property";
@@ -38,6 +39,7 @@ const { user ,loading } =
     useAuth();
 const [published, setPublished] =
   useState(false);
+const [showAgentModal, setShowAgentModal] = useState(true);
 
 
  const [formData, setFormData] =
@@ -53,6 +55,9 @@ agentRelation: "",
 ownerIdType: "",
 ownerIdNumber: "",
 alternatePhone: "",
+    listingType: "my_own",
+    ownerAddress: "",
+    ownerGovtIdDoc: "",
 
     city: "",
     locality: "",
@@ -277,6 +282,16 @@ const isStepValid = useMemo(() => {
           formData.ownerPhone
         );
 
+        if (formData.listingType) {
+          payload.append("listingType", formData.listingType);
+        }
+        if (formData.ownerAddress) {
+          payload.append("ownerAddress", formData.ownerAddress);
+        }
+        if (formData.ownerGovtIdDoc) {
+          payload.append("ownerGovtIdDoc", formData.ownerGovtIdDoc);
+        }
+
         payload.append(
           "city",
           formData.city
@@ -398,8 +413,7 @@ if (
     if (loading) {
   return null;
 }
-const isAgent =
-  role === "agent";
+const isAgent = role === "agent";
 
   if (!user) {
     return (
@@ -407,6 +421,12 @@ const isAgent =
         Please Login
       </div>
     );
+  }
+
+  // AGENT VERIFICATION GUARD: Agent is pending ONLY IF not verified AND verificationStatus is not approved
+  const isAgentVerified = user?.isVerified === true || user?.verificationStatus === "approved";
+  if (isAgent && !isAgentVerified) {
+    return <AgentPendingVerification />;
   }
     if (published) {
   return (
@@ -560,9 +580,83 @@ className="
 
   return (
     <>
-    <Navbar/>
-    <section className="min-h-screen bg-[#FAF8F3] py-12">
-      <div className="max-w-5xl mx-auto px-6">
+      <Navbar/>
+
+      {/* AGENT PROPERTY TYPE SELECTION MODAL */}
+      {role === "agent" && showAgentModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-[#E5D7B3]"
+          >
+            <div className="flex items-center gap-3 border-b border-gray-100 pb-4 mb-6">
+              <div className="h-12 w-12 rounded-2xl bg-[#FFF8E8] text-[#C89B1C] flex items-center justify-center border border-[#F6E4A6]">
+                <Building2 size={24} />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-[#161616]">Choose Property Type</h3>
+                <p className="text-xs text-gray-500">Select whose property you are listing today</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <button
+                type="button"
+                onClick={() => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    listingType: "my_own",
+                    ownerName: user.fullName || "",
+                    ownerPhone: user.phone || "",
+                    ownerEmail: user.email || "",
+                  }));
+                  setShowAgentModal(false);
+                }}
+                className="w-full p-5 rounded-2xl border-2 border-gray-200 hover:border-[#C89B1C] hover:bg-[#FFFBF0] text-left transition-all group flex items-start justify-between cursor-pointer"
+              >
+                <div>
+                  <div className="font-bold text-base text-[#161616] group-hover:text-[#C89B1C]">
+                    ○ My Own Property
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Automatically use your personal owner details ({user.fullName}) for this listing.
+                  </p>
+                </div>
+                <User className="text-gray-400 group-hover:text-[#C89B1C] shrink-0" size={24} />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    listingType: "another_owner",
+                    ownerName: "",
+                    ownerPhone: "",
+                    ownerEmail: "",
+                  }));
+                  setShowAgentModal(false);
+                }}
+                className="w-full p-5 rounded-2xl border-2 border-gray-200 hover:border-[#C89B1C] hover:bg-[#FFFBF0] text-left transition-all group flex items-start justify-between cursor-pointer"
+              >
+                <div>
+                  <div className="font-bold text-base text-[#161616] group-hover:text-[#C89B1C]">
+                    ○ Property of Another Owner
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Provide owner contact info, residential address, and government ID details.
+                  </p>
+                </div>
+                <Building2 className="text-gray-400 group-hover:text-[#C89B1C] shrink-0" size={24} />
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      <section className="min-h-screen bg-[#FAF8F3] py-12">
+        <div className="max-w-5xl mx-auto px-6">
 
  <motion.div
   initial={{

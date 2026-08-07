@@ -9,12 +9,6 @@ import {
 } from "lucide-react";
 import trustProperty from "../../assests/trust-property.jpg";
 
-<Image
-  src={trustProperty}
-  alt="Luxury Interior"
-  className="rounded-3xl"
-/>
-
 const features = [
   {
     icon: ShieldCheck,
