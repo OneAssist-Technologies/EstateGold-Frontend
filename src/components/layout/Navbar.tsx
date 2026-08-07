@@ -16,6 +16,8 @@ import {
   useAuth,
 } from "../../context/AuthContext";
 
+import RoleUpgradeModal from "../role-request/RoleUpgradeModal";
+
 export default function Navbar() {
  const {
   user,
@@ -25,6 +27,8 @@ export default function Navbar() {
 } = useAuth();
 
   const [open, setOpen] =
+    useState(false);
+  const [showRoleModal, setShowRoleModal] =
     useState(false);
 
   const dropdownRef =
@@ -93,6 +97,7 @@ if (loading) {
 
           {/* Menu */}
 
+          {/* Menu Navigation */}
           <nav className="hidden md:flex items-center gap-10 font-medium">
             <Link href="/buy">
               Buy
@@ -110,7 +115,7 @@ if (loading) {
               Commercial
             </Link>
 
-            {canManageProperties && (
+            {isAuthenticated && (
               <Link href="/my-properties">
                 My Properties
               </Link>
@@ -118,14 +123,12 @@ if (loading) {
           </nav>
 
           {/* Right Section */}
-
           <div className="flex items-center gap-4">
-
             {!isAuthenticated && (
               <>
                 <Link
                   href="/login"
-                  className="font-medium"
+                  className="font-medium hover:text-[#C89B1C] transition-colors"
                 >
                   Sign In
                 </Link>
@@ -136,10 +139,11 @@ if (loading) {
                     bg-[#C89B1C]
                     text-white
                     px-5
-                    py-3
+                    py-2.5
                     rounded-xl
                     font-medium
                     hover:opacity-90
+                    transition-all
                   "
                 >
                   Register Free
@@ -149,162 +153,142 @@ if (loading) {
 
             {isAuthenticated && (
               <>
-                {canManageProperties && (
-                  <Link
-                    href="/post-property"
-                    className="
-                      border
-                      border-[#C89B1C]
-                      text-[#C89B1C]
-                      px-5
-                      py-3
-                      rounded-xl
-                      font-medium
-                      hover:bg-[#FFF8E6]
-                    "
-                  >
-                    + List Property
-                  </Link>
-                )}
-
-                <div
-                  ref={dropdownRef}
-                  className="relative"
+                <Link
+                  href="/post-property"
+                  className="
+                    border
+                    border-[#C89B1C]
+                    text-[#C89B1C]
+                    px-5
+                    py-2.5
+                    rounded-xl
+                    font-medium
+                    hover:bg-[#FFF8E6]
+                    transition-all
+                    cursor-pointer
+                  "
                 >
-                  <button
-                    onClick={() =>
-                      setOpen(
-                        !open
-                      )
-                    }
+                  + List Property
+                </Link>
+              <div
+                ref={dropdownRef}
+                className="relative"
+              >
+                <button
+                  onClick={() =>
+                    setOpen(!open)
+                  }
+                  className="
+                    h-11
+                    w-11
+                    rounded-full
+                    bg-[#C89B1C]
+                    text-white
+                    flex
+                    items-center
+                    justify-center
+                    hover:opacity-90
+                    cursor-pointer
+                  "
+                >
+                  {userName ? (
+                    <span className="font-semibold">
+                      {userName
+                        .charAt(0)
+                        .toUpperCase()}
+                    </span>
+                  ) : (
+                    <UserCircle2
+                      size={22}
+                    />
+                  )}
+                </button>
+
+                {open && (
+                  <div
                     className="
-                      h-11
-                      w-11
-                      rounded-full
-                      bg-[#C89B1C]
-                      text-white
-                      flex
-                      items-center
-                      justify-center
-                      hover:opacity-90
+                      absolute
+                      right-0
+                      top-14
+                      bg-white
+                      shadow-xl
+                      rounded-2xl
+                      border
+                      min-w-[240px]
+                      overflow-hidden
+                      z-50
                     "
                   >
-                    {userName ? (
-                      <span className="font-semibold">
-                        {userName
-                          .charAt(0)
-                          .toUpperCase()}
-                      </span>
-                    ) : (
-                      <UserCircle2
-                        size={22}
-                      />
-                    )}
-                  </button>
+                    <div className="px-4 py-4 border-b">
+                      <p className="font-semibold">
+                        {userName}
+                      </p>
 
-                  {open && (
-                    <div
+                      <p className="text-sm text-gray-500 capitalize">
+                        {role === "agent" ? "Agent / Broker" : role === "seller" ? "Owner / Seller" : role === "admin" ? "Administrator" : "Buyer"}
+                      </p>
+                    </div>
+
+                    <Link
+                      href="/profile"
                       className="
-                        absolute
-                        right-0
-                        top-14
-                        bg-white
-                        shadow-xl
-                        rounded-2xl
-                        border
-                        min-w-[240px]
-                        overflow-hidden
-                        z-50
+                        block
+                        px-4
+                        py-3
+                        hover:bg-gray-50
+                      "
+                      onClick={() => setOpen(false)}
+                    >
+                      My Profile
+                    </Link>
+
+                    <Link
+                      href="/my-properties"
+                      className="
+                        block
+                        px-4
+                        py-3
+                        hover:bg-gray-50
+                      "
+                      onClick={() => setOpen(false)}
+                    >
+                      My Properties
+                    </Link>
+
+                    <Link
+                      href="/post-property"
+                      className="
+                        block
+                        px-4
+                        py-3
+                        hover:bg-gray-50
+                        text-[#C89B1C]
+                        font-medium
+                      "
+                      onClick={() => setOpen(false)}
+                    >
+                      + List Property
+                    </Link>
+
+                    <button
+                      onClick={logout}
+                      className="
+                        w-full
+                        text-left
+                        px-4
+                        py-3
+                        text-red-500
+                        hover:bg-red-50
+                        cursor-pointer
                       "
                     >
-                      <div className="px-4 py-4 border-b">
-                        <p className="font-semibold">
-                          {
-                            userName
-                          }
-                        </p>
-
-                        <p className="text-sm text-gray-500 capitalize">
-                          {role}
-                        </p>
-                      </div>
-
-                      <Link
-                        href="/profile"
-                        className="
-                          block
-                          px-4
-                          py-3
-                          hover:bg-gray-50
-                        "
-                        onClick={() =>
-                          setOpen(
-                            false
-                          )
-                        }
-                      >
-                        My Profile
-                      </Link>
-
-                      {canManageProperties && (
-                        <>
-                          <Link
-                            href="/my-properties"
-                            className="
-                              block
-                              px-4
-                              py-3
-                              hover:bg-gray-50
-                            "
-                            onClick={() =>
-                              setOpen(
-                                false
-                              )
-                            }
-                          >
-                            My Properties
-                          </Link>
-
-                          <Link
-                            href="/post-property"
-                            className="
-                              block
-                              px-4
-                              py-3
-                              hover:bg-gray-50
-                            "
-                            onClick={() =>
-                              setOpen(
-                                false
-                              )
-                            }
-                          >
-                            List Property
-                          </Link>
-                        </>
-                      )}
-
-                      <button
-                        onClick={
-                          logout
-                        }
-                        className="
-                          w-full
-                          text-left
-                          px-4
-                          py-3
-                          text-red-500
-                          hover:bg-red-50
-                        "
-                      >
-                        Logout
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
-
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
           </div>
 
         </div>

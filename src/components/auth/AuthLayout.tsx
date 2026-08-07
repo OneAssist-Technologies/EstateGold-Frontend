@@ -2,138 +2,81 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Building2, CheckCircle } from "lucide-react";
-import AuthImage from "../../assests/auth.jpg"
+import { Home, Check } from "lucide-react";
+import AuthImage from "../../assests/auth.jpg";
 
 interface AuthLayoutProps {
   children: React.ReactNode;
-  title: string;
-  description: string;
+  title?: string;
+  description?: string;
 }
 
-export default function AuthLayout({
-  children,
-  title,
-  description,
-}: AuthLayoutProps) {
-  return (
-   <div className="min-h-screen grid lg:grid-cols-2">
-      {/* Left Side */}
+export default function AuthLayout({ children }: AuthLayoutProps) {
+  const highlights = [
+    "1.2M+ verified listings",
+    "₹0 brokerage — ever",
+    "Direct owner contact",
+    "150+ cities covered",
+  ];
 
-       <div
-    className="
-      hidden
-      lg:block
-      sticky
-      top-0
-      h-screen
-      overflow-hidden
-    "
-  >
+  return (
+    <div className="h-screen w-full overflow-hidden flex flex-col md:flex-row bg-white font-sans">
+      {/* Left Side: Fixed Luxury Banner */}
+      <div className="w-full md:w-5/12 lg:w-1/2 h-64 md:h-screen relative overflow-hidden shrink-0 sticky top-0">
         <Image
           src={AuthImage}
-          alt="EstateGold"
+          alt="EstateGold Luxury Real Estate"
           fill
           priority
-          sizes="(max-width: 1024px) 0vw, 50vw"
+          sizes="(max-width: 1024px) 100vw, 50vw"
           className="object-cover zoom-image"
         />
 
-        <div className="absolute inset-0 bg-[#8f6c08]/60" />
+        {/* Dark Luxury Overlay (Black & Gold Gradient) */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/30" />
 
-        <div className="absolute inset-0 flex flex-col justify-end p-14 text-white">
-          <Link
-            href="/"
-            className="flex items-center gap-4 mb-10"
-          >
-            <div className="h-14 w-14 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center">
-              <Building2 size={26} />
+        {/* Content Aligned Bottom Left */}
+        <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-10 lg:p-14 text-white z-10">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-3 mb-6 sm:mb-8 group">
+            <div className="h-12 w-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 text-white shadow-lg group-hover:scale-105 transition-transform">
+              <Home size={24} className="text-white" />
             </div>
-
-            <h2 className="text-5xl font-bold">
+            <h2 className="text-3xl font-serif font-bold text-white tracking-wide">
               EstateGold
             </h2>
           </Link>
 
-          <h1 className="text-6xl font-bold leading-tight">
-            {title}
+          {/* Heading */}
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold leading-tight text-white mb-3 sm:mb-4">
+            India's No-Brokerage<br className="hidden sm:inline" /> Property Platform
           </h1>
 
-          <p className="mt-6 text-2xl text-white/90 max-w-xl">
-            {description}
+          {/* Description */}
+          <p className="text-sm sm:text-base lg:text-lg text-white/90 leading-relaxed max-w-lg mb-6 sm:mb-8 font-normal">
+            Connect directly with owners and tenants. Buy, sell, or rent — one free account does it all.
           </p>
 
-          <div className="mt-10 space-y-5">
-            <div className="flex items-center gap-3">
-              <CheckCircle size={20} />
-              <span>No brokerage fees — ever</span>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <CheckCircle size={20} />
-              <span>Direct owner contact</span>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <CheckCircle size={20} />
-              <span>Verified properties only</span>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <CheckCircle size={20} />
-              <span>Free legal guidance</span>
-            </div>
+          {/* Bullet Points */}
+          <div className="hidden sm:space-y-3.5 text-sm sm:text-base font-medium text-white">
+            {highlights.map((item, idx) => (
+              <div key={idx} className="flex items-center gap-3">
+                <div className="h-6 w-6 rounded-full border-2 border-[#F4D56A] flex items-center justify-center shrink-0 bg-[#F4D56A]/10">
+                  <Check size={14} className="text-[#F4D56A] stroke-[3]" />
+                </div>
+                <span>{item}</span>
+              </div>
+            ))}
           </div>
-
-          {/* <div className="flex gap-14 mt-14">
-            <div>
-              <h3 className="text-4xl font-bold">
-                1.2M+
-              </h3>
-
-              <p className="text-white/80">
-                Properties
-              </p>
-            </div>
-
-            <div>
-              <h3 className="text-4xl font-bold">
-                ₹0
-              </h3>
-
-              <p className="text-white/80">
-                Brokerage
-              </p>
-            </div>
-
-            <div>
-              <h3 className="text-4xl font-bold">
-                150+
-              </h3>
-
-              <p className="text-white/80">
-                Cities
-              </p>
-            </div>
-          </div> */}
         </div>
       </div>
 
-      {/* Right Side */}
-
-      <div
-  className="
-    min-h-screen
-    overflow-y-auto
-    px-10
-    py-8
-    lg:px-16
-  "
->
- <div className="w-full max-w-2xl fade-in-up">
-  {children}
-</div>
-</div>
+      {/* Right Side: Scrollable Form Container */}
+      <div className="w-full md:w-7/12 lg:w-1/2 h-screen overflow-y-auto flex flex-col items-center px-6 py-8 sm:px-12 lg:px-16 bg-white">
+        <div className="w-full max-w-[520px] py-4 sm:py-8">
+          {children}
+        </div>
+      </div>
     </div>
   );
 }

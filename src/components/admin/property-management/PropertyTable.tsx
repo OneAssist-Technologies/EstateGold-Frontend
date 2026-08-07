@@ -1,29 +1,29 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Eye } from "lucide-react";
+import { Eye, CheckCircle2, XCircle } from "lucide-react";
 
 import { AdminProperty } from "@/src/types/adminProperty";
 
 import PropertyStatusBadge from "./PropertyStatusBadge";
 import { useRouter } from "next/navigation";
 
-
-
 interface Props {
   loading: boolean;
-
   properties: AdminProperty[];
-
   onView: (id: string) => void;
+  onApprove?: (id: string) => void;
+  onReject?: (id: string) => void;
 }
 
 export default function PropertyTable({
   loading,
   properties,
   onView,
+  onApprove,
+  onReject,
 }: Props) {
-const router = useRouter();
+  const router = useRouter();
   if (loading) {
     return (
       <div
@@ -33,9 +33,11 @@ const router = useRouter();
           border
           p-20
           text-center
+          text-gray-500
+          font-medium
         "
       >
-        Loading...
+        Loading properties...
       </div>
     );
   }
@@ -67,8 +69,6 @@ const router = useRouter();
           text-gray-500
         "
       >
-        {/* <div>Property</div> */}
-
         <div>Owner</div>
 
         <div>Location</div>
@@ -81,18 +81,14 @@ const router = useRouter();
 
         <div>Date</div>
 
-        <div className="text-right">
-          Action
-        </div>
+        <div className="col-span-2 text-right">Action</div>
       </div>
 
       {properties.map((property) => (
-
         <motion.div
           key={property._id}
           whileHover={{
-            backgroundColor:
-              "#FCFBF8",
+            backgroundColor: "#FCFBF8",
           }}
           className="
             grid
@@ -103,40 +99,10 @@ const router = useRouter();
             border-b
           "
         >
-
-          {/* Property */}
-{/* 
-          <div>
-
-            <h3 className="font-semibold">
-
-              {property.bedrooms} BHK{" "}
-
-              {property.propertyType}
-
-            </h3>
-
-            <p
-              className="
-                text-xs
-                text-gray-500
-                mt-1
-              "
-            >
-              {property.area} sqft
-            </p>
-
-          </div> */}
-
           {/* Owner */}
 
           <div>
-
-            <h4 className="text-sm">
-
-              {property.ownerName}
-
-            </h4>
+            <h4 className="text-sm font-medium">{property.ownerName}</h4>
 
             <p
               className="
@@ -146,18 +112,12 @@ const router = useRouter();
             >
               {property.ownerPhone}
             </p>
-
           </div>
 
           {/* Location */}
 
           <div>
-
-            <h4 className="text-sm">
-
-              {property.locality}
-
-            </h4>
+            <h4 className="text-sm">{property.locality}</h4>
 
             <p
               className="
@@ -167,7 +127,6 @@ const router = useRouter();
             >
               {property.city}
             </p>
-
           </div>
 
           {/* Price */}
@@ -177,26 +136,17 @@ const router = useRouter();
               font-semibold
             "
           >
-            ₹
-            {property.price.toLocaleString()}
+            ₹{property.price?.toLocaleString()}
           </div>
 
           {/* Type */}
 
-          <div>
-
-            {property.propertyType}
-
-          </div>
+          <div className="text-sm text-gray-700">{property.propertyType}</div>
 
           {/* Status */}
 
           <div>
-
-            <PropertyStatusBadge
-              status={property.status}
-            />
-
+            <PropertyStatusBadge status={property.status} />
           </div>
 
           {/* Date */}
@@ -207,52 +157,52 @@ const router = useRouter();
               text-gray-500
             "
           >
-            {new Date(
-              property.createdAt
-            ).toLocaleDateString()}
+            {new Date(property.createdAt).toLocaleDateString()}
           </div>
 
-          {/* Action */}
+          {/* Action Buttons */}
 
-          <div
-            className="
-              flex
-              justify-end
-            "
-          >
-
+          <div className="col-span-2 flex items-center justify-end gap-2">
+            {/* View Details Button */}
             <button
-              onClick={() =>
-  router.push(
-    `/admin/properties/${property._id}`
-  )
-}
-              className="
-                h-9
-                w-9
-                rounded-lg
-                bg-gray-100
-                hover:bg-[#C89B1C]
-                hover:text-white
-                transition
-                flex
-                items-center
-                justify-center
-              "
+              onClick={() => router.push(`/admin/properties/${property._id}`)}
+              title="View Property Details"
+              className="h-9 px-2.5 rounded-lg bg-gray-100 text-gray-600 hover:bg-[#C89B1C] hover:text-white transition-all flex items-center gap-1 text-xs font-medium cursor-pointer"
             >
-              <Eye size={16} />
+              <Eye size={15} />
+              <span>View</span>
             </button>
 
+            {/* Quick Approve Button */}
+            {property.status !== "approved" && onApprove && (
+              <button
+                onClick={() => onApprove(property._id)}
+                title="Approve Property"
+                className="h-9 px-2.5 rounded-lg bg-green-50 text-green-700 border border-green-200 hover:bg-green-600 hover:text-white transition-all flex items-center gap-1 text-xs font-medium cursor-pointer"
+              >
+                <CheckCircle2 size={15} />
+                <span>Approve</span>
+              </button>
+            )}
+
+            {/* Quick Reject Button */}
+            {property.status !== "rejected" && onReject && (
+              <button
+                onClick={() => onReject(property._id)}
+                title="Reject Property"
+                className="h-9 px-2.5 rounded-lg bg-red-50 text-red-700 border border-red-200 hover:bg-red-600 hover:text-white transition-all flex items-center gap-1 text-xs font-medium cursor-pointer"
+              >
+                <XCircle size={15} />
+                <span>Reject</span>
+              </button>
+            )}
           </div>
-
         </motion.div>
-
       ))}
 
-      {!loading &&
-        properties.length === 0 && (
-          <div
-            className="
+      {!loading && properties.length === 0 && (
+        <div
+          className="
               p-16
               text-center
               text-gray-400

@@ -51,6 +51,9 @@ export interface PropertyFormData {
   ownerIdType: string;
   ownerIdNumber: string;
   alternatePhone: string;
+  listingType?: "my_own" | "another_owner";
+  ownerAddress?: string;
+  ownerGovtIdDoc?: string;
 
   city: string;
   locality: string;

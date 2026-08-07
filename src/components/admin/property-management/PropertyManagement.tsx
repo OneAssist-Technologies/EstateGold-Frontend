@@ -78,24 +78,21 @@ async function loadProperties() {
 
     setPages(response.pages);
 
-   setCounts({
-  all: response.total,
-
-  pending: response.properties.filter(
-    (item: AdminProperty) =>
-      item.status === "pending"
-  ).length,
-
-  approved: response.properties.filter(
-    (item: AdminProperty) =>
-      item.status === "approved"
-  ).length,
-
-  rejected: response.properties.filter(
-    (item: AdminProperty) =>
-      item.status === "rejected"
-  ).length,
-});
+    if (response.stats) {
+      setCounts({
+        all: response.stats.total ?? response.total ?? 0,
+        pending: response.stats.pending ?? 0,
+        approved: response.stats.approved ?? 0,
+        rejected: response.stats.rejected ?? 0,
+      });
+    } else {
+      setCounts({
+        all: response.total ?? 0,
+        pending: response.properties.filter((item: AdminProperty) => item.status === "pending").length,
+        approved: response.properties.filter((item: AdminProperty) => item.status === "approved").length,
+        rejected: response.properties.filter((item: AdminProperty) => item.status === "rejected").length,
+      });
+    }
   } catch (error) {
     console.log(error);
   } finally {
@@ -156,17 +153,42 @@ async function loadProperties() {
       loadProperties();
     };
 
+  const handleQuickApprove = async (id: string) => {
+    try {
+      setLoading(true);
+      await approveProperty(id);
+      await loadProperties();
+    } catch (error) {
+      console.error(error);
+      setLoading(false);
+    }
+  };
+
+  const handleQuickReject = async (id: string) => {
+    const reason = window.prompt(
+      "Enter reason for rejecting this property:",
+      "Property details require verification."
+    );
+    if (!reason || !reason.trim()) return;
+
+    try {
+      setLoading(true);
+      await rejectProperty(id, reason.trim());
+      await loadProperties();
+    } catch (error) {
+      console.error(error);
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-8">
-
       <PropertyHeader />
 
       <PropertySearch
         search={search}
         setSearch={setSearch}
-        onFilter={() =>
-          setFilterOpen(true)
-        }
+        onFilter={() => setFilterOpen(true)}
       />
 
       <PropertyTabs
@@ -176,21 +198,15 @@ async function loadProperties() {
       />
 
       <motion.div
-        initial={{
-          opacity: 0,
-          y: 20,
-        }}
-        animate={{
-          opacity: 1,
-          y: 0,
-        }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
       >
         <PropertyTable
           loading={loading}
           properties={properties}
-          onView={
-            handleView
-          }
+          onView={handleView}
+          onApprove={handleQuickApprove}
+          onReject={handleQuickReject}
         />
       </motion.div>
 

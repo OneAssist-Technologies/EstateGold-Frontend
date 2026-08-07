@@ -26,7 +26,7 @@ interface MenuItem {
   initialBadge?: number;
 }
 
-const menu: MenuItem[] = [
+const menuTop: MenuItem[] = [
   {
     title: "Overview",
     icon: LayoutDashboard,
@@ -48,12 +48,9 @@ const menu: MenuItem[] = [
     icon: MapPin,
     href: "/admin/locations",
   },
-  {
-    title: "Role Requests",
-    icon: Shield,
-    href: "/admin/role-requests",
-    initialBadge: 3,
-  },
+];
+
+const menuBottom: MenuItem[] = [
   {
     title: "Analytics",
     icon: BarChart3,
@@ -102,18 +99,15 @@ export default function AdminSidebar() {
         if (dash && dash.stats) {
           setDynamicCounts({
             "/admin/properties": dash.stats.pendingProperties ?? 4,
-            "/admin/role-requests": dash.stats.pendingRoleRequests ?? 3,
           });
         } else {
           setDynamicCounts({
             "/admin/properties": 4,
-            "/admin/role-requests": 3,
           });
         }
       } catch (err) {
         setDynamicCounts({
           "/admin/properties": 4,
-          "/admin/role-requests": 3,
         });
       }
     }
@@ -126,7 +120,7 @@ export default function AdminSidebar() {
 
     setMobileOpen(false);
 
-    menu.forEach((item) => {
+    [...menuTop, ...menuBottom].forEach((item) => {
       const isCurrentRoute =
         pathname === item.href ||
         (item.href !== "/admin" && pathname.startsWith(item.href));
@@ -153,22 +147,66 @@ export default function AdminSidebar() {
   const userName = user?.fullName || "Admin User";
   const userRole = user?.role === "admin" ? "Administrator" : "Admin User";
 
+  const renderMenuItem = (item: MenuItem) => {
+    const Icon = item.icon;
+    const active =
+      pathname === item.href ||
+      (item.href !== "/admin" && pathname.startsWith(item.href));
+
+    const rawCount = dynamicCounts[item.href] ?? item.initialBadge ?? 0;
+    const isVisited = visitedRoutes[item.href] || active;
+    const badgeCount = isVisited ? 0 : rawCount;
+
+    return (
+      <Link
+        key={item.title}
+        href={item.href}
+        className={`
+          flex
+          items-center
+          justify-between
+          px-4
+          py-3
+          rounded-2xl
+          transition-all
+          duration-200
+          ${
+            active
+              ? "bg-[#382E15] border border-[#C89B1C]/40 text-[#C89B1C] font-bold shadow-xs"
+              : "hover:bg-[#23201D] text-[#C9C2B8] hover:text-white font-medium"
+          }
+        `}
+      >
+        <div className="flex items-center gap-3.5">
+          <Icon size={20} className={active ? "text-[#C89B1C]" : "text-[#C9C2B8]"} />
+          <span className="text-sm tracking-wide">{item.title}</span>
+        </div>
+
+        {badgeCount > 0 && (
+          <span className="h-5 min-w-[20px] px-1.5 rounded-full bg-red-500 text-[11px] font-bold flex items-center justify-center text-white shadow-xs">
+            {badgeCount}
+          </span>
+        )}
+      </Link>
+    );
+  };
+
   const renderSidebarContent = (isMobile = false) => (
-    <div className="flex flex-col justify-between h-full">
+    <div className="flex flex-col justify-between h-full bg-[#181614] text-white">
       {/* Top Section */}
       <div>
-        {/* Logo */}
+        {/* Logo Header */}
         <div className="px-6 py-6 border-b border-[#2A2724] flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="h-11 w-11 rounded-xl bg-[#C89B1C] flex items-center justify-center text-black">
-              <Home size={22} />
+          <div className="flex items-center gap-3.5">
+            <div className="h-11 w-11 rounded-2xl bg-[#C89B1C] flex items-center justify-center text-[#181614] shadow-md">
+              <Home size={22} className="fill-[#181614]" />
             </div>
 
             <div>
-              <h2 className="text-2xl font-bold text-[#F6E4A6] leading-tight">
+              <h2 className="text-2xl font-serif font-bold text-white leading-tight">
                 EstateGold
               </h2>
-              <p className="text-xs text-gray-400">Admin Console</p>
+              <p className="text-xs text-gray-400 font-medium mt-0.5">Admin Console</p>
             </div>
           </div>
 
@@ -182,98 +220,53 @@ export default function AdminSidebar() {
           )}
         </div>
 
-        {/* Menu Navigation */}
-        <nav className="px-3 py-4 space-y-1 overflow-y-auto max-h-[calc(100vh-230px)]">
-          {menu.map((item) => {
-            const Icon = item.icon;
-            const active =
-              pathname === item.href ||
-              (item.href !== "/admin" && pathname.startsWith(item.href));
+        {/* Navigation Section 1 */}
+        <nav className="px-4 py-5 space-y-1.5">
+          {menuTop.map(renderMenuItem)}
+        </nav>
 
-            const rawCount = dynamicCounts[item.href] ?? item.initialBadge ?? 0;
-            const isVisited = visitedRoutes[item.href] || active;
-            const badgeCount = isVisited ? 0 : rawCount;
+        {/* Section Divider */}
+        <div className="px-4 my-2">
+          <div className="border-t border-[#2A2724]" />
+        </div>
 
-            return (
-              <Link
-                key={item.title}
-                href={item.href}
-                className={`
-                  flex
-                  items-center
-                  justify-between
-                  px-4
-                  py-3
-                  rounded-xl
-                  transition-all
-                  duration-200
-                  ${
-                    active
-                      ? "bg-[#3C3112] text-[#F6D56E] font-semibold"
-                      : "hover:bg-[#23201D] text-gray-300 font-medium"
-                  }
-                `}
-              >
-                <div className="flex items-center gap-3.5">
-                  <Icon size={19} />
-                  <span className="text-sm">{item.title}</span>
-                </div>
-
-                {badgeCount > 0 && (
-                  <span
-                    className="
-                      h-5
-                      min-w-[20px]
-                      px-1.5
-                      rounded-full
-                      bg-red-500
-                      text-[11px]
-                      font-bold
-                      flex
-                      items-center
-                      justify-center
-                      text-white
-                      shadow-sm
-                    "
-                  >
-                    {badgeCount}
-                  </span>
-                )}
-              </Link>
-            );
-          })}
+        {/* Navigation Section 2 */}
+        <nav className="px-4 py-3 space-y-1.5">
+          {menuBottom.map(renderMenuItem)}
         </nav>
       </div>
 
-      {/* Bottom Profile & Sign Out */}
-      <div className="border-t border-[#2A2724] p-4 bg-[#171412]">
-        <div className="flex items-center gap-3 mb-3 px-1">
-          <div className="h-10 w-10 rounded-full bg-[#C89B1C] text-black font-bold flex items-center justify-center text-sm shadow-md shrink-0">
-            {userInitial}
+      {/* Footer Profile & Sign Out */}
+      <div className="border-t border-[#2A2724] p-4 bg-[#181614]">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3 px-1 overflow-hidden">
+            <div className="h-10 w-10 rounded-full bg-[#C89B1C] text-[#181614] font-bold flex items-center justify-center text-sm shadow-md shrink-0">
+              {userInitial}
+            </div>
+            <div className="overflow-hidden">
+              <h4 className="text-sm font-bold text-white leading-tight truncate">
+                {userName}
+              </h4>
+              <p className="text-xs text-gray-400 truncate">{userRole}</p>
+            </div>
           </div>
-          <div className="overflow-hidden">
-            <h4 className="text-sm font-bold text-white leading-tight truncate">
-              {userName}
-            </h4>
-            <p className="text-xs text-gray-400 truncate">{userRole}</p>
-          </div>
-        </div>
 
-        <button
-          onClick={logout}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-300 hover:text-white hover:bg-[#26221E] transition-all duration-200 text-sm font-medium"
-        >
-          <LogOut size={18} className="text-[#C89B1C]" />
-          <span>Sign Out</span>
-        </button>
+          <button
+            onClick={logout}
+            title="Sign Out"
+            className="p-2 rounded-xl text-gray-400 hover:text-white hover:bg-[#26221E] transition-all cursor-pointer shrink-0"
+          >
+            <LogOut size={18} className="text-[#C89B1C]" />
+          </button>
+        </div>
       </div>
     </div>
   );
 
   return (
     <>
-      {/* Desktop Sidebar (hidden on small/medium screens) */}
-      <aside className="hidden lg:flex w-[280px] h-screen sticky top-0 bg-[#171412] text-white flex-col justify-between border-r border-[#2A2724] shrink-0 z-30">
+      {/* Desktop Sidebar */}
+      <aside className="hidden lg:flex w-[270px] h-screen sticky top-0 bg-[#181614] text-white flex-col justify-between border-r border-[#2A2724] shrink-0 z-30">
         {renderSidebarContent(false)}
       </aside>
 
@@ -293,7 +286,7 @@ export default function AdminSidebar() {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 250 }}
-              className="fixed top-0 left-0 bottom-0 w-[280px] bg-[#171412] text-white z-50 border-r border-[#2A2724] shadow-2xl lg:hidden"
+              className="fixed top-0 left-0 bottom-0 w-[270px] bg-[#181614] text-white z-50 border-r border-[#2A2724] shadow-2xl lg:hidden"
             >
               {renderSidebarContent(true)}
             </motion.aside>

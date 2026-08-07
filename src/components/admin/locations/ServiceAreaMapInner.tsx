@@ -5,44 +5,47 @@ import { MapContainer, TileLayer, Marker, Circle, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
-// Custom Leaflet Pin Icon anchored accurately at its bottom tip (19px, 42px)
-const customMarkerIcon = L.divIcon({
-  className: "custom-leaflet-marker",
-  html: `<div style="
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 38px;
-    height: 42px;
-  ">
-    <div style="
-      background-color: #EF4444;
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
+// Custom Leaflet Pin Icon factory anchored accurately at its bottom tip (19px, 42px)
+function getCustomMarkerIcon() {
+  if (typeof window === "undefined") return undefined;
+  return L.divIcon({
+    className: "custom-leaflet-marker",
+    html: `<div style="
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.35);
-      border: 3px solid #FFFFFF;
+      width: 38px;
+      height: 42px;
     ">
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
-        <circle cx="12" cy="10" r="3"/>
-      </svg>
-    </div>
-    <div style="
-      width: 8px;
-      height: 3px;
-      background-color: rgba(0, 0, 0, 0.3);
-      border-radius: 50%;
-      margin-top: 1px;
-      filter: blur(1px);
-    "></div>
-  </div>`,
-  iconSize: [38, 42],
-  iconAnchor: [19, 42],
-});
+      <div style="
+        background-color: #EF4444;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.35);
+        border: 3px solid #FFFFFF;
+      ">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+      </div>
+      <div style="
+        width: 8px;
+        height: 3px;
+        background-color: rgba(0, 0, 0, 0.3);
+        border-radius: 50%;
+        margin-top: 1px;
+        filter: blur(1px);
+      "></div>
+    </div>`,
+    iconSize: [38, 42],
+    iconAnchor: [19, 42],
+  });
+}
 
 interface ServiceAreaMapInnerProps {
   latitude: number;
@@ -93,6 +96,7 @@ export default function ServiceAreaMapInner({
   onMarkerDragEnd,
 }: ServiceAreaMapInnerProps) {
   const markerRef = useRef<L.Marker>(null);
+  const customMarkerIcon = useMemo(() => getCustomMarkerIcon(), []);
 
   const eventHandlers = useMemo(
     () => ({
@@ -136,7 +140,7 @@ export default function ServiceAreaMapInner({
         eventHandlers={eventHandlers}
         position={markerPosition}
         ref={markerRef}
-        icon={customMarkerIcon}
+        {...(customMarkerIcon ? { icon: customMarkerIcon } : {})}
       />
 
       <Circle
