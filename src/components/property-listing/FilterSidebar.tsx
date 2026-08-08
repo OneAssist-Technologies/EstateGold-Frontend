@@ -13,6 +13,12 @@ interface Props {
   furnishing: string;
   setFurnishing: (value: string) => void;
 
+  minPrice?: string;
+  setMinPrice?: (value: string) => void;
+
+  maxPrice?: string;
+  setMaxPrice?: (value: string) => void;
+
   clearFilters: () => void;
 }
 
@@ -25,14 +31,20 @@ export default function FilterSidebar({
   setBedrooms,
   furnishing,
   setFurnishing,
+  minPrice = "",
+  setMinPrice,
+  maxPrice = "",
+  setMaxPrice,
   clearFilters,
 }: Props) {
-  const cities = [
-    "Mumbai",
-    "Bangalore",
-    "Delhi",
-    "Pune",
-    "Hyderabad",
+  const cities = ["Mumbai", "Bangalore", "Delhi", "Pune", "Hyderabad"];
+
+  const budgetOptions = [
+    { label: "Any Budget", min: "", max: "" },
+    { label: "Under ₹50L", min: "", max: "5000000" },
+    { label: "₹50L–₹1Cr", min: "5000000", max: "10000000" },
+    { label: "₹1Cr–₹2Cr", min: "10000000", max: "20000000" },
+    { label: "₹2Cr+", min: "20000000", max: "" },
   ];
 
   const propertyTypes = [
@@ -54,256 +66,181 @@ export default function FilterSidebar({
 
   const furnishingOptions = [
     { label: "Any", value: "" },
-    {
-      label: "Fully Furnished",
-      value: "Fully Furnished",
-    },
-    {
-      label: "Semi Furnished",
-      value: "Semi Furnished",
-    },
-    {
-      label: "Unfurnished",
-      value: "Unfurnished",
-    },
+    { label: "Fully Furnished", value: "Fully Furnished" },
+    { label: "Semi Furnished", value: "Semi Furnished" },
+    { label: "Unfurnished", value: "Unfurnished" },
   ];
 
+  const setBudgetRange = (min: string, max: string) => {
+    if (setMinPrice) setMinPrice(min);
+    if (setMaxPrice) setMaxPrice(max);
+  };
+
+  const isBudgetActive = (min: string, max: string) => {
+    return minPrice === min && maxPrice === max;
+  };
+
   return (
-    <motion.div
-  initial={{
-    opacity: 0,
-    x: -50,
-  }}
-  animate={{
-    opacity: 1,
-    x: 0,
-  }}
-  transition={{
-    duration: 0.5,
-  }}
->
-    <div
-      className="
-        border
-        border-[#E8DCC1]
-        rounded-[28px]
-        p-7
-        sticky
-        top-24
-        bg-white
-      "
-    >
+    <div className="bg-white rounded-2xl border border-[#ECE7DB] p-5 shadow-2xs space-y-6">
       {/* Header */}
-
-      <div className="flex justify-between items-center mb-8">
-
-        <h3 className="text-3xl font-semibold">
-          Filters
-        </h3>
-
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-bold text-gray-900">Filters</h3>
         <button
+          type="button"
           onClick={clearFilters}
-          className="
-            text-[#C89B1C]
-            hover:underline
-          "
+          className="text-xs font-bold text-[#9A720C] hover:underline cursor-pointer"
         >
           Clear All
         </button>
-
       </div>
 
       {/* CITY */}
-
       <div>
-
-        <h4 className="font-semibold tracking-wider">
+        <h4 className="text-[11px] font-bold text-gray-800 tracking-wider uppercase mb-3">
           CITY
         </h4>
-
-        <div className="grid grid-cols-2 gap-3 mt-5">
-
+        <div className="grid grid-cols-2 gap-2.5">
           <button
+            type="button"
             onClick={() => setCity("")}
-            className={`
-              h-12
-              rounded-xl
-              border
-              transition
-              ${
-                city === ""
-                  ? "bg-[#C89B1C] text-white border-[#C89B1C]"
-                  : "border-[#E8DCC1]"
-              }
-            `}
+            className={`py-2 px-3 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+              city === ""
+                ? "bg-[#9A720C] text-white shadow-2xs"
+                : "bg-white border border-[#E5E0D4] text-gray-700 hover:bg-[#FAFAF8]"
+            }`}
           >
             All Cities
           </button>
-
           {cities.map((item) => (
             <button
               key={item}
+              type="button"
               onClick={() => setCity(item)}
-              className={`
-                h-12
-                rounded-xl
-                border
-                transition
-                ${
-                  city === item
-                    ? "bg-[#C89B1C] text-white border-[#C89B1C]"
-                    : "border-[#E8DCC1]"
-                }
-              `}
+              className={`py-2 px-3 rounded-xl text-xs font-medium transition-all cursor-pointer ${
+                city.toLowerCase() === item.toLowerCase()
+                  ? "bg-[#9A720C] text-white font-semibold shadow-2xs"
+                  : "bg-white border border-[#E5E0D4] text-gray-700 hover:bg-[#FAFAF8]"
+              }`}
             >
               {item}
             </button>
           ))}
-
         </div>
-
       </div>
 
-      <hr className="my-8 border-[#E8DCC1]" />
+      <div className="border-t border-[#F2EFE9]" />
+
+      {/* BUDGET */}
+      <div>
+        <h4 className="text-[11px] font-bold text-gray-800 tracking-wider uppercase mb-3">
+          BUDGET
+        </h4>
+        <div className="space-y-2">
+          {budgetOptions.map((opt) => {
+            const active = isBudgetActive(opt.min, opt.max);
+            return (
+              <button
+                key={opt.label}
+                type="button"
+                onClick={() => setBudgetRange(opt.min, opt.max)}
+                className={`w-full py-2 px-4 rounded-xl text-xs text-left transition-all cursor-pointer ${
+                  active
+                    ? "bg-[#9A720C] text-white font-semibold shadow-2xs"
+                    : "bg-white border border-[#E5E0D4] text-gray-700 hover:bg-[#FAFAF8]"
+                }`}
+              >
+                {opt.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="border-t border-[#F2EFE9]" />
 
       {/* PROPERTY TYPE */}
-
       <div>
-
-        <h4 className="font-semibold tracking-wider">
+        <h4 className="text-[11px] font-bold text-gray-800 tracking-wider uppercase mb-3">
           PROPERTY TYPE
         </h4>
-
-        <div className="space-y-3 mt-5">
-
+        <div className="space-y-2">
           <button
-            onClick={() =>
-              setPropertyType("")
-            }
-            className={`
-              w-full
-              h-12
-              rounded-xl
-              border
-              transition
-              ${
-                propertyType === ""
-                  ? "bg-[#C89B1C] text-white border-[#C89B1C]"
-                  : "border-[#E8DCC1]"
-              }
-            `}
+            type="button"
+            onClick={() => setPropertyType("")}
+            className={`w-full py-2 px-4 rounded-xl text-xs text-left transition-all cursor-pointer ${
+              propertyType === ""
+                ? "bg-[#9A720C] text-white font-semibold shadow-2xs"
+                : "bg-white border border-[#E5E0D4] text-gray-700 hover:bg-[#FAFAF8]"
+            }`}
           >
             All Types
           </button>
-
           {propertyTypes.map((item) => (
             <button
               key={item}
-              onClick={() =>
-                setPropertyType(item)
-              }
-              className={`
-                w-full
-                h-12
-                rounded-xl
-                border
-                text-left
-                px-5
-                transition
-                ${
-                  propertyType === item
-                    ? "bg-[#C89B1C] text-white border-[#C89B1C]"
-                    : "border-[#E8DCC1]"
-                }
-              `}
+              type="button"
+              onClick={() => setPropertyType(item)}
+              className={`w-full py-2 px-4 rounded-xl text-xs text-left transition-all cursor-pointer ${
+                propertyType.toLowerCase() === item.toLowerCase()
+                  ? "bg-[#9A720C] text-white font-semibold shadow-2xs"
+                  : "bg-white border border-[#E5E0D4] text-gray-700 hover:bg-[#FAFAF8]"
+              }`}
             >
               {item}
             </button>
           ))}
-
         </div>
-
       </div>
 
-      <hr className="my-8 border-[#E8DCC1]" />
+      <div className="border-t border-[#F2EFE9]" />
 
       {/* BEDROOMS */}
-
       <div>
-
-        <h4 className="font-semibold tracking-wider">
+        <h4 className="text-[11px] font-bold text-gray-800 tracking-wider uppercase mb-3">
           BEDROOMS
         </h4>
-
-        <div className="flex flex-wrap gap-3 mt-5">
-
+        <div className="flex flex-wrap gap-2">
           {bedroomOptions.map((item) => (
             <button
               key={item.label}
-              onClick={() =>
-                setBedrooms(item.value)
-              }
-              className={`
-                h-12
-                px-5
-                rounded-full
-                border
-                transition
-                ${
-                  bedrooms === item.value
-                    ? "bg-[#C89B1C] text-white border-[#C89B1C]"
-                    : "border-[#E8DCC1]"
-                }
-              `}
+              type="button"
+              onClick={() => setBedrooms(item.value)}
+              className={`py-1.5 px-3.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
+                bedrooms === item.value
+                  ? "bg-[#9A720C] text-white font-semibold shadow-2xs"
+                  : "bg-white border border-[#E5E0D4] text-gray-700 hover:bg-[#FAFAF8]"
+              }`}
             >
               {item.label}
             </button>
           ))}
-
         </div>
-
       </div>
 
-      <hr className="my-8 border-[#E8DCC1]" />
+      <div className="border-t border-[#F2EFE9]" />
 
       {/* FURNISHING */}
-
       <div>
-
-        <h4 className="font-semibold tracking-wider">
+        <h4 className="text-[11px] font-bold text-gray-800 tracking-wider uppercase mb-3">
           FURNISHING
         </h4>
-
-        <div className="space-y-3 mt-5">
-
+        <div className="space-y-2">
           {furnishingOptions.map((item) => (
             <button
               key={item.label}
-              onClick={() =>
-                setFurnishing(item.value)
-              }
-              className={`
-                w-full
-                h-12
-                rounded-xl
-                border
-                transition
-                ${
-                  furnishing === item.value
-                    ? "bg-[#C89B1C] text-white border-[#C89B1C]"
-                    : "border-[#E8DCC1]"
-                }
-              `}
+              type="button"
+              onClick={() => setFurnishing(item.value)}
+              className={`w-full py-2 px-4 rounded-xl text-xs text-left transition-all cursor-pointer ${
+                furnishing === item.value
+                  ? "bg-[#9A720C] text-white font-semibold shadow-2xs"
+                  : "bg-white border border-[#E5E0D4] text-gray-700 hover:bg-[#FAFAF8]"
+              }`}
             >
               {item.label}
             </button>
           ))}
-
         </div>
-
       </div>
-
     </div>
-    </motion.div>
   );
 }

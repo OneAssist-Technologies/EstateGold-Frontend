@@ -12,22 +12,34 @@ import {
 
 import { motion } from "framer-motion";
 
-const data = [
-  { month: "Jan", properties: 35 },
-  { month: "Feb", properties: 48 },
-  { month: "Mar", properties: 62 },
-  { month: "Apr", properties: 58 },
-  { month: "May", properties: 81 },
-  { month: "Jun", properties: 96 },
-  { month: "Jul", properties: 115 },
-  { month: "Aug", properties: 130 },
-  { month: "Sep", properties: 122 },
-  { month: "Oct", properties: 141 },
-  { month: "Nov", properties: 165 },
-  { month: "Dec", properties: 190 },
-];
+interface MonthlyStat {
+  month: string;
+  properties: number;
+}
 
-export default function ActivityChart() {
+interface ActivityChartProps {
+  monthlyStats?: MonthlyStat[];
+  loading?: boolean;
+}
+
+export default function ActivityChart({ monthlyStats = [], loading }: ActivityChartProps) {
+  const chartData = monthlyStats.length > 0
+    ? monthlyStats
+    : [
+        { month: "Jan", properties: 0 },
+        { month: "Feb", properties: 0 },
+        { month: "Mar", properties: 0 },
+        { month: "Apr", properties: 0 },
+        { month: "May", properties: 0 },
+        { month: "Jun", properties: 0 },
+        { month: "Jul", properties: 0 },
+        { month: "Aug", properties: 0 },
+        { month: "Sep", properties: 0 },
+        { month: "Oct", properties: 0 },
+        { month: "Nov", properties: 0 },
+        { month: "Dec", properties: 0 },
+      ];
+
   return (
     <motion.div
       initial={{
@@ -48,9 +60,7 @@ export default function ActivityChart() {
       "
     >
       <div className="flex items-center justify-between">
-
         <div>
-
           <h2
             className="
               text-2xl
@@ -64,94 +74,77 @@ export default function ActivityChart() {
           <p className="text-gray-500 mt-2">
             Monthly property publishing statistics
           </p>
-
         </div>
 
-        <select
-          className="
-            h-11
-            rounded-xl
-            border
-            border-[#ECE7DB]
-            px-4
-            outline-none
-          "
-        >
-          <option>Last 12 Months</option>
-          <option>Last 6 Months</option>
-          <option>This Year</option>
-        </select>
-
+        <div className="text-xs font-semibold text-[#C89B1C] bg-[#FFF9EC] px-3 py-1.5 rounded-lg border border-[#F5E8C7]">
+          Trailing 12 Months
+        </div>
       </div>
 
       <div className="mt-8 h-[380px]">
+        {loading ? (
+          <div className="h-full flex items-center justify-center text-gray-400 text-sm">
+            Loading chart analytics...
+          </div>
+        ) : (
+          <ResponsiveContainer
+            width="100%"
+            height="100%"
+          >
+            <AreaChart data={chartData}>
+              <defs>
+                <linearGradient
+                  id="gold"
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
+                  <stop
+                    offset="5%"
+                    stopColor="#C89B1C"
+                    stopOpacity={0.4}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor="#C89B1C"
+                    stopOpacity={0}
+                  />
+                </linearGradient>
+              </defs>
 
-        <ResponsiveContainer
-          width="100%"
-          height="100%"
-        >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="#F0ECE2"
+              />
 
-          <AreaChart data={data}>
+              <XAxis
+                dataKey="month"
+                tick={{
+                  fill: "#666",
+                }}
+              />
 
-            <defs>
+              <YAxis
+                tick={{
+                  fill: "#666",
+                }}
+                allowDecimals={false}
+              />
 
-              <linearGradient
-                id="gold"
-                x1="0"
-                y1="0"
-                x2="0"
-                y2="1"
-              >
-                <stop
-                  offset="5%"
-                  stopColor="#C89B1C"
-                  stopOpacity={0.4}
-                />
+              <Tooltip />
 
-                <stop
-                  offset="95%"
-                  stopColor="#C89B1C"
-                  stopOpacity={0}
-                />
-
-              </linearGradient>
-
-            </defs>
-
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke="#F0ECE2"
-            />
-
-            <XAxis
-              dataKey="month"
-              tick={{
-                fill: "#666",
-              }}
-            />
-
-            <YAxis
-              tick={{
-                fill: "#666",
-              }}
-            />
-
-            <Tooltip />
-
-            <Area
-              type="monotone"
-              dataKey="properties"
-              stroke="#C89B1C"
-              strokeWidth={4}
-              fill="url(#gold)"
-            />
-
-          </AreaChart>
-
-        </ResponsiveContainer>
-
+              <Area
+                type="monotone"
+                dataKey="properties"
+                stroke="#C89B1C"
+                strokeWidth={4}
+                fill="url(#gold)"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        )}
       </div>
-
     </motion.div>
   );
 }

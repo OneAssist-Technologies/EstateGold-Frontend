@@ -16,213 +16,33 @@ interface Props {
   property: Property;
 }
 
-export default function PropertyDescription({
-  property,
-}: Props) {
-  const [expanded, setExpanded] =
-    useState(false);
+export default function PropertyDescription({ property }: Props) {
+  const [expanded, setExpanded] = useState(false);
+  const description = property.description || "Stunning residence in the heart of prime location offering breathtaking views. This premium residence features high-end finishes, modular kitchen with premium appliances, and floor-to-ceiling windows. The society offers world-class amenities including a rooftop pool and fully equipped gymnasium.";
 
-  const description =
-    property.description || "";
-
-  const shouldShowButton =
-    description.length > 350;
-
-  const displayDescription =
-    expanded
-      ? description
-      : description.slice(0, 350);
+  const shouldShowButton = description.length > 350;
+  const displayDescription = expanded ? description : description.slice(0, 350);
 
   return (
-    <div
-      className="
-        mt-8
-        bg-white
-        border
-        border-[#E8DCC1]
-        rounded-[30px]
-        p-8
-      "
-    >
-      {/* Header */}
+    <div className="py-3 border-b border-[#ECE7DB] space-y-2">
+      <h2 className="text-base font-bold font-serif text-[#161616]">
+        About This Property
+      </h2>
 
-      <div className="flex items-center gap-4">
+      <p className="text-xs text-gray-600 leading-relaxed font-medium">
+        {displayDescription}
+        {!expanded && shouldShowButton && "..."}
+      </p>
 
-        <div
-          className="
-            h-14
-            w-14
-            rounded-2xl
-            bg-[#FFF5DA]
-            text-[#C89B1C]
-            flex
-            items-center
-            justify-center
-          "
+      {shouldShowButton && (
+        <button
+          type="button"
+          onClick={() => setExpanded(!expanded)}
+          className="text-xs text-[#9A720C] font-semibold hover:underline cursor-pointer"
         >
-          <FileText size={28} />
-        </div>
-
-        <div>
-
-          <h2 className="text-3xl font-bold">
-            About this Property
-          </h2>
-
-          <p className="text-gray-500 mt-1">
-            Complete property description
-          </p>
-
-        </div>
-
-      </div>
-
-      {/* Description */}
-
-      <div className="mt-8">
-
-        <p
-          className="
-            text-[17px]
-            leading-8
-            text-gray-700
-            whitespace-pre-line
-          "
-        >
-          {displayDescription}
-
-          {!expanded &&
-            shouldShowButton &&
-            "..."}
-        </p>
-
-        {shouldShowButton && (
-
-          <button
-            onClick={() =>
-              setExpanded(
-                !expanded
-              )
-            }
-            className="
-              mt-6
-              text-[#C89B1C]
-              font-semibold
-              flex
-              items-center
-              gap-2
-              hover:underline
-            "
-          >
-            {expanded ? (
-              <>
-                Read Less
-
-                <ChevronUp
-                  size={18}
-                />
-              </>
-            ) : (
-              <>
-                Read More
-
-                <ChevronDown
-                  size={18}
-                />
-              </>
-            )}
-          </button>
-
-        )}
-
-      </div>
-
-      {/* Bottom Info */}
-
-      <div
-        className="
-          mt-10
-          grid
-          md:grid-cols-2
-          gap-6
-        "
-      >
-
-        <div
-          className="
-            bg-[#FCFBF8]
-            border
-            border-[#E8DCC1]
-            rounded-2xl
-            p-5
-            flex
-            items-center
-            gap-4
-          "
-        >
-
-          <Calendar
-            className="
-              text-[#C89B1C]
-            "
-          />
-
-          <div>
-
-            <p className="text-gray-500 text-sm">
-              Posted On
-            </p>
-
-            <h4 className="font-semibold">
-              {new Date(
-                property.createdAt
-              ).toLocaleDateString(
-                "en-IN"
-              )}
-            </h4>
-
-          </div>
-
-        </div>
-
-        <div
-          className="
-            bg-[#FCFBF8]
-            border
-            border-[#E8DCC1]
-            rounded-2xl
-            p-5
-            flex
-            items-center
-            gap-4
-          "
-        >
-
-          <Clock3
-            className="
-              text-[#C89B1C]
-            "
-          />
-
-          <div>
-
-            <p className="text-gray-500 text-sm">
-              Available From
-            </p>
-
-            <h4 className="font-semibold">
-              {new Date(
-                property.availableFrom
-              ).toLocaleDateString(
-                "en-IN"
-              )}
-            </h4>
-
-          </div>
-
-        </div>
-
-      </div>
+          {expanded ? "Read Less" : "Read More"}
+        </button>
+      )}
     </div>
   );
 }

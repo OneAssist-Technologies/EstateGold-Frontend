@@ -15,310 +15,74 @@ import { Property } from "@/src/types/property";
 interface Props {
   property: Property;
 
-  isLoggedIn: boolean;
+  isLoggedIn?: boolean;
 
-  onLoginRequired: () => void;
+  onLoginRequired?: () => void;
 
-  onShare: () => void;
+  onShare?: () => void;
 
-  onFavourite: () => void;
+  onFavourite?: () => void;
 
-  onReport: () => void;
+  onReport?: () => void;
 }
 
-export default function PropertyInfo({
-  property,
-  isLoggedIn,
-  onLoginRequired,
-  onShare,
-  onFavourite,
-  onReport,
-}: Props) {
+function formatPrice(price?: number): string {
+  if (!price || isNaN(price)) return "₹0";
+  if (price >= 10000000) {
+    const cr = (price / 10000000).toFixed(2);
+    return `₹${cr.replace(/\.00$/, "")} Cr`;
+  } else if (price >= 100000) {
+    const l = (price / 100000).toFixed(1);
+    return `₹${l.replace(/\.0$/, "")} L`;
+  } else {
+    return `₹${price.toLocaleString("en-IN")}`;
+  }
+}
 
-  const protectedAction = (
-    callback: () => void
-  ) => {
+function calculatePerSqFt(price?: number, area?: number): string {
+  if (!price || !area || isNaN(price) || isNaN(area) || area === 0) return "";
+  const rate = Math.round(price / area);
+  return `₹${rate.toLocaleString("en-IN")}/sq ft`;
+}
 
-    if (!isLoggedIn) {
-      onLoginRequired();
-      return;
-    }
+export default function PropertyInfo({ property }: Props) {
+  const displayTitle =
+    property.bedrooms && property.propertyType
+      ? `${property.bedrooms} BHK ${property.propertyType}${
+          property.locality ? " at " + property.locality : ""
+        }`
+      : property.propertyType || "Luxury Property";
 
-    callback();
-
-  };
+  const perSqFt = calculatePerSqFt(property.price, property.area);
 
   return (
+    <div className="py-3 border-b border-[#ECE7DB] flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+      {/* Title & Location */}
+      <div className="space-y-1">
+        <h1 className="text-xl sm:text-2xl font-bold font-serif text-[#161616] leading-tight">
+          {displayTitle}
+        </h1>
 
-    <div
-      className="
-        bg-white
-        border
-        border-[#E8DCC1]
-        rounded-[30px]
-        p-8
-        mt-8
-      "
-    >
-
-      {/* Top */}
-
-      <div className="flex justify-between items-start">
-
-        <div className="flex-1">
-
-          <div className="flex items-center gap-3 flex-wrap">
-
-            <span
-              className="
-                px-4
-                py-2
-                rounded-full
-                bg-[#C89B1C]
-                text-white
-                text-sm
-                font-semibold
-              "
-            >
-              {property.purpose}
-            </span>
-
-            <span
-              className="
-                flex
-                items-center
-                gap-2
-                px-4
-                py-2
-                rounded-full
-                bg-green-100
-                text-green-700
-                text-sm
-                font-semibold
-              "
-            >
-
-              <BadgeCheck size={16} />
-
-              Verified
-
-            </span>
-
-          </div>
-
-          <h1
-            className="
-              text-5xl
-              font-bold
-              mt-5
-              text-[#161616]
-            "
-          >
-
-            {property.propertyType}
-
-          </h1>
-
-          <div
-            className="
-              flex
-              items-center
-              gap-3
-              mt-5
-              text-gray-500
-            "
-          >
-
-            <MapPin size={20} />
-
-            <span className="text-lg">
-
-              {property.locality},{" "}
-              {property.city}
-
-            </span>
-
-          </div>
-
-          <div
-            className="
-              flex
-              items-center
-              gap-8
-              mt-6
-              flex-wrap
-            "
-          >
-
-            <div className="flex items-center gap-2">
-
-              <Hash
-                size={18}
-                className="text-[#C89B1C]"
-              />
-
-              <span>
-
-                Property ID :
-                {" "}
-                {property._id.slice(-8)}
-
-              </span>
-
-            </div>
-
-            <div className="flex items-center gap-2">
-
-              <Calendar
-                size={18}
-                className="text-[#C89B1C]"
-              />
-
-              <span>
-
-                Posted :
-
-                {" "}
-
-                {new Date(
-                  property.createdAt
-                ).toLocaleDateString()}
-
-              </span>
-
-            </div>
-
-          </div>
-
+        <div className="flex items-center gap-1.5 text-xs text-gray-500 font-medium">
+          <MapPin size={14} className="text-gray-400 shrink-0" />
+          <span>
+            {property.locality ? `${property.locality}, ` : ""}
+            {property.city}
+          </span>
         </div>
+      </div>
 
-        {/* Price */}
-
-        <div className="text-right">
-
-          <p className="text-gray-500">
-
-            Starting From
-
+      {/* Price & Rate */}
+      <div className="text-left sm:text-right shrink-0">
+        <div className="text-2xl sm:text-3xl font-bold font-serif text-[#9A720C]">
+          {formatPrice(property.price)}
+        </div>
+        {perSqFt && (
+          <p className="text-[11px] font-semibold text-gray-400 mt-0.5">
+            {perSqFt}
           </p>
-
-          <h2
-            className="
-              text-5xl
-              font-bold
-              text-[#C89B1C]
-              mt-2
-            "
-          >
-
-            ₹
-
-            {property.price.toLocaleString(
-              "en-IN"
-            )}
-
-          </h2>
-
-        </div>
-
+        )}
       </div>
-
-      {/* Bottom */}
-
-      <div
-        className="
-          flex
-          gap-4
-          mt-10
-          flex-wrap
-        "
-      >
-
-        <button
-
-          onClick={onShare}
-
-          className="
-            h-14
-            px-7
-            rounded-2xl
-            border
-            border-[#E8DCC1]
-            flex
-            items-center
-            gap-3
-            hover:bg-[#FAFAFA]
-            transition
-          "
-        >
-
-          <Share2 size={20} />
-
-          Share
-
-        </button>
-
-        <button
-
-          onClick={() =>
-            protectedAction(
-              onFavourite
-            )
-          }
-
-          className="
-            h-14
-            px-7
-            rounded-2xl
-            border
-            border-[#E8DCC1]
-            flex
-            items-center
-            gap-3
-            hover:bg-[#FFF8E8]
-            transition
-          "
-        >
-
-          <Heart size={20} />
-
-          Save Property
-
-        </button>
-
-        <button
-
-          onClick={() =>
-            protectedAction(
-              onReport
-            )
-          }
-
-          className="
-            h-14
-            px-7
-            rounded-2xl
-            border
-            border-red-300
-            text-red-600
-            flex
-            items-center
-            gap-3
-            hover:bg-red-50
-            transition
-          "
-        >
-
-          <Flag size={20} />
-
-          Report Property
-
-        </button>
-
-      </div>
-
     </div>
-
   );
-
 }

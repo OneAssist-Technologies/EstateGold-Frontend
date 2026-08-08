@@ -8,6 +8,7 @@ interface ServiceAreaMapProps {
   longitude: number;
   radiusKm: number;
   flyToTrigger?: number;
+  showRadius?: boolean;
   onMarkerDragEnd: (lat: number, lng: number) => void;
 }
 

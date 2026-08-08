@@ -5,7 +5,7 @@ import { MapContainer, TileLayer, Marker, Circle, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
-// Custom Leaflet Pin Icon factory anchored accurately at its bottom tip (19px, 42px)
+// Custom Leaflet Pin Icon factory anchored accurately at its bottom tip (14px, 32px)
 function getCustomMarkerIcon() {
   if (typeof window === "undefined") return undefined;
   return L.divIcon({
@@ -14,36 +14,35 @@ function getCustomMarkerIcon() {
       display: flex;
       flex-direction: column;
       align-items: center;
-      width: 38px;
-      height: 42px;
+      width: 28px;
+      height: 32px;
     ">
       <div style="
         background-color: #EF4444;
-        width: 36px;
-        height: 36px;
+        width: 26px;
+        height: 26px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.35);
-        border: 3px solid #FFFFFF;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        border: 2px solid #FFFFFF;
       ">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
           <circle cx="12" cy="10" r="3"/>
         </svg>
       </div>
       <div style="
-        width: 8px;
-        height: 3px;
-        background-color: rgba(0, 0, 0, 0.3);
+        width: 6px;
+        height: 2px;
+        background-color: rgba(0, 0, 0, 0.25);
         border-radius: 50%;
         margin-top: 1px;
-        filter: blur(1px);
       "></div>
     </div>`,
-    iconSize: [38, 42],
-    iconAnchor: [19, 42],
+    iconSize: [28, 32],
+    iconAnchor: [14, 32],
   });
 }
 
@@ -52,6 +51,7 @@ interface ServiceAreaMapInnerProps {
   longitude: number;
   radiusKm: number;
   flyToTrigger?: number;
+  showRadius?: boolean;
   onMarkerDragEnd: (lat: number, lng: number) => void;
 }
 
@@ -93,6 +93,7 @@ export default function ServiceAreaMapInner({
   longitude,
   radiusKm,
   flyToTrigger,
+  showRadius = true,
   onMarkerDragEnd,
 }: ServiceAreaMapInnerProps) {
   const markerRef = useRef<L.Marker>(null);
@@ -143,16 +144,18 @@ export default function ServiceAreaMapInner({
         {...(customMarkerIcon ? { icon: customMarkerIcon } : {})}
       />
 
-      <Circle
-        center={markerPosition}
-        radius={radiusInMeters}
-        pathOptions={{
-          color: "#3B82F6",
-          fillColor: "#3B82F6",
-          fillOpacity: 0.15,
-          weight: 2,
-        }}
-      />
+      {showRadius && (
+        <Circle
+          center={markerPosition}
+          radius={radiusInMeters}
+          pathOptions={{
+            color: "#3B82F6",
+            fillColor: "#3B82F6",
+            fillOpacity: 0.15,
+            weight: 2,
+          }}
+        />
+      )}
     </MapContainer>
   );
 }

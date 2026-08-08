@@ -8,6 +8,8 @@ import {
   FaXTwitter,
 } from "react-icons/fa6";
 
+import Logo from "../common/Logo";
+
 export default function Footer() {
   return (
     <footer className="bg-[#14110F] text-white">
@@ -17,9 +19,7 @@ export default function Footer() {
         <div className="grid lg:grid-cols-4 gap-12">
 
           <div>
-            <h2 className="text-4xl font-bold text-[#C89B1C]">
-              EstateGold
-            </h2>
+            <Logo lightText />
 
             <p className="mt-6 text-gray-400 leading-8">
               Indias trusted real estate platform.

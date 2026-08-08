@@ -17,6 +17,8 @@ import {
 } from "../../context/AuthContext";
 
 import RoleUpgradeModal from "../role-request/RoleUpgradeModal";
+import Logo from "../common/Logo";
+import api from "../../services/api";
 
 export default function Navbar() {
  const {
@@ -30,6 +32,8 @@ export default function Navbar() {
     useState(false);
   const [showRoleModal, setShowRoleModal] =
     useState(false);
+  const [hasPublishedProperties, setHasPublishedProperties] =
+    useState(false);
 
   const dropdownRef =
     useRef<HTMLDivElement>(null);
@@ -42,6 +46,24 @@ export default function Navbar() {
   const canManageProperties =
     role === "seller" ||
     role === "agent";
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setHasPublishedProperties(false);
+      return;
+    }
+
+    const checkPublished = async () => {
+      try {
+        const res = await api.get("/my-published-count");
+        setHasPublishedProperties(res.data.hasPublishedProperties);
+      } catch (err) {
+        setHasPublishedProperties(false);
+      }
+    };
+
+    checkPublished();
+  }, [isAuthenticated]);
 
   useEffect(() => {
     const handleClickOutside = (
@@ -78,57 +100,58 @@ if (loading) {
         <div className="h-20 flex items-center justify-between">
 
           {/* Logo */}
-
-          <Link
-            href="/"
-            className="flex items-center gap-3"
-          >
-            <div className="h-10 w-10 rounded-xl bg-[#C89B1C] flex items-center justify-center">
-              <Building2
-                size={20}
-                className="text-white"
-              />
-            </div>
-
-            <span className="text-3xl font-bold text-[#C89B1C]">
-              EstateGold
-            </span>
-          </Link>
+          <Logo />
 
           {/* Menu */}
 
           {/* Menu Navigation */}
-          <nav className="hidden md:flex items-center gap-10 font-medium">
-            <Link href="/buy">
+          <nav className="hidden md:flex items-center gap-8 font-semibold text-sm text-gray-800">
+            <Link
+              href="/property-listing"
+              className="text-[#9A720C] hover:text-[#9A720C] font-bold transition-colors"
+            >
               Buy
             </Link>
 
-            <Link href="/rent">
+            <Link
+              href="/property-listing?purpose=Rent"
+              className="hover:text-[#9A720C] transition-colors"
+            >
               Rent
             </Link>
 
-            <Link href="/new-projects">
+            <Link
+              href="/property-listing?type=NewProjects"
+              className="hover:text-[#9A720C] transition-colors"
+            >
               New Projects
             </Link>
 
-            <Link href="/commercial">
+            <Link
+              href="/property-listing?type=Commercial"
+              className="hover:text-[#9A720C] transition-colors"
+            >
               Commercial
             </Link>
 
             {isAuthenticated && (
-              <Link href="/my-properties">
-                My Properties
+              <Link
+                href="/my-properties"
+                className="hover:text-[#9A720C] transition-colors flex items-center gap-1.5"
+              >
+                <span className="text-gray-500 font-normal">🔖</span>
+                <span>My Properties</span>
               </Link>
             )}
           </nav>
 
           {/* Right Section */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             {!isAuthenticated && (
               <>
                 <Link
                   href="/login"
-                  className="font-medium hover:text-[#C89B1C] transition-colors"
+                  className="font-semibold text-sm hover:text-[#9A720C] transition-colors"
                 >
                   Sign In
                 </Link>
@@ -136,14 +159,19 @@ if (loading) {
                 <Link
                   href="/register"
                   className="
-                    bg-[#C89B1C]
+                    bg-gradient-to-r
+                    from-[#B88A1A]
+                    via-[#D4B04C]
+                    to-[#8C6605]
                     text-white
-                    px-5
+                    px-4
                     py-2.5
                     rounded-xl
-                    font-medium
-                    hover:opacity-90
+                    text-sm
+                    font-bold
+                    hover:opacity-95
                     transition-all
+                    shadow-2xs
                   "
                 >
                   Register Free
@@ -157,52 +185,49 @@ if (loading) {
                   href="/post-property"
                   className="
                     border
-                    border-[#C89B1C]
-                    text-[#C89B1C]
-                    px-5
-                    py-2.5
+                    border-[#B88A1A]
+                    text-[#9A720C]
+                    hover:bg-[#FFF9EC]
+                    px-4
+                    py-2
                     rounded-xl
-                    font-medium
-                    hover:bg-[#FFF8E6]
+                    text-sm
+                    font-bold
                     transition-all
-                    cursor-pointer
                   "
                 >
                   + List Property
                 </Link>
-              <div
-                ref={dropdownRef}
-                className="relative"
-              >
-                <button
-                  onClick={() =>
-                    setOpen(!open)
-                  }
-                  className="
-                    h-11
-                    w-11
-                    rounded-full
-                    bg-[#C89B1C]
-                    text-white
-                    flex
-                    items-center
-                    justify-center
-                    hover:opacity-90
-                    cursor-pointer
-                  "
+
+                <div
+                  ref={dropdownRef}
+                  className="relative"
                 >
-                  {userName ? (
-                    <span className="font-semibold">
-                      {userName
-                        .charAt(0)
-                        .toUpperCase()}
+                  <button
+                    onClick={() => setOpen(!open)}
+                    className="
+                      flex
+                      items-center
+                      gap-2
+                      px-2.5
+                      py-1.5
+                      rounded-full
+                      border
+                      border-[#E8E1D4]
+                      bg-white
+                      hover:bg-[#FAFAF8]
+                      cursor-pointer
+                      transition-all
+                    "
+                  >
+                    <div className="h-7 w-7 rounded-full bg-[#9A720C] text-white flex items-center justify-center text-xs font-bold uppercase">
+                      {userName ? userName.charAt(0) : "U"}
+                    </div>
+                    <span className="text-xs font-bold text-gray-800">
+                      {userName ? userName.split(" ")[0] : "User"}
                     </span>
-                  ) : (
-                    <UserCircle2
-                      size={22}
-                    />
-                  )}
-                </button>
+                    <span className="text-xs text-gray-400">▾</span>
+                  </button>
 
                 {open && (
                   <div

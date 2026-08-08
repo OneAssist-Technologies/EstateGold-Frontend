@@ -16,257 +16,75 @@ interface Props {
   properties: Property[];
 }
 
-export default function SimilarProperties({
-  properties,
-}: Props) {
+function formatPrice(price?: number): string {
+  if (!price || isNaN(price)) return "₹0";
+  if (price >= 10000000) {
+    const cr = (price / 10000000).toFixed(2);
+    return `₹${cr.replace(/\.00$/, "")} Cr`;
+  } else if (price >= 100000) {
+    const l = (price / 100000).toFixed(1);
+    return `₹${l.replace(/\.0$/, "")} L`;
+  } else {
+    return `₹${price.toLocaleString("en-IN")}`;
+  }
+}
 
+export default function SimilarProperties({ properties }: Props) {
   const router = useRouter();
 
-  if (!properties.length) return null;
+  if (!properties || properties.length === 0) return null;
+
+  const city = properties[0]?.city || "Mumbai";
 
   return (
+    <div className="py-4 space-y-3 border-t border-[#ECE7DB] mt-4">
+      <h2 className="text-base font-bold font-serif text-[#161616]">
+        Similar Properties in {city}
+      </h2>
 
-    <div
-      className="
-        mt-8
-        bg-white
-        border
-        border-[#E8DCC1]
-        rounded-[30px]
-        p-8
-      "
-    >
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {properties.slice(0, 2).map((item) => {
+          const mainPhoto =
+            item.photos && item.photos.length > 0
+              ? item.photos[0].startsWith("http")
+                ? item.photos[0]
+                : `http://localhost:5000/uploads/properties/${item.photos[0]}`
+              : "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80";
 
-      {/* Header */}
-
-      <div className="flex justify-between items-center mb-8">
-
-        <div>
-
-          <h2 className="text-3xl font-bold">
-
-            Similar Properties
-
-          </h2>
-
-          <p className="text-gray-500 mt-2">
-
-            You may also like these properties
-
-          </p>
-
-        </div>
-
-        <button
-
-          onClick={() =>
-            router.push("/property-listing")
-          }
-
-          className="
-            h-12
-            px-6
-            rounded-xl
-            border
-            border-[#C89B1C]
-            text-[#C89B1C]
-            hover:bg-[#FFF7E2]
-            transition
-          "
-        >
-
-          View All
-
-        </button>
-
-      </div>
-
-      {/* Cards */}
-
-      <div
-        className="
-          grid
-          lg:grid-cols-3
-          md:grid-cols-2
-          gap-8
-        "
-      >
-
-        {properties.map((property) => {
-
-          const image =
-            property.photos?.length
-              ? property.photos[0]
-              : "/images/property-placeholder.jpg";
+          const title = `${item.bedrooms || 3} BHK ${item.propertyType || "Property"} — ${item.locality || "City"}`;
 
           return (
-
             <div
-              key={property._id}
-              className="
-                bg-white
-                rounded-3xl
-                border
-                border-[#E8DCC1]
-                overflow-hidden
-                hover:shadow-xl
-                hover:-translate-y-1
-                transition-all
-                duration-300
-              "
+              key={item._id}
+              onClick={() => router.push(`/property-detail/${item._id}`)}
+              className="bg-white rounded-xl border border-[#ECE7DB] overflow-hidden hover:shadow-xs transition-all cursor-pointer group"
             >
-
-              {/* Image */}
-
-              <div className="relative h-60">
-
-                <Image
-                  src={image}
-                  alt={property.propertyType}
-                  fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  className="object-cover"
+              <div className="relative h-40 w-full overflow-hidden">
+                <img
+                  src={mainPhoto}
+                  alt={item.propertyType}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
 
-                <div
-                  className="
-                    absolute
-                    left-4
-                    top-4
-                    bg-[#C89B1C]
-                    text-white
-                    px-4
-                    py-2
-                    rounded-full
-                    text-sm
-                  "
-                >
-
-                  {property.purpose}
-
+                <div className="absolute bottom-2 left-2 bg-[#9A720C]/90 backdrop-blur-xs text-white text-xs font-bold px-2.5 py-0.5 rounded-md font-serif">
+                  {formatPrice(item.price)}
                 </div>
-
               </div>
 
-              {/* Content */}
-
-              <div className="p-6">
-
-                <h3 className="text-2xl font-semibold">
-
-                  {property.propertyType}
-
-                </h3>
-
-                <div
-                  className="
-                    flex
-                    items-center
-                    gap-2
-                    text-gray-500
-                    mt-3
-                  "
-                >
-
-                  <MapPin size={16} />
-
-                  {property.locality},{" "}
-                  {property.city}
-
+              <div className="p-3 space-y-1">
+                <h4 className="text-xs font-bold text-gray-900 truncate font-serif">
+                  {title}
+                </h4>
+                <div className="flex items-center gap-2 text-[10px] text-gray-500 font-medium">
+                  <span>🛏️ {item.bedrooms || 3} Beds</span>
+                  <span>•</span>
+                  <span>📐 {item.area ? `${item.area.toLocaleString()} sq ft` : "1,200 sq ft"}</span>
                 </div>
-
-                <div
-                  className="
-                    flex
-                    justify-between
-                    mt-6
-                    text-sm
-                  "
-                >
-
-                  <div className="flex items-center gap-2">
-
-                    <BedDouble size={18} />
-
-                    {property.bedrooms}
-
-                  </div>
-
-                  <div className="flex items-center gap-2">
-
-                    <Bath size={18} />
-
-                    {property.bathrooms}
-
-                  </div>
-
-                  <div className="flex items-center gap-2">
-
-                    <Scan size={18} />
-
-                    {property.area} sqft
-
-                  </div>
-
-                </div>
-
-                <div className="mt-7">
-
-                  <h2
-                    className="
-                      text-3xl
-                      font-bold
-                      text-[#C89B1C]
-                    "
-                  >
-
-                    ₹
-
-                    {property.price.toLocaleString(
-                      "en-IN"
-                    )}
-
-                  </h2>
-
-                </div>
-
-                <button
-
-                  onClick={() =>
-                    router.push(
-                      `/property/${property._id}`
-                    )
-                  }
-
-                  className="
-                    mt-7
-                    w-full
-                    h-12
-                    rounded-xl
-                    bg-[#C89B1C]
-                    hover:bg-[#B8860B]
-                    text-white
-                    font-semibold
-                    transition
-                  "
-                >
-
-                  View Details
-
-                </button>
-
               </div>
-
             </div>
-
           );
-
         })}
-
       </div>
-
     </div>
-
   );
-
 }

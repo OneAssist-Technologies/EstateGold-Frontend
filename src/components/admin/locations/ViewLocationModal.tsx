@@ -144,24 +144,7 @@ export default function ViewLocationModal({
               </div>
             </div>
 
-            {/* Pincodes Tag List */}
-            {location.pincodes && location.pincodes.length > 0 && (
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-2">
-                  Covered Pincodes ({location.pincodes.length})
-                </label>
-                <div className="flex flex-wrap gap-1.5 p-3 rounded-2xl bg-[#FAFAF8] border border-[#E8E1D4]">
-                  {location.pincodes.map((pin) => (
-                    <span
-                      key={pin}
-                      className="px-2.5 py-1 rounded-lg bg-white border border-[#E8E1D4] text-xs font-mono font-semibold text-gray-700 shadow-2xs"
-                    >
-                      {pin}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
+
 
             {/* Property Types & Services */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

@@ -29,6 +29,33 @@ interface Props {
   onToggleStatus: () => void;
 }
 
+function formatPrice(price?: number): string {
+  if (!price || isNaN(price)) return "₹0";
+  if (price >= 10000000) {
+    const cr = (price / 10000000).toFixed(2);
+    return `₹${cr.replace(/\.00$/, "")} Cr`;
+  } else if (price >= 100000) {
+    const l = (price / 100000).toFixed(1);
+    return `₹${l.replace(/\.0$/, "")} L`;
+  } else {
+    return `₹${price.toLocaleString("en-IN")}`;
+  }
+}
+
+function calculateEMI(price?: number): string {
+  if (!price || isNaN(price) || price === 0) return "₹63,623";
+  const loanAmount = price * 0.8;
+  const annualRate = 0.085;
+  const monthlyRate = annualRate / 12;
+  const tenureMonths = 240;
+  const emi =
+    (loanAmount *
+      monthlyRate *
+      Math.pow(1 + monthlyRate, tenureMonths)) /
+    (Math.pow(1 + monthlyRate, tenureMonths) - 1);
+  return `₹${Math.round(emi).toLocaleString("en-IN")}`;
+}
+
 export default function StickyContactCard({
   property,
   user,
@@ -40,327 +67,111 @@ export default function StickyContactCard({
   onViewEnquiries,
   onToggleStatus,
 }: Props) {
-
   const isGuest = !user;
-
-  const isOwner =
-    user?._id === property.createdBy;
-
+  const isOwner = user?._id === property.createdBy;
   const canManage =
-    isOwner &&
-    (user?.role === "seller"||
-      user?.role === "agent");
+    isOwner && (user?.role === "seller" || user?.role === "agent");
+
+  const displayTitle =
+    property.bedrooms && property.propertyType
+      ? `Luxury ${property.bedrooms} BHK ${property.propertyType}`
+      : property.propertyType || "Luxury Apartment";
 
   return (
+    <div className="space-y-4">
+      {/* Primary Callback Card */}
+      <div className="rounded-2xl overflow-hidden shadow-xs border border-[#ECE7DB] bg-white">
+        {/* Header Gold Banner */}
+        <div className="bg-gradient-to-r from-[#B88A1A] via-[#D4B04C] to-[#8C6605] text-white p-4 space-y-1">
+          <div className="text-2xl font-bold font-serif">
+            {formatPrice(property.price)}
+          </div>
+          <p className="text-xs text-amber-100 font-medium truncate">
+            {displayTitle}
+          </p>
+        </div>
 
-    <div
-      className="
-        sticky
-        top-24
-        bg-white
-        rounded-3xl
-        border
-        border-[#E8DCC1]
-        overflow-hidden
-        shadow-lg
-      "
-    >
+        {/* Callback Form Body */}
+        <div className="p-4 space-y-3">
+          <h3 className="text-xs font-bold text-gray-900">Request a Callback</h3>
 
-      {/* Header */}
+          <div className="space-y-2.5">
+            <input
+              type="text"
+              placeholder="Rahul Gupta"
+              defaultValue={user?.fullName || ""}
+              className="w-full h-9 px-3 text-xs rounded-xl border border-gray-300 focus:border-[#9A720C] focus:ring-1 focus:ring-[#9A720C] outline-none"
+            />
 
-      <div
-        className="
-          bg-gradient-to-r
-          from-[#B8860B]
-          to-[#D4AF37]
-          text-white
-          p-8
-        "
-      >
+            <input
+              type="tel"
+              placeholder="Mobile Number"
+              defaultValue={user?.phone || ""}
+              className="w-full h-9 px-3 text-xs rounded-xl border border-gray-300 focus:border-[#9A720C] focus:ring-1 focus:ring-[#9A720C] outline-none"
+            />
 
-        <h2 className="text-4xl font-bold">
+            <textarea
+              rows={2}
+              defaultValue="I am interested in this property. Please contact me."
+              className="w-full p-2.5 text-xs rounded-xl border border-gray-300 focus:border-[#9A720C] focus:ring-1 focus:ring-[#9A720C] outline-none resize-none"
+            />
 
-          ₹ {property.price.toLocaleString("en-IN")}
-
-        </h2>
-
-        <p className="mt-2 opacity-90">
-
-          {property.propertyType}
-
-        </p>
-
-      </div>
-
-      <div className="p-7">
-
-        {/* GUEST */}
-
-        {isGuest && (
-
-          <>
-
-            <div
-              className="
-                bg-[#FFF9ED]
-                rounded-2xl
-                p-6
-                text-center
-              "
+            <button
+              type="button"
+              onClick={isGuest ? onLogin : onRequestCallback}
+              className="w-full h-10 rounded-xl bg-gradient-to-r from-[#B88A1A] via-[#D4B04C] to-[#8C6605] hover:opacity-95 text-white font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
             >
+              <Phone size={14} /> Request Callback
+            </button>
 
-              <Lock
-                size={45}
-                className="mx-auto text-[#C89B1C]"
-              />
+            <div className="grid grid-cols-2 gap-2 pt-1">
+              <button
+                type="button"
+                onClick={onCall}
+                className="h-8 rounded-xl border border-[#9A720C] text-[#9A720C] hover:bg-[#FFF9EC] text-xs font-semibold flex items-center justify-center gap-1 transition-colors cursor-pointer"
+              >
+                <Phone size={13} /> Call Now
+              </button>
 
-              <h3 className="text-2xl font-bold mt-5">
-
-                Login Required
-
-              </h3>
-
-              <p className="text-gray-500 mt-3">
-
-                Login to contact owner, save
-                property and request callback.
-
-              </p>
-
+              <button
+                type="button"
+                onClick={onWhatsapp}
+                className="h-8 rounded-xl border border-[#9A720C] text-[#9A720C] hover:bg-[#FFF9EC] text-xs font-semibold flex items-center justify-center gap-1 transition-colors cursor-pointer"
+              >
+                <MessageCircle size={13} /> Email
+              </button>
             </div>
 
-            <button
-              onClick={onLogin}
-              className="
-                w-full
-                h-14
-                mt-6
-                rounded-2xl
-                bg-[#C89B1C]
-                text-white
-                flex
-                items-center
-                justify-center
-                gap-3
-              "
-            >
-
-              <LogIn size={20} />
-
-              Login
-
-            </button>
-
-            <button
-              onClick={onLogin}
-              className="
-                w-full
-                h-14
-                mt-4
-                rounded-2xl
-                border-2
-                border-[#C89B1C]
-                text-[#C89B1C]
-                flex
-                items-center
-                justify-center
-                gap-3
-              "
-            >
-
-              <UserPlus size={20} />
-
-              Register
-
-            </button>
-
-          </>
-
-        )}
-
-        {/* OWNER / AGENT */}
-
-        {!isGuest && canManage && (
-
-          <div className="space-y-4">
-
-            <div
-              className="
-                bg-[#F8F8F8]
-                rounded-2xl
-                p-5
-              "
-            >
-
-              <h3 className="font-semibold">
-
-                This is your property
-
-              </h3>
-
-              <p className="text-sm text-gray-500 mt-2">
-
-                Manage your listing below.
-
-              </p>
-
-            </div>
-
-            <button
-              onClick={onEdit}
-              className="
-                w-full
-                h-14
-                rounded-2xl
-                bg-[#C89B1C]
-                text-white
-                flex
-                items-center
-                justify-center
-                gap-3
-              "
-            >
-
-              <Pencil size={18} />
-
-              Edit Property
-
-            </button>
-
-            <button
-              onClick={onViewEnquiries}
-              className="
-                w-full
-                h-14
-                rounded-2xl
-                border
-                border-[#E8DCC1]
-                flex
-                items-center
-                justify-center
-                gap-3
-              "
-            >
-
-              <Eye size={18} />
-
-              View Enquiries
-
-            </button>
-
-            <button
-              onClick={onToggleStatus}
-              className="
-                w-full
-                h-14
-                rounded-2xl
-                border
-                border-[#E8DCC1]
-                flex
-                items-center
-                justify-center
-                gap-3
-              "
-            >
-
-              {property.status === "approved" ? (
-
-                <>
-                  <ToggleRight
-                    className="text-green-600"
-                  />
-                  Deactivate Property
-                </>
-
-              ) : (
-
-                <>
-                  <ToggleLeft
-                    className="text-red-600"
-                  />
-                  Activate Property
-                </>
-
-              )}
-
-            </button>
-
+            <p className="text-[10px] text-gray-400 text-center pt-1 font-medium">
+              Zero brokerage. Direct owner contact.
+            </p>
           </div>
-
-        )}
-
-        {/* BUYER OR OTHER OWNER */}
-
-        {!isGuest && !canManage && (
-
-          <div className="space-y-4">
-
-            <button
-              onClick={onRequestCallback}
-              className="
-                w-full
-                h-14
-                rounded-2xl
-                bg-[#C89B1C]
-                text-white
-                font-semibold
-              "
-            >
-
-              Request Callback
-
-            </button>
-
-            <button
-              onClick={onCall}
-              className="
-                w-full
-                h-14
-                rounded-2xl
-                border
-                border-[#E8DCC1]
-                flex
-                items-center
-                justify-center
-                gap-3
-              "
-            >
-
-              <Phone size={20} />
-
-              Call Owner
-
-            </button>
-
-            <button
-              onClick={onWhatsapp}
-              className="
-                w-full
-                h-14
-                rounded-2xl
-                border
-                border-[#25D366]
-                text-[#25D366]
-                flex
-                items-center
-                justify-center
-                gap-3
-              "
-            >
-
-              <MessageCircle size={20} />
-
-              WhatsApp
-
-            </button>
-
-          </div>
-
-        )}
-
+        </div>
       </div>
 
+      {/* EMI Calculator Card */}
+      <div className="bg-[#FFFDF6] border border-[#F4E3B5] rounded-2xl p-4 space-y-3 shadow-2xs">
+        <div>
+          <h4 className="text-xs font-bold text-gray-900">EMI Calculator</h4>
+          <p className="text-[10px] text-gray-500 font-semibold mt-0.5">
+            At 8.5% for 20 years
+          </p>
+        </div>
+
+        <div className="flex items-baseline justify-between">
+          <span className="text-[11px] font-medium text-gray-600">Monthly EMI</span>
+          <span className="text-lg font-bold font-serif text-[#9A720C]">
+            {calculateEMI(property.price)}
+          </span>
+        </div>
+
+        <button
+          type="button"
+          className="w-full h-8 rounded-xl border border-[#9A720C] text-[#9A720C] hover:bg-[#FFF9EC] text-xs font-bold transition-colors cursor-pointer"
+        >
+          Check Loan Eligibility
+        </button>
+      </div>
     </div>
-
   );
 }
