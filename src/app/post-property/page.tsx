@@ -26,6 +26,7 @@ import api from "../../services/api";
 import { PropertyFormData } from "../../types/property";
 import Navbar from "@/src/components/layout/Navbar";
 import Footer from "@/src/components/layout/Footer";
+import toast from "react-hot-toast";
 
 
 export default function PostPropertyPage() {
@@ -383,6 +384,13 @@ payload.append(
           }
         );
 
+        if (formData.latitude !== undefined) {
+          payload.append("latitude", String(formData.latitude));
+        }
+        if (formData.longitude !== undefined) {
+          payload.append("longitude", String(formData.longitude));
+        }
+
         payload.append(
    "neighbourhood",
    JSON.stringify(formData.neighbourhood)
@@ -404,8 +412,12 @@ if (
 ) {
   setPublished(true);
 }
-      } catch (error) {
-        console.log(error);
+      } catch (error: any) {
+        console.error("Property creation error:", error);
+        const errorMsg =
+          error.response?.data?.message ||
+          "Failed to create property. Please verify location serviceability.";
+        toast.error(errorMsg);
       } finally {
         setLoadingSubmit(false);
       }

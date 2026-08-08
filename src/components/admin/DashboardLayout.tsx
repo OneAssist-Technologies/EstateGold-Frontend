@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
 
 import AdminSidebar from "./AdminSidebar";
@@ -8,8 +9,39 @@ import DashboardCards from "./DashboardCards";
 import ActivityChart from "./ActivityChart";
 import PropertyTypesCard from "./PropertyTypeCard";
 import PendingApprovalCard from "./PendingApprovalCard";
+import { getDashboard } from "@/src/services/adminPropertyService";
 
 export default function DashboardLayout() {
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      const res = await getDashboard();
+      if (res?.success) {
+        setData(res.data);
+      }
+    } catch (err) {
+      console.error("Failed to load admin dashboard data:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const todayStr = useMemo(() => {
+    return new Date().toLocaleDateString("en-IN", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  }, []);
+
   return (
     <div className="flex h-screen bg-[#F7F6F3] overflow-hidden font-sans">
       {/* Sidebar */}
@@ -31,29 +63,37 @@ export default function DashboardLayout() {
             </h1>
 
             <p className="text-xs sm:text-sm text-gray-500 mt-1 sm:mt-2">
-              Wednesday, 17 June 2026
+              {todayStr}
             </p>
           </motion.div>
 
           {/* Stats Cards */}
-          <DashboardCards />
+          <DashboardCards stats={data} loading={loading} />
 
           {/* Grid Layout */}
           <div className="mt-6 sm:mt-8 grid grid-cols-12 gap-6 lg:gap-8">
             {/* Chart */}
             <div className="col-span-12 lg:col-span-8">
-              <ActivityChart />
+              <ActivityChart monthlyStats={data?.monthlyStats} loading={loading} />
             </div>
 
             {/* Property Types */}
             <div className="col-span-12 lg:col-span-4">
-              <PropertyTypesCard />
+              <PropertyTypesCard
+                propertyTypes={data?.propertyTypes}
+                totalProperties={data?.totalProperties}
+                loading={loading}
+              />
             </div>
           </div>
 
           {/* Pending Approval Section */}
           <div className="mt-6 sm:mt-8">
-            <PendingApprovalCard />
+            <PendingApprovalCard
+              pendingProperties={data?.pendingProperties}
+              loading={loading}
+              onRefresh={fetchDashboardData}
+            />
           </div>
         </main>
       </div>

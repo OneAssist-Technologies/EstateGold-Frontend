@@ -17,6 +17,7 @@ import Pagination from "@/src/components/property-listing/Pagination";
 import EditPropertyModal from "@/src/components/my-properties/EditPropertyModal";
 import DeletePropertyModal from "@/src/components/my-properties/DeletePropertyModal";
 
+import { useAuth } from "@/src/context/AuthContext";
 import { Property } from "@/src/types/property";
 
 import {
@@ -26,8 +27,14 @@ Plus
 
 import { motion } from "framer-motion";
 export default function MyPropertiesPage() {
-
+const { user, isAuthenticated, loading: authLoading } = useAuth();
 const router = useRouter();
+
+useEffect(() => {
+  if (!authLoading && !isAuthenticated) {
+    router.push("/login");
+  }
+}, [authLoading, isAuthenticated, router]);
 const [properties,setProperties]=
 useState<Property[]>([]);
 
@@ -283,12 +290,12 @@ return (
 
           <div>
 
-            <h1 className="text-5xl font-bold text-[#161616]">
-              My Properties
+            <h1 className="text-4xl sm:text-5xl font-bold text-[#161616]">
+              {user?.fullName ? `${user.fullName}'s Listed Properties` : "My Properties"}
             </h1>
 
-            <p className="text-gray-500 mt-3 text-lg">
-              Manage all your listed properties
+            <p className="text-gray-500 mt-2 text-base sm:text-lg">
+              Showing property listings owned by {user?.fullName || "your account"} ({user?.email || "Authenticated"})
             </p>
 
           </div>

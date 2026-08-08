@@ -16,365 +16,217 @@ import Navbar from "@/src/components/layout/Navbar";
 import Footer from "@/src/components/layout/Footer";
 
 export default function PropertyListingPage() {
- const [properties, setProperties] = useState<Property[]>([]);
-const [loading, setLoading] = useState(true);
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(true);
 
-const [page, setPage] = useState(1);
-const [limit, setLimit] = useState(10);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(12);
 
-const [totalPages, setTotalPages] = useState(1);
-const [totalProperties, setTotalProperties] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalProperties, setTotalProperties] = useState(0);
 
-const [search, setSearch] = useState("");
-const [purpose, setPurpose] = useState("");
+  const [search, setSearch] = useState("");
+  const [purpose, setPurpose] = useState("Sale"); // Default For Buy as per reference screenshot
 
-const [city, setCity] = useState("");
-const [propertyType, setPropertyType] = useState("");
-const [bedrooms, setBedrooms] = useState("");
-const [furnishing, setFurnishing] = useState("");
+  const [city, setCity] = useState("");
+  const [propertyType, setPropertyType] = useState("");
+  const [bedrooms, setBedrooms] = useState("");
+  const [furnishing, setFurnishing] = useState("");
 
-const [sort, setSort] = useState("latest");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
 
-const [view, setView] = useState<"grid" | "list">("grid");
- const fetchProperties = async () => {
-  try {
-    setLoading(true);
+  const [sort, setSort] = useState("latest");
+  const [view, setView] = useState<"grid" | "list">("grid");
 
-    const response = await api.get("/properties", {
-      params: {
-        page,
-        limit,
-        search,
-        purpose,
-        city,
-        propertyType,
-        bedrooms,
-        furnishing,
-        sort,
-      },
-    });
+  const fetchProperties = async () => {
+    try {
+      setLoading(true);
 
-    setProperties(response.data.data || []);
+      const response = await api.get("/properties", {
+        params: {
+          page,
+          limit,
+          search,
+          purpose,
+          city,
+          propertyType,
+          bedrooms,
+          furnishing,
+          minPrice,
+          maxPrice,
+          sort,
+        },
+      });
 
-    setTotalPages(
-      response.data.pagination?.totalPages || 1
-    );
+      setProperties(response.data.data || []);
+      setTotalPages(response.data.pagination?.totalPages || 1);
+      setTotalProperties(response.data.pagination?.totalProperties || 0);
+    } catch (error) {
+      console.error("Failed to fetch properties:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    setTotalProperties(
-      response.data.pagination?.totalProperties || 0
-    );
-  } catch (error) {
-    console.error(error);
-  } finally {
-    setLoading(false);
-  }
-};
+  useEffect(() => {
+    fetchProperties();
+  }, [
+    page,
+    limit,
+    search,
+    purpose,
+    city,
+    propertyType,
+    bedrooms,
+    furnishing,
+    minPrice,
+    maxPrice,
+    sort,
+  ]);
 
-useEffect(() => {
-  fetchProperties();
-}, [
-  page,
-  limit,
-  search,
-  purpose,
-  city,
-  propertyType,
-  bedrooms,
-  furnishing,
-  sort,
-]);
-
-  return (
-      <>
-        <Navbar/>
-    <div className="h-screen bg-white flex flex-col">
-
-      {/* Sticky Search Header */}
-
-     <motion.div
-  initial={{
-    y: -40,
-    opacity: 0,
-  }}
-  animate={{
-    y: 0,
-    opacity: 1,
-  }}
-  transition={{
-    duration: 0.5,
-  }}
-  className="
-    sticky
-    top-0
-    z-40
-    bg-white
-    border-b
-    border-[#E8DCC1]
-  "
->
-        <SearchHeader
-          purpose={purpose}
-          setPurpose={setPurpose}
-          search={search}
-          setSearch={setSearch}
-        />
-      </motion.div>
-
-      {/* Content */}
-
-      <div
-        className="
-          flex-1
-          max-w-[1450px]
-          mx-auto
-          w-full
-          px-8
-          py-8
-          overflow-hidden
-        "
-      >
-        <div
-          className="
-            grid
-            grid-cols-12
-            gap-8
-            h-full
-          "
-        >
-          {/* Filter Sidebar */}
-
-<motion.div
-  initial={{
-    opacity: 0,
-    x: -40,
-  }}
-  animate={{
-    opacity: 1,
-    x: 0,
-  }}
-  transition={{
-    duration: 0.6,
-  }}
-  className="
-    col-span-3
-    overflow-y-auto
-    pr-2
-  "
->
-      <FilterSidebar
-  city={city}
-  setCity={(value) => {
-    setCity(value);
-    setPage(1);
-  }}
-  propertyType={propertyType}
-  setPropertyType={(value) => {
-    setPropertyType(value);
-    setPage(1);
-  }}
-  bedrooms={bedrooms}
-  setBedrooms={(value) => {
-    setBedrooms(value);
-    setPage(1);
-  }}
-  furnishing={furnishing}
-  setFurnishing={(value) => {
-    setFurnishing(value);
-    setPage(1);
-  }}
-  clearFilters={() => {
+  const handleClearFilters = () => {
     setSearch("");
     setPurpose("");
     setCity("");
     setPropertyType("");
     setBedrooms("");
     setFurnishing("");
+    setMinPrice("");
+    setMaxPrice("");
     setSort("latest");
     setPage(1);
-  }}
-/>
-          </motion.div>
+  };
 
-          {/* Property Section */}
+  return (
+    <div className="min-h-screen bg-white flex flex-col font-sans text-gray-900">
+      <Navbar />
 
-          <motion.div
-  initial={{
-    opacity: 0,
-    x: 40,
-  }}
-  animate={{
-    opacity: 1,
-    x: 0,
-  }}
-  transition={{
-    duration: 0.6,
-  }}
-  className="
-    col-span-9
-    overflow-y-auto
-    pr-2
-  "
->
-            <div className="flex justify-between items-center mb-6">
-
-    <SortBar
-  total={totalProperties}
-  view={view}
-  setView={setView}
-  sort={sort}
-  setSort={setSort}
-/>
-             
-            </div>
-
-          {loading ? (
- <motion.div
-  initial={{
-    opacity: 0,
-  }}
-  animate={{
-    opacity: 1,
-  }}
-  transition={{
-    duration: 0.4,
-  }}
-  className="flex items-center justify-center h-[500px]"
->
-    <div className="text-center">
-
-      <div
-        className="
-          h-12
-          w-12
-          mx-auto
-          rounded-full
-          border-4
-          border-[#E8DCC1]
-          border-t-[#C89B1C]
-          animate-spin
-        "
+      {/* Top Search & Filter Bar */}
+      <SearchHeader
+        purpose={purpose}
+        setPurpose={(val) => {
+          setPurpose(val);
+          setPage(1);
+        }}
+        search={search}
+        setSearch={(val) => {
+          setSearch(val);
+          setPage(1);
+        }}
       />
 
-      <p className="mt-5 text-gray-500 text-lg">
-        Loading Properties...
-      </p>
+      {/* Main Two-Column Layout */}
+      <main className="flex-1 max-w-[1500px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+          {/* Left Sidebar Filter */}
+          <aside className="lg:col-span-3 space-y-6">
+            <FilterSidebar
+              city={city}
+              setCity={(val) => {
+                setCity(val);
+                setPage(1);
+              }}
+              propertyType={propertyType}
+              setPropertyType={(val) => {
+                setPropertyType(val);
+                setPage(1);
+              }}
+              bedrooms={bedrooms}
+              setBedrooms={(val) => {
+                setBedrooms(val);
+                setPage(1);
+              }}
+              furnishing={furnishing}
+              setFurnishing={(val) => {
+                setFurnishing(val);
+                setPage(1);
+              }}
+              minPrice={minPrice}
+              setMinPrice={(val) => {
+                setMinPrice(val);
+                setPage(1);
+              }}
+              maxPrice={maxPrice}
+              setMaxPrice={(val) => {
+                setMaxPrice(val);
+                setPage(1);
+              }}
+              clearFilters={handleClearFilters}
+            />
+          </aside>
 
-    </div>
-  </motion.div>
-) : properties.length === 0 ? (
-  <div
-    className="
-      flex
-      flex-col
-      items-center
-      justify-center
-      h-[500px]
-      border
-      border-dashed
-      border-[#E8DCC1]
-      rounded-3xl
-      bg-[#FCFBF8]
-    "
-  >
-    <img
-      src="/images/no-properties.svg"
-      alt="No Properties"
-      className="w-48 mb-6"
-    />
+          {/* Right Property Grid Section */}
+          <section className="lg:col-span-9 space-y-4">
+            <SortBar
+              total={totalProperties}
+              view={view}
+              setView={setView}
+              sort={sort}
+              setSort={(val) => {
+                setSort(val);
+                setPage(1);
+              }}
+            />
 
-    <h2 className="text-3xl font-semibold text-[#161616]">
-      No Properties Found
-    </h2>
+            {loading ? (
+              <div className="flex flex-col items-center justify-center h-[400px] bg-white rounded-2xl border border-[#ECE7DB]">
+                <div className="h-10 w-10 rounded-full border-3 border-[#E8DCC1] border-t-[#9A720C] animate-spin" />
+                <p className="mt-4 text-xs font-semibold text-gray-500">
+                  Loading verified properties...
+                </p>
+              </div>
+            ) : properties.length === 0 ? (
+              <div className="flex flex-col items-center justify-center p-12 bg-[#FAFAF8] rounded-2xl border border-dashed border-[#ECE7DB] text-center">
+                <div className="h-14 w-14 rounded-2xl bg-[#FFF9EC] border border-[#F4E3B5] text-[#9A720C] flex items-center justify-center font-bold text-xl mb-4">
+                  🏠
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">
+                  No Properties Found
+                </h3>
+                <p className="text-xs text-gray-500 max-w-sm mt-1">
+                  We couldn't find any properties matching your selected filters. Try clearing some filters or searching for another location.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleClearFilters}
+                  className="mt-5 px-5 py-2.5 rounded-xl bg-[#9A720C] text-white text-xs font-bold hover:bg-[#856108] transition-all shadow-xs cursor-pointer"
+                >
+                  Clear All Filters
+                </button>
+              </div>
+            ) : (
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={view}
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -15 }}
+                  transition={{ duration: 0.25 }}
+                >
+                  {view === "grid" ? (
+                    <PropertyGrid properties={properties} />
+                  ) : (
+                    <PropertyList properties={properties} />
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            )}
 
-    <p className="text-gray-500 mt-3 max-w-md text-center">
-      We couldnt find any properties matching your
-      search or filters. Try changing the filters or
-      clearing your search.
-    </p>
-
-    <button
-      onClick={() => {
-        setSearch("");
-        setPurpose("");
-        setPage(1);
-      }}
-      className="
-        mt-8
-        px-8
-        py-3
-        rounded-xl
-        bg-[#C89B1C]
-        text-white
-        hover:bg-[#B68B17]
-        transition
-      "
-    >
-      Clear Filters
-    </button>
-  </div>
-) : <AnimatePresence mode="wait">
-
-<motion.div
-  key={view}
-  initial={{
-    opacity: 0,
-    y: 20,
-  }}
-  animate={{
-    opacity: 1,
-    y: 0,
-  }}
-  exit={{
-    opacity: 0,
-    y: -20,
-  }}
-  transition={{
-    duration: 0.35,
-  }}
->
-
-{view === "grid" ? (
-  <PropertyGrid
-    properties={properties}
-  />
-) : (
-  <PropertyList
-    properties={properties}
-  />
-)}
-
-</motion.div>
-
-</AnimatePresence>}
-
-         {!loading &&
-  properties.length > 0 &&
-  totalPages > 1 && (
-  <motion.div
-  initial={{
-    opacity: 0,
-    y: 20,
-  }}
-  animate={{
-    opacity: 1,
-    y: 0,
-  }}
-  transition={{
-    delay: 0.2,
-  }}
->
-  <Pagination
-    currentPage={page}
-    totalPages={totalPages}
-    setCurrentPage={setPage}
-  />
-</motion.div>
-)}
-          </motion.div>
+            {!loading && properties.length > 0 && totalPages > 1 && (
+              <div className="pt-6">
+                <Pagination
+                  currentPage={page}
+                  totalPages={totalPages}
+                  setCurrentPage={setPage}
+                />
+              </div>
+            )}
+          </section>
         </div>
-      </div>
+      </main>
+
+      <Footer />
     </div>
-     <Footer/>
-        </>
   );
 }

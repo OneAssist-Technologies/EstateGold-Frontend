@@ -114,13 +114,23 @@ function StatCard({
   );
 }
 
-export default function DashboardCards() {
+interface DashboardCardsProps {
+  stats?: {
+    totalProperties: number;
+    pending: number;
+    users: number;
+    verifiedAgents: number;
+    approved?: number;
+    rejected?: number;
+  } | null;
+  loading?: boolean;
+}
 
+export default function DashboardCards({ stats, loading }: DashboardCardsProps) {
   const cards = [
-
     {
       title: "Total Properties",
-      value: 1245,
+      value: loading ? "..." : (stats?.totalProperties ?? 0),
       icon: (
         <Building2
           size={30}
@@ -128,13 +138,12 @@ export default function DashboardCards() {
         />
       ),
       color: "bg-[#FFF7E2]",
-      change: "+12% this month",
+      change: `${stats?.approved ?? 0} approved listings`,
       positive: true,
     },
-
     {
       title: "Pending Approval",
-      value: 38,
+      value: loading ? "..." : (stats?.pending ?? 0),
       icon: (
         <Clock3
           size={30}
@@ -142,13 +151,12 @@ export default function DashboardCards() {
         />
       ),
       color: "bg-[#FFF4E5]",
-      change: "+6 today",
-      positive: true,
+      change: "Requires admin review",
+      positive: (stats?.pending ?? 0) === 0,
     },
-
     {
       title: "Total Users",
-      value: 842,
+      value: loading ? "..." : (stats?.users ?? 0),
       icon: (
         <Users
           size={30}
@@ -156,13 +164,12 @@ export default function DashboardCards() {
         />
       ),
       color: "bg-[#EEF5FF]",
-      change: "+24 new users",
+      change: "Registered platform users",
       positive: true,
     },
-
     {
       title: "Verified Agents",
-      value: 112,
+      value: loading ? "..." : (stats?.verifiedAgents ?? 0),
       icon: (
         <ShieldCheck
           size={30}
@@ -170,24 +177,22 @@ export default function DashboardCards() {
         />
       ),
       color: "bg-[#EEFFF3]",
-      change: "+8 this week",
+      change: "Verified professionals",
       positive: true,
     },
-
   ];
 
   return (
-
     <div
       className="
         grid
-        grid-cols-4
+        grid-cols-1
+        sm:grid-cols-2
+        lg:grid-cols-4
         gap-6
       "
     >
-
       {cards.map((card, index) => (
-
         <motion.div
           key={card.title}
           initial={{
@@ -202,17 +207,11 @@ export default function DashboardCards() {
             delay: index * 0.1,
           }}
         >
-
           <StatCard
             {...card}
           />
-
         </motion.div>
-
       ))}
-
     </div>
-
   );
-
 }

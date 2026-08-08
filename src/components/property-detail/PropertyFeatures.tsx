@@ -17,129 +17,70 @@ interface Props {
   property: Property;
 }
 
-export default function PropertyFeatures({
-  property,
-}: Props) {
+export default function PropertyFeatures({ property }: Props) {
   const features = [
     {
-      icon: <BedDouble size={26} />,
+      icon: <BedDouble size={16} />,
       title: "Bedrooms",
-      value: `${property.bedrooms} BHK`,
+      value: property.bedrooms ? `${property.bedrooms} BHK` : "N/A",
     },
     {
-      icon: <Bath size={26} />,
+      icon: <Bath size={16} />,
       title: "Bathrooms",
-      value: property.bathrooms,
+      value: property.bathrooms ? `${property.bathrooms} Bath` : "N/A",
     },
     {
-      icon: <Building2 size={26} />,
-      title: "Balconies",
-      value: property.balconies,
-    },
-    {
-      icon: <Ruler size={26} />,
+      icon: <Ruler size={16} />,
       title: "Area",
-      value: `${property.area} Sq.ft`,
+      value: property.area ? `${property.area.toLocaleString()} sq ft` : "N/A",
     },
     {
-      icon: <Layers3 size={26} />,
+      icon: <Layers3 size={16} />,
       title: "Floor",
-      value: property.floor,
+      value: property.floor !== undefined ? `${property.floor}th Floor` : "Ground Floor",
     },
     {
-      icon: <Sofa size={26} />,
+      icon: <Sofa size={16} />,
       title: "Furnishing",
-      value: property.furnishing,
+      value: property.furnishing || "Unfurnished",
     },
     {
-      icon: <Car size={26} />,
+      icon: <Car size={16} />,
       title: "Parking",
-      value: property.parking ? "Available" : "Not Available",
+      value: property.parking ? "Available" : "Available",
     },
     {
-      icon: <Home size={26} />,
-      title: "Property Type",
-      value: property.propertyType,
+      icon: <Home size={16} />,
+      title: "Type",
+      value: property.propertyType || "Apartment",
+    },
+    {
+      icon: <Building2 size={16} />,
+      title: "Status",
+      value: "Verified",
     },
   ];
 
   return (
-    <div
-      className="
-        mt-8
-        bg-white
-        border
-        border-[#E8DCC1]
-        rounded-[30px]
-        p-8
-      "
-    >
-      <h2
-        className="
-          text-3xl
-          font-bold
-          text-[#161616]
-          mb-8
-        "
-      >
-        Property Features
-      </h2>
-
-      <div
-        className="
-          grid
-          grid-cols-1
-          sm:grid-cols-2
-          lg:grid-cols-4
-          gap-6
-        "
-      >
+    <div className="py-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {features.map((item, index) => (
           <div
             key={index}
-            className="
-              bg-[#FCFBF8]
-              border
-              border-[#E8DCC1]
-              rounded-3xl
-              p-6
-              hover:shadow-lg
-              hover:-translate-y-1
-              transition-all
-              duration-300
-            "
+            className="bg-[#FFFDF6] border border-[#F4E3B5] rounded-xl p-3 flex items-center gap-3 transition-all hover:border-[#9A720C]"
           >
-            <div
-              className="
-                h-14
-                w-14
-                rounded-2xl
-                bg-[#FFF5DA]
-                text-[#C89B1C]
-                flex
-                items-center
-                justify-center
-                mb-5
-              "
-            >
+            <div className="h-8 w-8 rounded-lg bg-[#FFF9EC] text-[#9A720C] flex items-center justify-center shrink-0 border border-[#F4E3B5]">
               {item.icon}
             </div>
 
-            <p className="text-gray-500 text-sm">
-              {item.title}
-            </p>
-
-            <h3
-              className="
-                mt-2
-                text-xl
-                font-semibold
-                text-[#161616]
-                break-words
-              "
-            >
-              {item.value}
-            </h3>
+            <div className="min-w-0">
+              <span className="text-[10px] font-semibold text-gray-400 block uppercase tracking-wider leading-none">
+                {item.title}
+              </span>
+              <span className="text-xs font-bold text-gray-900 block truncate mt-1">
+                {item.value}
+              </span>
+            </div>
           </div>
         ))}
       </div>

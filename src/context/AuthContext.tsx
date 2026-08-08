@@ -93,15 +93,12 @@ export function AuthProvider({
   };
 
   const logout = () => {
-    localStorage.removeItem(
-      "user"
-    );
-
-    localStorage.removeItem(
-      "token"
-    );
-
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
     setUser(null);
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
   };
 
   const refreshUser = async () => {

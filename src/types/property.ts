@@ -59,6 +59,9 @@ export interface PropertyFormData {
   locality: string;
   society: string;
   address: string;
+  latitude?: number;
+  longitude?: number;
+  serviceableAreaId?: string;
 
   bedrooms: number;
   bathrooms: number;
@@ -113,8 +116,10 @@ export interface Property {
 
   photos: string[];
 
+  neighbourhood?: Neighbourhood | any;
+
   status: string;
-createdBy: string; 
+  createdBy: string; 
   createdAt: string;
   updatedAt: string;
 }

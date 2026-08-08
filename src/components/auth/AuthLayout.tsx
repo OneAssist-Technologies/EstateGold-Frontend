@@ -1,9 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-import { Home, Check } from "lucide-react";
+import { Check } from "lucide-react";
 import AuthImage from "../../assests/auth.jpg";
+import Logo from "../common/Logo";
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -38,14 +38,9 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
         {/* Content Aligned Bottom Left */}
         <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-10 lg:p-14 text-white z-10">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 mb-6 sm:mb-8 group">
-            <div className="h-12 w-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 text-white shadow-lg group-hover:scale-105 transition-transform">
-              <Home size={24} className="text-white" />
-            </div>
-            <h2 className="text-3xl font-serif font-bold text-white tracking-wide">
-              EstateGold
-            </h2>
-          </Link>
+          <div className="mb-6 sm:mb-8">
+            <Logo lightText size="lg" />
+          </div>
 
           {/* Heading */}
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold leading-tight text-white mb-3 sm:mb-4">

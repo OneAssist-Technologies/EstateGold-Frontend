@@ -449,39 +449,7 @@ export default function ModifyServiceArea({ locationId }: ModifyServiceAreaProps
               </h2>
             </div>
 
-            <div className="mb-6">
-              <label className="block text-xs font-semibold text-gray-700 mb-2">
-                Pincode(s) <span className="text-red-500">*</span>
-              </label>
 
-              <div className="w-full min-h-[48px] p-2 rounded-xl border border-[#E8E1D4] bg-[#FAFAF8] flex items-center gap-2 flex-wrap">
-                {pincodes.map((pin) => (
-                  <span
-                    key={pin}
-                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white border border-[#E8E1D4] text-xs font-semibold text-[#161616]"
-                  >
-                    <span>{pin}</span>
-                    <button
-                      type="button"
-                      onClick={() => removePincodeTag(pin)}
-                      className="text-gray-400 hover:text-red-500"
-                    >
-                      <X size={13} />
-                    </button>
-                  </span>
-                ))}
-
-                <input
-                  type="text"
-                  placeholder="Add more pincodes..."
-                  value={pincodeInput}
-                  onChange={(e) => setPincodeInput(e.target.value)}
-                  onKeyDown={handlePincodeKeyDown}
-                  onBlur={() => pincodeInput && addPincodeTag(pincodeInput)}
-                  className="flex-1 min-w-[140px] bg-transparent text-sm outline-none text-[#161616] px-2 py-1"
-                />
-              </div>
-            </div>
 
             <div className="mb-6">
               <label className="block text-xs font-semibold text-gray-700 mb-3">
