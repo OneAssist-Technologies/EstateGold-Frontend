@@ -12,6 +12,8 @@ import LocationTable from "./LocationTable";
 import LocationPagination from "./LocationPagination";
 import ViewLocationModal from "./ViewLocationModal";
 import DeleteLocationModal from "./DeleteLocationModal";
+import CityRequestNotificationCard from "../property-management/CityRequestNotificationCard";
+import CityRequestModal from "../property-management/CityRequestModal";
 
 export default function LocationManagement() {
   const router = useRouter();
@@ -29,6 +31,11 @@ export default function LocationManagement() {
   const [viewingLocation, setViewingLocation] = useState<ServiceLocation | null>(null);
   const [deletingLocation, setDeletingLocation] = useState<ServiceLocation | null>(null);
 
+  // City Property Requests State
+  const [cityRequests, setCityRequests] = useState<ServiceLocation[]>([]);
+  const [selectedCityRequest, setSelectedCityRequest] = useState<ServiceLocation | null>(null);
+  const [cityModalOpen, setCityModalOpen] = useState(false);
+
   const [stats, setStats] = useState<LocationStatsData>({
     totalCities: 0,
     activeCities: 0,
@@ -36,6 +43,17 @@ export default function LocationManagement() {
     totalListings: 0,
     averageRadius: 0,
   });
+
+  const fetchCityRequests = useCallback(async () => {
+    try {
+      const res = await getLocations({ status: "inactive" });
+      if (res && res.locations) {
+        setCityRequests(res.locations);
+      }
+    } catch (err) {
+      console.error("Failed to fetch city requests:", err);
+    }
+  }, []);
 
   const fetchLocationsData = useCallback(async () => {
     try {
@@ -81,7 +99,19 @@ export default function LocationManagement() {
 
   useEffect(() => {
     fetchLocationsData();
-  }, [fetchLocationsData]);
+    fetchCityRequests();
+  }, [fetchLocationsData, fetchCityRequests]);
+
+  const handleOpenCityModal = (req: ServiceLocation) => {
+    setSelectedCityRequest(req);
+    setCityModalOpen(true);
+  };
+
+  const handleCityRequestSuccess = () => {
+    toast.success("City request handled successfully.");
+    fetchCityRequests();
+    fetchLocationsData();
+  };
 
   const handleConfirmDelete = async (location: ServiceLocation, reason: string) => {
     try {
@@ -89,6 +119,7 @@ export default function LocationManagement() {
       if (res.success) {
         toast.success(`Service area for ${location.city} deleted successfully.`);
         await fetchLocationsData();
+        await fetchCityRequests();
       }
     } catch (err: any) {
       console.error("Failed to delete location:", err);
@@ -99,6 +130,14 @@ export default function LocationManagement() {
 
   return (
     <div className="w-full max-w-[1600px] mx-auto space-y-6 sm:space-y-8">
+      {/* New City Property Addition Request Notification Banner */}
+      {cityRequests.length > 0 && (
+        <CityRequestNotificationCard
+          requests={cityRequests}
+          onSelectRequest={handleOpenCityModal}
+        />
+      )}
+
       <LocationHeader
         search={search}
         onSearchChange={setSearch}
@@ -144,6 +183,14 @@ export default function LocationManagement() {
         location={deletingLocation}
         onClose={() => setDeletingLocation(null)}
         onConfirm={handleConfirmDelete}
+      />
+
+      {/* Popup Modal for Handling New City Property Request */}
+      <CityRequestModal
+        open={cityModalOpen}
+        request={selectedCityRequest}
+        onClose={() => setCityModalOpen(false)}
+        onSuccess={handleCityRequestSuccess}
       />
     </div>
   );

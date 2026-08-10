@@ -16,10 +16,17 @@ interface Props {
 export default function PropertyHero({
   property,
 }: Props) {
+  const getPhotoUrl = (raw?: string) => {
+    if (!raw) return "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80";
+    if (raw.startsWith("http://") || raw.startsWith("https://")) return raw;
+    const clean = raw.replace(/^\/+/, "").replace(/^uploads\/properties\//, "").replace(/^uploads\//, "");
+    return `http://localhost:5000/uploads/properties/${clean}`;
+  };
+
   const images =
     property.photos?.length > 0
-      ? property.photos
-      : ["/images/property-placeholder.jpg"];
+      ? property.photos.map((p) => getPhotoUrl(p))
+      : ["https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80"];
 
   const [current, setCurrent] =
     useState(0);
@@ -68,6 +75,9 @@ export default function PropertyHero({
             key={current}
             src={images[current]}
             alt=""
+            onError={(e: any) => {
+              e.currentTarget.src = "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80";
+            }}
             initial={{
               opacity: 0,
               scale: 1.05,

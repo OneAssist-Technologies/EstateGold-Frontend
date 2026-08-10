@@ -55,6 +55,17 @@ export default function PropertyInfo({ property }: Props) {
 
   const perSqFt = calculatePerSqFt(property.price, property.area);
 
+  const getStatusText = (status?: string) => {
+    switch ((status || "on_sale").toLowerCase()) {
+      case "hold":
+        return "On Hold";
+      case "sold":
+        return "Sold";
+      default:
+        return "On Sale";
+    }
+  };
+
   return (
     <div className="py-3 border-b border-[#ECE7DB] flex flex-col sm:flex-row sm:items-start justify-between gap-4">
       {/* Title & Location */}
@@ -63,12 +74,31 @@ export default function PropertyInfo({ property }: Props) {
           {displayTitle}
         </h1>
 
-        <div className="flex items-center gap-1.5 text-xs text-gray-500 font-medium">
-          <MapPin size={14} className="text-gray-400 shrink-0" />
-          <span>
-            {property.locality ? `${property.locality}, ` : ""}
-            {property.city}
-          </span>
+        <div className="flex items-center gap-3 text-xs text-gray-500 font-medium pt-1 flex-wrap">
+          <div className="flex items-center gap-1.5">
+            <MapPin size={14} className="text-gray-400 shrink-0" />
+            <span>
+              {property.locality ? `${property.locality}, ` : ""}
+              {property.city}
+            </span>
+          </div>
+
+          <span className="text-gray-300">•</span>
+
+          <div className="inline-flex items-center gap-1.5 font-bold text-xs">
+            <span className="text-gray-500 font-normal">Status:</span>
+            <span
+              className={
+                property.availabilityStatus === "hold"
+                  ? "text-amber-700 font-bold bg-amber-50 px-2 py-0.5 rounded border border-amber-200"
+                  : property.availabilityStatus === "sold"
+                  ? "text-gray-700 font-bold bg-gray-100 px-2 py-0.5 rounded border border-gray-200"
+                  : "text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200"
+              }
+            >
+              {getStatusText(property.availabilityStatus)}
+            </span>
+          </div>
         </div>
       </div>
 

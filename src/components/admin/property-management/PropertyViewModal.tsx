@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 
 import { AdminProperty } from "@/src/types/adminProperty";
+import PropertyAvailabilityBadge from "./PropertyAvailabilityBadge";
 
 interface Props {
   open: boolean;
@@ -88,14 +89,17 @@ export default function PropertyViewModal({
             {/* Header */}
 
             <div className="flex justify-between items-center p-6 border-b">
-
               <div>
 
-                <h2 className="text-2xl font-bold">
+                <div className="flex items-center gap-3">
+                  <h2 className="text-2xl font-bold">
 
-                  {property.bedrooms} BHK {property.propertyType}
+                    {property.bedrooms} BHK {property.propertyType}
 
-                </h2>
+                  </h2>
+
+                  <PropertyAvailabilityBadge availabilityStatus={property.availabilityStatus} />
+                </div>
 
                 <p className="text-gray-500 mt-1">
 
@@ -125,21 +129,30 @@ export default function PropertyViewModal({
             {/* Image */}
 
             <div className="p-6">
+              {(() => {
+                const getPhotoUrl = (raw?: string) => {
+                  if (!raw) return "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80";
+                  if (raw.startsWith("http://") || raw.startsWith("https://")) return raw;
+                  const clean = raw.replace(/^\/+/, "").replace(/^uploads\/properties\//, "").replace(/^uploads\//, "");
+                  return `http://localhost:5000/uploads/properties/${clean}`;
+                };
 
-              <img
-                src={
-                  property.photos.length
-                    ? property.photos[0]
-                    : "/images/property-placeholder.jpg"
-                }
-                className="
-                  w-full
-                  h-[350px]
-                  object-cover
-                  rounded-2xl
-                "
-              />
-
+                return (
+                  <img
+                    src={getPhotoUrl(property.photos?.[0])}
+                    alt={property.locality || "Property"}
+                    onError={(e) => {
+                      e.currentTarget.src = "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80";
+                    }}
+                    className="
+                      w-full
+                      h-[350px]
+                      object-cover
+                      rounded-2xl
+                    "
+                  />
+                );
+              })()}
             </div>
 
             {/* Details */}

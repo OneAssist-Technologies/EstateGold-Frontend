@@ -105,7 +105,11 @@ export default function PropertyDetailsPage() {
   }
 
   const isGuest = !isAuthenticated;
-  const isOwner = user?._id === property.createdBy;
+  const currentUserId = user?._id || user?._id;
+  const propertyOwnerId = property.ownerId || property.createdBy;
+  const isPropertyOwner = Boolean(
+    currentUserId && propertyOwnerId && String(currentUserId) === String(propertyOwnerId)
+  );
 
   const handleLoginRequired = () => {
     setLoginOpen(true);
@@ -189,10 +193,10 @@ export default function PropertyDetailsPage() {
           </span>
         </nav>
 
-        {/* Main Two-Column Desktop Grid */}
+        {/* Main Grid Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
-          {/* Left Main Content (~70% width) */}
-          <div className="lg:col-span-8 space-y-2">
+          {/* Left Main Content */}
+          <div className={isPropertyOwner ? "lg:col-span-12 space-y-2" : "lg:col-span-8 space-y-2"}>
             <PropertyGallery
               photos={property.photos}
               purpose={property.purpose}
@@ -217,20 +221,22 @@ export default function PropertyDetailsPage() {
             <SimilarProperties properties={similarProperties} />
           </div>
 
-          {/* Right Sidebar (~30% width) */}
-          <aside className="lg:col-span-4 sticky top-24">
-            <StickyContactCard
-              property={property}
-              user={user}
-              onLogin={handleLoginRequired}
-              onRequestCallback={() => setCallbackOpen(true)}
-              onCall={handleCall}
-              onWhatsapp={handleWhatsapp}
-              onEdit={handleEdit}
-              onViewEnquiries={handleEnquiries}
-              onToggleStatus={handleToggleStatus}
-            />
-          </aside>
+          {/* Right Sidebar - Hidden ONLY when logged-in user is the actual property owner */}
+          {!isPropertyOwner && (
+            <aside className="lg:col-span-4 sticky top-24">
+              <StickyContactCard
+                property={property}
+                user={user}
+                onLogin={handleLoginRequired}
+                onRequestCallback={() => setCallbackOpen(true)}
+                onCall={handleCall}
+                onWhatsapp={handleWhatsapp}
+                onEdit={handleEdit}
+                onViewEnquiries={handleEnquiries}
+                onToggleStatus={handleToggleStatus}
+              />
+            </aside>
+          )}
         </div>
       </main>
 
