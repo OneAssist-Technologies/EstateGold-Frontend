@@ -85,6 +85,7 @@ export interface AdminProperty {
   neighbourhood: Neighbourhood;
 
   status: "pending" | "approved" | "rejected";
+  availabilityStatus?: "on_sale" | "hold" | "sold";
 
  createdBy?: {
   _id: string;

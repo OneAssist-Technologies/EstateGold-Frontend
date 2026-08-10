@@ -21,10 +21,14 @@ export default function PropertyListCard({
   property,
 }: Props) {
   const router = useRouter();
-  const image =
-    property.photos?.length > 0
-      ? property.photos[0]
-      : "../../assests/auth.jpg";
+  const getPhotoUrl = (raw?: string) => {
+    if (!raw) return "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80";
+    if (raw.startsWith("http://") || raw.startsWith("https://")) return raw;
+    const clean = raw.replace(/^\/+/, "").replace(/^uploads\/properties\//, "").replace(/^uploads\//, "");
+    return `http://localhost:5000/uploads/properties/${clean}`;
+  };
+
+  const image = getPhotoUrl(property.photos?.[0]);
 
   return (
     <motion.div

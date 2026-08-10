@@ -107,93 +107,67 @@ rejected:0
 // 0
 
 // );
-const fetchProperties=
-async()=>{
+  const fetchProperties = async (showLoading = true) => {
+    try {
+      if (showLoading) setLoading(true);
 
-try{
+      const response = await api.get("/my-properties", {
+        params: {
+          page,
+          limit,
+          search,
+          status: status === "all" ? "" : status,
+        },
+      });
 
-setLoading(true);
+      setProperties(response.data.data);
+      setCounts(response.data.counts);
+      setTotalPages(response.data.pagination.totalPages);
+      setTotalProperties(response.data.pagination.totalProperties);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      if (showLoading) setLoading(false);
+    }
+  };
 
-const response=
-await api.get("/my-properties", {
-  params: {
-    page,
-    limit,
-    search,
-    status:
-      status === "all" ? "" : status,
-  },
-});
+  const handleStatusChange = async (property: Property) => {
+    try {
+      const isActive = ["approved", "active", "published"].includes(property.status);
+      const newStatus = isActive ? "inactive" : "approved";
 
-setProperties(
+      // 1. Optimistic instant UI update for card toggle
+      setProperties((prev) =>
+        prev.map((item) =>
+          item._id === property._id
+            ? {
+                ...item,
+                status: newStatus,
+              }
+            : item
+        )
+      );
 
-response.data.data
+      // 2. Optimistic instant counts update
+      setCounts((prev) => ({
+        ...prev,
+        active: isActive ? Math.max(0, prev.active - 1) : prev.active + 1,
+        inactive: isActive ? prev.inactive + 1 : Math.max(0, prev.inactive - 1),
+      }));
 
-);
-
-setCounts(
-
-response.data.counts
-
-);
-
-setTotalPages(
-
-response.data.pagination.totalPages
-
-);
-
-setTotalProperties(
-
-response.data.pagination.totalProperties
-
-);
-
-}catch(err){
-
-console.log(err);
-
-}
-
-finally{
-
-setLoading(false);
-
-}
-
-}
-const handleStatusChange = async (
-  property: Property
-) => {
-  try {
-    const newStatus =
-      property.status === "active"
-        ? "inactive"
-        : "active";
-
-    await api.patch(
-      `/properties/${property._id}/status`,
-      {
+      // 3. Background API request
+      await api.patch(`/properties/${property._id}/status`, {
         status: newStatus,
-      }
-    );
+      });
 
-    setProperties((prev) =>
-      prev.map((item) =>
-        item._id === property._id
-          ? {
-              ...item,
-              status: newStatus,
-            }
-          : item
-      )
-    );
-
-    fetchProperties();
-  } catch (err) {
-    console.log(err);
-  }
-};
+      // 4. Silent background sync without triggering full page loading state (zero flicker)
+      fetchProperties(false);
+    } catch (err) {
+      console.log("Status change error:", err);
+      // Revert silent update on error
+      fetchProperties(false);
+    }
+  };
 const handleView=(
 
 id:string

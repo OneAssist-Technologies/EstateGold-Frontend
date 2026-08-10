@@ -38,18 +38,14 @@ export default function PropertyCard({
   "
 >
       <div className="relative h-72 overflow-hidden">
-       <Image
-  src={property.image}
-  alt={property.title}
-  fill
-  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-  className="
-    object-cover
-    transition-transform
-    duration-700
-    group-hover:scale-110
-  "
-/>
+       <img
+          src={property.image || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80"}
+          alt={property.title}
+          onError={(e) => {
+            e.currentTarget.src = "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80";
+          }}
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+        />
 <div
   className="
   absolute

@@ -86,6 +86,7 @@ export interface PropertyFormData {
 export interface Property {
   _id: string;
 
+  ownerId?: string;
   purpose: string;
   propertyType: string;
 
@@ -119,6 +120,7 @@ export interface Property {
   neighbourhood?: Neighbourhood | any;
 
   status: string;
+  availabilityStatus?: "on_sale" | "hold" | "sold";
   createdBy: string; 
   createdAt: string;
   updatedAt: string;

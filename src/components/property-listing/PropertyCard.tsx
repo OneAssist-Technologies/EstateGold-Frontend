@@ -29,12 +29,14 @@ function formatPrice(price?: number): string {
 export default function PropertyCard({ property }: Props) {
   const router = useRouter();
 
-  const photoUrl =
-    property.photos && property.photos.length > 0
-      ? property.photos[0].startsWith("http")
-        ? property.photos[0]
-        : `http://localhost:5000/uploads/properties/${property.photos[0]}`
-      : "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80";
+  const getPhotoUrl = (raw?: string) => {
+    if (!raw) return "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80";
+    if (raw.startsWith("http://") || raw.startsWith("https://")) return raw;
+    const clean = raw.replace(/^\/+/, "").replace(/^uploads\/properties\//, "").replace(/^uploads\//, "");
+    return `http://localhost:5000/uploads/properties/${clean}`;
+  };
+
+  const photoUrl = getPhotoUrl(property.photos?.[0]);
 
   const displayTitle =
     property.bedrooms && property.propertyType
@@ -46,7 +48,8 @@ export default function PropertyCard({ property }: Props) {
   const isSale =
     (property.purpose || "").toLowerCase() === "sale" ||
     (property.purpose || "").toLowerCase() === "buy" ||
-    (property.purpose || "").toLowerCase() === "sell";
+    (property.purpose || "").toLowerCase() === "sell" ||
+    (property.purpose || "").toLowerCase() === "for sale";
 
   const isVideo = (url: string) => {
     if (!url) return false;
@@ -83,6 +86,9 @@ export default function PropertyCard({ property }: Props) {
           <img
             src={photoUrl}
             alt={displayTitle}
+            onError={(e) => {
+              e.currentTarget.src = "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80";
+            }}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
         )}
@@ -91,10 +97,22 @@ export default function PropertyCard({ property }: Props) {
         <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/70 via-black/30 to-transparent pointer-events-none" />
 
         {/* Top Badges */}
-        <div className="absolute top-3 left-3 flex items-center gap-2">
+        <div className="absolute top-3 left-3 flex items-center gap-2 flex-wrap">
           <span className="bg-[#9A720C] text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs">
             {isSale ? "For Sale" : "For Rent"}
           </span>
+
+          {property.availabilityStatus === "hold" && (
+            <span className="bg-amber-600 text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-2xs flex items-center gap-1">
+              <span>🔒</span> On Hold
+            </span>
+          )}
+
+          {property.availabilityStatus === "sold" && (
+            <span className="bg-gray-800 text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-2xs flex items-center gap-1">
+              <span>✓</span> Sold
+            </span>
+          )}
 
           <span className="bg-[#0DBB58] text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-2xs flex items-center gap-1">
             <span className="text-[10px]">✓</span> Verified

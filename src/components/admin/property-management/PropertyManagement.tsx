@@ -16,13 +16,13 @@ import {
   getPropertyById,
   approveProperty,
   rejectProperty,
+  updatePropertyAvailabilityStatus,
 } from "@/src/services/adminPropertyService";
 import { AdminProperty } from "@/src/types/adminProperty";
 
 export default function PropertyManagement() {
   const [loading, setLoading] =
     useState(true);
-
 
   const [page, setPage] =
     useState(1);
@@ -39,11 +39,11 @@ export default function PropertyManagement() {
   const [filterOpen, setFilterOpen] =
     useState(false);
 
-const [properties, setProperties] =
-  useState<AdminProperty[]>([]);
+  const [properties, setProperties] =
+    useState<AdminProperty[]>([]);
 
-const [selectedProperty, setSelectedProperty] =
-  useState<AdminProperty | null>(null);
+  const [selectedProperty, setSelectedProperty] =
+    useState<AdminProperty | null>(null);
   const [viewOpen, setViewOpen] =
     useState(false);
 
@@ -63,42 +63,41 @@ const [selectedProperty, setSelectedProperty] =
     status,
   ]);
 
-async function loadProperties() {
-  try {
-    setLoading(true);
+  async function loadProperties() {
+    try {
+      setLoading(true);
 
-    const response = await getProperties({
-      page,
-      limit: 10,
-      search,
-      status: status === "all" ? "" : status,
-    });
-
-    setProperties(response.properties);
-
-    setPages(response.pages);
-
-    if (response.stats) {
-      setCounts({
-        all: response.stats.total ?? response.total ?? 0,
-        pending: response.stats.pending ?? 0,
-        approved: response.stats.approved ?? 0,
-        rejected: response.stats.rejected ?? 0,
+      const response = await getProperties({
+        page,
+        limit: 10,
+        search,
+        status: status === "all" ? "" : status,
       });
-    } else {
-      setCounts({
-        all: response.total ?? 0,
-        pending: response.properties.filter((item: AdminProperty) => item.status === "pending").length,
-        approved: response.properties.filter((item: AdminProperty) => item.status === "approved").length,
-        rejected: response.properties.filter((item: AdminProperty) => item.status === "rejected").length,
-      });
+
+      setProperties(response.properties);
+      setPages(response.pages);
+
+      if (response.stats) {
+        setCounts({
+          all: response.stats.total ?? response.total ?? 0,
+          pending: response.stats.pending ?? 0,
+          approved: response.stats.approved ?? 0,
+          rejected: response.stats.rejected ?? 0,
+        });
+      } else {
+        setCounts({
+          all: response.total ?? 0,
+          pending: response.properties.filter((item: AdminProperty) => item.status === "pending").length,
+          approved: response.properties.filter((item: AdminProperty) => item.status === "approved").length,
+          rejected: response.properties.filter((item: AdminProperty) => item.status === "rejected").length,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.log(error);
-  } finally {
-    setLoading(false);
   }
-}
 
   const handleView =
     async (id: string) => {
@@ -181,6 +180,17 @@ async function loadProperties() {
     }
   };
 
+  const handleAvailabilityStatusChange = async (id: string, newStatus: "on_sale" | "hold" | "sold") => {
+    try {
+      setLoading(true);
+      await updatePropertyAvailabilityStatus(id, newStatus);
+      await loadProperties();
+    } catch (error) {
+      console.error("Failed to update availability status:", error);
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-8">
       <PropertyHeader />
@@ -207,6 +217,7 @@ async function loadProperties() {
           onView={handleView}
           onApprove={handleQuickApprove}
           onReject={handleQuickReject}
+          onAvailabilityStatusChange={handleAvailabilityStatusChange}
         />
       </motion.div>
 

@@ -18,6 +18,15 @@ export interface ServiceLocation {
   activeListings?: number;
   status: LocationStatus;
   notes?: string;
+  requestedBy?: {
+    _id: string;
+    fullName?: string;
+    email?: string;
+    phone?: string;
+    role?: string;
+  };
+  requestedAddress?: string;
+  requestedLocality?: string;
   metaTitle?: string;
   metaDescription?: string;
   slug?: string;

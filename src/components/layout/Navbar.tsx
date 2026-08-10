@@ -1,9 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
 import {
   Building2,
-  UserCircle2,
+  User,
+  LogOut,
+  ChevronDown,
 } from "lucide-react";
 
 import {
@@ -28,6 +31,9 @@ export default function Navbar() {
   logout,
 } = useAuth();
 
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [open, setOpen] =
     useState(false);
   const [showRoleModal, setShowRoleModal] =
@@ -46,6 +52,18 @@ export default function Navbar() {
   const canManageProperties =
     role === "seller" ||
     role === "agent";
+
+  const isLandingPage = pathname === "/";
+  const isPropertyListingPage = pathname === "/property-listing";
+  const isMyPropertiesPage = pathname === "/my-properties";
+
+  const purposeParam = searchParams ? searchParams.get("purpose") : null;
+  const typeParam = searchParams ? searchParams.get("type") : null;
+
+  const isRentActive = isPropertyListingPage && purposeParam?.toLowerCase() === "rent";
+  const isNewProjectsActive = isPropertyListingPage && typeParam?.toLowerCase() === "newprojects";
+  const isCommercialActive = isPropertyListingPage && typeParam?.toLowerCase() === "commercial";
+  const isBuyActive = isPropertyListingPage && !isRentActive && !isNewProjectsActive && !isCommercialActive;
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -96,11 +114,11 @@ if (loading) {
 }
   return (
     <header className="sticky top-0 z-50 bg-white border-b">
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="h-20 flex items-center justify-between">
 
           {/* Logo */}
-          <Logo />
+          <Logo className="-ml-2 sm:-ml-4 px-1" />
 
           {/* Menu */}
 
@@ -108,28 +126,36 @@ if (loading) {
           <nav className="hidden md:flex items-center gap-8 font-semibold text-sm text-gray-800">
             <Link
               href="/property-listing"
-              className="text-[#9A720C] hover:text-[#9A720C] font-bold transition-colors"
+              className={`transition-colors ${
+                isBuyActive ? "text-[#9A720C] font-bold" : "hover:text-[#9A720C]"
+              }`}
             >
               Buy
             </Link>
 
             <Link
               href="/property-listing?purpose=Rent"
-              className="hover:text-[#9A720C] transition-colors"
+              className={`transition-colors ${
+                isRentActive ? "text-[#9A720C] font-bold" : "hover:text-[#9A720C]"
+              }`}
             >
               Rent
             </Link>
 
             <Link
               href="/property-listing?type=NewProjects"
-              className="hover:text-[#9A720C] transition-colors"
+              className={`transition-colors ${
+                isNewProjectsActive ? "text-[#9A720C] font-bold" : "hover:text-[#9A720C]"
+              }`}
             >
               New Projects
             </Link>
 
             <Link
               href="/property-listing?type=Commercial"
-              className="hover:text-[#9A720C] transition-colors"
+              className={`transition-colors ${
+                isCommercialActive ? "text-[#9A720C] font-bold" : "hover:text-[#9A720C]"
+              }`}
             >
               Commercial
             </Link>
@@ -137,9 +163,11 @@ if (loading) {
             {isAuthenticated && (
               <Link
                 href="/my-properties"
-                className="hover:text-[#9A720C] transition-colors flex items-center gap-1.5"
+                className={`transition-colors flex items-center gap-1.5 ${
+                  isMyPropertiesPage ? "text-[#9A720C] font-bold" : "hover:text-[#9A720C]"
+                }`}
               >
-                <span className="text-gray-500 font-normal">🔖</span>
+                <Building2 size={16} className={isMyPropertiesPage ? "text-[#9A720C]" : "text-gray-600"} />
                 <span>My Properties</span>
               </Link>
             )}
@@ -183,137 +211,72 @@ if (loading) {
               <>
                 <Link
                   href="/post-property"
-                  className="
-                    border
-                    border-[#B88A1A]
-                    text-[#9A720C]
-                    hover:bg-[#FFF9EC]
-                    px-4
-                    py-2
-                    rounded-xl
-                    text-sm
-                    font-bold
-                    transition-all
-                  "
+                  className="border border-[#B88A1A] text-[#9A720C] hover:bg-[#FFF9EC] px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-2xs"
                 >
                   + List Property
                 </Link>
 
-                <div
-                  ref={dropdownRef}
-                  className="relative"
-                >
+                <div ref={dropdownRef} className="relative">
                   <button
                     onClick={() => setOpen(!open)}
-                    className="
-                      flex
-                      items-center
-                      gap-2
-                      px-2.5
-                      py-1.5
-                      rounded-full
-                      border
-                      border-[#E8E1D4]
-                      bg-white
-                      hover:bg-[#FAFAF8]
-                      cursor-pointer
-                      transition-all
-                    "
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#E8E1D4] bg-[#FAF6EE] hover:bg-[#F3EAD9] cursor-pointer transition-all shadow-2xs"
                   >
-                    <div className="h-7 w-7 rounded-full bg-[#9A720C] text-white flex items-center justify-center text-xs font-bold uppercase">
+                    <div className="h-7 w-7 rounded-full bg-[#B88A1A] text-white flex items-center justify-center text-xs font-bold uppercase shadow-2xs">
                       {userName ? userName.charAt(0) : "U"}
                     </div>
-                    <span className="text-xs font-bold text-gray-800">
+                    <span className="text-sm font-semibold text-gray-900">
                       {userName ? userName.split(" ")[0] : "User"}
                     </span>
-                    <span className="text-xs text-gray-400">▾</span>
+                    <ChevronDown size={14} className="text-gray-500" />
                   </button>
 
-                {open && (
-                  <div
-                    className="
-                      absolute
-                      right-0
-                      top-14
-                      bg-white
-                      shadow-xl
-                      rounded-2xl
-                      border
-                      min-w-[240px]
-                      overflow-hidden
-                      z-50
-                    "
-                  >
-                    <div className="px-4 py-4 border-b">
-                      <p className="font-semibold">
-                        {userName}
-                      </p>
+                  {open && (
+                    <div className="absolute right-0 top-14 bg-white shadow-2xl rounded-2xl border border-[#ECE7DB] min-w-[240px] overflow-hidden z-50 animate-in fade-in duration-200">
+                      {/* Top Header Card */}
+                      <div className="px-5 py-4 bg-[#FAF6EE] border-b border-[#ECE7DB]">
+                        <p className="font-bold text-[#161616] text-base leading-snug">
+                          {userName || "User"}
+                        </p>
+                        <p className="text-xs text-gray-500 font-medium mt-0.5 capitalize">
+                          {role === "agent" ? "Agent / Broker" : role === "seller" ? "Owner / Seller" : role === "admin" ? "Administrator" : "Member"}
+                        </p>
+                      </div>
 
-                      <p className="text-sm text-gray-500 capitalize">
-                        {role === "agent" ? "Agent / Broker" : role === "seller" ? "Owner / Seller" : role === "admin" ? "Administrator" : "Buyer"}
-                      </p>
+                      {/* Dropdown Items */}
+                      <div className="py-1">
+                        <Link
+                          href="/profile"
+                          className="flex items-center gap-3 px-5 py-3 text-sm font-medium text-gray-800 hover:bg-[#FAF6EE] hover:text-[#9A720C] transition-colors"
+                          onClick={() => setOpen(false)}
+                        >
+                          <User size={18} className="text-gray-700" />
+                          <span>My Profile</span>
+                        </Link>
+
+                        <Link
+                          href="/my-properties"
+                          className="flex items-center gap-3 px-5 py-3 text-sm font-medium text-gray-800 hover:bg-[#FAF6EE] hover:text-[#9A720C] transition-colors"
+                          onClick={() => setOpen(false)}
+                        >
+                          <Building2 size={18} className="text-gray-700" />
+                          <span>My Properties</span>
+                        </Link>
+
+                        <div className="border-t border-[#ECE7DB] my-1" />
+
+                        <button
+                          onClick={logout}
+                          className="w-full flex items-center gap-3 px-5 py-3 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors text-left cursor-pointer"
+                        >
+                          <LogOut size={18} className="text-red-600" />
+                          <span>Sign Out</span>
+                        </button>
+                      </div>
                     </div>
-
-                    <Link
-                      href="/profile"
-                      className="
-                        block
-                        px-4
-                        py-3
-                        hover:bg-gray-50
-                      "
-                      onClick={() => setOpen(false)}
-                    >
-                      My Profile
-                    </Link>
-
-                    <Link
-                      href="/my-properties"
-                      className="
-                        block
-                        px-4
-                        py-3
-                        hover:bg-gray-50
-                      "
-                      onClick={() => setOpen(false)}
-                    >
-                      My Properties
-                    </Link>
-
-                    <Link
-                      href="/post-property"
-                      className="
-                        block
-                        px-4
-                        py-3
-                        hover:bg-gray-50
-                        text-[#C89B1C]
-                        font-medium
-                      "
-                      onClick={() => setOpen(false)}
-                    >
-                      + List Property
-                    </Link>
-
-                    <button
-                      onClick={logout}
-                      className="
-                        w-full
-                        text-left
-                        px-4
-                        py-3
-                        text-red-500
-                        hover:bg-red-50
-                        cursor-pointer
-                      "
-                    >
-                      Logout
-                    </button>
-                  </div>
-                )}
-              </div>
-            </>
-          )}
+                  )}
+                </div>
+              </>
+            )}
           </div>
 
         </div>

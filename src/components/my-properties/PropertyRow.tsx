@@ -135,8 +135,7 @@ export default function PropertyRow({
 
             <StatusToggle
               checked={
-                property.status ===
-                "active"
+                ["approved", "active", "published"].includes(property.status)
               }
               onChange={onStatusChange}
             />

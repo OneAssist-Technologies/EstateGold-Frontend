@@ -14,6 +14,7 @@ interface Props {
   onView: (id: string) => void;
   onApprove?: (id: string) => void;
   onReject?: (id: string) => void;
+  onAvailabilityStatusChange?: (id: string, newStatus: "on_sale" | "hold" | "sold") => void;
 }
 
 export default function PropertyTable({
@@ -22,6 +23,7 @@ export default function PropertyTable({
   onView,
   onApprove,
   onReject,
+  onAvailabilityStatusChange,
 }: Props) {
   const router = useRouter();
   if (loading) {
@@ -77,7 +79,7 @@ export default function PropertyTable({
 
         <div>Type</div>
 
-        <div>Status</div>
+        <div>Status & Availability</div>
 
         <div>Date</div>
 
@@ -143,10 +145,28 @@ export default function PropertyTable({
 
           <div className="text-sm text-gray-700">{property.propertyType}</div>
 
-          {/* Status */}
+          {/* Status & Availability Selector */}
 
-          <div>
+          <div className="space-y-1.5">
             <PropertyStatusBadge status={property.status} />
+            {onAvailabilityStatusChange && (
+              <div>
+                <select
+                  value={property.availabilityStatus || "on_sale"}
+                  onChange={(e) =>
+                    onAvailabilityStatusChange(
+                      property._id,
+                      e.target.value as "on_sale" | "hold" | "sold"
+                    )
+                  }
+                  className="text-[11px] font-bold bg-[#FAF9F5] hover:bg-white border border-[#E5DEC9] rounded-lg px-2 py-1 text-gray-800 outline-none focus:border-[#C89B1C] transition-all cursor-pointer shadow-2xs"
+                >
+                  <option value="on_sale">🟢 On Sale</option>
+                  <option value="hold">🔒 Hold</option>
+                  <option value="sold">🔴 Sold</option>
+                </select>
+              </div>
+            )}
           </div>
 
           {/* Date */}

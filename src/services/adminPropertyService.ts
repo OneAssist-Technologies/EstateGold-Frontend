@@ -69,6 +69,18 @@ export const deleteProperty = async (
   return response.data;
 };
 
+export const updatePropertyAvailabilityStatus = async (
+  id: string,
+  availabilityStatus: "on_sale" | "hold" | "sold"
+) => {
+  const response = await api.patch(
+    `/admin/properties/${id}/availability-status`,
+    { availabilityStatus }
+  );
+
+  return response.data;
+};
+
 export const getDashboard = async () => {
 
   const response =
@@ -76,5 +88,16 @@ export const getDashboard = async () => {
       "/admin/dashboard"
     );
 
+  return response.data;
+};
+
+export const getAnalytics = async (params?: {
+  range?: string;
+  startDate?: string;
+  endDate?: string;
+}) => {
+  const response = await api.get("/admin/analytics", {
+    params,
+  });
   return response.data;
 };
