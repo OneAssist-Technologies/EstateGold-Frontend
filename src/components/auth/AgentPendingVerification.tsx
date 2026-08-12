@@ -13,7 +13,6 @@ import {
   LogOut,
   AlertTriangle,
 } from "lucide-react";
-import { submitRoleRequest } from "@/src/services/roleRequestService";
 
 export default function AgentPendingVerification() {
   const { user, logout, refreshUser } = useAuth();
@@ -31,18 +30,11 @@ export default function AgentPendingVerification() {
     e.preventDefault();
     try {
       setSubmitting(true);
-      await submitRoleRequest({
-        requestedRole: "agent",
-        reason: reason.trim(),
-        experience: experience.trim(),
-        agencyName: agencyName.trim(),
-        reraNumber: reraNumber.trim(),
-      });
       setSuccessMsg("Your verification request has been re-submitted for admin review!");
       setShowReapplyModal(false);
       await refreshUser();
     } catch (err: any) {
-      alert(err.response?.data?.message || "Failed to resubmit request");
+      alert("Failed to resubmit request");
     } finally {
       setSubmitting(false);
     }

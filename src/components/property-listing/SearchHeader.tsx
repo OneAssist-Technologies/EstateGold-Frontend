@@ -58,7 +58,7 @@ export default function SearchHeader({
                 : "bg-white border border-[#E5E0D4] text-gray-700 hover:bg-[#FAFAF8]"
             }`}
           >
-            For Buy
+            For Sale
           </button>
 
           <button

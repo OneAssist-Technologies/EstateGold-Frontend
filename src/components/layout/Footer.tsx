@@ -41,7 +41,7 @@ export default function Footer() {
             </h4>
 
             <div className="space-y-4 text-gray-400">
-              <Link href="/buy">Buy Property</Link><br />
+              <Link href="/property-listing">Browse Properties</Link><br />
               <Link href="/rent">Rent Property</Link><br />
               <Link href="/new-projects">New Projects</Link><br />
               <Link href="/commercial">Commercial</Link><br />

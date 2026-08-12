@@ -34,8 +34,13 @@ body, button, input, select, textarea, p, span, label, div {
 
 /* Form Inputs Cursor & Text Visibility */
 input, textarea, select {
-  color: #161616;
+  color: #161616 !important;
   caret-color: #161616 !important;
+  cursor: text !important;
+}
+
+input[type="checkbox"], input[type="radio"], select, button {
+  cursor: pointer !important;
 }
 
 input:hover, textarea:hover, select:hover,

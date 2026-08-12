@@ -37,10 +37,20 @@ export default function FilterSidebar({
   setMaxPrice,
   clearFilters,
 }: Props) {
-  const cities = ["Mumbai", "Bangalore", "Delhi", "Pune", "Hyderabad"];
+  const cities = [
+    "Coimbatore",
+    "Mumbai",
+    "Bangalore",
+    "Chennai",
+    "Delhi",
+    "Pune",
+    "Hyderabad",
+  ];
 
   const budgetOptions = [
     { label: "Any Budget", min: "", max: "" },
+    { label: "Under ₹20L", min: "", max: "2000000" },
+    { label: "₹20L–₹50L", min: "2000000", max: "5000000" },
     { label: "Under ₹50L", min: "", max: "5000000" },
     { label: "₹50L–₹1Cr", min: "5000000", max: "10000000" },
     { label: "₹1Cr–₹2Cr", min: "10000000", max: "20000000" },
@@ -48,11 +58,12 @@ export default function FilterSidebar({
   ];
 
   const propertyTypes = [
-    "Apartment",
+    "Apartment / Flat",
+    "Independent House",
     "Villa",
-    "House",
-    "Plot",
-    "Commercial",
+    "Plot / Land",
+    "Commercial Space",
+    "Builder Floor",
   ];
 
   const bedroomOptions = [

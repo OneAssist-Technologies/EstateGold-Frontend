@@ -68,14 +68,21 @@ export function AuthProvider({
           const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/get-profile`, {
             headers: { Authorization: `Bearer ${token}` },
           });
-          const data = await response.json();
-          if (data.success && data.user) {
-            setUser(data.user);
-            localStorage.setItem("user", JSON.stringify(data.user));
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.user) {
+              setUser(data.user);
+              localStorage.setItem("user", JSON.stringify(data.user));
+            }
+          } else if (response.status === 401 || response.status === 403) {
+            // Token expired or invalid
+            localStorage.removeItem("user");
+            localStorage.removeItem("token");
+            setUser(null);
           }
         }
       } catch (error) {
-        console.error("Auth Error:", error);
+        console.warn("Auth check network error (backend may be initializing):", error);
       } finally {
         setLoading(false);
       }

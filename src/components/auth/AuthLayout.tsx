@@ -8,6 +8,7 @@ import Logo from "../common/Logo";
 interface AuthLayoutProps {
   children: React.ReactNode;
   title?: string;
+  subtitle?: string;
   description?: string;
 }
 

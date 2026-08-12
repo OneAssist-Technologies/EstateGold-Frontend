@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 
 import api from "../../services/api";
 
@@ -15,7 +16,9 @@ import Pagination from "../../components/property-listing/Pagination";
 import Navbar from "@/src/components/layout/Navbar";
 import Footer from "@/src/components/layout/Footer";
 
-export default function PropertyListingPage() {
+function ListingContent() {
+  const searchParams = useSearchParams();
+
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -26,7 +29,7 @@ export default function PropertyListingPage() {
   const [totalProperties, setTotalProperties] = useState(0);
 
   const [search, setSearch] = useState("");
-  const [purpose, setPurpose] = useState("Sale"); // Default For Buy as per reference screenshot
+  const [purpose, setPurpose] = useState("Sale"); // Default For Buy
 
   const [city, setCity] = useState("");
   const [propertyType, setPropertyType] = useState("");
@@ -38,6 +41,30 @@ export default function PropertyListingPage() {
 
   const [sort, setSort] = useState("latest");
   const [view, setView] = useState<"grid" | "list">("grid");
+
+  // Sync state from URL search params on load or navigation
+  useEffect(() => {
+    if (!searchParams) return;
+    const urlPurpose = searchParams.get("purpose");
+    const urlCity = searchParams.get("city");
+    const urlType = searchParams.get("type") || searchParams.get("propertyType");
+    const urlSearch = searchParams.get("search");
+
+    if (urlPurpose !== null) {
+      setPurpose(urlPurpose);
+    }
+    if (urlCity !== null) {
+      setCity(urlCity);
+    }
+    if (urlType !== null) {
+      if (urlType === "NewProjects") setPropertyType("Apartment / Flat");
+      else if (urlType === "Commercial") setPropertyType("Commercial Space");
+      else setPropertyType(urlType);
+    }
+    if (urlSearch !== null) {
+      setSearch(urlSearch);
+    }
+  }, [searchParams]);
 
   const fetchProperties = async () => {
     try {
@@ -228,5 +255,23 @@ export default function PropertyListingPage() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function PropertyListingPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-white flex flex-col font-sans">
+          <Navbar />
+          <div className="flex-1 flex items-center justify-center">
+            <div className="h-10 w-10 rounded-full border-3 border-[#E8DCC1] border-t-[#9A720C] animate-spin" />
+          </div>
+          <Footer />
+        </div>
+      }
+    >
+      <ListingContent />
+    </Suspense>
   );
 }
