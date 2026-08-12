@@ -9,7 +9,7 @@ import {
   AnimatePresence,
   motion,
 } from "framer-motion";
-import { ArrowLeft, ArrowRight,CheckCircle2, User, Building2, ShieldCheck, Check } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, User, Building2, ShieldCheck, Check, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import PropertyStepper from "../../components/property/PropertyStepper";
 import PropertyTypeStep from "../../components/property/PropertyTypeStep";
@@ -600,9 +600,22 @@ className="
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-[#E5D7B3]"
+            className="relative bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-[#E5D7B3]"
           >
-            <div className="flex items-center gap-3 border-b border-gray-100 pb-4 mb-6">
+            {/* Top-Right Cancel / Close Button */}
+            <button
+              type="button"
+              onClick={() => {
+                setShowAgentModal(false);
+                router.back();
+              }}
+              className="absolute top-5 right-5 h-9 w-9 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-900 flex items-center justify-center transition-colors cursor-pointer z-10"
+              title="Cancel & Go Back"
+            >
+              <X size={18} />
+            </button>
+
+            <div className="flex items-center gap-3 border-b border-gray-100 pb-4 mb-6 pr-10">
               <div className="h-12 w-12 rounded-2xl bg-[#FFF8E8] text-[#C89B1C] flex items-center justify-center border border-[#F6E4A6]">
                 <Building2 size={24} />
               </div>

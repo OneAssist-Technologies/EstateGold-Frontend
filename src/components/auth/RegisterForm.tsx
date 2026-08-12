@@ -19,6 +19,7 @@ import {
   ArrowLeft,
   AlertCircle,
 } from "lucide-react";
+import PasswordStrengthMeter, { getPasswordValidationState } from "./PasswordStrengthMeter";
 
 import RoleSelector from "./RoleSelector";
 
@@ -85,10 +86,17 @@ export default function RegisterForm() {
       }
     }
 
+    const passState = getPasswordValidationState(form.password);
     if (!form.password) {
       newErrors.password = "Password is required";
-    } else if (form.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters long";
+    } else if (!passState.hasMinLength) {
+      newErrors.password = "Password must be at least 8 characters long";
+    } else if (!passState.hasUppercase) {
+      newErrors.password = "Password must contain at least one uppercase letter (A-Z)";
+    } else if (!passState.hasNumber) {
+      newErrors.password = "Password must contain at least one number (0-9)";
+    } else if (!passState.hasSpecial) {
+      newErrors.password = "Password must contain at least one special character (@#!%^&*)";
     }
 
     setErrors(newErrors);
@@ -430,6 +438,9 @@ export default function RegisterForm() {
           {errors.password && (
             <p className="mt-1 ml-1 text-xs font-medium text-red-500">{errors.password}</p>
           )}
+
+          {/* Password Strength Meter & Live Checklist */}
+          <PasswordStrengthMeter password={form.password} />
         </div>
 
         {/* Terms Checkbox */}

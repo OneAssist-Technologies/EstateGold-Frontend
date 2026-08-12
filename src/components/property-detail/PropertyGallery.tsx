@@ -49,6 +49,7 @@ export default function PropertyGallery({
 
   const [current, setCurrent] = useState(0);
   const [open, setOpen] = useState(false);
+  const [fitMode, setFitMode] = useState<"contain" | "cover">("contain");
 
   const nextImage = () => {
     setCurrent((prev) => (prev === images.length - 1 ? 0 : prev + 1));
@@ -68,7 +69,18 @@ export default function PropertyGallery({
   return (
     <div className="space-y-3">
       {/* Main Hero Media Player */}
-      <div className="relative h-[340px] sm:h-[400px] w-full rounded-2xl overflow-hidden bg-gray-900 border border-[#ECE7DB] shadow-xs group">
+      <div className="relative h-[400px] sm:h-[480px] md:h-[540px] lg:h-[580px] w-full rounded-2xl overflow-hidden bg-gray-950 border border-[#ECE7DB] shadow-md group">
+        {/* Subtle Blurred Background to fill container seamlessly */}
+        {!isCurrentVideo && (
+          <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+            <img
+              src={images[current]}
+              alt=""
+              className="w-full h-full object-cover blur-2xl opacity-40 scale-110"
+            />
+          </div>
+        )}
+
         {isCurrentVideo ? (
           <video
             src={images[current]}
@@ -77,20 +89,22 @@ export default function PropertyGallery({
             muted
             loop
             playsInline
-            className="w-full h-full object-cover"
+            className="relative z-10 w-full h-full object-contain"
           />
         ) : (
           <img
             src={images[current]}
             alt="Property Main View"
-            className="w-full h-full object-cover cursor-pointer"
+            className={`relative z-10 w-full h-full cursor-pointer transition-all duration-300 ${
+              fitMode === "contain" ? "object-contain" : "object-cover"
+            }`}
             loading="eager"
             onClick={() => setOpen(true)}
           />
         )}
 
         {/* Top-Left Badges */}
-        <div className="absolute top-4 left-4 flex items-center gap-2 pointer-events-none z-10">
+        <div className="absolute top-4 left-4 flex items-center gap-2 pointer-events-none z-20">
           <span className="bg-[#9A720C] text-white text-xs font-bold px-3.5 py-1 rounded-full shadow-2xs">
             {isSale ? "For Sale" : "For Rent"}
           </span>
@@ -107,7 +121,24 @@ export default function PropertyGallery({
         </div>
 
         {/* Top-Right Action Icons */}
-        <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
+        <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
+          {!isCurrentVideo && (
+            <button
+              type="button"
+              onClick={() =>
+                setFitMode((prev) => (prev === "contain" ? "cover" : "contain"))
+              }
+              className="h-9 px-3 bg-white/90 backdrop-blur-xs rounded-full flex items-center gap-1 text-xs font-semibold text-gray-700 hover:text-[#9A720C] shadow-2xs transition-colors cursor-pointer"
+              title={
+                fitMode === "contain"
+                  ? "Crop to Fill Frame"
+                  : "Show Entire Photo"
+              }
+            >
+              <span>{fitMode === "contain" ? "Fit: Full Photo" : "Fit: Fill Frame"}</span>
+            </button>
+          )}
+
           <button
             type="button"
             onClick={onFavourite}
@@ -133,7 +164,7 @@ export default function PropertyGallery({
             <button
               type="button"
               onClick={previousImage}
-              className="absolute left-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-white/80 backdrop-blur-xs hover:bg-white text-gray-800 transition flex items-center justify-center shadow-2xs cursor-pointer z-10"
+              className="absolute left-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-white/80 backdrop-blur-xs hover:bg-white text-gray-800 transition flex items-center justify-center shadow-2xs cursor-pointer z-20"
             >
               <ChevronLeft size={20} />
             </button>
@@ -141,7 +172,7 @@ export default function PropertyGallery({
             <button
               type="button"
               onClick={nextImage}
-              className="absolute right-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-white/80 backdrop-blur-xs hover:bg-white text-gray-800 transition flex items-center justify-center shadow-2xs cursor-pointer z-10"
+              className="absolute right-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-white/80 backdrop-blur-xs hover:bg-white text-gray-800 transition flex items-center justify-center shadow-2xs cursor-pointer z-20"
             >
               <ChevronRight size={20} />
             </button>
@@ -149,7 +180,7 @@ export default function PropertyGallery({
         )}
 
         {/* Image / Video Counter Overlay */}
-        <div className="absolute bottom-4 right-4 bg-black/65 backdrop-blur-xs text-white rounded-full px-3 py-1 text-xs font-semibold z-10">
+        <div className="absolute bottom-4 right-4 bg-black/65 backdrop-blur-xs text-white rounded-full px-3 py-1 text-xs font-semibold z-20">
           {current + 1} / {images.length}
         </div>
       </div>

@@ -72,10 +72,14 @@ export default function StickyContactCard({
   const canManage =
     isOwner && (user?.role === "seller" || user?.role === "agent");
 
+  const isRent =
+    (property.purpose || "").toLowerCase().includes("rent") ||
+    (property.purpose || "").toLowerCase().includes("lease");
+
   const displayTitle =
     property.bedrooms && property.propertyType
       ? `Luxury ${property.bedrooms} BHK ${property.propertyType}`
-      : property.propertyType || "Luxury Apartment";
+      : property.propertyType || "Luxury Property";
 
   return (
     <div className="space-y-4">
@@ -85,6 +89,7 @@ export default function StickyContactCard({
         <div className="bg-gradient-to-r from-[#B88A1A] via-[#D4B04C] to-[#8C6605] text-white p-4 space-y-1">
           <div className="text-2xl font-bold font-serif">
             {formatPrice(property.price)}
+            {isRent ? <span className="text-sm font-sans font-normal opacity-90"> / month</span> : null}
           </div>
           <p className="text-xs text-amber-100 font-medium truncate">
             {displayTitle}
@@ -149,29 +154,31 @@ export default function StickyContactCard({
         </div>
       </div>
 
-      {/* EMI Calculator Card */}
-      <div className="bg-[#FFFDF6] border border-[#F4E3B5] rounded-2xl p-4 space-y-3 shadow-2xs">
-        <div>
-          <h4 className="text-xs font-bold text-gray-900">EMI Calculator</h4>
-          <p className="text-[10px] text-gray-500 font-semibold mt-0.5">
-            At 8.5% for 20 years
-          </p>
-        </div>
+      {/* EMI Calculator Card - ONLY for Buy / Sale properties */}
+      {!isRent && (
+        <div className="bg-[#FFFDF6] border border-[#F4E3B5] rounded-2xl p-4 space-y-3 shadow-2xs">
+          <div>
+            <h4 className="text-xs font-bold text-gray-900">EMI Calculator</h4>
+            <p className="text-[10px] text-gray-500 font-semibold mt-0.5">
+              At 8.5% for 20 years
+            </p>
+          </div>
 
-        <div className="flex items-baseline justify-between">
-          <span className="text-[11px] font-medium text-gray-600">Monthly EMI</span>
-          <span className="text-lg font-bold font-serif text-[#9A720C]">
-            {calculateEMI(property.price)}
-          </span>
-        </div>
+          <div className="flex items-baseline justify-between">
+            <span className="text-[11px] font-medium text-gray-600">Monthly EMI</span>
+            <span className="text-lg font-bold font-serif text-[#9A720C]">
+              {calculateEMI(property.price)}
+            </span>
+          </div>
 
-        <button
-          type="button"
-          className="w-full h-8 rounded-xl border border-[#9A720C] text-[#9A720C] hover:bg-[#FFF9EC] text-xs font-bold transition-colors cursor-pointer"
-        >
-          Check Loan Eligibility
-        </button>
-      </div>
+          <button
+            type="button"
+            className="w-full h-8 rounded-xl border border-[#9A720C] text-[#9A720C] hover:bg-[#FFF9EC] text-xs font-bold transition-colors cursor-pointer"
+          >
+            Check Loan Eligibility
+          </button>
+        </div>
+      )}
     </div>
   );
 }

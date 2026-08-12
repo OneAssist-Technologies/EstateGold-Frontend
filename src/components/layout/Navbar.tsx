@@ -19,7 +19,6 @@ import {
   useAuth,
 } from "../../context/AuthContext";
 
-import RoleUpgradeModal from "../role-request/RoleUpgradeModal";
 import Logo from "../common/Logo";
 import api from "../../services/api";
 
@@ -35,8 +34,6 @@ export default function Navbar() {
   const searchParams = useSearchParams();
 
   const [open, setOpen] =
-    useState(false);
-  const [showRoleModal, setShowRoleModal] =
     useState(false);
   const [hasPublishedProperties, setHasPublishedProperties] =
     useState(false);
@@ -130,7 +127,7 @@ if (loading) {
                 isBuyActive ? "text-[#9A720C] font-bold" : "hover:text-[#9A720C]"
               }`}
             >
-              Buy
+              Properties
             </Link>
 
             <Link
