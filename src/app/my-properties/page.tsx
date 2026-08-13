@@ -187,15 +187,9 @@ property:Property
 
 )=>{
 
-setSelectedProperty(
+router.push(
 
-property
-
-);
-
-setOpenEdit(
-
-true
+`/post-property?editId=${property._id}`
 
 );
 
@@ -245,6 +239,17 @@ y:0
 }
 
 };
+
+  const totalViews = properties.reduce(
+    (sum, item) => sum + (item.views || 0),
+    0
+  );
+
+  const totalEnquiries = properties.reduce(
+    (sum, item) => sum + (item.enquiries?.length || 0),
+    0
+  );
+
 return (
   <>
     <Navbar />
@@ -256,59 +261,37 @@ return (
         {/* Header */}
 
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: .4 }}
-          className="flex justify-between items-center mb-10"
+          transition={{ duration: 0.35 }}
+          className="flex justify-between items-center mb-6"
         >
-
           <div>
-
-            <h1 className="text-4xl sm:text-5xl font-bold text-[#161616]">
+            <h1 className="text-2xl font-bold text-gray-900">
               {user?.fullName ? `${user.fullName}'s Listed Properties` : "My Properties"}
             </h1>
-
-            <p className="text-gray-500 mt-2 text-base sm:text-lg">
+            <p className="text-xs text-gray-500 mt-1">
               Showing property listings owned by {user?.fullName || "your account"} ({user?.email || "Authenticated"})
             </p>
-
           </div>
 
           <button
-            onClick={() =>
-              router.push("/post-property")
-            }
-            className="
-              h-14
-              px-7
-              rounded-2xl
-              bg-[#C89B1C]
-              hover:bg-[#B88D18]
-              text-white
-              font-semibold
-              flex
-              items-center
-              gap-3
-              transition
-            "
+            onClick={() => router.push("/post-property")}
+            className="h-10 px-4 rounded-xl bg-[#C89B1C] hover:bg-[#B88D18] text-white text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
           >
-
-            <Plus size={20} />
-
+            <Plus size={14} />
             Add Property
-
           </button>
-
         </motion.div>
 
         {/* Dashboard */}
 
       <DashboardCards
-  total={totalProperties}
-  active={counts.active}
-  pending={counts.pending}
-  inactive={counts.inactive}
-/>
+        total={totalProperties}
+        active={counts.active}
+        views={totalViews}
+        enquiries={totalEnquiries}
+      />
 
         {/* Status */}
 

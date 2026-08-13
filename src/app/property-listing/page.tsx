@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
@@ -29,7 +31,7 @@ function ListingContent() {
   const [totalProperties, setTotalProperties] = useState(0);
 
   const [search, setSearch] = useState("");
-  const [purpose, setPurpose] = useState("Sale"); // Default For Buy
+  const [purpose, setPurpose] = useState(""); // Default empty for All Properties
 
   const [city, setCity] = useState("");
   const [propertyType, setPropertyType] = useState("");
@@ -50,19 +52,16 @@ function ListingContent() {
     const urlType = searchParams.get("type") || searchParams.get("propertyType");
     const urlSearch = searchParams.get("search");
 
-    if (urlPurpose !== null) {
-      setPurpose(urlPurpose);
-    }
-    if (urlCity !== null) {
-      setCity(urlCity);
-    }
+    setPurpose(urlPurpose !== null ? urlPurpose : "");
+    setCity(urlCity !== null ? urlCity : "");
+    setSearch(urlSearch !== null ? urlSearch : "");
+
     if (urlType !== null) {
       if (urlType === "NewProjects") setPropertyType("Apartment / Flat");
       else if (urlType === "Commercial") setPropertyType("Commercial Space");
       else setPropertyType(urlType);
-    }
-    if (urlSearch !== null) {
-      setSearch(urlSearch);
+    } else {
+      setPropertyType("");
     }
   }, [searchParams]);
 
@@ -205,14 +204,18 @@ function ListingContent() {
               </div>
             ) : properties.length === 0 ? (
               <div className="flex flex-col items-center justify-center p-12 bg-[#FAFAF8] rounded-2xl border border-dashed border-[#ECE7DB] text-center">
-                <div className="h-14 w-14 rounded-2xl bg-[#FFF9EC] border border-[#F4E3B5] text-[#9A720C] flex items-center justify-center font-bold text-xl mb-4">
-                  🏠
+                <div className="h-14 w-14 rounded-2xl bg-[#FFF9EC] border border-[#F4E3B5] text-[#9A720C] flex items-center justify-center font-bold text-xl mb-4 shadow-2xs">
+                  📍
                 </div>
-                <h3 className="text-lg font-bold text-gray-900">
-                  No Properties Found
+                <h3 className="text-lg font-bold text-gray-900 font-serif">
+                  {city ? `No Properties in ${city}` : "No Properties Found"}
                 </h3>
-                <p className="text-xs text-gray-500 max-w-sm mt-1">
-                  We couldn't find any properties matching your selected filters. Try clearing some filters or searching for another location.
+                <p className="text-xs text-gray-500 max-w-md mt-2 leading-relaxed font-semibold">
+                  {city ? (
+                    "no properties are available currently on this city you have reminder message if any new property arrive on this location thankyou"
+                  ) : (
+                    "We couldn't find any properties matching your selected filters. Try clearing some filters or searching for another location."
+                  )}
                 </p>
                 <button
                   type="button"

@@ -1,13 +1,18 @@
-// components/home/CTA.tsx
+"use client";
 
 import Link from "next/link";
+import { useAuth } from "../../context/AuthContext";
 
 export default function CTA() {
+  const { isAuthenticated } = useAuth();
+
+  const postPropertyHref = isAuthenticated ? "/post-property" : "/login";
+  const searchPropertiesHref = isAuthenticated ? "/property-listing" : "/login";
+
   return (
     <section className="bg-[#C89B1C] py-24">
       <div className="max-w-4xl mx-auto text-center px-6">
-
-        <h2 className="text-6xl font-bold text-white">
+        <h2 className="text-6xl font-bold text-white font-serif">
           List Your Property
           <br />
           for FREE
@@ -20,7 +25,7 @@ export default function CTA() {
 
         <div className="flex justify-center gap-5 mt-12">
           <Link
-            href="/post-property"
+            href={postPropertyHref}
             className="
             bg-white
             text-[#C89B1C]
@@ -28,13 +33,16 @@ export default function CTA() {
             py-4
             rounded-2xl
             font-semibold
+            hover:bg-gray-50
+            transition-colors
+            shadow-2xs
             "
           >
             Post Property Free
           </Link>
 
           <Link
-            href="/properties"
+            href={searchPropertiesHref}
             className="
             border-2
             border-white
@@ -43,6 +51,9 @@ export default function CTA() {
             py-4
             rounded-2xl
             font-semibold
+            hover:bg-white/10
+            transition-colors
+            shadow-2xs
             "
           >
             Search Properties

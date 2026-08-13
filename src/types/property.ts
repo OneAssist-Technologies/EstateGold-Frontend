@@ -54,6 +54,8 @@ export interface PropertyFormData {
   listingType?: "my_own" | "another_owner";
   ownerAddress?: string;
   ownerGovtIdDoc?: string;
+  ownerNegotiable?: boolean;
+  ownerReadyToMeet?: boolean;
 
   city: string;
   locality: string;
@@ -82,6 +84,7 @@ export interface PropertyFormData {
   photos: File[];
 
   neighbourhood: Neighbourhood;
+  existingPhotos?: string[];
 }
 export interface Property {
   _id: string;
@@ -92,6 +95,7 @@ export interface Property {
 
   ownerName: string;
   ownerPhone: string;
+  listingType?: string;
 
   city: string;
   locality: string;
@@ -121,7 +125,32 @@ export interface Property {
 
   status: string;
   availabilityStatus?: "on_sale" | "hold" | "sold";
-  createdBy: string; 
+  role?: string;
+  ownerNegotiable?: boolean;
+  ownerReadyToMeet?: boolean;
+  views?: number;
+  enquiries?: any[];
+  deleteRequested?: boolean;
+  deleteRequestedReason?: string;
+  deleteRequestedAt?: string;
+  carpetArea?: number;
+  totalFloors?: number;
+  plotArea?: number;
+  facing?: string;
+  propertyAge?: string;
+  plotFacing?: string;
+  roadWidth?: number;
+  cornerPlot?: boolean;
+  boundaryWall?: boolean;
+  plotType?: string;
+  landApproval?: string;
+  waterAvailability?: string;
+  electricityAvailability?: string;
+  commercialType?: string;
+  washrooms?: number;
+  entranceWidth?: number;
+  powerLoad?: number;
+  createdBy: any; 
   createdAt: string;
   updatedAt: string;
 }

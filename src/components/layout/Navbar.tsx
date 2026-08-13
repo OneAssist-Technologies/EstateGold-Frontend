@@ -13,6 +13,7 @@ import {
   useState,
   useEffect,
   useRef,
+  Suspense,
 } from "react";
 
 import {
@@ -22,7 +23,7 @@ import {
 import Logo from "../common/Logo";
 import api from "../../services/api";
 
-export default function Navbar() {
+function NavbarContent() {
  const {
   user,
   loading,
@@ -279,5 +280,13 @@ if (loading) {
         </div>
       </div>
     </header>
+  );
+}
+
+export default function Navbar() {
+  return (
+    <Suspense fallback={<div className="h-[73px] bg-white border-b border-[#ECE7DB] w-full" />}>
+      <NavbarContent />
+    </Suspense>
   );
 }

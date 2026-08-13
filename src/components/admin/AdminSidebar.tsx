@@ -8,23 +8,20 @@ import {
   LayoutDashboard,
   Building2,
   Users,
-  Shield,
   MapPin,
   BarChart3,
   Settings,
   LogOut,
-  Home,
   X,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import { getDashboard } from "../../services/adminPropertyService";
+import { getUnreadCounts } from "../../services/adminPropertyService";
 import Logo from "../common/Logo";
 
 interface MenuItem {
   title: string;
   icon: any;
   href: string;
-  initialBadge?: number;
 }
 
 const menuTop: MenuItem[] = [
@@ -37,7 +34,6 @@ const menuTop: MenuItem[] = [
     title: "Properties",
     icon: Building2,
     href: "/admin/properties",
-    initialBadge: 4,
   },
   {
     title: "Users",
@@ -69,8 +65,11 @@ export default function AdminSidebar() {
   const { user, logout } = useAuth();
 
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [visitedRoutes, setVisitedRoutes] = useState<Record<string, boolean>>({});
-  const [dynamicCounts, setDynamicCounts] = useState<Record<string, number>>({});
+  const [unreadCounts, setUnreadCounts] = useState({
+    properties: 0,
+    users: 0,
+    locations: 0,
+  });
 
   // Listen for mobile sidebar toggle event
   useEffect(() => {
@@ -80,68 +79,55 @@ export default function AdminSidebar() {
       window.removeEventListener("toggle-admin-mobile-sidebar", handleToggle);
   }, []);
 
-  // Restore visited routes from localStorage
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem("admin_visited_notification_routes");
-      if (stored) {
-        setVisitedRoutes(JSON.parse(stored));
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  }, []);
-
-  // Fetch dynamic counts
-  useEffect(() => {
-    async function fetchCounts() {
-      try {
-        const dash = await getDashboard();
-        if (dash && dash.stats) {
-          setDynamicCounts({
-            "/admin/properties": dash.stats.pendingProperties ?? 4,
-          });
-        } else {
-          setDynamicCounts({
-            "/admin/properties": 4,
-          });
-        }
-      } catch (err) {
-        setDynamicCounts({
-          "/admin/properties": 4,
-        });
-      }
-    }
-    fetchCounts();
-  }, []);
-
-  // Auto-clear notification on route visit & close mobile menu on navigate
+  // Update timestamps and fetch dynamic unread counts relative to last visits
   useEffect(() => {
     if (!pathname) return;
 
     setMobileOpen(false);
 
-    [...menuTop, ...menuBottom].forEach((item) => {
-      const isCurrentRoute =
-        pathname === item.href ||
-        (item.href !== "/admin" && pathname.startsWith(item.href));
+    // Save visit timestamp for active page instantly
+    const nowStr = new Date().toISOString();
+    if (pathname === "/admin/properties" || pathname.startsWith("/admin/properties/")) {
+      localStorage.setItem("admin_last_visited_properties", nowStr);
+    } else if (pathname === "/admin/users" || pathname.startsWith("/admin/users/")) {
+      localStorage.setItem("admin_last_visited_users", nowStr);
+    } else if (pathname === "/admin/locations" || pathname.startsWith("/admin/locations/")) {
+      localStorage.setItem("admin_last_visited_locations", nowStr);
+    }
 
-      if (isCurrentRoute) {
-        setVisitedRoutes((prev) => {
-          if (prev[item.href]) return prev;
-          const updated = { ...prev, [item.href]: true };
-          try {
-            localStorage.setItem(
-              "admin_visited_notification_routes",
-              JSON.stringify(updated)
-            );
-          } catch (e) {
-            console.error(e);
-          }
-          return updated;
+    async function fetchCounts() {
+      try {
+        const lastVisitedProperties = localStorage.getItem("admin_last_visited_properties") || "";
+        const lastVisitedUsers = localStorage.getItem("admin_last_visited_users") || "";
+        const lastVisitedLocations = localStorage.getItem("admin_last_visited_locations") || "";
+
+        const res = await getUnreadCounts({
+          lastVisitedProperties,
+          lastVisitedUsers,
+          lastVisitedLocations,
         });
+
+        if (res && res.success) {
+          const activeProperties = pathname === "/admin/properties" || pathname.startsWith("/admin/properties/");
+          const activeUsers = pathname === "/admin/users" || pathname.startsWith("/admin/users/");
+          const activeLocations = pathname === "/admin/locations" || pathname.startsWith("/admin/locations/");
+
+          setUnreadCounts({
+            properties: activeProperties ? 0 : (res.unreadProperties || 0),
+            users: activeUsers ? 0 : (res.unreadUsers || 0),
+            locations: activeLocations ? 0 : (res.unreadLocations || 0),
+          });
+        }
+      } catch (err) {
+        console.error("Failed to fetch notification counts:", err);
       }
-    });
+    }
+
+    fetchCounts();
+
+    // Check periodically for new arrivals (every 15s)
+    const interval = setInterval(fetchCounts, 15000);
+    return () => clearInterval(interval);
   }, [pathname]);
 
   const userInitial = user?.fullName ? user.fullName[0].toUpperCase() : "A";
@@ -154,9 +140,14 @@ export default function AdminSidebar() {
       pathname === item.href ||
       (item.href !== "/admin" && pathname.startsWith(item.href));
 
-    const rawCount = dynamicCounts[item.href] ?? item.initialBadge ?? 0;
-    const isVisited = visitedRoutes[item.href] || active;
-    const badgeCount = isVisited ? 0 : rawCount;
+    let badgeCount = 0;
+    if (item.href === "/admin/properties") {
+      badgeCount = unreadCounts.properties;
+    } else if (item.href === "/admin/users") {
+      badgeCount = unreadCounts.users;
+    } else if (item.href === "/admin/locations") {
+      badgeCount = unreadCounts.locations;
+    }
 
     return (
       <Link

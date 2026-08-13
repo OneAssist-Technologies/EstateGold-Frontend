@@ -69,6 +69,11 @@ export const deleteProperty = async (
   return response.data;
 };
 
+export const rejectDeleteRequest = async (id: string) => {
+  const response = await api.patch(`/admin/properties/${id}/reject-delete-request`);
+  return response.data;
+};
+
 export const updatePropertyAvailabilityStatus = async (
   id: string,
   availabilityStatus: "on_sale" | "hold" | "sold"
@@ -99,5 +104,14 @@ export const getAnalytics = async (params?: {
   const response = await api.get("/admin/analytics", {
     params,
   });
+  return response.data;
+};
+
+export const getUnreadCounts = async (params: {
+  lastVisitedProperties?: string;
+  lastVisitedUsers?: string;
+  lastVisitedLocations?: string;
+}) => {
+  const response = await api.get("/admin/unread-counts", { params });
   return response.data;
 };

@@ -1,9 +1,14 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import {
   useMemo,
   useState,
+  useEffect,
+  Suspense,
 } from "react";
+import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/src/context/AuthContext";
 import {
   AnimatePresence,
@@ -29,7 +34,10 @@ import Footer from "@/src/components/layout/Footer";
 import toast from "react-hot-toast";
 
 
-export default function PostPropertyPage() {
+function PostPropertyContent() {
+  const searchParams = useSearchParams();
+  const editId = searchParams?.get("editId");
+  const [loadingEdit, setLoadingEdit] = useState(false);
 
   const [step, setStep] =
     useState(1);
@@ -59,6 +67,8 @@ alternatePhone: "",
     listingType: "my_own",
     ownerAddress: "",
     ownerGovtIdDoc: "",
+    ownerNegotiable: false,
+    ownerReadyToMeet: false,
 
     city: "",
     locality: "",
@@ -152,6 +162,22 @@ neighbourhood: {
 const totalSteps =
   role === "agent" ? 7 : 6;
 
+const isPropertyDetailsStepValid = (type: string, data: any) => {
+  switch (type) {
+    case "Apartment / Flat":
+    case "Independent House":
+    case "Villa":
+    case "Builder Floor":
+      return data.bedrooms > 0 && data.bathrooms > 0 && data.area > 0;
+    case "Plot / Land":
+      return data.plotArea > 0;
+    case "Commercial Space":
+      return data.commercialType && data.commercialType.trim() !== "" && data.area > 0;
+    default:
+      return false;
+  }
+};
+
 const isStepValid = useMemo(() => {
   switch (step) {
     case 1:
@@ -183,19 +209,11 @@ const isStepValid = useMemo(() => {
         );
       }
 
-      return (
-        formData.bedrooms > 0 &&
-        formData.bathrooms > 0 &&
-        formData.area > 0
-      );
+      return isPropertyDetailsStepValid(formData.propertyType, formData);
 
     case 4:
       if (role === "agent") {
-        return (
-          formData.bedrooms > 0 &&
-          formData.bathrooms > 0 &&
-          formData.area > 0
-        );
+        return isPropertyDetailsStepValid(formData.propertyType, formData);
       }
 
       return true;
@@ -239,6 +257,97 @@ const isStepValid = useMemo(() => {
   formData,
 ]);
 
+  useEffect(() => {
+    if (!editId) return;
+
+    const fetchEditProperty = async () => {
+      try {
+        setLoadingEdit(true);
+        const res = await api.get(`/properties/${editId}`);
+        const property = res.data.data;
+
+        if (!property) {
+          toast.error("Property not found");
+          router.push("/my-properties");
+          return;
+        }
+
+        const currentUserId = user?._id;
+        const ownerId = property.ownerId || property.createdBy?._id || property.createdBy;
+        if (ownerId && currentUserId && ownerId.toString() !== currentUserId.toString() && user?.role !== "admin") {
+          toast.error("You are not authorized to edit this property");
+          router.push("/my-properties");
+          return;
+        }
+
+        setFormData({
+          purpose: property.purpose || "",
+          propertyType: property.propertyType || "",
+          ownerName: property.ownerName || "",
+          ownerPhone: property.ownerPhone || "",
+          ownerEmail: property.ownerEmail || "",
+          ownerType: property.ownerType || "",
+          agentRelation: property.agentRelation || "",
+          ownerIdType: property.ownerIdType || "",
+          ownerIdNumber: property.ownerIdNumber || "",
+          alternatePhone: property.alternatePhone || "",
+          listingType: property.listingType || "my_own",
+          ownerAddress: property.ownerAddress || "",
+          ownerGovtIdDoc: property.ownerGovtIdDoc || "",
+          ownerNegotiable: property.ownerNegotiable || false,
+          ownerReadyToMeet: property.ownerReadyToMeet || false,
+          city: property.city || "",
+          locality: property.locality || "",
+          society: property.society || "",
+          address: property.address || "",
+          latitude: property.latitude,
+          longitude: property.longitude,
+          serviceableAreaId: property.serviceableAreaId,
+          bedrooms: property.bedrooms || 0,
+          bathrooms: property.bathrooms || 0,
+          balconies: property.balconies || 0,
+          area: property.area || 0,
+          floor: property.floor || 0,
+          furnishing: property.furnishing || "",
+          parking: property.parking || false,
+          amenities: property.amenities || [],
+          price: property.price || 0,
+          description: property.description || "",
+          availableFrom: property.availableFrom ? new Date(property.availableFrom).toISOString().split("T")[0] : "",
+          photos: [],
+          existingPhotos: property.photos || [],
+          neighbourhood: property.neighbourhood || {
+            nearbyPlaces: {},
+            landmarks: [],
+            ratings: {},
+            notes: "",
+          },
+        });
+      } catch (err) {
+        console.error("Failed to load property for edit:", err);
+        toast.error("Error loading property details");
+        router.push("/my-properties");
+      } finally {
+        setLoadingEdit(false);
+      }
+    };
+
+    if (user) {
+      fetchEditProperty();
+    }
+  }, [editId, user]);
+
+  if (loadingEdit || loading) {
+    return (
+      <div className="min-h-screen bg-white flex flex-col font-sans">
+        <Navbar />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="h-10 w-10 rounded-full border-3 border-[#E8DCC1] border-t-[#9A720C] animate-spin" />
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   const nextStep = () => {
     if (
@@ -292,6 +401,14 @@ const isStepValid = useMemo(() => {
         if (formData.ownerGovtIdDoc) {
           payload.append("ownerGovtIdDoc", formData.ownerGovtIdDoc);
         }
+        payload.append(
+          "ownerNegotiable",
+          String(formData.ownerNegotiable ?? false)
+        );
+        payload.append(
+          "ownerReadyToMeet",
+          String(formData.ownerReadyToMeet ?? false)
+        );
 
         payload.append(
           "city",
@@ -392,25 +509,67 @@ payload.append(
         }
 
         payload.append(
-   "neighbourhood",
-   JSON.stringify(formData.neighbourhood)
-);
-       const response =
-  await api.post(
-    "/createproperty",
-    payload,
-    {
-      headers: {
-        "Content-Type":
-          "multipart/form-data",
-      },
-    }
-  );
+          "neighbourhood",
+          JSON.stringify(formData.neighbourhood)
+        );
+
+        // Dynamic specifications fields
+        if ((formData as any).carpetArea) payload.append("carpetArea", String((formData as any).carpetArea));
+        if ((formData as any).totalFloors) payload.append("totalFloors", String((formData as any).totalFloors));
+        if ((formData as any).plotArea) payload.append("plotArea", String((formData as any).plotArea));
+        if ((formData as any).facing) payload.append("facing", (formData as any).facing);
+        if ((formData as any).propertyAge) payload.append("propertyAge", (formData as any).propertyAge);
+        if ((formData as any).plotFacing) payload.append("plotFacing", (formData as any).plotFacing);
+        if ((formData as any).roadWidth) payload.append("roadWidth", String((formData as any).roadWidth));
+        if ((formData as any).cornerPlot !== undefined) payload.append("cornerPlot", String((formData as any).cornerPlot));
+        if ((formData as any).boundaryWall !== undefined) payload.append("boundaryWall", String((formData as any).boundaryWall));
+        if ((formData as any).plotType) payload.append("plotType", (formData as any).plotType);
+        if ((formData as any).landApproval) payload.append("landApproval", (formData as any).landApproval);
+        if ((formData as any).waterAvailability) payload.append("waterAvailability", (formData as any).waterAvailability);
+        if ((formData as any).electricityAvailability) payload.append("electricityAvailability", (formData as any).electricityAvailability);
+        if ((formData as any).commercialType) payload.append("commercialType", (formData as any).commercialType);
+        if ((formData as any).washrooms !== undefined) payload.append("washrooms", String((formData as any).washrooms));
+        if ((formData as any).entranceWidth) payload.append("entranceWidth", String((formData as any).entranceWidth));
+        if ((formData as any).powerLoad) payload.append("powerLoad", String((formData as any).powerLoad));
+        
+        if (formData.existingPhotos) {
+          payload.append("existingPhotos", JSON.stringify(formData.existingPhotos));
+        }
+
+        let response;
+        if (editId) {
+          response = await api.put(
+            `/properties/${editId}`,
+            payload,
+            {
+              headers: {
+                "Content-Type":
+                  "multipart/form-data",
+              },
+            }
+          );
+        } else {
+          response = await api.post(
+            "/createproperty",
+            payload,
+            {
+              headers: {
+                "Content-Type":
+                  "multipart/form-data",
+              },
+            }
+          );
+        }
 
 if (
   response.data.success
 ) {
-  setPublished(true);
+  if (editId) {
+    toast.success("Property updated successfully");
+    router.push("/my-properties");
+  } else {
+    setPublished(true);
+  }
 }
       } catch (error: any) {
         console.error("Property creation error:", error);
@@ -852,7 +1011,7 @@ className="
   totalSteps={totalSteps}
 />
 
-        <div className="mt-12 min-h-[500px]">
+        <div className="mt-12 min-h-[320px]">
 
   <AnimatePresence mode="wait">
 
@@ -897,18 +1056,58 @@ className="
                     })
                   )
                 }
-               onTypeChange={(
-                  value
-                ) =>
-                  setFormData(
-                    (
-                      prev
-                    ) => ({
+                onTypeChange={(value) =>
+                  setFormData((prev) => {
+                    const cleaned = {
                       ...prev,
-                      propertyType:
-                        value,
-                    })
-                  )
+                      propertyType: value,
+                    };
+
+                    let allowedFields: string[] = [];
+                    switch (value) {
+                      case "Apartment / Flat":
+                        allowedFields = ["bedrooms", "bathrooms", "balconies", "area", "carpetArea", "floor", "totalFloors", "furnishing", "parking"];
+                        break;
+                      case "Independent House":
+                        allowedFields = ["bedrooms", "bathrooms", "area", "plotArea", "totalFloors", "furnishing", "parking", "facing", "propertyAge"];
+                        break;
+                      case "Villa":
+                        allowedFields = ["bedrooms", "bathrooms", "balconies", "area", "plotArea", "totalFloors", "furnishing", "parking", "facing", "propertyAge"];
+                        break;
+                      case "Plot / Land":
+                        allowedFields = ["plotArea", "plotFacing", "roadWidth", "cornerPlot", "boundaryWall", "plotType", "landApproval", "waterAvailability", "electricityAvailability"];
+                        break;
+                      case "Commercial Space":
+                        allowedFields = ["commercialType", "area", "carpetArea", "floor", "totalFloors", "washrooms", "parking", "furnishing", "entranceWidth", "propertyAge", "powerLoad"];
+                        break;
+                      case "Builder Floor":
+                        allowedFields = ["bedrooms", "bathrooms", "balconies", "area", "carpetArea", "floor", "totalFloors", "furnishing", "parking", "facing", "propertyAge"];
+                        break;
+                      default:
+                        break;
+                    }
+
+                    const allTypeFields = [
+                      "bedrooms", "bathrooms", "balconies", "area", "carpetArea", "floor", "totalFloors", "furnishing", "parking",
+                      "plotArea", "facing", "propertyAge", "plotFacing", "roadWidth", "cornerPlot", "boundaryWall", "plotType",
+                      "landApproval", "waterAvailability", "electricityAvailability", "commercialType", "washrooms", "entranceWidth", "powerLoad"
+                    ];
+
+                    for (const f of allTypeFields) {
+                      if (!allowedFields.includes(f)) {
+                        if (f === "bedrooms" || f === "bathrooms" || f === "balconies" || f === "area" || f === "floor" || f === "totalFloors" || f === "plotArea" || f === "roadWidth" || f === "washrooms" || f === "entranceWidth" || f === "powerLoad" || f === "carpetArea") {
+                          (cleaned as any)[f] = 0;
+                        } else if (f === "parking" || f === "cornerPlot" || f === "boundaryWall") {
+                          (cleaned as any)[f] = false;
+                        } else {
+                          (cleaned as any)[f] = "";
+                        }
+                      }
+                    }
+
+                    cleaned.amenities = [];
+                    return cleaned;
+                  })
                 }
               />
             )}
@@ -1168,5 +1367,21 @@ className="
      <Footer/>
     </>
    
+  );
+}
+
+export default function PostPropertyPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-white flex flex-col font-sans">
+        <Navbar />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="h-10 w-10 rounded-full border-3 border-[#E8DCC1] border-t-[#9A720C] animate-spin" />
+        </div>
+        <Footer />
+      </div>
+    }>
+      <PostPropertyContent />
+    </Suspense>
   );
 }

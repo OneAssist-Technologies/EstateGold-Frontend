@@ -81,6 +81,47 @@ export default function StickyContactCard({
       ? `Luxury ${property.bedrooms} BHK ${property.propertyType}`
       : property.propertyType || "Luxury Property";
 
+  if (isGuest) {
+    return (
+      <div className="rounded-2xl overflow-hidden shadow-xs border border-[#ECE7DB] bg-white">
+        {/* Blurred Price Banner Header */}
+        <div className="relative h-24 bg-gradient-to-r from-[#B88A1A] via-[#D4B04C] to-[#8C6605] overflow-hidden select-none pointer-events-none">
+          <div className="absolute inset-0 bg-white/40 backdrop-blur-xs" />
+          <div className="absolute inset-0 flex flex-col justify-center px-4 space-y-1 opacity-20">
+            <div className="text-2xl font-bold font-serif text-white">
+              {formatPrice(property.price)}
+            </div>
+            <p className="text-xs text-amber-100 font-medium truncate">
+              {displayTitle}
+            </p>
+          </div>
+        </div>
+
+        {/* Locked Content Body */}
+        <div className="p-6 flex flex-col items-center text-center space-y-5">
+          <div className="h-12 w-12 rounded-full bg-[#FFF9EC] border border-[#E8DCC1] flex items-center justify-center text-[#9A720C] shadow-2xs">
+            <Lock size={20} />
+          </div>
+
+          <div className="space-y-1">
+            <h3 className="text-sm font-bold text-gray-900 font-serif">Sign in to contact</h3>
+            <p className="text-xs text-gray-500 leading-relaxed max-w-[200px]">
+              View owner details and send a request
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={onLogin}
+            className="w-full h-10 rounded-xl bg-gradient-to-r from-[#B88A1A] via-[#D4B04C] to-[#8C6605] hover:opacity-95 text-white font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+          >
+            Sign In Now
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       {/* Primary Callback Card */}

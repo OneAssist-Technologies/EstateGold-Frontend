@@ -50,6 +50,7 @@ export default function AdminSettingsPage() {
   const [platformLogo, setPlatformLogo] = useState("");
   const [supportEmail, setSupportEmail] = useState("support@estategold.com");
   const [supportPhone, setSupportPhone] = useState("+91 1800-123-4567");
+  const [supportAddress, setSupportAddress] = useState("12th Floor, Trade Centre, Mumbai");
   const [defaultCountry, setDefaultCountry] = useState("India");
   const [defaultCurrency, setDefaultCurrency] = useState("INR (₹)");
   const [timeZone, setTimeZone] = useState("Asia/Kolkata");
@@ -109,6 +110,7 @@ export default function AdminSettingsPage() {
         setPlatformLogo(s.platformLogo || "");
         setSupportEmail(s.supportEmail || "support@estategold.com");
         setSupportPhone(s.supportPhone || "+91 1800-123-4567");
+        setSupportAddress(s.supportAddress || "12th Floor, Trade Centre, Mumbai");
         setDefaultCountry(s.defaultCountry || "India");
         setDefaultCurrency(s.defaultCurrency || "INR (₹)");
         setTimeZone(s.timeZone || "Asia/Kolkata");
@@ -213,6 +215,7 @@ export default function AdminSettingsPage() {
         platformLogo,
         supportEmail,
         supportPhone,
+        supportAddress,
         defaultCountry,
         defaultCurrency,
         timeZone,
@@ -580,6 +583,17 @@ export default function AdminSettingsPage() {
                       value={supportPhone}
                       onChange={(e) => setSupportPhone(e.target.value)}
                       placeholder="+91 1800-123-4567"
+                      className="w-full h-11 px-4 text-xs font-medium rounded-xl border border-gray-300 focus:border-[#9A720C] focus:ring-1 focus:ring-[#9A720C] outline-none"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-gray-700">Support Address</label>
+                    <input
+                      type="text"
+                      value={supportAddress}
+                      onChange={(e) => setSupportAddress(e.target.value)}
+                      placeholder="12th Floor, Trade Centre, Mumbai"
                       className="w-full h-11 px-4 text-xs font-medium rounded-xl border border-gray-300 focus:border-[#9A720C] focus:ring-1 focus:ring-[#9A720C] outline-none"
                     />
                   </div>

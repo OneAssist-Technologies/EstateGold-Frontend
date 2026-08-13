@@ -227,6 +227,53 @@ export default function PricePhotosStep({
             />
           </label>
 
+          {/* Existing uploaded photos */}
+          {formData.existingPhotos && formData.existingPhotos.length > 0 && (
+            <div className="mt-4 space-y-3">
+              <label className="block text-sm font-bold text-gray-700 uppercase tracking-wider">
+                Existing Uploaded Media
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                {formData.existingPhotos.map((photo, idx) => {
+                  const imageUrl = photo.startsWith("http")
+                    ? photo
+                    : `http://localhost:5000/uploads/properties/${photo}`;
+
+                  return (
+                    <div
+                      key={photo}
+                      className="relative h-24 rounded-2xl overflow-hidden border border-[#ECE7DB] bg-gray-900 group shadow-xs"
+                    >
+                      <img
+                        src={imageUrl}
+                        alt="Property Preview"
+                        className="w-full h-full object-cover"
+                      />
+                      <span className="absolute bottom-1.5 left-1.5 bg-black/70 text-white text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
+                        <ImageIcon size={10} /> Photo
+                      </span>
+
+                      {/* Remove Button */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData((prev) => ({
+                            ...prev,
+                            existingPhotos: (prev.existingPhotos || []).filter((_, i) => i !== idx),
+                          }));
+                        }}
+                        className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/70 hover:bg-red-600 text-white flex items-center justify-center transition-colors cursor-pointer"
+                        title="Delete photo"
+                      >
+                        <X size={12} />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Selected Media Count Badge & Preview List */}
           {formData.photos && formData.photos.length > 0 && (
             <div className="mt-4 space-y-3">

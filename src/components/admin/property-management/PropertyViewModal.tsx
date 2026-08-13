@@ -29,6 +29,10 @@ interface Props {
   onApprove: () => void;
 
   onReject: (reason: string) => void;
+
+  onApproveDelete?: (id: string, reason: string) => void;
+
+  onRejectDeleteRequest?: (id: string) => void;
 }
 
 export default function PropertyViewModal({
@@ -37,6 +41,8 @@ export default function PropertyViewModal({
   onClose,
   onApprove,
   onReject,
+  onApproveDelete,
+  onRejectDeleteRequest,
 }: Props) {
   if (!property) return null;
 
@@ -125,6 +131,17 @@ export default function PropertyViewModal({
               </button>
 
             </div>
+
+            {property.deleteRequested && (
+              <div className="mx-6 mb-2 p-4 bg-amber-50 border border-amber-200 rounded-2xl">
+                <h4 className="text-amber-800 font-bold text-sm flex items-center gap-1.5">
+                  ⚠️ Deletion Request Submitted
+                </h4>
+                <p className="text-xs text-amber-700 font-medium mt-1">
+                  <strong>Reason:</strong> {property.deleteRequestedReason || "No reason specified"}
+                </p>
+              </div>
+            )}
 
             {/* Image */}
 
@@ -246,26 +263,63 @@ export default function PropertyViewModal({
                     <Item
                       icon={<User size={18} />}
                       label="Owner"
-                      value={property.ownerName}
+                      value={property.ownerName || property.createdBy?.fullName || "N/A"}
                     />
 
                     <Item
                       icon={<Phone size={18} />}
                       label="Phone"
-                      value={property.ownerPhone}
+                      value={property.ownerPhone || property.createdBy?.phone || "N/A"}
                     />
 
                     <Item
                       icon={<Mail size={18} />}
                       label="Email"
                       value={
-                        property.ownerEmail || "-"
+                        property.ownerEmail || property.createdBy?.email || "-"
                       }
+                    />
+
+                    <Item
+                      icon={<CheckCircle2 size={18} />}
+                      label="Negotiable"
+                      value={property.ownerNegotiable ? "Yes" : "No"}
+                    />
+
+                    <Item
+                      icon={<CheckCircle2 size={18} />}
+                      label="Ready to Meet"
+                      value={property.ownerReadyToMeet ? "Yes" : "No"}
                     />
 
                   </div>
 
                 </section>
+
+                {property.listingType === "another_owner" && property.createdBy && (
+                  <section>
+                    <h3 className="font-semibold text-lg mb-4 text-[#9A720C]">
+                      Posted Agent Details
+                    </h3>
+                    <div className="space-y-3">
+                      <Item
+                        icon={<User size={18} className="text-[#9A720C]" />}
+                        label="Agent Name"
+                        value={property.createdBy.fullName}
+                      />
+                      <Item
+                        icon={<Phone size={18} className="text-[#9A720C]" />}
+                        label="Agent Phone"
+                        value={property.createdBy.phone || "-"}
+                      />
+                      <Item
+                        icon={<Mail size={18} className="text-[#9A720C]" />}
+                        label="Agent Email"
+                        value={property.createdBy.email || "-"}
+                      />
+                    </div>
+                  </section>
+                )}
 
                 <section>
 
@@ -327,7 +381,33 @@ export default function PropertyViewModal({
 
             <div className="border-t p-6 flex justify-end gap-3">
 
-              {property.status === "pending" && (
+              {property.deleteRequested ? (
+                <>
+                  {onRejectDeleteRequest && (
+                    <button
+                      onClick={() => {
+                        onRejectDeleteRequest(property._id);
+                        onClose();
+                      }}
+                      className="h-11 px-6 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center gap-2 font-bold cursor-pointer"
+                    >
+                      Reject Request
+                    </button>
+                  )}
+
+                  {onApproveDelete && (
+                    <button
+                      onClick={() => {
+                        onApproveDelete(property._id, property.deleteRequestedReason || "User delete request");
+                        onClose();
+                      }}
+                      className="h-11 px-6 rounded-xl bg-red-600 text-white hover:bg-red-700 flex items-center gap-2 font-bold cursor-pointer"
+                    >
+                      Approve Deletion
+                    </button>
+                  )}
+                </>
+              ) : property.status === "pending" && (
                 <>
                   <button
                     onClick={() =>
