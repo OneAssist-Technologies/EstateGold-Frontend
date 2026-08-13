@@ -1,15 +1,6 @@
 "use client";
 
-import Image from "next/image";
 import { useRouter } from "next/navigation";
-
-import {
-  BedDouble,
-  Bath,
-  Scan,
-  MapPin,
-} from "lucide-react";
-
 import { Property } from "@/src/types/property";
 
 interface Props {
@@ -34,7 +25,7 @@ export default function SimilarProperties({ properties }: Props) {
 
   if (!properties || properties.length === 0) return null;
 
-  const city = properties[0]?.city || "Mumbai";
+  const city = properties[0]?.city || "City";
 
   return (
     <div className="py-4 space-y-3 border-t border-[#ECE7DB] mt-4">
@@ -51,7 +42,22 @@ export default function SimilarProperties({ properties }: Props) {
                 : `http://localhost:5000/uploads/properties/${item.photos[0]}`
               : "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80";
 
-          const title = `${item.bedrooms || 3} BHK ${item.propertyType || "Property"} — ${item.locality || "City"}`;
+          const isPlot = item.propertyType === "Plot / Land";
+          const isCommercial = item.propertyType === "Commercial Space";
+
+          let title = "";
+          let subtitle = "";
+
+          if (isPlot) {
+            title = `${item.propertyType} — ${item.locality || item.city || "Local"}`;
+            subtitle = `📐 ${item.plotArea ? `${item.plotArea.toLocaleString()} sq ft` : "Plot Area"}`;
+          } else if (isCommercial) {
+            title = `${(item as any).commercialType || item.propertyType} — ${item.locality || item.city || "Local"}`;
+            subtitle = `📐 ${item.area ? `${item.area.toLocaleString()} sq ft` : "Built Area"}`;
+          } else {
+            title = `${item.bedrooms ? `${item.bedrooms} BHK ` : ""}${item.propertyType} — ${item.locality || item.city || "Local"}`;
+            subtitle = `🛏️ ${item.bedrooms || 0} Beds  •  📐 ${item.area ? `${item.area.toLocaleString()} sq ft` : "N/A"}`;
+          }
 
           return (
             <div
@@ -76,9 +82,7 @@ export default function SimilarProperties({ properties }: Props) {
                   {title}
                 </h4>
                 <div className="flex items-center gap-2 text-[10px] text-gray-500 font-medium">
-                  <span>🛏️ {item.bedrooms || 3} Beds</span>
-                  <span>•</span>
-                  <span>📐 {item.area ? `${item.area.toLocaleString()} sq ft` : "1,200 sq ft"}</span>
+                  {subtitle}
                 </div>
               </div>
             </div>

@@ -48,6 +48,7 @@ export interface AdminProperty {
   ownerName: string;
   ownerPhone: string;
   ownerEmail: string;
+  listingType?: string;
 
   ownerType: string;
   agentRelation: string;
@@ -86,6 +87,11 @@ export interface AdminProperty {
 
   status: "pending" | "approved" | "rejected";
   availabilityStatus?: "on_sale" | "hold" | "sold";
+  deleteRequested?: boolean;
+  deleteRequestedReason?: string;
+  deleteRequestedAt?: string;
+  ownerNegotiable?: boolean;
+  ownerReadyToMeet?: boolean;
 
  createdBy?: {
   _id: string;

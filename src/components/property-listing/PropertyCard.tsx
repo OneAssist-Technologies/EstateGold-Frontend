@@ -132,6 +132,13 @@ export default function PropertyCard({ property }: Props) {
         <div className="absolute bottom-3 left-3.5 text-white font-serif text-2xl sm:text-3xl font-bold tracking-tight drop-shadow-md">
           {formatPrice(property.price)}
         </div>
+
+        {/* Posted By (Owner/Agent) Badge at Bottom Right of Image */}
+        <div className="absolute bottom-3 right-3 z-10">
+          <span className="bg-[#9A720C] text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-2xs flex items-center gap-1 border border-[#B88A1A]">
+            <span className="text-[9px]">👤</span> {property.listingType === "another_owner" ? "Agent" : "Owner"}
+          </span>
+        </div>
       </div>
 
       {/* Card Details Body */}

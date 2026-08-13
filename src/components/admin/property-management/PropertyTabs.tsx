@@ -11,6 +11,7 @@ interface Props {
     pending: number;
     approved: number;
     rejected: number;
+    delete_requests?: number;
   };
 }
 
@@ -39,6 +40,11 @@ export default function PropertyTabs({
       key: "rejected",
       label: "Rejected",
       count: counts.rejected,
+    },
+    {
+      key: "delete_requests",
+      label: "Delete Requests",
+      count: counts.delete_requests || 0,
     },
   ];
 

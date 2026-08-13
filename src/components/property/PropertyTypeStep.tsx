@@ -31,26 +31,24 @@ export default function PropertyTypeStep({
   onTypeChange,
 }: Props) {
   return (
-    <div>
-
+    <div className="space-y-6">
       {/* Heading */}
-
-      <h2 className="text-[42px] font-bold font-playfair text-[#161616]">
-        What are you listing?
-      </h2>
-
-      <p className="text-gray-500 text-lg mt-2">
-        Select the property type and purpose
-      </p>
+      <div>
+        <h2 className="text-2xl font-bold font-serif text-gray-900">
+          What are you listing?
+        </h2>
+        <p className="text-xs text-gray-400 mt-1 font-medium">
+          Select the property type and purpose
+        </p>
+      </div>
 
       {/* Purpose */}
-
-      <div className="mt-10">
-        <h3 className="font-semibold text-xl mb-4">
+      <div>
+        <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
           Purpose
         </h3>
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 gap-3">
           {[
             "Sale",
             "Rent",
@@ -59,17 +57,15 @@ export default function PropertyTypeStep({
             <button
               key={item}
               type="button"
-              onClick={() =>
-                onPurposeChange(item)
-              }
+              onClick={() => onPurposeChange(item)}
               className={`
-                h-16
-                rounded-2xl
-                border-2
-                font-normal
-                text-lg
-                    text-[16px]
+                h-12
+                rounded-xl
+                border
+                font-bold
+                text-sm
                 transition-all
+                cursor-pointer
                 ${
                   purpose === item
                     ? `
@@ -81,6 +77,7 @@ export default function PropertyTypeStep({
                     border-[#E6DCC2]
                     bg-white
                     hover:border-[#C89B1C]
+                    text-gray-700
                   `
                 }
               `}
@@ -92,79 +89,67 @@ export default function PropertyTypeStep({
       </div>
 
       {/* Property Type */}
-
-      <div className="mt-10">
-        <h3 className="font-semibold text-xl mb-4">
+      <div>
+        <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
           Property Type
         </h3>
 
-        <div className="grid md:grid-cols-3 gap-5">
-          {propertyTypes.map(
-            (item) => (
-              <button
-                key={item}
-                type="button"
-                onClick={() =>
-                  onTypeChange(item)
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          {propertyTypes.map((item) => (
+            <button
+              key={item}
+              type="button"
+              onClick={() => onTypeChange(item)}
+              className={`
+                h-24
+                rounded-xl
+                border
+                p-3.5
+                text-left
+                transition-all
+                flex
+                flex-col
+                justify-between
+                cursor-pointer
+                ${
+                  value === item
+                    ? `
+                    border-[#C89B1C]
+                    bg-[#FFF9EC]
+                    shadow-2xs
+                  `
+                    : `
+                    border-[#E6DCC2]
+                    bg-white
+                    hover:border-[#C89B1C]
+                  `
                 }
-                className={`
-                  h-[120px]
-                  rounded-3xl
-                  border
-                  p-5
-                  text-left
-                  transition-all
+              `}
+            >
+              <div
+                className="
+                  h-8
+                  w-8
+                  rounded-lg
+                  bg-[#FAF4E8]
                   flex
-                  flex-col
-                  justify-between
-                  ${
-                    value === item
-                      ? `
-                      border-[#C89B1C]
-                      bg-[#FFF9EC]
-                      shadow-sm
-                    `
-                      : `
-                      border-[#E6DCC2]
-                      bg-white
-                      hover:border-[#C89B1C]
-                    `
-                  }
-                `}
+                  items-center
+                  justify-center
+                "
               >
-                <div
-                  className="
-                    h-12
-                    w-12
-                    rounded-xl
-                    bg-[#FAF4E8]
-                    flex
-                    items-center
-                    justify-center
-                  "
-                >
-                  <Building2
-                    size={20}
-                    className="text-[#C89B1C]"
-                  />
-                </div>
+                <Building2
+                  size={16}
+                  className="text-[#C89B1C]"
+                />
+              </div>
 
-               <span
-  className="
-    text-[16px]
-    font-normal
-    leading-6
-    text-[#161616]
-  "
->
-  {item}
-</span>
-              </button>
-            )
-          )}
+              <span className="text-xs font-bold text-gray-800">
+                {item}
+              </span>
+            </button>
+          ))}
         </div>
       </div>
-
     </div>
   );
 }

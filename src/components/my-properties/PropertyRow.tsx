@@ -11,22 +11,36 @@ import {
   Eye,
   Pencil,
   Trash2,
-  CalendarDays,
+  Building,
+  MessageSquare,
 } from "lucide-react";
 
 import { Property } from "@/src/types/property";
-import StatusToggle from "./StatusToggle";
 
 interface Props {
   property: Property;
-
   onView: (id: string) => void;
-
   onEdit: (property: Property) => void;
-
   onDelete: (property: Property) => void;
-
   onStatusChange: () => void;
+}
+
+function formatPrice(price?: number, purpose?: string): string {
+  if (!price || isNaN(price)) return "₹0";
+  const isRent = (purpose || "").toLowerCase().includes("rent") || (purpose || "").toLowerCase().includes("lease");
+  
+  let formatted = "";
+  if (price >= 10000000) {
+    const cr = (price / 10000000).toFixed(2);
+    formatted = `₹${cr.replace(/\.00$/, "")} Cr`;
+  } else if (price >= 100000) {
+    const l = (price / 100000).toFixed(1);
+    formatted = `₹${l.replace(/\.0$/, "")} L`;
+  } else {
+    formatted = `₹${price.toLocaleString("en-IN")}`;
+  }
+  
+  return isRent ? `${formatted}/mo` : formatted;
 }
 
 export default function PropertyRow({
@@ -36,346 +50,221 @@ export default function PropertyRow({
   onDelete,
   onStatusChange,
 }: Props) {
-  const image =
-    property.photos?.length > 0
-      ? `http://localhost:5000/uploads/properties/${property.photos[0]}`
-      : "/images/property-placeholder.jpg";
+  const mainPhoto =
+    property.photos && property.photos.length > 0
+      ? property.photos[0].startsWith("http")
+        ? property.photos[0]
+        : `http://localhost:5000/uploads/properties/${property.photos[0]}`
+      : "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80";
+
+  const isActive = ["approved", "active", "published"].includes(property.status);
+
+  // Dynamic clean title
+  const isPlot = property.propertyType === "Plot / Land";
+  const isCommercial = property.propertyType === "Commercial Space";
+
+  let displayTitle = "";
+  if (isPlot) {
+    displayTitle = `${property.propertyType} in ${property.locality || "Local"}`;
+  } else if (isCommercial) {
+    displayTitle = `${(property as any).commercialType || "Commercial Space"} in ${property.locality || "Local"}`;
+  } else {
+    displayTitle = `${property.bedrooms ? `${property.bedrooms} BHK ` : ""}${property.propertyType} in ${property.locality || "Local"}`;
+  }
+
+  // Determine availability status label
+  let statusLabel = isActive ? "Active" : "Inactive";
+  let statusColor = isActive ? "bg-green-50 border-green-200 text-green-700" : "bg-gray-50 border-gray-200 text-gray-500";
+  let dotColor = isActive ? "bg-green-500" : "bg-gray-400";
+
+  if (property.deleteRequested) {
+    statusLabel = "Delete Requested";
+    statusColor = "bg-amber-50 border-amber-200 text-amber-700";
+    dotColor = "bg-amber-500 animate-pulse";
+  } else if (property.status === "pending") {
+    statusLabel = "Pending Review";
+    statusColor = "bg-yellow-50 border-yellow-200 text-yellow-700";
+    dotColor = "bg-yellow-500";
+  } else if (property.status === "rejected") {
+    statusLabel = "Rejected";
+    statusColor = "bg-red-50 border-red-200 text-red-700";
+    dotColor = "bg-red-500";
+  } else if (property.availabilityStatus === "on_sale") {
+    statusLabel = "On Sale";
+    statusColor = "bg-emerald-50 border-emerald-200 text-emerald-700";
+    dotColor = "bg-emerald-500";
+  } else if (property.availabilityStatus === "hold") {
+    statusLabel = "On Hold";
+    statusColor = "bg-amber-50 border-amber-200 text-amber-700";
+    dotColor = "bg-amber-500";
+  } else if (property.availabilityStatus === "sold") {
+    statusLabel = "Sold";
+    statusColor = "bg-red-50 border-red-200 text-red-700";
+    dotColor = "bg-red-500";
+  } else if ((property as any).availabilityStatus === "rented") {
+    statusLabel = "Rented";
+    statusColor = "bg-blue-50 border-blue-200 text-blue-700";
+    dotColor = "bg-blue-500";
+  }
+
+  // Construct specs details list
+  const specs: { icon: any; text: string }[] = [];
+  if (isPlot) {
+    if ((property as any).plotArea) specs.push({ icon: <Scan size={14} className="text-[#C89B1C]" />, text: `${(property as any).plotArea.toLocaleString()} sq ft` });
+    if ((property as any).plotFacing) specs.push({ icon: <MapPin size={14} className="text-[#C89B1C]" />, text: `${(property as any).plotFacing} Facing` });
+    if ((property as any).roadWidth) specs.push({ icon: <Building size={14} className="text-[#C89B1C]" />, text: `${(property as any).roadWidth} ft Road` });
+    specs.push({ icon: <Building size={14} className="text-[#C89B1C]" />, text: "Plot / Land" });
+  } else if (isCommercial) {
+    if ((property as any).commercialType) specs.push({ icon: <Building size={14} className="text-[#C89B1C]" />, text: String((property as any).commercialType) });
+    if (property.area) specs.push({ icon: <Scan size={14} className="text-[#C89B1C]" />, text: `${property.area.toLocaleString()} sq ft` });
+    if (property.floor !== undefined) specs.push({ icon: <Building size={14} className="text-[#C89B1C]" />, text: `${property.floor}th Floor` });
+    specs.push({ icon: <Building size={14} className="text-[#C89B1C]" />, text: "Commercial" });
+  } else {
+    // Residential
+    if (property.bedrooms) specs.push({ icon: <BedDouble size={14} className="text-[#C89B1C]" />, text: `${property.bedrooms} BHK` });
+    if (property.bathrooms) specs.push({ icon: <Bath size={14} className="text-[#C89B1C]" />, text: `${property.bathrooms} Bath` });
+    if (property.area) specs.push({ icon: <Scan size={14} className="text-[#C89B1C]" />, text: `${property.area.toLocaleString()} sq ft` });
+    specs.push({ icon: <Building size={14} className="text-[#C89B1C]" />, text: property.propertyType });
+  }
 
   return (
     <motion.div
       initial={{
         opacity: 0,
-        y: 25,
+        y: 15,
       }}
       animate={{
         opacity: 1,
         y: 0,
       }}
       whileHover={{
-        y: -3,
+        y: -2,
       }}
       transition={{
-        duration: 0.35,
+        duration: 0.3,
       }}
-      className="
-        bg-white
-        rounded-3xl
-        border
-        border-[#ECE2C8]
-        overflow-hidden
-        shadow-sm
-        hover:shadow-xl
-        transition-all
-      "
+      className="bg-white rounded-2xl border border-[#ECE7DB] overflow-hidden shadow-2xs hover:shadow-xs transition-all duration-300"
     >
-      <div className="grid lg:grid-cols-12">
-
+      <div className="grid grid-cols-1 md:grid-cols-12 items-stretch">
         {/* IMAGE */}
-
-        <div className="lg:col-span-4 relative h-[300px]">
-
+        <div className="md:col-span-3 relative min-h-[160px] md:min-h-0 bg-gray-100 overflow-hidden">
           <Image
-            src={image}
+            src={mainPhoto}
             alt={property.propertyType}
             fill
             unoptimized
             className="object-cover"
           />
 
-          <div
-            className="
-              absolute
-              top-5
-              left-5
-              bg-[#C89B1C]
-              text-white
-              px-5
-              py-2
-              rounded-full
-              text-sm
-              font-medium
-            "
-          >
-            {property.purpose}
+          {/* Badge Overlay */}
+          <div className="absolute top-3 left-3 z-10">
+            <span
+              className={`px-2.5 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 shadow-xs border ${statusColor}`}
+            >
+              <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />
+              {statusLabel}
+            </span>
           </div>
-
         </div>
 
         {/* DETAILS */}
-
-        <div className="lg:col-span-8 p-8">
-
-          {/* Header */}
-
-          <div className="flex justify-between items-start">
-
-            <div>
-
-              <h2 className="text-3xl font-bold text-[#161616]">
-
-                {property.propertyType}
-
-              </h2>
-
-              <div className="flex items-center gap-2 mt-3 text-gray-500">
-
-                <MapPin size={18} />
-
-                <span>
-
-                  {property.locality},
-
-                  {property.city}
-
-                </span>
-
-              </div>
-
+        <div className="md:col-span-9 p-5 flex flex-col justify-between space-y-4">
+          <div>
+            {/* Header: Title and Price */}
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
+              <h3 className="text-base sm:text-lg font-bold text-gray-900 line-clamp-1 font-serif">
+                {displayTitle}
+              </h3>
+              <span className="text-base sm:text-lg font-bold text-[#9A720C] shrink-0 font-serif">
+                {formatPrice(property.price, property.purpose)}
+              </span>
             </div>
 
-            <StatusToggle
-              checked={
-                ["approved", "active", "published"].includes(property.status)
-              }
-              onChange={onStatusChange}
-            />
-
-          </div>
-
-          {/* Features */}
-
-          <div className="grid grid-cols-4 gap-5 mt-8">
-
-            <div className="flex items-center gap-2">
-
-              <BedDouble
-                className="text-[#C89B1C]"
-              />
-
-              <div>
-
-                <p className="text-xs text-gray-500">
-
-                  Bedrooms
-
-                </p>
-
-                <h4 className="font-semibold">
-
-                  {property.bedrooms}
-
-                </h4>
-
-              </div>
-
+            {/* Location */}
+            <div className="flex items-center gap-1 text-xs text-gray-400 font-semibold mt-1">
+              <MapPin size={13} className="text-gray-400" />
+              <span>
+                {property.locality}, {property.city}
+              </span>
             </div>
 
-            <div className="flex items-center gap-2">
-
-              <Bath
-                className="text-[#C89B1C]"
-              />
-
-              <div>
-
-                <p className="text-xs text-gray-500">
-
-                  Bathrooms
-
-                </p>
-
-                <h4 className="font-semibold">
-
-                  {property.bathrooms}
-
-                </h4>
-
-              </div>
-
-            </div>
-
-            <div className="flex items-center gap-2">
-
-              <Scan
-                className="text-[#C89B1C]"
-              />
-
-              <div>
-
-                <p className="text-xs text-gray-500">
-
-                  Area
-
-                </p>
-
-                <h4 className="font-semibold">
-
-                  {property.area} sqft
-
-                </h4>
-
-              </div>
-
-            </div>
-
-            <div className="flex items-center gap-2">
-
-              <CalendarDays
-                className="text-[#C89B1C]"
-              />
-
-              <div>
-
-                <p className="text-xs text-gray-500">
-
-                  Available
-
-                </p>
-
-                <h4 className="font-semibold">
-
-                  {new Date(
-                    property.availableFrom
-                  ).toLocaleDateString()}
-
-                </h4>
-
-              </div>
-
-            </div>
-
-          </div>
-
-          {/* Description */}
-
-          <p className="mt-7 text-gray-600 leading-7 line-clamp-2">
-
-            {property.description}
-
-          </p>
-
-          {/* Amenities */}
-
-          <div className="flex flex-wrap gap-3 mt-7">
-
-            {property.amenities
-              ?.slice(0, 4)
-              .map((item) => (
-                <span
-                  key={item}
-                  className="
-                    px-4
-                    py-2
-                    rounded-full
-                    bg-[#FFF8EA]
-                    border
-                    border-[#E8DCC1]
-                    text-sm
-                  "
-                >
-                  {item}
+            {/* Inline Specs Row */}
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500 font-bold pt-2.5">
+              {specs.map((spec, index) => (
+                <span key={index} className="flex items-center gap-1">
+                  {spec.icon}
+                  {spec.text}
                 </span>
               ))}
-
+            </div>
           </div>
 
-          {/* Footer */}
-
-          <div className="flex justify-between items-end mt-10">
-
-            <div>
-
-              <p className="text-gray-500">
-
-                Price
-
-              </p>
-
-              <h2 className="text-4xl font-bold text-[#C89B1C]">
-
-                ₹
-                {property.price.toLocaleString(
-                  "en-IN"
-                )}
-
-              </h2>
-
+          {/* Footer stats metrics & Action Buttons */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 border-t border-gray-100">
+            {/* Left Metrics */}
+            <div className="flex flex-wrap items-center gap-3.5 text-xs text-gray-400 font-semibold">
+              <span className="flex items-center gap-1 hover:text-gray-600 transition-colors">
+                <Eye size={14} className="text-gray-400" />
+                {property.views || 0} views
+              </span>
+              <span className="flex items-center gap-1 hover:text-gray-600 transition-colors">
+                <MessageSquare size={14} className="text-gray-400" />
+                {(property.enquiries?.length || 0) || 0} enquiries
+              </span>
+              {property.furnishing && !isPlot && (
+                <span className="px-2 py-0.5 rounded-md bg-[#FFF8EA] border border-[#E8DCC1] text-[#9D791E] text-[10px] font-bold capitalize">
+                  {property.furnishing}
+                </span>
+              )}
             </div>
 
-            <div className="flex gap-4">
+            {/* Right Action buttons */}
+            <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+              {/* Dynamic Status Toggle button pill */}
+              <button
+                onClick={onStatusChange}
+                className={`h-8 px-3 rounded-lg border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  isActive
+                    ? "border-green-200 text-green-700 bg-green-50/50 hover:bg-green-50"
+                    : "border-gray-200 text-gray-500 bg-gray-50 hover:bg-gray-100"
+                }`}
+              >
+                <span className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-green-500" : "bg-gray-400"}`} />
+                {isActive ? "Active" : "Inactive"}
+              </button>
 
               <button
-                onClick={() =>
-                  onView(
-                    property._id
-                  )
-                }
-                className="
-                  h-12
-                  px-6
-                  rounded-xl
-                  border
-                  border-[#C89B1C]
-                  text-[#C89B1C]
-                  hover:bg-[#FFF8EA]
-                  transition
-                "
+                onClick={() => onView(property._id)}
+                className="h-8 px-3 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
               >
+                <Eye size={13} />
                 View
               </button>
 
               <button
-                onClick={() =>
-                  onEdit(
-                    property
-                  )
-                }
-                className="
-                  h-12
-                  w-12
-                  rounded-xl
-                  bg-[#C89B1C]
-                  text-white
-                  flex
-                  items-center
-                  justify-center
-                  hover:bg-[#B88D18]
-                  transition
-                "
+                onClick={() => onEdit(property)}
+                className="h-8 px-3 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
               >
-                <Pencil size={18} />
+                <Pencil size={13} />
+                Edit
               </button>
 
               <button
-                onClick={() =>
-                  onDelete(
-                    property
-                  )
-                }
-                className="
-                  h-12
-                  w-12
-                  rounded-xl
-                  bg-red-50
-                  text-red-500
-                  flex
-                  items-center
-                  justify-center
-                  hover:bg-red-100
-                  transition
-                "
+                onClick={() => onDelete(property)}
+                disabled={property.deleteRequested}
+                className={`h-8 px-3 rounded-lg border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  property.deleteRequested
+                    ? "border-amber-200 text-amber-600 bg-amber-50/50 cursor-not-allowed opacity-75"
+                    : "border-red-200 text-red-600 bg-red-50/50 hover:bg-red-100/50"
+                }`}
               >
-                <Trash2 size={18} />
+                <Trash2 size={13} />
+                {property.deleteRequested ? "Delete Pending" : "Delete"}
               </button>
-
             </div>
-
           </div>
-
         </div>
-
       </div>
-
     </motion.div>
   );
 }

@@ -69,18 +69,8 @@ export default function Neighbourhood({ property }: Props) {
     });
   }
 
-  // Fallback defaults if no neighbourhood places saved
   if (activePlaces.length === 0) {
-    const city = property.city || "City";
-    const loc = property.locality || "Central";
-    activePlaces.push(
-      { category: "SCHOOL", name: `${city} International School`, distance: "0.5 KM", icon: <GraduationCap size={16} />, color: "bg-amber-100 text-amber-700" },
-      { category: "COLLEGE", name: "Engineering & Tech Campus", distance: "2.1 KM", icon: <Building2 size={16} />, color: "bg-purple-100 text-purple-700" },
-      { category: "HOSPITAL", name: "Multispeciality Hospital", distance: "1.2 KM", icon: <Stethoscope size={16} />, color: "bg-rose-100 text-rose-700" },
-      { category: "MALL", name: "Shopping Center", distance: "1.5 KM", icon: <ShoppingBag size={16} />, color: "bg-orange-100 text-orange-700" },
-      { category: "METRO", name: `${loc} Metro Station`, distance: "0.8 KM", icon: <Train size={16} />, color: "bg-indigo-100 text-indigo-700" },
-      { category: "PARK", name: `${loc} Public Park`, distance: "1.0 KM", icon: <Trees size={16} />, color: "bg-teal-100 text-teal-700" }
-    );
+    return null;
   }
 
   return (

@@ -17,6 +17,8 @@ import {
   approveProperty,
   rejectProperty,
   updatePropertyAvailabilityStatus,
+  deleteProperty,
+  rejectDeleteRequest,
 } from "@/src/services/adminPropertyService";
 import { AdminProperty } from "@/src/types/adminProperty";
 
@@ -191,6 +193,30 @@ export default function PropertyManagement() {
     }
   };
 
+  const handleApproveDelete = async (id: string, reason: string) => {
+    if (!window.confirm("Are you sure you want to approve this deletion? The property listing will be permanently removed.")) return;
+    try {
+      setLoading(true);
+      await deleteProperty(id, reason);
+      await loadProperties();
+    } catch (error) {
+      console.error("Failed to approve deletion:", error);
+      setLoading(false);
+    }
+  };
+
+  const handleRejectDeleteRequest = async (id: string) => {
+    if (!window.confirm("Are you sure you want to reject this deletion request? The property listing will remain active.")) return;
+    try {
+      setLoading(true);
+      await rejectDeleteRequest(id);
+      await loadProperties();
+    } catch (error) {
+      console.error("Failed to reject delete request:", error);
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-8">
       <PropertyHeader />
@@ -217,6 +243,8 @@ export default function PropertyManagement() {
           onView={handleView}
           onApprove={handleQuickApprove}
           onReject={handleQuickReject}
+          onApproveDelete={handleApproveDelete}
+          onRejectDeleteRequest={handleRejectDeleteRequest}
           onAvailabilityStatusChange={handleAvailabilityStatusChange}
         />
       </motion.div>
@@ -262,6 +290,8 @@ export default function PropertyManagement() {
         onReject={
           handleReject
         }
+        onApproveDelete={handleApproveDelete}
+        onRejectDeleteRequest={handleRejectDeleteRequest}
       />
     </div>
   );

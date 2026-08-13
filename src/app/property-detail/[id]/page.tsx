@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
 import { motion } from "framer-motion";
+import { Lock, UserPlus, LogIn } from "lucide-react";
 import { useAuth } from "@/src/context/AuthContext";
 
 import Navbar from "@/src/components/layout/Navbar";
@@ -208,17 +209,62 @@ export default function PropertyDetailsPage() {
 
             <PropertyFeatures property={property} />
 
-            <PropertyDescription property={property} />
+            {isGuest ? (
+              <div className="relative">
+                {/* Blurred Content */}
+                <div className="blur-[6px] pointer-events-none select-none space-y-2 opacity-50">
+                  <PropertyDescription property={property} />
+                  <Amenities amenities={property.amenities} />
+                  <Neighbourhood property={property} />
+                  <LocalityRatings property={property} />
+                  <OwnerCard property={property} />
+                  <SimilarProperties properties={similarProperties} />
+                </div>
 
-            <Amenities amenities={property.amenities} />
+                {/* Overlay Card Container */}
+                <div className="absolute inset-x-0 top-0 flex justify-center pt-8 sm:pt-14 px-4 z-10">
+                  <div className="w-full max-w-md h-fit bg-white border border-[#ECE7DB] rounded-[24px] sm:rounded-[32px] p-6 sm:p-8 shadow-2xl flex flex-col items-center text-center space-y-5 sm:space-y-6">
+                    <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-[#FFF9EC] border border-[#E8DCC1] flex items-center justify-center text-[#9A720C] shadow-2xs">
+                      <Lock size={22} className="sm:size-24" />
+                    </div>
 
-            <Neighbourhood property={property} />
+                    <div className="space-y-2">
+                      <h3 className="text-xl sm:text-2xl font-bold text-gray-900 font-serif">
+                        Sign In to View Full Details
+                      </h3>
+                      <p className="text-xs sm:text-sm text-gray-500 leading-relaxed max-w-[280px] sm:max-w-sm">
+                        Create a free account or sign in to view the complete property details, contact the owner, and save to your wishlist.
+                      </p>
+                    </div>
 
-            <LocalityRatings property={property} />
+                    <div className="w-full space-y-3 pt-1">
+                      <Link
+                        href="/register"
+                        className="w-full h-11 sm:h-12 rounded-xl bg-gradient-to-r from-[#B88A1A] via-[#D4B04C] to-[#8C6605] hover:opacity-95 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs transition-all"
+                      >
+                        <UserPlus size={16} /> Register Free — It's Instant
+                      </Link>
 
-            <OwnerCard property={property} />
-
-            <SimilarProperties properties={similarProperties} />
+                      <Link
+                        href="/login"
+                        className="w-full h-11 sm:h-12 rounded-xl border-2 border-[#9A720C] hover:bg-[#FFF9EC] text-[#9A720C] font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 cursor-pointer transition-all"
+                      >
+                        <LogIn size={16} /> Sign In
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <>
+                <PropertyDescription property={property} />
+                <Amenities amenities={property.amenities} />
+                <Neighbourhood property={property} />
+                <LocalityRatings property={property} />
+                <OwnerCard property={property} />
+                <SimilarProperties properties={similarProperties} />
+              </>
+            )}
           </div>
 
           {/* Right Sidebar - Hidden ONLY when logged-in user is the actual property owner */}

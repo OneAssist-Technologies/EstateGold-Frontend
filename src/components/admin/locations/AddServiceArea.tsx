@@ -248,7 +248,7 @@ export default function AddServiceArea() {
           {/* City Name */}
           <div>
             <label className="block text-xs font-semibold text-gray-700 mb-2">
-              City Name <span className="text-red-500">*</span>
+              District Name <span className="text-red-500">*</span>
             </label>
             <div className="relative">
               <Building2

@@ -235,6 +235,45 @@ export default function OwnerDetailsStep({
             className="w-full h-14 border rounded-xl px-4 outline-none"
           />
         </div>
+
+        {/* Negotiable & Ready to Meet Toggles */}
+        <div className="md:col-span-2 grid md:grid-cols-2 gap-5 mt-2">
+          <label className="flex items-center gap-3.5 p-4 rounded-xl border border-[#E5D8B3] bg-[#FCFBF8] cursor-pointer hover:bg-[#FFFDF9] transition-all">
+            <input
+              type="checkbox"
+              checked={formData.ownerNegotiable || false}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  ownerNegotiable: e.target.checked,
+                }))
+              }
+              className="h-5 w-5 rounded text-[#C89B1C] border-[#C89B1C] focus:ring-[#C89B1C] cursor-pointer"
+            />
+            <div>
+              <p className="text-sm font-bold text-gray-800">Ready to Negotiate</p>
+              <p className="text-xs text-gray-400 font-semibold mt-0.5">Owner is open to price negotiations</p>
+            </div>
+          </label>
+
+          <label className="flex items-center gap-3.5 p-4 rounded-xl border border-[#E5D8B3] bg-[#FCFBF8] cursor-pointer hover:bg-[#FFFDF9] transition-all">
+            <input
+              type="checkbox"
+              checked={formData.ownerReadyToMeet || false}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  ownerReadyToMeet: e.target.checked,
+                }))
+              }
+              className="h-5 w-5 rounded text-[#C89B1C] border-[#C89B1C] focus:ring-[#C89B1C] cursor-pointer"
+            />
+            <div>
+              <p className="text-sm font-bold text-gray-800">Ready to Meet Buyer</p>
+              <p className="text-xs text-gray-400 font-semibold mt-0.5">Owner is available to meet the buyer</p>
+            </div>
+          </label>
+        </div>
       </div>
 
       {/* Verification */}
