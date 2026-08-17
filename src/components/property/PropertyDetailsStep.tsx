@@ -12,6 +12,11 @@ import {
   Calendar,
   Layers,
   Sparkles,
+  ShieldCheck,
+  DollarSign,
+  User,
+  FileText,
+  MapPin,
 } from "lucide-react";
 import { PropertyFormData } from "../../types/property";
 
@@ -221,14 +226,24 @@ export default function PropertyDetailsStep({
         </p>
       </div>
 
+      {/* Common Facing Field */}
+      <div className="bg-[#FFFDF9]/40 border border-[#E5D8B3] rounded-2xl p-5 shadow-2xs">
+        <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <Compass size={18} className="text-[#C89B1C]" /> Common Property Details
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {renderSelect("Facing Direction", formData.facing || "", facingOptions, <Compass size={16} />, (val) =>
+            setFormData((prev) => ({ ...prev, facing: val }))
+          )}
+        </div>
+      </div>
+
       {/* RENDER BY PROPERTY TYPE */}
 
       {/* 1. Apartment / Flat */}
       {propertyType === "Apartment / Flat" && (
         <div className="space-y-6">
-          {/* Bed / Bath / Balcony Row */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Bedrooms */}
             <div>
               <label className="flex items-center gap-2 mb-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
                 <Bed size={16} /> Bedrooms
@@ -251,7 +266,6 @@ export default function PropertyDetailsStep({
               </div>
             </div>
 
-            {/* Bathrooms */}
             <div>
               <label className="flex items-center gap-2 mb-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
                 <Bath size={16} /> Bathrooms
@@ -274,7 +288,6 @@ export default function PropertyDetailsStep({
               </div>
             </div>
 
-            {/* Balconies */}
             <div>
               <label className="flex items-center gap-2 mb-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
                 <Layers3 size={16} /> Balconies
@@ -298,23 +311,36 @@ export default function PropertyDetailsStep({
             </div>
           </div>
 
-          {/* Area & Floors */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            {renderInput("Built-up Area (sq ft)", formData.area, "e.g. 1200", <Scan size={16} />, (val) =>
-              setFormData((prev) => ({ ...prev, area: Number(val) }))
-            )}
-            {renderInput("Carpet Area (sq ft)", (formData as any).carpetArea, "e.g. 1000", <Scan size={16} />, (val) =>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {renderInput("Carpet Area (sq ft)", (formData as any).carpetArea, "e.g. 900", <Scan size={16} />, (val) =>
               setFormData((prev) => ({ ...prev, carpetArea: Number(val) }))
             )}
-            {renderInput("Floor Number", formData.floor, "e.g. 5", <Building2 size={16} />, (val) =>
+            {renderInput("Built-up Area (sq ft)", formData.area, "e.g. 1100", <Scan size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, area: Number(val) }))
+            )}
+            {renderInput("Super Built-up Area (sq ft)", (formData as any).superArea, "e.g. 1300", <Scan size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, superArea: Number(val) }))
+            )}
+            {renderInput("Floor Number", formData.floor, "e.g. 2", <Building2 size={16} />, (val) =>
               setFormData((prev) => ({ ...prev, floor: Number(val) }))
             )}
-            {renderInput("Total Floors", (formData as any).totalFloors, "e.g. 15", <Building2 size={16} />, (val) =>
+            {renderInput("Total Floors", (formData as any).totalFloors, "e.g. 10", <Building2 size={16} />, (val) =>
               setFormData((prev) => ({ ...prev, totalFloors: Number(val) }))
+            )}
+            {renderSelect("Property Age", (formData as any).propertyAge, ageOptions, <Calendar size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, propertyAge: val }))
             )}
           </div>
 
-          {/* Furnishing */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {renderInput("Society / Association Name", (formData as any).society, "e.g. Greenfield Residency", <Building2 size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, society: val })), "text"
+            )}
+            {renderInput("Monthly Maintenance (INR)", (formData as any).maintenance, "e.g. 2500", <DollarSign size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, maintenance: Number(val) }))
+            )}
+          </div>
+
           <div>
             <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block mb-3">
               Furnishing Status
@@ -337,14 +363,12 @@ export default function PropertyDetailsStep({
             </div>
           </div>
 
-          {/* Parking Toggle */}
           <div className="max-w-xs">
             {renderToggle(
               "Car Parking Available",
               formData.parking,
               <Car size={18} className="text-gray-500" />,
-              () => setFormData((prev) => ({ ...prev, parking: !prev.parking })),
-              "Dedicated parking spot"
+              () => setFormData((prev) => ({ ...prev, parking: !prev.parking }))
             )}
           </div>
         </div>
@@ -353,9 +377,7 @@ export default function PropertyDetailsStep({
       {/* 2. Independent House */}
       {propertyType === "Independent House" && (
         <div className="space-y-6">
-          {/* Bed / Bath Row */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Bedrooms */}
             <div>
               <label className="flex items-center gap-2 mb-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
                 <Bed size={16} /> Bedrooms
@@ -369,16 +391,9 @@ export default function PropertyDetailsStep({
                     () => setFormData((prev) => ({ ...prev, bedrooms: item }))
                   )
                 )}
-                {numberButton(
-                  "bedroom-5plus",
-                  "5+",
-                  formData.bedrooms > 5,
-                  () => setFormData((prev) => ({ ...prev, bedrooms: 6 }))
-                )}
               </div>
             </div>
 
-            {/* Bathrooms */}
             <div>
               <label className="flex items-center gap-2 mb-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
                 <Bath size={16} /> Bathrooms
@@ -392,69 +407,56 @@ export default function PropertyDetailsStep({
                     () => setFormData((prev) => ({ ...prev, bathrooms: item }))
                   )
                 )}
-                {numberButton(
-                  "bathroom-4plus",
-                  "4+",
-                  formData.bathrooms > 4,
-                  () => setFormData((prev) => ({ ...prev, bathrooms: 5 }))
-                )}
               </div>
             </div>
           </div>
 
-          {/* Area & Floors */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {renderInput("Built-up Area (sq ft)", formData.area, "e.g. 2000", <Scan size={16} />, (val) =>
-              setFormData((prev) => ({ ...prev, area: Number(val) }))
-            )}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {renderInput("Plot Area (sq ft)", (formData as any).plotArea, "e.g. 1500", <Scan size={16} />, (val) =>
               setFormData((prev) => ({ ...prev, plotArea: Number(val) }))
             )}
-            {renderInput("Number of Floors", (formData as any).totalFloors, "e.g. 2", <Building2 size={16} />, (val) =>
+            {renderInput("Built-up Area (sq ft)", formData.area, "e.g. 2400", <Scan size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, area: Number(val) }))
+            )}
+            {renderInput("Carpet Area (sq ft)", (formData as any).carpetArea, "e.g. 2000", <Scan size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, carpetArea: Number(val) }))
+            )}
+            {renderInput("Length (ft)", (formData as any).length, "e.g. 50", <Scan size={16} />, (val) => {
+              const len = Number(val);
+              const wid = Number((formData as any).width || 0);
+              setFormData((prev) => ({ ...prev, length: len, plotArea: len && wid ? len * wid : (prev as any).plotArea }));
+            })}
+            {renderInput("Width (ft)", (formData as any).width, "e.g. 30", <Scan size={16} />, (val) => {
+              const wid = Number(val);
+              const len = Number((formData as any).length || 0);
+              setFormData((prev) => ({ ...prev, width: wid, plotArea: len && wid ? len * wid : (prev as any).plotArea }));
+            })}
+            {renderInput("Total Floors", (formData as any).totalFloors, "e.g. 2", <Building2 size={16} />, (val) =>
               setFormData((prev) => ({ ...prev, totalFloors: Number(val) }))
             )}
-          </div>
-
-          {/* Facing & Property Age */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {renderSelect("Facing Direction", (formData as any).facing, facingOptions, <Compass size={16} />, (val) =>
-              setFormData((prev) => ({ ...prev, facing: val }))
+            {renderInput("Road Width (ft)", (formData as any).roadWidth, "e.g. 30", <Scan size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, roadWidth: Number(val) }))
+            )}
+            {renderInput("Frontage (ft)", (formData as any).frontage, "e.g. 30", <Scan size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, frontage: Number(val) }))
             )}
             {renderSelect("Property Age", (formData as any).propertyAge, ageOptions, <Calendar size={16} />, (val) =>
               setFormData((prev) => ({ ...prev, propertyAge: val }))
             )}
+            {renderSelect("Furnishing Status", formData.furnishing, furnishingOptions, <Sparkles size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, furnishing: val }))
+            )}
           </div>
 
-          {/* Furnishing */}
-          <div>
-            <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block mb-3">
-              Furnishing Status
-            </label>
-            <div className="grid grid-cols-3 gap-3">
-              {furnishingOptions.map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  onClick={() => setFormData((prev) => ({ ...prev, furnishing: item }))}
-                  className={`h-11 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
-                    formData.furnishing === item
-                      ? "bg-[#FFF8E8] border-[#C89B1C] text-[#C89B1C]"
-                      : "border-[#E5D8B3] text-gray-700 bg-white hover:border-[#C89B1C]"
-                  }`}
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Parking Toggle */}
-          <div className="max-w-xs">
-            {renderToggle(
-              "Car Parking Available",
-              formData.parking,
-              <Car size={18} className="text-gray-500" />,
-              () => setFormData((prev) => ({ ...prev, parking: !prev.parking }))
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {renderToggle("Corner Property", (formData as any).cornerPlot, <Building2 size={16} />, () =>
+              setFormData((prev) => ({ ...prev, cornerPlot: !(prev as any).cornerPlot }))
+            )}
+            {renderToggle("Compound Wall", (formData as any).compoundWall, <Building2 size={16} />, () =>
+              setFormData((prev) => ({ ...prev, compoundWall: !(prev as any).compoundWall }))
+            )}
+            {renderToggle("Car Parking Available", formData.parking, <Car size={16} />, () =>
+              setFormData((prev) => ({ ...prev, parking: !prev.parking }))
             )}
           </div>
         </div>
@@ -463,32 +465,101 @@ export default function PropertyDetailsStep({
       {/* 3. Villa */}
       {propertyType === "Villa" && (
         <div className="space-y-6">
-          {/* Bed / Bath / Balcony Row */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Bedrooms */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {renderSelect("Villa Type", (formData as any).community, ["Individual Villa", "Gated Community Villa"], <Building2 size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, community: val }))
+            )}
+            {renderSelect("Furnishing Status", formData.furnishing, furnishingOptions, <Sparkles size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, furnishing: val }))
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="flex items-center gap-2 mb-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
                 <Bed size={16} /> Bedrooms
               </label>
               <div className="flex flex-wrap gap-1.5">
-                {[1, 2, 3, 4, 5].map((item) =>
+                {[2, 3, 4, 5].map((item) =>
                   numberButton(
-                    `bedroom-${item}`,
+                    `villa-bedroom-${item}`,
                     item,
                     formData.bedrooms === item,
                     () => setFormData((prev) => ({ ...prev, bedrooms: item }))
                   )
                 )}
-                {numberButton(
-                  "bedroom-5plus",
-                  "5+",
-                  formData.bedrooms > 5,
-                  () => setFormData((prev) => ({ ...prev, bedrooms: 6 }))
+              </div>
+            </div>
+
+            <div>
+              <label className="flex items-center gap-2 mb-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <Bath size={16} /> Bathrooms
+              </label>
+              <div className="flex flex-wrap gap-1.5">
+                {[2, 3, 4, 5].map((item) =>
+                  numberButton(
+                    `villa-bathroom-${item}`,
+                    item,
+                    formData.bathrooms === item,
+                    () => setFormData((prev) => ({ ...prev, bathrooms: item }))
+                  )
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {renderInput("Plot Area (sq ft)", (formData as any).plotArea, "e.g. 2000", <Scan size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, plotArea: Number(val) }))
+            )}
+            {renderInput("Built-up Area (sq ft)", formData.area, "e.g. 3200", <Scan size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, area: Number(val) }))
+            )}
+            {renderInput("Carpet Area (sq ft)", (formData as any).carpetArea, "e.g. 2800", <Scan size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, carpetArea: Number(val) }))
+            )}
+            {renderInput("Total Floors", (formData as any).totalFloors, "e.g. 2", <Building2 size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, totalFloors: Number(val) }))
+            )}
+            {renderInput("Monthly Maintenance (INR)", (formData as any).maintenance, "e.g. 5000", <DollarSign size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, maintenance: Number(val) }))
+            )}
+            {renderSelect("Villa Age", (formData as any).propertyAge, ageOptions, <Calendar size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, propertyAge: val }))
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {renderToggle("Servant Room", (formData as any).servantRoom, <User size={16} />, () =>
+              setFormData((prev) => ({ ...prev, servantRoom: !(prev as any).servantRoom }))
+            )}
+            {renderToggle("Car Parking Available", formData.parking, <Car size={16} />, () =>
+              setFormData((prev) => ({ ...prev, parking: !prev.parking }))
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 4. Builder Floor */}
+      {propertyType === "Builder Floor" && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label className="flex items-center gap-2 mb-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <Bed size={16} /> Bedrooms
+              </label>
+              <div className="flex flex-wrap gap-1.5">
+                {[1, 2, 3, 4].map((item) =>
+                  numberButton(
+                    `bf-bedroom-${item}`,
+                    item,
+                    formData.bedrooms === item,
+                    () => setFormData((prev) => ({ ...prev, bedrooms: item }))
+                  )
                 )}
               </div>
             </div>
 
-            {/* Bathrooms */}
             <div>
               <label className="flex items-center gap-2 mb-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
                 <Bath size={16} /> Bathrooms
@@ -496,22 +567,15 @@ export default function PropertyDetailsStep({
               <div className="flex flex-wrap gap-1.5">
                 {[1, 2, 3, 4].map((item) =>
                   numberButton(
-                    `bathroom-${item}`,
+                    `bf-bathroom-${item}`,
                     item,
                     formData.bathrooms === item,
                     () => setFormData((prev) => ({ ...prev, bathrooms: item }))
                   )
                 )}
-                {numberButton(
-                  "bathroom-4plus",
-                  "4+",
-                  formData.bathrooms > 4,
-                  () => setFormData((prev) => ({ ...prev, bathrooms: 5 }))
-                )}
               </div>
             </div>
 
-            {/* Balconies */}
             <div>
               <label className="flex items-center gap-2 mb-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
                 <Layers3 size={16} /> Balconies
@@ -519,359 +583,473 @@ export default function PropertyDetailsStep({
               <div className="flex flex-wrap gap-1.5">
                 {[0, 1, 2, 3].map((item) =>
                   numberButton(
-                    `balcony-${item}`,
+                    `bf-balcony-${item}`,
                     item,
                     formData.balconies === item,
                     () => setFormData((prev) => ({ ...prev, balconies: item }))
                   )
                 )}
-                {numberButton(
-                  "balcony-3plus",
-                  "3+",
-                  formData.balconies > 3,
-                  () => setFormData((prev) => ({ ...prev, balconies: 4 }))
-                )}
               </div>
             </div>
           </div>
 
-          {/* Area & Floors */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {renderInput("Built-up Area (sq ft)", formData.area, "e.g. 3500", <Scan size={16} />, (val) =>
-              setFormData((prev) => ({ ...prev, area: Number(val) }))
-            )}
-            {renderInput("Plot Area (sq ft)", (formData as any).plotArea, "e.g. 2400", <Scan size={16} />, (val) =>
-              setFormData((prev) => ({ ...prev, plotArea: Number(val) }))
-            )}
-            {renderInput("Number of Floors", (formData as any).totalFloors, "e.g. 3", <Building2 size={16} />, (val) =>
-              setFormData((prev) => ({ ...prev, totalFloors: Number(val) }))
-            )}
-          </div>
-
-          {/* Facing & Property Age */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {renderSelect("Facing Direction", (formData as any).facing, facingOptions, <Compass size={16} />, (val) =>
-              setFormData((prev) => ({ ...prev, facing: val }))
-            )}
-            {renderSelect("Property Age", (formData as any).propertyAge, ageOptions, <Calendar size={16} />, (val) =>
-              setFormData((prev) => ({ ...prev, propertyAge: val }))
-            )}
-          </div>
-
-          {/* Furnishing */}
-          <div>
-            <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block mb-3">
-              Furnishing Status
-            </label>
-            <div className="grid grid-cols-3 gap-3">
-              {furnishingOptions.map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  onClick={() => setFormData((prev) => ({ ...prev, furnishing: item }))}
-                  className={`h-11 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
-                    formData.furnishing === item
-                      ? "bg-[#FFF8E8] border-[#C89B1C] text-[#C89B1C]"
-                      : "border-[#E5D8B3] text-gray-700 bg-white hover:border-[#C89B1C]"
-                  }`}
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Parking Toggle */}
-          <div className="max-w-xs">
-            {renderToggle(
-              "Car Parking Available",
-              formData.parking,
-              <Car size={18} className="text-gray-500" />,
-              () => setFormData((prev) => ({ ...prev, parking: !prev.parking }))
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* 4. Plot / Land */}
-      {propertyType === "Plot / Land" && (
-        <div className="space-y-6">
-          {/* Main Inputs */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {renderInput("Plot Area (sq ft)", (formData as any).plotArea, "e.g. 1200", <Scan size={16} />, (val) =>
-              setFormData((prev) => ({ ...prev, plotArea: Number(val) }))
-            )}
-            {renderSelect("Plot Facing", (formData as any).plotFacing, facingOptions, <Compass size={16} />, (val) =>
-              setFormData((prev) => ({ ...prev, plotFacing: val }))
-            )}
-            {renderInput("Road Width (ft)", (formData as any).roadWidth, "e.g. 40", <Layers size={16} />, (val) =>
-              setFormData((prev) => ({ ...prev, roadWidth: Number(val) }))
-            )}
-          </div>
-
-          {/* Configuration Dropdowns */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            {renderSelect("Plot Type", (formData as any).plotType, plotTypeOptions, <Sparkles size={16} />, (val) =>
-              setFormData((prev) => ({ ...prev, plotType: val }))
-            )}
-            {renderSelect("Land Approval", (formData as any).landApproval, approvalOptions, <Building2 size={16} />, (val) =>
-              setFormData((prev) => ({ ...prev, landApproval: val }))
-            )}
-            {renderSelect("Water Availability", (formData as any).waterAvailability, waterOptions, <Building2 size={16} />, (val) =>
-              setFormData((prev) => ({ ...prev, waterAvailability: val }))
-            )}
-            {renderSelect("Electricity Availability", (formData as any).electricityAvailability, electricityOptions, <Building2 size={16} />, (val) =>
-              setFormData((prev) => ({ ...prev, electricityAvailability: val }))
-            )}
-          </div>
-
-          {/* Corner Plot & Boundary Toggles */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {renderToggle(
-              "Corner Plot",
-              (formData as any).cornerPlot || false,
-              <Layers size={18} className="text-gray-500" />,
-              () => setFormData((prev) => ({ ...prev, cornerPlot: !(prev as any).cornerPlot })),
-              "Plot has multiple road accesses"
-            )}
-            {renderToggle(
-              "Boundary Wall Constructed",
-              (formData as any).boundaryWall || false,
-              <Building2 size={18} className="text-gray-500" />,
-              () => setFormData((prev) => ({ ...prev, boundaryWall: !(prev as any).boundaryWall })),
-              "Fenced or walled plot parameter"
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* 5. Commercial Space */}
-      {propertyType === "Commercial Space" && (
-        <div className="space-y-6">
-          {/* Main Info */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {renderSelect("Commercial Type", (formData as any).commercialType, commercialTypeOptions, <Building2 size={16} />, (val) =>
-              setFormData((prev) => ({ ...prev, commercialType: val }))
-            )}
-            {renderSelect("Property Age", (formData as any).propertyAge, ageOptions, <Calendar size={16} />, (val) =>
-              setFormData((prev) => ({ ...prev, propertyAge: val }))
-            )}
-          </div>
-
-          {/* Space & Floorage */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            {renderInput("Built-up Area (sq ft)", formData.area, "e.g. 1500", <Scan size={16} />, (val) =>
-              setFormData((prev) => ({ ...prev, area: Number(val) }))
-            )}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {renderInput("Carpet Area (sq ft)", (formData as any).carpetArea, "e.g. 1200", <Scan size={16} />, (val) =>
               setFormData((prev) => ({ ...prev, carpetArea: Number(val) }))
             )}
-            {renderInput("Floor Number", formData.floor, "e.g. 2", <Layers size={16} />, (val) =>
-              setFormData((prev) => ({ ...prev, floor: Number(val) }))
-            )}
-            {renderInput("Total Floors", (formData as any).totalFloors, "e.g. 6", <Layers size={16} />, (val) =>
-              setFormData((prev) => ({ ...prev, totalFloors: Number(val) }))
-            )}
-          </div>
-
-          {/* Washrooms & Width & Power */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label className="flex items-center gap-2 mb-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
-                <Bath size={16} /> Washrooms
-              </label>
-              <div className="flex flex-wrap gap-1.5">
-                {[0, 1, 2, 3].map((item) =>
-                  numberButton(
-                    `washroom-${item}`,
-                    item,
-                    (formData as any).washrooms === item,
-                    () => setFormData((prev) => ({ ...prev, washrooms: item }))
-                  )
-                )}
-                {numberButton(
-                  "washroom-3plus",
-                  "3+",
-                  (formData as any).washrooms > 3,
-                  () => setFormData((prev) => ({ ...prev, washrooms: 4 }))
-                )}
-              </div>
-            </div>
-
-            {renderInput("Entrance Width (ft)", (formData as any).entranceWidth, "e.g. 15", <Layers size={16} />, (val) =>
-              setFormData((prev) => ({ ...prev, entranceWidth: Number(val) }))
-            )}
-            {renderInput("Power Load (kW)", (formData as any).powerLoad, "e.g. 10", <Sparkles size={16} />, (val) =>
-              setFormData((prev) => ({ ...prev, powerLoad: Number(val) }))
-            )}
-          </div>
-
-          {/* Furnishing */}
-          <div>
-            <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block mb-3">
-              Furnishing Status
-            </label>
-            <div className="grid grid-cols-3 gap-3">
-              {furnishingOptions.map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  onClick={() => setFormData((prev) => ({ ...prev, furnishing: item }))}
-                  className={`h-11 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
-                    formData.furnishing === item
-                      ? "bg-[#FFF8E8] border-[#C89B1C] text-[#C89B1C]"
-                      : "border-[#E5D8B3] text-gray-700 bg-white hover:border-[#C89B1C]"
-                  }`}
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Parking Toggle */}
-          <div className="max-w-xs">
-            {renderToggle(
-              "Car Parking Available",
-              formData.parking,
-              <Car size={18} className="text-gray-500" />,
-              () => setFormData((prev) => ({ ...prev, parking: !prev.parking }))
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* 6. Builder Floor */}
-      {propertyType === "Builder Floor" && (
-        <div className="space-y-6">
-          {/* Bed / Bath / Balcony Row */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Bedrooms */}
-            <div>
-              <label className="flex items-center gap-2 mb-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
-                <Bed size={16} /> Bedrooms
-              </label>
-              <div className="flex flex-wrap gap-1.5">
-                {[1, 2, 3, 4, 5].map((item) =>
-                  numberButton(
-                    `bedroom-${item}`,
-                    item,
-                    formData.bedrooms === item,
-                    () => setFormData((prev) => ({ ...prev, bedrooms: item }))
-                  )
-                )}
-                {numberButton(
-                  "bedroom-5plus",
-                  "5+",
-                  formData.bedrooms > 5,
-                  () => setFormData((prev) => ({ ...prev, bedrooms: 6 }))
-                )}
-              </div>
-            </div>
-
-            {/* Bathrooms */}
-            <div>
-              <label className="flex items-center gap-2 mb-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
-                <Bath size={16} /> Bathrooms
-              </label>
-              <div className="flex flex-wrap gap-1.5">
-                {[1, 2, 3, 4].map((item) =>
-                  numberButton(
-                    `bathroom-${item}`,
-                    item,
-                    formData.bathrooms === item,
-                    () => setFormData((prev) => ({ ...prev, bathrooms: item }))
-                  )
-                )}
-                {numberButton(
-                  "bathroom-4plus",
-                  "4+",
-                  formData.bathrooms > 4,
-                  () => setFormData((prev) => ({ ...prev, bathrooms: 5 }))
-                )}
-              </div>
-            </div>
-
-            {/* Balconies */}
-            <div>
-              <label className="flex items-center gap-2 mb-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
-                <Layers3 size={16} /> Balconies
-              </label>
-              <div className="flex flex-wrap gap-1.5">
-                {[0, 1, 2, 3].map((item) =>
-                  numberButton(
-                    `balcony-${item}`,
-                    item,
-                    formData.balconies === item,
-                    () => setFormData((prev) => ({ ...prev, balconies: item }))
-                  )
-                )}
-                {numberButton(
-                  "balcony-3plus",
-                  "3+",
-                  formData.balconies > 3,
-                  () => setFormData((prev) => ({ ...prev, balconies: 4 }))
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Area & Floors */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            {renderInput("Built-up Area (sq ft)", formData.area, "e.g. 1800", <Scan size={16} />, (val) =>
+            {renderInput("Built-up Area (sq ft)", formData.area, "e.g. 1450", <Scan size={16} />, (val) =>
               setFormData((prev) => ({ ...prev, area: Number(val) }))
             )}
-            {renderInput("Carpet Area (sq ft)", (formData as any).carpetArea, "e.g. 1500", <Scan size={16} />, (val) =>
-              setFormData((prev) => ({ ...prev, carpetArea: Number(val) }))
-            )}
-            {renderInput("Floor Number", formData.floor, "e.g. 3", <Building2 size={16} />, (val) =>
+            {renderInput("Floor Number", formData.floor, "e.g. 1", <Building2 size={16} />, (val) =>
               setFormData((prev) => ({ ...prev, floor: Number(val) }))
             )}
             {renderInput("Total Floors", (formData as any).totalFloors, "e.g. 4", <Building2 size={16} />, (val) =>
               setFormData((prev) => ({ ...prev, totalFloors: Number(val) }))
             )}
+            {renderInput("Number of Units in Building", (formData as any).numberOfUnits, "e.g. 4", <Building2 size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, numberOfUnits: Number(val) }))
+            )}
+            {renderInput("Monthly Maintenance (INR)", (formData as any).maintenance, "e.g. 2000", <DollarSign size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, maintenance: Number(val) }))
+            )}
+            {renderSelect("Floor Age", (formData as any).propertyAge, ageOptions, <Calendar size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, propertyAge: val }))
+            )}
+            {renderSelect("Furnishing Status", formData.furnishing, furnishingOptions, <Sparkles size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, furnishing: val }))
+            )}
           </div>
 
-          {/* Facing & Property Age */}
+          <div className="max-w-xs">
+            {renderToggle("Car Parking Available", formData.parking, <Car size={16} />, () =>
+              setFormData((prev) => ({ ...prev, parking: !prev.parking }))
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 5. Plot / Land or Residential Plot */}
+      {(propertyType === "Plot / Land" || propertyType === "Residential Plot") && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {renderInput("Plot Area (sq ft) *", (formData as any).plotArea, "e.g. 1200", <Scan size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, plotArea: Number(val) }))
+            )}
+            {renderInput("Length (ft)", (formData as any).length, "e.g. 40", <Scan size={16} />, (val) => {
+              const len = Number(val);
+              const wid = Number((formData as any).width || 0);
+              setFormData((prev) => ({ ...prev, length: len, plotArea: len && wid ? len * wid : (prev as any).plotArea }));
+            })}
+            {renderInput("Width (ft)", (formData as any).width, "e.g. 30", <Scan size={16} />, (val) => {
+              const wid = Number(val);
+              const len = Number((formData as any).length || 0);
+              setFormData((prev) => ({ ...prev, width: wid, plotArea: len && wid ? len * wid : (prev as any).plotArea }));
+            })}
+            {renderInput("Road Width (ft)", (formData as any).roadWidth, "e.g. 30", <Scan size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, roadWidth: Number(val) }))
+            )}
+            {renderInput("Frontage (ft)", (formData as any).frontage, "e.g. 40", <Scan size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, frontage: Number(val) }))
+            )}
+            {renderInput("Layout / Society Name", (formData as any).layoutName, "e.g. Golden Meadows", <Building2 size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, layoutName: val })), "text"
+            )}
+            {renderInput("Survey Number", (formData as any).surveyNumber, "e.g. 45/2A", <FileText size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, surveyNumber: val })), "text"
+            )}
+            {renderInput("Subdivision / Patta Number", (formData as any).subdivisionNumber, "e.g. 124", <FileText size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, subdivisionNumber: val })), "text"
+            )}
+            {renderInput("GPS Coordinates (Lat, Lng)", (formData as any).gps, "e.g. 12.98, 80.24", <MapPin size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, gps: val })), "text"
+            )}
+            {renderSelect("Layout Approval Authority", (formData as any).landApproval, approvalOptions, <ShieldCheck size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, landApproval: val }))
+            )}
+            {renderSelect("Plot Type / Zoning", (formData as any).plotType, plotTypeOptions, <Building2 size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, plotType: val }))
+            )}
+            {renderSelect("Land Classification", (formData as any).landClassification, ["Patta Land", "Revenue Land", "Gramanatham", "Other"], <FileText size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, landClassification: val }))
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {renderToggle("Gated Layout Community", (formData as any).gatedLayout, <Building2 size={16} />, () =>
+              setFormData((prev) => ({ ...prev, gatedLayout: !(prev as any).gatedLayout }))
+            )}
+            {renderToggle("Boundary Wall Constructed", (formData as any).boundaryWall, <Building2 size={16} />, () =>
+              setFormData((prev) => ({ ...prev, boundaryWall: !(prev as any).boundaryWall }))
+            )}
+            {renderToggle("Corner Plot", (formData as any).cornerPlot, <Building2 size={16} />, () =>
+              setFormData((prev) => ({ ...prev, cornerPlot: !(prev as any).cornerPlot }))
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 6. Agricultural Land */}
+      {propertyType === "Agricultural Land" && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {renderInput("Land Area (Acre/Sq ft) *", (formData as any).plotArea, "e.g. 5 Acres", <Scan size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, plotArea: Number(val) }))
+            )}
+            {renderInput("Price per Acre (INR)", (formData as any).pricePerAcre, "e.g. 4500000", <DollarSign size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, pricePerAcre: Number(val) }))
+            )}
+            {renderInput("Survey Number", (formData as any).surveyNumber, "e.g. 231/1", <FileText size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, surveyNumber: val })), "text"
+            )}
+            {renderInput("Village", (formData as any).society, "e.g. Navalur Village", <MapPin size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, society: val })), "text"
+            )}
+            {renderInput("Taluk", (formData as any).taluk, "e.g. Thiruporur", <MapPin size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, taluk: val })), "text"
+            )}
+            {renderInput("Road Access Type", (formData as any).roadAccess, "e.g. Tar Road / Mud Road", <MapPin size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, roadAccess: val })), "text"
+            )}
+            {renderInput("Road Width (ft)", (formData as any).roadWidth, "e.g. 20", <Scan size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, roadWidth: Number(val) }))
+            )}
+            {renderInput("Crops Currently Cultivated", (formData as any).crops, "e.g. Paddy / Coconut", <Sparkles size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, crops: val })), "text"
+            )}
+            {renderInput("Soil Type", (formData as any).soilType, "e.g. Red Soil / Clay", <Sparkles size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, soilType: val })), "text"
+            )}
+            {renderSelect("Land Classification", (formData as any).landClassification, ["Wet Land (Nanja)", "Dry Land (Punja)", "Estate", "Other"], <FileText size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, landClassification: val }))
+            )}
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {renderSelect("Facing Direction", (formData as any).facing, facingOptions, <Compass size={16} />, (val) =>
-              setFormData((prev) => ({ ...prev, facing: val }))
+            {renderToggle("Fenced boundary / Compound", (formData as any).boundaryWall, <Building2 size={16} />, () =>
+              setFormData((prev) => ({ ...prev, boundaryWall: !(prev as any).boundaryWall }))
+            )}
+            {renderToggle("Farmhouse / Existing Structure", (formData as any).farmhouse, <Building2 size={16} />, () =>
+              setFormData((prev) => ({ ...prev, farmhouse: !(prev as any).farmhouse }))
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 7. Commercial Space or Office Space */}
+      {(propertyType === "Commercial Space" || propertyType === "Office Space") && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {renderInput("Built-up Area (sq ft) *", formData.area, "e.g. 2500", <Scan size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, area: Number(val) }))
+            )}
+            {renderInput("Carpet Area (sq ft)", (formData as any).carpetArea, "e.g. 2100", <Scan size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, carpetArea: Number(val) }))
+            )}
+            {renderInput("Floor Number", formData.floor, "e.g. 5", <Building2 size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, floor: Number(val) }))
+            )}
+            {renderInput("Total Floors", (formData as any).totalFloors, "e.g. 12", <Building2 size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, totalFloors: Number(val) }))
+            )}
+            {renderInput("Number of Workstations", (formData as any).workstations, "e.g. 45", <Building2 size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, workstations: Number(val) }))
+            )}
+            {renderInput("Number of Cabins", (formData as any).cabins, "e.g. 5", <Building2 size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, cabins: Number(val) }))
+            )}
+            {renderInput("Number of Meeting Rooms", (formData as any).meetingRooms, "e.g. 2", <Building2 size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, meetingRooms: Number(val) }))
+            )}
+            {renderInput("Number of Washrooms", (formData as any).washrooms, "e.g. 4", <Building2 size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, washrooms: Number(val) }))
+            )}
+            {renderInput("Monthly Maintenance (INR)", (formData as any).maintenance, "e.g. 8000", <DollarSign size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, maintenance: Number(val) }))
+            )}
+            {renderInput("Power Load Capacity (KW)", (formData as any).powerLoad, "e.g. 25", <Sparkles size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, powerLoad: Number(val) }))
+            )}
+            {renderSelect("Furnished Status", formData.furnishing, furnishingOptions, <Sparkles size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, furnishing: val }))
             )}
             {renderSelect("Property Age", (formData as any).propertyAge, ageOptions, <Calendar size={16} />, (val) =>
               setFormData((prev) => ({ ...prev, propertyAge: val }))
             )}
           </div>
 
-          {/* Furnishing Status */}
-          <div>
-            <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block mb-3">
-              Furnishing Status
-            </label>
-            <div className="grid grid-cols-3 gap-3">
-              {furnishingOptions.map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  onClick={() => setFormData((prev) => ({ ...prev, furnishing: item }))}
-                  className={`h-11 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
-                    formData.furnishing === item
-                      ? "bg-[#FFF8E8] border-[#C89B1C] text-[#C89B1C]"
-                      : "border-[#E5D8B3] text-gray-700 bg-white hover:border-[#C89B1C]"
-                  }`}
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
+          <div className="max-w-xs">
+            {renderToggle("Car Parking Available", formData.parking, <Car size={16} />, () =>
+              setFormData((prev) => ({ ...prev, parking: !prev.parking }))
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 8. Shop / Retail */}
+      {propertyType === "Shop / Retail" && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {renderInput("Built-up Area (sq ft) *", formData.area, "e.g. 800", <Scan size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, area: Number(val) }))
+            )}
+            {renderInput("Carpet Area (sq ft)", (formData as any).carpetArea, "e.g. 700", <Scan size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, carpetArea: Number(val) }))
+            )}
+            {renderInput("Shop Floor Level", formData.floor, "e.g. 0 (Ground)", <Building2 size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, floor: Number(val) }))
+            )}
+            {renderInput("Shop Frontage (ft)", (formData as any).frontage, "e.g. 20", <Scan size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, frontage: Number(val) }))
+            )}
+            {renderInput("Ceiling Height (ft)", (formData as any).ceilingHeight, "e.g. 12", <Scan size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, ceilingHeight: Number(val) }))
+            )}
+            {renderInput("Road Width (ft)", (formData as any).roadWidth, "e.g. 40", <Scan size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, roadWidth: Number(val) }))
+            )}
+            {renderInput("Number of Shutters", (formData as any).shutters, "e.g. 2", <Building2 size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, shutters: Number(val) }))
+            )}
+            {renderInput("Monthly Maintenance (INR)", (formData as any).maintenance, "e.g. 1500", <DollarSign size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, maintenance: Number(val) }))
+            )}
+            {renderInput("Footfall Estimate Description", (formData as any).footfallEstimate, "e.g. High / High Street", <User size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, footfallEstimate: val })), "text"
+            )}
+            {renderInput("Suitable Business Types", (formData as any).suitableBusiness, "e.g. Salon / Boutique", <Sparkles size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, suitableBusiness: val })), "text"
+            )}
           </div>
 
-          {/* Parking Toggle */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {renderToggle("Main-road Facing Shop", (formData as any).mainRoadFacing, <MapPin size={16} />, () =>
+              setFormData((prev) => ({ ...prev, mainRoadFacing: !(prev as any).mainRoadFacing }))
+            )}
+            {renderToggle("Corner Shop Position", (formData as any).cornerShop, <Building2 size={16} />, () =>
+              setFormData((prev) => ({ ...prev, cornerShop: !(prev as any).cornerShop }))
+            )}
+            {renderToggle("Private Washroom Attached", (formData as any).washrooms > 0, <Sparkles size={16} />, () =>
+              setFormData((prev) => ({ ...prev, washrooms: (prev as any).washrooms > 0 ? 0 : 1 }))
+            )}
+            {renderToggle("Car Parking for Customers", formData.parking, <Car size={16} />, () =>
+              setFormData((prev) => ({ ...prev, parking: !prev.parking }))
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 9. Warehouse */}
+      {propertyType === "Warehouse" && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {renderInput("Warehouse Area (sq ft) *", formData.area, "e.g. 15000", <Scan size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, area: Number(val) }))
+            )}
+            {renderInput("Ceiling Center Height (ft)", (formData as any).ceilingHeight, "e.g. 24", <Scan size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, ceilingHeight: Number(val) }))
+            )}
+            {renderInput("Office Area inside (sq ft)", (formData as any).officeArea, "e.g. 500", <Scan size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, officeArea: Number(val) }))
+            )}
+            {renderInput("Truck Access Road Width (ft)", (formData as any).roadWidth, "e.g. 40", <Scan size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, roadWidth: Number(val) }))
+            )}
+            {renderInput("Power Capacity (HP / KW)", (formData as any).powerLoad, "e.g. 50", <Sparkles size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, powerLoad: Number(val) }))
+            )}
+            {renderInput("Flooring Type Description", (formData as any).flooring, "e.g. Industrial / VDF", <Layers size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, flooring: val })), "text"
+            )}
+            {renderInput("Storage Capacity (Metric Tons)", (formData as any).storageCapacity, "e.g. 2000", <Scan size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, storageCapacity: val })), "text"
+            )}
+            {renderInput("Truck Access Vehicle Compatibility", (formData as any).truckAccess, "e.g. Multi-Axle Containers", <Car size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, truckAccess: val })), "text"
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {renderToggle("Loading / Unloading Bays Available", (formData as any).loadingUnloading, <Car size={16} />, () =>
+              setFormData((prev) => ({ ...prev, loadingUnloading: !(prev as any).loadingUnloading }))
+            )}
+            {renderToggle("Dock Levelers Built-in", (formData as any).dock, <Building2 size={16} />, () =>
+              setFormData((prev) => ({ ...prev, dock: !(prev as any).dock }))
+            )}
+            {renderToggle("Warehouse Parking Area", formData.parking, <Car size={16} />, () =>
+              setFormData((prev) => ({ ...prev, parking: !prev.parking }))
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 10. Industrial Property */}
+      {propertyType === "Industrial Property" && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {renderInput("Factory / Land Area (sq ft) *", formData.area, "e.g. 25000", <Scan size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, area: Number(val) }))
+            )}
+            {renderInput("Production Area (sq ft)", (formData as any).productionArea, "e.g. 18000", <Scan size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, productionArea: Number(val) }))
+            )}
+            {renderInput("Power Capacity Connected (HP / KVA)", (formData as any).powerLoad, "e.g. 150", <Sparkles size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, powerLoad: Number(val) }))
+            )}
+            {renderInput("Road Width (ft)", (formData as any).roadWidth, "e.g. 50", <Scan size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, roadWidth: Number(val) }))
+            )}
+            {renderInput("Industrial Zoning Authority", (formData as any).zoning, "e.g. SIPCOT / SIDCO / Industrial", <ShieldCheck size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, zoning: val })), "text"
+            )}
+            {renderInput("Industrial Category Type", (formData as any).industrialType, "e.g. Manufacturing / Chemical", <Building2 size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, industrialType: val })), "text"
+            )}
+            {renderInput("Pollution Compliance Code / Details", (formData as any).pollutionCompliance, "e.g. Green / Orange Category", <ShieldCheck size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, pollutionCompliance: val })), "text"
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {renderToggle("Loading Dock Access", (formData as any).loadingUnloading, <Car size={16} />, () =>
+              setFormData((prev) => ({ ...prev, loadingUnloading: !(prev as any).loadingUnloading }))
+            )}
+            {renderToggle("Machinery Included in Sale", (formData as any).machineryIncluded, <Sparkles size={16} />, () =>
+              setFormData((prev) => ({ ...prev, machineryIncluded: !(prev as any).machineryIncluded }))
+            )}
+            {renderToggle("Car Parking Available", formData.parking, <Car size={16} />, () =>
+              setFormData((prev) => ({ ...prev, parking: !prev.parking }))
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 11. Hotel / Resort */}
+      {propertyType === "Hotel / Resort" && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {renderInput("Plot / Built-up Area (sq ft) *", formData.area, "e.g. 50000", <Scan size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, area: Number(val) }))
+            )}
+            {renderInput("Total Rooms Count", (formData as any).numberOfRooms, "e.g. 60", <Bed size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, numberOfRooms: Number(val) }))
+            )}
+            {renderInput("Room Types Description", (formData as any).roomTypes, "e.g. 40 Deluxe, 20 Suites", <Bed size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, roomTypes: val })), "text"
+            )}
+            {renderInput("Number of Floors", (formData as any).totalFloors, "e.g. 4", <Building2 size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, totalFloors: Number(val) }))
+            )}
+            {renderInput("Average Occupancy Rate (%)", (formData as any).occupancy, "e.g. 75%", <User size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, occupancy: val })), "text"
+            )}
+            {renderInput("Annual Revenue (INR)", (formData as any).revenue, "e.g. 15000000", <DollarSign size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, revenue: Number(val) }))
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {renderToggle("Staff Quarter Rooms Available", (formData as any).servantRoom, <User size={16} />, () =>
+              setFormData((prev) => ({ ...prev, servantRoom: !(prev as any).servantRoom }))
+            )}
+            {renderToggle("Car Parking Yard", formData.parking, <Car size={16} />, () =>
+              setFormData((prev) => ({ ...prev, parking: !prev.parking }))
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 12. PG / Hostel */}
+      {propertyType === "PG / Hostel" && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {renderSelect("Tenant Gender Type", (formData as any).genderType, ["Male", "Female", "Co-ed"], <User size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, genderType: val }))
+            )}
+            {renderInput("Total Rooms Count", (formData as any).numberOfRooms, "e.g. 15", <Building2 size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, numberOfRooms: Number(val) }))
+            )}
+            {renderInput("Total Beds Count *", (formData as any).totalBeds, "e.g. 45", <Bed size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, totalBeds: Number(val) }))
+            )}
+            {renderInput("Available Beds", (formData as any).availableBeds, "e.g. 5", <Bed size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, availableBeds: Number(val) }))
+            )}
+            {renderInput("Rent per Bed / Month (INR)", (formData as any).rentPerBed, "e.g. 8500", <DollarSign size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, rentPerBed: Number(val) }))
+            )}
+            {renderInput("Security Deposit (INR)", (formData as any).deposit, "e.g. 15000", <DollarSign size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, deposit: Number(val) }))
+            )}
+            {renderInput("Rules / Curfew Timings", (formData as any).rules, "e.g. Curfew at 10 PM", <ShieldCheck size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, rules: val })), "text"
+            )}
+            {renderInput("Sharing Types Available", (formData as any).roomSharingType, "e.g. 1, 2, 3 Sharing", <Bed size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, roomSharingType: val })), "text"
+            )}
+          </div>
+
           <div className="max-w-xs">
-            {renderToggle(
-              "Car Parking Available",
-              formData.parking,
-              <Car size={18} className="text-gray-500" />,
-              () => setFormData((prev) => ({ ...prev, parking: !prev.parking }))
+            {renderToggle("Car / Bike Parking Available", formData.parking, <Car size={16} />, () =>
+              setFormData((prev) => ({ ...prev, parking: !prev.parking }))
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 13. Builder / New Project */}
+      {propertyType === "Builder / New Project" && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {renderInput("Project Name *", (formData as any).projectName, "e.g. Marina Vista", <Building2 size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, projectName: val })), "text"
+            )}
+            {renderInput("Developer / Company Name", (formData as any).community, "e.g. Prestige Group", <Building2 size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, community: val })), "text"
+            )}
+            {renderInput("Developer Project Type Description", (formData as any).commercialType, "e.g. Residential Luxury / Township", <Building2 size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, commercialType: val })), "text"
+            )}
+            {renderInput("Total Project Land Area (Acres)", (formData as any).plotArea, "e.g. 12", <Scan size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, plotArea: Number(val) }))
+            )}
+            {renderInput("Number of Towers", (formData as any).towers, "e.g. 6", <Building2 size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, towers: Number(val) }))
+            )}
+            {renderInput("Max Tower Floors", (formData as any).totalFloors, "e.g. 18", <Building2 size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, totalFloors: Number(val) }))
+            )}
+            {renderInput("Total Project Units", (formData as any).totalUnits, "e.g. 450", <Building2 size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, totalUnits: Number(val) }))
+            )}
+            {renderInput("Available Units for Sale", (formData as any).availableUnits, "e.g. 120", <Building2 size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, availableUnits: Number(val) }))
+            )}
+            {renderInput("BHK configurations available", (formData as any).bhkTypes, "e.g. 2, 3, 4 BHK", <Bed size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, bhkTypes: val })), "text"
+            )}
+            {renderInput("Built-up Area / Size Range (sq ft) *", formData.area, "e.g. 1100 - 2400", <Scan size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, area: Number(val) }))
+            )}
+            {renderInput("Carpet Area Range (sq ft)", (formData as any).carpetArea, "e.g. 900 - 1800", <Scan size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, carpetArea: Number(val) }))
+            )}
+            {renderInput("Monthly Maintenance Estimate (INR)", (formData as any).maintenance, "e.g. 3500", <DollarSign size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, maintenance: Number(val) }))
+            )}
+            {renderInput("Expected Possession Date", (formData as any).possessionDate, "", <Calendar size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, possessionDate: val })), "date"
+            )}
+            {renderInput("Payment Plan Description", (formData as any).paymentPlan, "e.g. 20:80 Scheme / Construction Linked", <FileText size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, paymentPlan: val })), "text"
+            )}
+            {renderSelect("Construction Status", (formData as any).constructionStatus, ["New Launch", "Under Construction", "Near Completion", "Ready to Move"], <Building2 size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, constructionStatus: val }))
+            )}
+          </div>
+
+          <div className="max-w-xs">
+            {renderToggle("Project Car Parking Covered", formData.parking, <Car size={16} />, () =>
+              setFormData((prev) => ({ ...prev, parking: !prev.parking }))
             )}
           </div>
         </div>

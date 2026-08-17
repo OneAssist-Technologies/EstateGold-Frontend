@@ -4,6 +4,7 @@ export const dynamic = "force-dynamic";
 
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import { User, Briefcase } from "lucide-react";
 
 import api from "../../services/api";
 
@@ -23,6 +24,7 @@ function ListingContent() {
 
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
+  const [roleFilter, setRoleFilter] = useState<string>("");
 
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(12);
@@ -82,6 +84,7 @@ function ListingContent() {
           minPrice,
           maxPrice,
           sort,
+          role: roleFilter,
         },
       });
 
@@ -109,6 +112,7 @@ function ListingContent() {
     minPrice,
     maxPrice,
     sort,
+    roleFilter,
   ]);
 
   const handleClearFilters = () => {
@@ -121,6 +125,7 @@ function ListingContent() {
     setMinPrice("");
     setMaxPrice("");
     setSort("latest");
+    setRoleFilter("");
     setPage(1);
   };
 
@@ -144,6 +149,63 @@ function ListingContent() {
 
       {/* Main Two-Column Layout */}
       <main className="flex-1 max-w-[1500px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-6">
+        {/* Role Filter Cards */}
+        <div className="grid grid-cols-2 gap-4 mb-6 max-w-md">
+          {/* Owner Card */}
+          <button
+            onClick={() => {
+              setRoleFilter(roleFilter === "seller" ? "" : "seller");
+              setPage(1);
+            }}
+            className={`flex items-center gap-3.5 p-3 rounded-2xl border transition-all cursor-pointer text-left ${
+              roleFilter === "seller"
+                ? "bg-[#FFF9EC] border-[#D4B04C] shadow-2xs"
+                : "bg-white border-gray-200 hover:border-[#D4B04C] hover:bg-[#FAF8F5]"
+            }`}
+          >
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+              roleFilter === "seller" ? "bg-[#D4B04C] text-white" : "bg-[#FFF9EC] text-[#D4B04C]"
+            }`}>
+              <User size={16} />
+            </div>
+            <div>
+              <span className={`block text-[10px] font-bold ${roleFilter === "seller" ? "text-[#9A720C]" : "text-gray-400"}`}>
+                Properties by
+              </span>
+              <span className="block text-xs font-black text-gray-900 leading-tight">
+                Owner / Seller
+              </span>
+            </div>
+          </button>
+
+          {/* Agent Card */}
+          <button
+            onClick={() => {
+              setRoleFilter(roleFilter === "agent" ? "" : "agent");
+              setPage(1);
+            }}
+            className={`flex items-center gap-3.5 p-3 rounded-2xl border transition-all cursor-pointer text-left ${
+              roleFilter === "agent"
+                ? "bg-blue-50 border-blue-400 shadow-2xs"
+                : "bg-white border-gray-200 hover:border-blue-400 hover:bg-gray-50/50"
+            }`}
+          >
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+              roleFilter === "agent" ? "bg-blue-600 text-white" : "bg-blue-50 text-blue-600"
+            }`}>
+              <Briefcase size={16} />
+            </div>
+            <div>
+              <span className={`block text-[10px] font-bold ${roleFilter === "agent" ? "text-blue-700" : "text-gray-400"}`}>
+                Properties by
+              </span>
+              <span className="block text-xs font-black text-gray-900 leading-tight">
+                Certified Agent
+              </span>
+            </div>
+          </button>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
           {/* Left Sidebar Filter */}
           <aside className="lg:col-span-3 space-y-6">

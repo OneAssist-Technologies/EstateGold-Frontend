@@ -12,13 +12,28 @@ export default function AdminRouteGuard({ children }: { children: React.ReactNod
   useEffect(() => {
     if (loading) return;
 
-    // If logged-in user is an admin and tries to access any non-admin route (e.g. /, /property-listing, /post-property, etc.)
-    if (user && user.role === "admin") {
-      if (!pathname.startsWith("/admin")) {
+    const isAdminRoute = pathname.startsWith("/admin");
+
+    if (isAdminRoute) {
+      if (!user || user.role !== "admin") {
+        router.replace("/login");
+      }
+    } else {
+      // If logged-in user is an admin and tries to access any non-admin route (e.g. /, /property-listing, /post-property, etc.)
+      if (user && user.role === "admin") {
         router.replace("/admin/properties");
       }
     }
   }, [user, loading, pathname, router]);
+
+  // Block rendering of admin pages for unauthorized users
+  if (!loading && pathname.startsWith("/admin") && (!user || user.role !== "admin")) {
+    return (
+      <div className="min-h-screen bg-[#F8F6F2] flex items-center justify-center text-xs font-bold text-[#9A720C] tracking-wide">
+        Redirecting to Login...
+      </div>
+    );
+  }
 
   // Block rendering of user-side pages for logged-in Admin to avoid flash of content
   if (!loading && user && user.role === "admin" && !pathname.startsWith("/admin")) {

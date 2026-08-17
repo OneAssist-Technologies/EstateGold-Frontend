@@ -153,6 +153,7 @@ export default function PropertyRow({
             alt={property.propertyType}
             fill
             unoptimized
+            loading="eager"
             className="object-cover"
           />
 

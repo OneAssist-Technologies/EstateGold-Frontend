@@ -23,6 +23,31 @@ export default function PricePhotosStep({
   formData,
   setFormData,
 }: Props) {
+  const hasLocality = formData.city && formData.locality && formData.propertyType;
+  const isInsightAvailable = formData.marketInsight && formData.marketInsight.success;
+  const averageLocalityPrice = isInsightAvailable ? (formData.marketInsight?.averageLocalityPrice ?? formData.marketInsight?.marketData?.averagePrice) : null;
+  const estimatedPricePerSqft = isInsightAvailable ? formData.marketInsight?.estimatedPricePerSqft : null;
+  const estimatedPropertyValue = isInsightAvailable ? formData.marketInsight?.estimatedPropertyValue : null;
+  const supported = isInsightAvailable ? (formData.marketInsight?.supported ?? true) : false;
+  const message = formData.marketInsight?.message || "";
+
+  const highlights = isInsightAvailable ? formData.marketInsight?.marketData?.highlights || [] : [];
+  const retrievedAt = isInsightAvailable ? formData.marketInsight?.retrievedAt : null;
+
+  const percentageDifference = averageLocalityPrice && formData.price
+    ? ((formData.price - averageLocalityPrice) / averageLocalityPrice) * 100
+    : 0;
+
+  const formatPrice = (val: number) => {
+    if (val >= 10000000) {
+      return `₹${(val / 10000000).toFixed(2)} Cr`;
+    }
+    if (val >= 100000) {
+      return `₹${(val / 100000).toFixed(2)} L`;
+    }
+    return `₹${val.toLocaleString()}`;
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = Array.from(e.target.files || []);
     if (selected.length === 0) return;
@@ -53,51 +78,180 @@ export default function PricePhotosStep({
 
       <div className="space-y-8 mt-10">
 
-        {/* Price */}
-        <div>
-          <label className="block mb-3 text-lg font-medium text-[#161616]">
-            Expected Price (Total Price)
-          </label>
+        {/* Pricing & Market Insights Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+          {/* Price Input Column */}
+          <div className="flex flex-col justify-center">
+            <label className="block mb-3 text-lg font-medium text-[#161616]">
+              Expected Price (Total Price)
+            </label>
 
-          <div className="relative">
-            <IndianRupee
-              size={18}
-              className="
-                absolute
-                left-5
-                top-1/2
-                -translate-y-1/2
-                text-gray-500
-              "
-            />
+            <div className="relative">
+              <IndianRupee
+                size={18}
+                className="
+                  absolute
+                  left-5
+                  top-1/2
+                  -translate-y-1/2
+                  text-gray-500
+                "
+              />
 
-            <input
-              type="number"
-              placeholder="5000000"
-              value={formData.price || ""}
-              onChange={(e) =>
-                setFormData(
-                  (prev) => ({
-                    ...prev,
-                    price: Number(
-                      e.target.value
-                    ),
-                  })
-                )
-              }
-              className="
-                w-full
-                h-16
-                rounded-2xl
-                border
-                border-[#E5D8B3]
-                pl-12
-                pr-4
-                text-lg
-                outline-none
-                focus:border-[#C89B1C]
-              "
-            />
+              <input
+                type="number"
+                placeholder="5000000"
+                value={formData.price || ""}
+                onChange={(e) =>
+                  setFormData(
+                    (prev) => ({
+                      ...prev,
+                      price: Number(
+                        e.target.value
+                      ),
+                    })
+                  )
+                }
+                className="
+                  w-full
+                  h-16
+                  rounded-2xl
+                  border
+                  border-[#E5D8B3]
+                  pl-12
+                  pr-4
+                  text-lg
+                  outline-none
+                  focus:border-[#C89B1C]
+                "
+              />
+            </div>
+          </div>
+
+          {/* Market Insight Column */}
+          <div className="flex flex-col justify-between">
+            {!hasLocality ? (
+              <div className="border border-dashed border-[#E5D8B3] rounded-3xl p-5 min-h-[120px] flex flex-col justify-center items-center text-center text-gray-400 bg-gray-50/20">
+                <span className="text-xl mb-1">📍</span>
+                <p className="text-xs font-semibold">
+                  Enter locality, city and property type in previous steps to view local market insights.
+                </p>
+              </div>
+            ) : !formData.marketInsight ? (
+              <div className="border border-[#E5D8B3] rounded-3xl p-5 min-h-[120px] flex flex-col justify-center items-center text-center text-gray-500 bg-[#FAF8F5]">
+                <div className="h-5 w-5 rounded-full border-2 border-gray-300 border-t-[#C89B1C] animate-spin mb-1.5" />
+                <p className="text-xs font-semibold animate-pulse">
+                  Loading locality insights...
+                </p>
+              </div>
+            ) : (!isInsightAvailable || !supported) ? (
+              <div className="border border-red-100 rounded-3xl p-5 min-h-[120px] flex flex-col justify-center items-center text-center text-red-800 bg-red-50/20">
+                <span className="text-xl mb-1">⚠️</span>
+                <p className="text-xs font-bold">
+                  {message || "Market insight unavailable for this location."}
+                </p>
+                <p className="text-[10px] text-gray-400 mt-0.5">
+                  You can still proceed to list your property.
+                </p>
+              </div>
+            ) : (
+              <div className="border border-[#E5D8B3] bg-[#FAF8F5] rounded-3xl p-5 flex flex-col justify-between">
+                <div>
+                  <h3 className="text-sm font-bold text-gray-900 font-serif flex items-center gap-1.5">
+                    📊 Local Market Insight
+                  </h3>
+                  <p className="text-[10px] text-gray-400 mt-0.5">
+                    Locality benchmark comparison and highlights
+                  </p>
+
+                  <div className="mt-3.5 space-y-3">
+                    {averageLocalityPrice === null && estimatedPricePerSqft === null ? (
+                      <div className="text-xs text-amber-800 bg-amber-50/40 border border-amber-200 rounded-xl p-2.5 font-semibold">
+                        {message || "Locality supported, but current price data is unavailable."}
+                      </div>
+                    ) : (
+                      <>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <span className="block text-[9px] uppercase font-bold tracking-wider text-gray-400">Locality</span>
+                            <span className="text-xs font-semibold text-gray-800 truncate block">
+                              {formData.locality}, {formData.city}
+                            </span>
+                          </div>
+                          {averageLocalityPrice !== null && averageLocalityPrice !== undefined && (
+                            <div>
+                              <span className="block text-[9px] uppercase font-bold tracking-wider text-gray-400">Average Locality Property Price</span>
+                              <span className="text-xs font-bold text-gray-900 block">
+                                {formatPrice(Number(averageLocalityPrice))}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2">
+                          {estimatedPricePerSqft !== null && estimatedPricePerSqft !== undefined && (
+                            <div>
+                              <span className="block text-[9px] uppercase font-bold tracking-wider text-gray-400">Estimated Market Rate / Sq.ft</span>
+                              <span className="text-xs font-bold text-gray-900 block">
+                                ₹{Number(estimatedPricePerSqft).toLocaleString()} / sq.ft
+                              </span>
+                            </div>
+                          )}
+                          {estimatedPropertyValue !== null && estimatedPropertyValue !== undefined && (
+                            <div>
+                              <span className="block text-[9px] uppercase font-bold tracking-wider text-gray-400">Estimated Property Value</span>
+                              <span className="text-xs font-bold text-[#9A720C] block">
+                                {formatPrice(Number(estimatedPropertyValue))}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    )}
+
+                    {averageLocalityPrice && formData.price > 0 && (
+                      <div className={`p-2.5 rounded-xl border ${
+                        percentageDifference < -10
+                          ? "bg-green-50/40 border-green-200 text-green-800"
+                          : percentageDifference > 10
+                          ? "bg-amber-50/40 border-amber-200 text-amber-800"
+                          : "bg-blue-50/40 border-blue-200 text-blue-800"
+                      }`}>
+                        <span className="block text-[8px] uppercase font-bold tracking-wider opacity-75">Market Benchmark comparison</span>
+                        <span className="text-xs font-black block mt-0.5 leading-none">
+                          {percentageDifference < -10 ? (
+                            `Below market estimate (${Math.abs(percentageDifference).toFixed(1)}% below)`
+                          ) : percentageDifference > 10 ? (
+                            `Above market estimate (${percentageDifference.toFixed(1)}% above)`
+                          ) : (
+                            `Within typical range (${percentageDifference >= 0 ? "+" : ""}${percentageDifference.toFixed(1)}%)`
+                          )}
+                        </span>
+                      </div>
+                    )}
+
+                    {highlights.length > 0 && (
+                      <div>
+                        <span className="block text-[9px] uppercase font-bold tracking-wider text-gray-400 mb-1">Locality Highlights</span>
+                        <ul className="space-y-0.5">
+                          {highlights.slice(0, 2).map((hl: string, idx: number) => (
+                            <li key={idx} className="text-[11px] text-gray-600 flex items-start gap-1 leading-tight">
+                              <span className="text-amber-500 shrink-0">✦</span>
+                              <span>{hl}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="border-t border-gray-200/60 pt-2.5 mt-3 flex justify-between items-center text-[9px] text-gray-400">
+                  <span>Source: AVnester Market Intelligence</span>
+                  <span>Retrieved: {retrievedAt ? new Date(retrievedAt).toLocaleDateString() : ""}</span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

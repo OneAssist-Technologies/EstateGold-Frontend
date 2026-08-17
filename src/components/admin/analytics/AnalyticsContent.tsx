@@ -14,6 +14,8 @@ import {
   ArrowDownRight,
   FileText,
   Tag,
+  Handshake,
+  Trash2,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -178,6 +180,10 @@ export default function AnalyticsContent() {
 
   const kpis = data?.kpis;
   const listingTrends = data?.listingTrends || [];
+  const totalAdded = listingTrends.reduce((sum: number, item: any) => sum + (item.added || 0), 0);
+  const totalSold = listingTrends.reduce((sum: number, item: any) => sum + (item.sold || 0), 0);
+  const totalRented = listingTrends.reduce((sum: number, item: any) => sum + (item.rented || 0), 0);
+  const totalRemoved = listingTrends.reduce((sum: number, item: any) => sum + (item.removed || 0), 0);
   const propertiesByType = data?.propertiesByType || [];
   const serviceAreaStats = data?.serviceAreaStats || [];
   const usersByRole = data?.usersByRole || [];
@@ -234,9 +240,8 @@ export default function AnalyticsContent() {
                   <button
                     type="button"
                     onClick={() => handleSelectPreset("lastMonth")}
-                    className={`w-full text-left px-3 py-2 rounded-xl font-bold transition-colors flex items-center justify-between cursor-pointer ${
-                      range === "lastMonth" ? "bg-[#FFF9EC] text-[#9A720C]" : "hover:bg-gray-50 text-gray-700"
-                    }`}
+                    className={`w-full text-left px-3 py-2 rounded-xl font-bold transition-colors flex items-center justify-between cursor-pointer ${range === "lastMonth" ? "bg-[#FFF9EC] text-[#9A720C]" : "hover:bg-gray-50 text-gray-700"
+                      }`}
                   >
                     <span>📆 Past Month (Last Month)</span>
                     {range === "lastMonth" && <span className="text-xs">✓</span>}
@@ -245,9 +250,8 @@ export default function AnalyticsContent() {
                   <button
                     type="button"
                     onClick={() => handleSelectPreset("thisMonth")}
-                    className={`w-full text-left px-3 py-2 rounded-xl font-semibold transition-colors flex items-center justify-between cursor-pointer ${
-                      range === "thisMonth" ? "bg-[#FFF9EC] text-[#9A720C]" : "hover:bg-gray-50 text-gray-700"
-                    }`}
+                    className={`w-full text-left px-3 py-2 rounded-xl font-semibold transition-colors flex items-center justify-between cursor-pointer ${range === "thisMonth" ? "bg-[#FFF9EC] text-[#9A720C]" : "hover:bg-gray-50 text-gray-700"
+                      }`}
                   >
                     <span>📅 This Month</span>
                     {range === "thisMonth" && <span className="text-xs">✓</span>}
@@ -256,9 +260,8 @@ export default function AnalyticsContent() {
                   <button
                     type="button"
                     onClick={() => handleSelectPreset("30days")}
-                    className={`w-full text-left px-3 py-2 rounded-xl font-semibold transition-colors flex items-center justify-between cursor-pointer ${
-                      range === "30days" ? "bg-[#FFF9EC] text-[#9A720C]" : "hover:bg-gray-50 text-gray-700"
-                    }`}
+                    className={`w-full text-left px-3 py-2 rounded-xl font-semibold transition-colors flex items-center justify-between cursor-pointer ${range === "30days" ? "bg-[#FFF9EC] text-[#9A720C]" : "hover:bg-gray-50 text-gray-700"
+                      }`}
                   >
                     <span>⚡ Last 30 Days</span>
                     {range === "30days" && <span className="text-xs">✓</span>}
@@ -267,9 +270,8 @@ export default function AnalyticsContent() {
                   <button
                     type="button"
                     onClick={() => handleSelectPreset("3months")}
-                    className={`w-full text-left px-3 py-2 rounded-xl font-semibold transition-colors flex items-center justify-between cursor-pointer ${
-                      range === "3months" ? "bg-[#FFF9EC] text-[#9A720C]" : "hover:bg-gray-50 text-gray-700"
-                    }`}
+                    className={`w-full text-left px-3 py-2 rounded-xl font-semibold transition-colors flex items-center justify-between cursor-pointer ${range === "3months" ? "bg-[#FFF9EC] text-[#9A720C]" : "hover:bg-gray-50 text-gray-700"
+                      }`}
                   >
                     <span>📊 Last 3 Months</span>
                     {range === "3months" && <span className="text-xs">✓</span>}
@@ -278,9 +280,8 @@ export default function AnalyticsContent() {
                   <button
                     type="button"
                     onClick={() => handleSelectPreset("6months")}
-                    className={`w-full text-left px-3 py-2 rounded-xl font-semibold transition-colors flex items-center justify-between cursor-pointer ${
-                      range === "6months" ? "bg-[#FFF9EC] text-[#9A720C]" : "hover:bg-gray-50 text-gray-700"
-                    }`}
+                    className={`w-full text-left px-3 py-2 rounded-xl font-semibold transition-colors flex items-center justify-between cursor-pointer ${range === "6months" ? "bg-[#FFF9EC] text-[#9A720C]" : "hover:bg-gray-50 text-gray-700"
+                      }`}
                   >
                     <span>📈 Last 6 Months</span>
                     {range === "6months" && <span className="text-xs">✓</span>}
@@ -439,7 +440,7 @@ export default function AnalyticsContent() {
 
       {/* Row 2: Property Listings Trend (Line Chart) + Properties by Type (Donut) + Properties by Service Area (Table) */}
       <div className="grid grid-cols-12 gap-6">
-        {/* 2. Property Listings Trend (Line Chart - 5 Cols on desktop) */}
+        {/* 2. Property Listings Trend (Stacked Area Charts - 5 Cols on desktop) */}
         <div className="col-span-12 lg:col-span-5 bg-white rounded-2xl border border-[#ECE7DB] p-5 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-base font-bold text-[#161616]">Property Listings Trend</h3>
@@ -460,127 +461,271 @@ export default function AnalyticsContent() {
             </select>
           </div>
 
-          {/* Chart Legends */}
-          <div className="flex flex-wrap items-center gap-3 text-[11px] font-medium text-gray-600 mb-4">
-            <div className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#D4B04C]"></span>
-              <span>Properties Added</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#10B981]"></span>
-              <span>Properties Sold</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#3B82F6]"></span>
-              <span>Properties Rented</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#EF4444]"></span>
-              <span>Properties Removed</span>
-            </div>
-          </div>
-
-          <div className="h-[250px] w-full pt-1">
+          <div className="flex-1 flex flex-col justify-between space-y-4">
             {loading ? (
-              <div className="h-full flex items-center justify-center text-xs text-gray-400">
+              <div className="h-[320px] flex items-center justify-center text-xs text-gray-400">
                 Loading trend analytics...
               </div>
             ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart
-                  data={listingTrends}
-                  margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
-                >
-                  <defs>
-                    <linearGradient id="colorAdded" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#EAB308" stopOpacity={0.35} />
-                      <stop offset="95%" stopColor="#EAB308" stopOpacity={0.03} />
-                    </linearGradient>
-                    <linearGradient id="colorSold" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10B981" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#10B981" stopOpacity={0.03} />
-                    </linearGradient>
-                    <linearGradient id="colorRented" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.03} />
-                    </linearGradient>
-                    <linearGradient id="colorRemoved" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#EF4444" stopOpacity={0.25} />
-                      <stop offset="95%" stopColor="#EF4444" stopOpacity={0.03} />
-                    </linearGradient>
-                  </defs>
+              <>
+                {/* 1. Properties Added */}
+                <div className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0 last:pb-0 first:pt-0">
+                  <div className="flex items-center gap-3.5 w-40 shrink-0">
+                    <div className="w-11 h-11 rounded-xl bg-[#FFF9EC] border border-[#F5E8C7] flex items-center justify-center shrink-0 relative">
+                      <Home size={18} className="text-[#D4B04C]" />
+                      <span className="absolute -bottom-1 -right-1 bg-[#D4B04C] text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold border border-white shrink-0">
+                        +
+                      </span>
+                    </div>
+                    <div>
+                      <span className="block text-[11px] font-semibold text-gray-500 leading-tight">Properties Added</span>
+                      <span className="block text-xl font-black text-[#D4B04C] mt-0.5">
+                        {totalAdded}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex-1 h-[72px] pt-1">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart
+                        data={listingTrends}
+                        margin={{ top: 5, right: 5, left: -25, bottom: 5 }}
+                      >
+                        <defs>
+                          <linearGradient id="colorAddedRow" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#D4B04C" stopOpacity={0.25} />
+                            <stop offset="95%" stopColor="#D4B04C" stopOpacity={0.01} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#F8F8F6" vertical={false} />
+                        <XAxis
+                          dataKey="date"
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fontSize: 9, fill: "#9CA3AF" }}
+                        />
+                        <YAxis
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fontSize: 9, fill: "#9CA3AF" }}
+                          allowDecimals={false}
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: "rgba(255, 255, 255, 0.98)",
+                            borderRadius: "8px",
+                            border: "1px solid #ECE7DB",
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+                            fontSize: "11px",
+                          }}
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="added"
+                          stroke="#D4B04C"
+                          strokeWidth={2}
+                          fillOpacity={1}
+                          fill="url(#colorAddedRow)"
+                          dot={{ r: 2.5, fill: "#D4B04C", stroke: "#D4B04C", strokeWidth: 0 }}
+                          activeDot={{ r: 4.5, strokeWidth: 0 }}
+                          name="Added"
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
 
-                  <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={true} horizontal={true} />
+                {/* 2. Properties Sold */}
+                <div className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0 last:pb-0">
+                  <div className="flex items-center gap-3.5 w-40 shrink-0">
+                    <div className="w-11 h-11 rounded-xl bg-[#ECFDF5] border border-[#D1FAE5] flex items-center justify-center shrink-0">
+                      <Handshake size={18} className="text-[#10B981]" />
+                    </div>
+                    <div>
+                      <span className="block text-[11px] font-semibold text-gray-500 leading-tight">Properties Sold</span>
+                      <span className="block text-xl font-black text-[#10B981] mt-0.5">
+                        {totalSold}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex-1 h-[72px] pt-1">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart
+                        data={listingTrends}
+                        margin={{ top: 5, right: 5, left: -25, bottom: 5 }}
+                      >
+                        <defs>
+                          <linearGradient id="colorSoldRow" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#10B981" stopOpacity={0.25} />
+                            <stop offset="95%" stopColor="#10B981" stopOpacity={0.01} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#F8F8F6" vertical={false} />
+                        <XAxis
+                          dataKey="date"
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fontSize: 9, fill: "#9CA3AF" }}
+                        />
+                        <YAxis
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fontSize: 9, fill: "#9CA3AF" }}
+                          allowDecimals={false}
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: "rgba(255, 255, 255, 0.98)",
+                            borderRadius: "8px",
+                            border: "1px solid #ECE7DB",
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+                            fontSize: "11px",
+                          }}
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="sold"
+                          stroke="#10B981"
+                          strokeWidth={2}
+                          fillOpacity={1}
+                          fill="url(#colorSoldRow)"
+                          dot={{ r: 2.5, fill: "#10B981", stroke: "#10B981", strokeWidth: 0 }}
+                          activeDot={{ r: 4.5, strokeWidth: 0 }}
+                          name="Sold"
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
 
-                  <XAxis
-                    dataKey="date"
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 10, fill: "#9CA3AF" }}
-                  />
-                  <YAxis
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 10, fill: "#9CA3AF" }}
-                    allowDecimals={false}
-                  />
+                {/* 3. Properties Rented */}
+                <div className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0 last:pb-0">
+                  <div className="flex items-center gap-3.5 w-40 shrink-0">
+                    <div className="w-11 h-11 rounded-xl bg-[#EFF6FF] border border-[#DBEAFE] flex items-center justify-center shrink-0 relative">
+                      <Home size={18} className="text-[#3B82F6]" />
+                      <span className="absolute -bottom-1 -right-1 bg-[#3B82F6] text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold border border-white shrink-0">
+                        🔑
+                      </span>
+                    </div>
+                    <div>
+                      <span className="block text-[11px] font-semibold text-gray-500 leading-tight">Properties Rented</span>
+                      <span className="block text-xl font-black text-[#3B82F6] mt-0.5">
+                        {totalRented}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex-1 h-[72px] pt-1">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart
+                        data={listingTrends}
+                        margin={{ top: 5, right: 5, left: -25, bottom: 5 }}
+                      >
+                        <defs>
+                          <linearGradient id="colorRentedRow" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.25} />
+                            <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.01} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#F8F8F6" vertical={false} />
+                        <XAxis
+                          dataKey="date"
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fontSize: 9, fill: "#9CA3AF" }}
+                        />
+                        <YAxis
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fontSize: 9, fill: "#9CA3AF" }}
+                          allowDecimals={false}
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: "rgba(255, 255, 255, 0.98)",
+                            borderRadius: "8px",
+                            border: "1px solid #ECE7DB",
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+                            fontSize: "11px",
+                          }}
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="rented"
+                          stroke="#3B82F6"
+                          strokeWidth={2}
+                          fillOpacity={1}
+                          fill="url(#colorRentedRow)"
+                          dot={{ r: 2.5, fill: "#3B82F6", stroke: "#3B82F6", strokeWidth: 0 }}
+                          activeDot={{ r: 4.5, strokeWidth: 0 }}
+                          name="Rented"
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
 
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "rgba(255, 255, 255, 0.96)",
-                      borderRadius: "12px",
-                      border: "1px solid #E2E8F0",
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                      fontSize: "12px",
-                    }}
-                  />
-
-                  <Area
-                    type="monotone"
-                    dataKey="added"
-                    stroke="#EAB308"
-                    strokeWidth={2.5}
-                    fillOpacity={1}
-                    fill="url(#colorAdded)"
-                    dot={{ r: 3, fill: "#EAB308", stroke: "#EAB308" }}
-                    activeDot={{ r: 5 }}
-                    name="Properties Added"
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="sold"
-                    stroke="#10B981"
-                    strokeWidth={2.5}
-                    fillOpacity={1}
-                    fill="url(#colorSold)"
-                    dot={{ r: 3, fill: "#10B981", stroke: "#10B981" }}
-                    activeDot={{ r: 5 }}
-                    name="Properties Sold"
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="rented"
-                    stroke="#3B82F6"
-                    strokeWidth={2.5}
-                    fillOpacity={1}
-                    fill="url(#colorRented)"
-                    dot={{ r: 3, fill: "#3B82F6", stroke: "#3B82F6" }}
-                    activeDot={{ r: 5 }}
-                    name="Properties Rented"
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="removed"
-                    stroke="#EF4444"
-                    strokeWidth={2.5}
-                    fillOpacity={1}
-                    fill="url(#colorRemoved)"
-                    dot={{ r: 3, fill: "#EF4444", stroke: "#EF4444" }}
-                    activeDot={{ r: 5 }}
-                    name="Properties Removed"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+                {/* 4. Properties Removed */}
+                <div className="flex items-center justify-between py-2 last:border-0 last:pb-0">
+                  <div className="flex items-center gap-3.5 w-40 shrink-0">
+                    <div className="w-11 h-11 rounded-xl bg-[#FEF2F2] border border-[#FEE2E2] flex items-center justify-center shrink-0">
+                      <Trash2 size={18} className="text-[#EF4444]" />
+                    </div>
+                    <div>
+                      <span className="block text-[11px] font-semibold text-gray-500 leading-tight">Properties Removed</span>
+                      <span className="block text-xl font-black text-[#EF4444] mt-0.5">
+                        {totalRemoved}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex-1 h-[72px] pt-1">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart
+                        data={listingTrends}
+                        margin={{ top: 5, right: 5, left: -25, bottom: 5 }}
+                      >
+                        <defs>
+                          <linearGradient id="colorRemovedRow" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#EF4444" stopOpacity={0.25} />
+                            <stop offset="95%" stopColor="#EF4444" stopOpacity={0.01} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#F8F8F6" vertical={false} />
+                        <XAxis
+                          dataKey="date"
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fontSize: 9, fill: "#9CA3AF" }}
+                        />
+                        <YAxis
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fontSize: 9, fill: "#9CA3AF" }}
+                          allowDecimals={false}
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: "rgba(255, 255, 255, 0.98)",
+                            borderRadius: "8px",
+                            border: "1px solid #ECE7DB",
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+                            fontSize: "11px",
+                          }}
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="removed"
+                          stroke="#EF4444"
+                          strokeWidth={2}
+                          fillOpacity={1}
+                          fill="url(#colorRemovedRow)"
+                          dot={{ r: 2.5, fill: "#EF4444", stroke: "#EF4444", strokeWidth: 0 }}
+                          activeDot={{ r: 4.5, strokeWidth: 0 }}
+                          name="Removed"
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              </>
             )}
           </div>
         </div>
