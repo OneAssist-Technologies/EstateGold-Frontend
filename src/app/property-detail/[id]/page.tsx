@@ -19,6 +19,7 @@ import PropertyGallery from "../../../components/property-detail/PropertyGallery
 import PropertyInfo from "../../../components/property-detail/PropertyInfo";
 import PropertyFeatures from "../../../components/property-detail/PropertyFeatures";
 import PropertyDescription from "../../../components/property-detail/PropertyDescription";
+import PriceTransparency from "../../../components/property-detail/PriceTransparency";
 import Amenities from "../../../components/property-detail/Amenities";
 import Neighbourhood from "../../../components/property-detail/Neighbourhood";
 import LocalityRatings from "../../../components/property-detail/LocalityRatings";
@@ -153,7 +154,7 @@ export default function PropertyDetailsPage() {
   };
 
   const handleEdit = () => {
-    router.push(`/post-property?id=${property._id}`);
+    router.push(`/my-properties/edit/${property._id}`);
   };
 
   const handleEnquiries = () => {
@@ -214,6 +215,7 @@ export default function PropertyDetailsPage() {
                 {/* Blurred Content */}
                 <div className="blur-[6px] pointer-events-none select-none space-y-2 opacity-50">
                   <PropertyDescription property={property} />
+                  <PriceTransparency property={property} />
                   <Amenities amenities={property.amenities} />
                   <Neighbourhood property={property} />
                   <LocalityRatings property={property} />
@@ -258,6 +260,7 @@ export default function PropertyDetailsPage() {
             ) : (
               <>
                 <PropertyDescription property={property} />
+                <PriceTransparency property={property} />
                 <Amenities amenities={property.amenities} />
                 <Neighbourhood property={property} />
                 <LocalityRatings property={property} />

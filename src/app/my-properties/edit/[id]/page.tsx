@@ -2,12 +2,19 @@
 
 export const dynamic = "force-dynamic";
 
+import { useParams } from "next/navigation";
 import { Suspense } from "react";
-import PropertyForm from "../../components/property/PropertyForm";
+import PropertyForm from "../../../../components/property/PropertyForm";
 import Navbar from "@/src/components/layout/Navbar";
 import Footer from "@/src/components/layout/Footer";
 
-export default function PostPropertyPage() {
+function EditPropertyContent() {
+  const params = useParams();
+  const id = params.id as string;
+  return <PropertyForm mode="edit" propertyId={id} />;
+}
+
+export default function EditPropertyPage() {
   return (
     <Suspense
       fallback={
@@ -20,7 +27,7 @@ export default function PostPropertyPage() {
         </div>
       }
     >
-      <PropertyForm mode="create" />
+      <EditPropertyContent />
     </Suspense>
   );
 }

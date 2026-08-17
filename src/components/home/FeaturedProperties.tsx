@@ -17,10 +17,29 @@ export default function FeaturedProperties() {
     async function fetchFeaturedProperties() {
       try {
         setLoading(true);
-        const res = await api.get("/properties?limit=6&sort=latest");
+        // Fetch a larger pool of latest properties to filter from
+        const res = await api.get("/properties?limit=100&sort=latest");
         const list = res.data.data || res.data.properties || [];
 
-        const mapped: HomeProperty[] = list.map((item: Property) => {
+        // Filter for Coimbatore, Chennai, or Bangalore/Bengaluru
+        const allowedCities = ["coimbatore", "chennai", "bangalore", "bengaluru","navalur","hosur"];
+        const filteredList = list.filter((item: Property) => {
+          const cityLower = (item.city || "").toLowerCase().trim();
+          return allowedCities.some(allowed => cityLower.includes(allowed));
+        });
+
+        // Limit display to exactly three properties
+        let limitedList = filteredList.slice(0, 3);
+
+        // Fallback: If we have fewer than 3 properties, pad with any other available properties
+        if (limitedList.length < 3) {
+          const displayedIds = new Set(limitedList.map((item:any)=> item._id));
+          const remainingProps = list.filter((item: Property) => !displayedIds.has(item._id));
+          const padCount = 3 - limitedList.length;
+          limitedList = [...limitedList, ...remainingProps.slice(0, padCount)];
+        }
+
+        const mapped: HomeProperty[] = limitedList.map((item: Property) => {
           let photoUrl = "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80";
           if (item.photos && item.photos.length > 0 && item.photos[0]) {
             if (item.photos[0].startsWith("http://") || item.photos[0].startsWith("https://")) {

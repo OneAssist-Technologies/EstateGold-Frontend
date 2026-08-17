@@ -3,6 +3,17 @@
 import { Eye, Pencil, Trash2, MapPin } from "lucide-react";
 import { ServiceLocation } from "../../../types/location";
 
+function formatPrice(val?: number): string {
+  if (!val || isNaN(val)) return "—";
+  if (val >= 10000000) {
+    return `₹${(val / 10000000).toFixed(2)} Cr`;
+  }
+  if (val >= 100000) {
+    return `₹${(val / 100000).toFixed(2)} L`;
+  }
+  return `₹${val.toLocaleString()}`;
+}
+
 interface LocationTableProps {
   locations: ServiceLocation[];
 
@@ -48,6 +59,10 @@ export default function LocationTable({
               </th>
 
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
+                Current Local Price
+              </th>
+
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
                 Radius
               </th>
 
@@ -87,6 +102,11 @@ export default function LocationTable({
                   {location.state}
                 </td>
 
+                {/* Current Local Price */}
+                <td className="px-6 py-4 font-semibold text-[#9A720C]">
+                  {formatPrice((location as any).averagePrice)}
+                </td>
+
                 {/* Radius */}
                 <td className="px-6 py-4">
                   <span className="rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700">
@@ -110,11 +130,10 @@ export default function LocationTable({
                 {/* Status */}
                 <td className="px-6 py-4 text-center">
                   <span
-                    className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
-                      location.status === "active"
+                    className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${location.status === "active"
                         ? "bg-green-100 text-green-700"
                         : "bg-red-100 text-red-700"
-                    }`}
+                      }`}
                   >
                     {location.status}
                   </span>

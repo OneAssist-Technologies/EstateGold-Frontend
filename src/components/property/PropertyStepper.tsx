@@ -5,51 +5,30 @@ import { motion } from "framer-motion";
 
 interface Props {
   currentStep: number;
-  totalSteps: number;
+  stepsList: Array<{ id: string; name: string }>;
 }
 
 export default function PropertyStepper({
   currentStep,
-  totalSteps,
+  stepsList,
 }: Props) {
-  const sellerSteps = [
-    "Property Type",
-    "Location",
-    "Details",
-    "Amenities",
-    "Neighbourhood",
-    "Price & Photos",
-  ];
-
-  const agentSteps = [
-    "Property Type",
-    "Owner Details",
-    "Location",
-    "Details",
-    "Amenities",
-    "Neighbourhood",
-    "Price & Photos",
-  ];
-
-  const steps =
-    totalSteps === 7
-      ? agentSteps
-      : sellerSteps;
 
   return (
     <div className="w-full overflow-x-auto py-6">
       <div className="flex items-start min-w-[800px]">
 
-        {steps.map((step, index) => {
+        {stepsList.map((stepObj, index) => {
           const completed =
             index + 1 < currentStep;
 
           const active =
             index + 1 === currentStep;
 
+          const step = stepObj.name;
+
           return (
             <div
-              key={step}
+              key={stepObj.id}
               className="flex items-start flex-1"
             >
               {/* Step */}
@@ -113,7 +92,7 @@ export default function PropertyStepper({
               {/* Connector */}
 
               {index <
-                steps.length - 1 && (
+                stepsList.length - 1 && (
                 <div
                   className="
                     flex-1

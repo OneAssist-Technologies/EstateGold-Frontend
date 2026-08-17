@@ -360,17 +360,34 @@ export default function LocationStep({ formData, setFormData }: Props) {
   // Handle location selection from search autocomplete
   const handleSelectLocation = useCallback(
     (result: SearchLocationResult) => {
+      let cleanLocality = result.locality || "";
+      const cityLower = (result.city || "").toLowerCase().trim();
+      if (cleanLocality.toLowerCase().trim() === cityLower) {
+        cleanLocality = "";
+      }
+      if (!cleanLocality && result.address) {
+        const firstPart = result.address.split(",")[0].trim();
+        if (firstPart.toLowerCase() !== cityLower) {
+          cleanLocality = firstPart;
+        }
+      }
+
       setFormData((prev) => ({
         ...prev,
         city: result.city || prev.city || "",
-        locality: result.locality || (result.address ? result.address.split(",")[0] : prev.locality),
+        state: result.state || prev.state || "",
+        locality: cleanLocality || prev.locality || "",
         address: result.address || prev.address,
         latitude: result.lat,
         longitude: result.lng,
       }));
       setFlyToTrigger((prev) => prev + 1);
+
+      if (result.state && !selectedState) {
+        setSelectedState(result.state);
+      }
     },
-    [setFormData]
+    [selectedState, setFormData]
   );
 
   // Handle map marker drag selection
@@ -403,19 +420,25 @@ export default function LocationStep({ formData, setFormData }: Props) {
             addr.county ||
             addr.municipality ||
             "";
-          const locality =
+          const cityLower = city.toLowerCase().trim();
+
+          let locality =
             addr.suburb ||
             addr.neighbourhood ||
             addr.residential ||
             addr.road ||
-            city;
-          const state = addr.state || "";
+            "";
+          if (locality.toLowerCase().trim() === cityLower) {
+            locality = "";
+          }
 
+          const state = addr.state || "";
           const fullAddr = data.display_name || "";
 
           setFormData((prev) => ({
             ...prev,
             city: city || prev.city,
+            state: state || prev.state,
             locality: locality || prev.locality,
             address: fullAddr || prev.address,
           }));

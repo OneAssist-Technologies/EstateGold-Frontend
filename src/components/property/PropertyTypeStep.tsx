@@ -19,9 +19,18 @@ const propertyTypes = [
   "Apartment / Flat",
   "Independent House",
   "Villa",
-  "Plot / Land",
-  "Commercial Space",
   "Builder Floor",
+  "Plot / Land",
+  "Residential Plot",
+  "Agricultural Land",
+  "Commercial Space",
+  "Office Space",
+  "Shop / Retail",
+  "Warehouse",
+  "Industrial Property",
+  "Hotel / Resort",
+  "PG / Hostel",
+  "Builder / New Project",
 ];
 
 export default function PropertyTypeStep({

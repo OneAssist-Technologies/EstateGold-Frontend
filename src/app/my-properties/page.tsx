@@ -14,7 +14,6 @@ import StatusTabs, {
 } from "@/src/components/my-properties/StatusTabs";
 import PropertyRow from "@/src/components/my-properties/PropertyRow";
 import Pagination from "@/src/components/property-listing/Pagination";
-import EditPropertyModal from "@/src/components/my-properties/EditPropertyModal";
 import DeletePropertyModal from "@/src/components/my-properties/DeletePropertyModal";
 
 import { useAuth } from "@/src/context/AuthContext";
@@ -60,9 +59,6 @@ useState<PropertyStatus>("all");
 
 const [selectedProperty,setSelectedProperty]=
 useState<Property|null>(null);
-
-const [openEdit,setOpenEdit]=
-useState(false);
 
 const [deleteProperty,setDeleteProperty]=
 useState<Property|null>(null);
@@ -189,7 +185,7 @@ property:Property
 
 router.push(
 
-`/post-property?editId=${property._id}`
+`/my-properties/edit/${property._id}`
 
 );
 
@@ -466,20 +462,7 @@ return (
 
       </div>
 
-      {/* Edit */}
 
- <EditPropertyModal
-  open={openEdit}
-  property={selectedProperty}
-  onClose={() => {
-    setOpenEdit(false);
-    setSelectedProperty(null);
-  }}
-  onUpdated={() => {
-    setOpenEdit(false);
-    fetchProperties();
-  }}
-/>
 
 <DeletePropertyModal
   open={openDelete}
