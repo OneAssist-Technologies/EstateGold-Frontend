@@ -47,13 +47,21 @@ export default function AddServiceArea() {
   const [pincodes, setPincodes] = useState<string[]>([]);
   const [pincodeInput, setPincodeInput] = useState("");
   const [propertyTypes, setPropertyTypes] = useState<string[]>([
-    "Apartment",
-    "Villa",
-    "Plot",
+    "Apartment / Flat",
     "Independent House",
-    "Commercial",
+    "Villa",
+    "Builder Floor",
+    "Plot / Land",
+    "Residential Plot",
+    "Agricultural Land",
+    "Commercial Space",
     "Office Space",
-    "PG / Co-Living",
+    "Shop / Retail",
+    "Warehouse",
+    "Industrial Property",
+    "Hotel / Resort",
+    "PG / Hostel",
+    "Builder / New Project",
   ]);
   const [allowedServices, setAllowedServices] = useState<string[]>([
     "Buy",
@@ -436,13 +444,21 @@ export default function AddServiceArea() {
               </label>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  "Apartment",
-                  "Villa",
-                  "Plot",
+                  "Apartment / Flat",
                   "Independent House",
-                  "Commercial",
+                  "Villa",
+                  "Builder Floor",
+                  "Plot / Land",
+                  "Residential Plot",
+                  "Agricultural Land",
+                  "Commercial Space",
                   "Office Space",
-                  "PG / Co-Living",
+                  "Shop / Retail",
+                  "Warehouse",
+                  "Industrial Property",
+                  "Hotel / Resort",
+                  "PG / Hostel",
+                  "Builder / New Project",
                 ].map((type) => {
                   const isChecked = propertyTypes.includes(type);
                   return (

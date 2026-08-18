@@ -7,10 +7,11 @@ import { PropertyFormData } from "../../types/property";
 interface Props {
   formData: PropertyFormData;
   onSubmit: () => void;
+  onSaveDraft?: () => void;
   loading: boolean;
 }
 
-export default function ReviewSubmitStep({ formData, onSubmit, loading }: Props) {
+export default function ReviewSubmitStep({ formData, onSubmit, onSaveDraft, loading }: Props) {
   // Format price helper
   const formatPrice = (price?: number) => {
     if (price === undefined || price === null || isNaN(price)) return "₹0";
@@ -328,26 +329,18 @@ export default function ReviewSubmitStep({ formData, onSubmit, loading }: Props)
         </div>
       </div>
 
-      {/* Action Submit */}
-      <div className="flex justify-center pt-4">
-        <button
-          onClick={onSubmit}
-          disabled={loading}
-          className="bg-[#C89B1C] hover:bg-[#B58A16] disabled:opacity-50 text-white font-bold text-sm px-10 py-4.5 rounded-2xl transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer w-full md:w-auto"
-        >
-          {loading ? (
-            <>
-              <span className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
-              Submitting Property...
-            </>
-          ) : (
-            <>
-              <CheckCircle2 size={16} />
-              Submit & Publish Property
-            </>
-          )}
-        </button>
-      </div>
+      {/* Action Save Draft */}
+      {onSaveDraft && (
+        <div className="flex justify-center pt-4">
+          <button
+            onClick={onSaveDraft}
+            className="bg-[#C89B1C] hover:bg-[#B58A16] text-white font-bold text-sm px-10 py-4.5 rounded-2xl transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer w-full md:w-auto"
+          >
+            <CheckCircle2 size={16} />
+            Save Draft
+          </button>
+        </div>
+      )}
     </div>
   );
 }

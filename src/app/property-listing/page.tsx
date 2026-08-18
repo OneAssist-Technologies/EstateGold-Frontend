@@ -157,15 +157,13 @@ function ListingContent() {
               setRoleFilter(roleFilter === "seller" ? "" : "seller");
               setPage(1);
             }}
-            className={`flex items-center gap-3.5 p-3 rounded-2xl border transition-all cursor-pointer text-left ${
-              roleFilter === "seller"
+            className={`flex items-center gap-3.5 p-3 rounded-2xl border transition-all cursor-pointer text-left ${roleFilter === "seller"
                 ? "bg-[#FFF9EC] border-[#D4B04C] shadow-2xs"
                 : "bg-white border-gray-200 hover:border-[#D4B04C] hover:bg-[#FAF8F5]"
-            }`}
+              }`}
           >
-            <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
-              roleFilter === "seller" ? "bg-[#D4B04C] text-white" : "bg-[#FFF9EC] text-[#D4B04C]"
-            }`}>
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${roleFilter === "seller" ? "bg-[#D4B04C] text-white" : "bg-[#FFF9EC] text-[#D4B04C]"
+              }`}>
               <User size={16} />
             </div>
             <div>
@@ -184,15 +182,13 @@ function ListingContent() {
               setRoleFilter(roleFilter === "agent" ? "" : "agent");
               setPage(1);
             }}
-            className={`flex items-center gap-3.5 p-3 rounded-2xl border transition-all cursor-pointer text-left ${
-              roleFilter === "agent"
+            className={`flex items-center gap-3.5 p-3 rounded-2xl border transition-all cursor-pointer text-left ${roleFilter === "agent"
                 ? "bg-blue-50 border-blue-400 shadow-2xs"
                 : "bg-white border-gray-200 hover:border-blue-400 hover:bg-gray-50/50"
-            }`}
+              }`}
           >
-            <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
-              roleFilter === "agent" ? "bg-blue-600 text-white" : "bg-blue-50 text-blue-600"
-            }`}>
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${roleFilter === "agent" ? "bg-blue-600 text-white" : "bg-blue-50 text-blue-600"
+              }`}>
               <Briefcase size={16} />
             </div>
             <div>

@@ -1,16 +1,76 @@
 "use client";
 
-import React, { useMemo } from "react";
-import { AlertCircle, Plus, Trash2, Calendar, DollarSign, FileText } from "lucide-react";
+import React, { useMemo, useState } from "react";
+import { AlertCircle, Plus, Trash2, Calendar, DollarSign, FileText, Upload, CheckCircle, Loader2 } from "lucide-react";
+import api from "../../services/api";
 import { PropertyFormData, PendingIssue } from "../../types/property";
 
 interface Props {
   formData: PropertyFormData;
   setFormData: React.Dispatch<React.SetStateAction<PropertyFormData>>;
+  errors?: Record<string, string>;
 }
 
-export default function PendingIssuesStep({ formData, setFormData }: Props) {
+export default function PendingIssuesStep({ formData, setFormData, errors }: Props) {
   const propertyType = formData.propertyType || "Apartment / Flat";
+  const [uploadingIdx, setUploadingIdx] = useState<number | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  const handleDocumentUpload = async (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Strict file type validation (Only allow documents or images, no plain text)
+    const allowedTypes = [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "image/jpeg",
+      "image/png",
+      "image/webp"
+    ];
+    const fileType = file.type;
+    const fileExtension = file.name.split('.').pop()?.toLowerCase();
+    const allowedExtensions = ["pdf", "doc", "docx", "jpg", "jpeg", "png", "webp"];
+
+    if (!allowedTypes.includes(fileType) && !allowedExtensions.includes(fileExtension || "")) {
+      setUploadError("Strict validation: Only document files (PDF, DOC, DOCX) or images (JPG, JPEG, PNG, WEBP) are allowed.");
+      e.target.value = "";
+      return;
+    }
+
+    setUploadingIdx(index);
+    setUploadError(null);
+
+    const uploadData = new FormData();
+    uploadData.append("document", file);
+
+    try {
+      const res = await api.post("/upload-document", uploadData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      if (res.data.success) {
+        handleIssueChange(index, "supportingDocument", res.data.fileUrl);
+      } else {
+        setUploadError("Failed to upload document.");
+      }
+    } catch (err: any) {
+      console.error("Document upload error:", err);
+      setUploadError(err.response?.data?.message || "Error uploading document.");
+    } finally {
+      setUploadingIdx(null);
+    }
+  };
+
+  const handleRemoveDocument = (index: number) => {
+    handleIssueChange(index, "supportingDocument", "");
+  };
+
+  const getFileName = (url: string) => {
+    if (!url) return "";
+    return url.split("/").pop() || "supporting_document";
+  };
 
   // Determine dynamic issue types based on category
   const issueTypes = useMemo(() => {
@@ -172,6 +232,11 @@ export default function PendingIssuesStep({ formData, setFormData }: Props) {
         </div>
       </div>
 
+      {errors?.issuesCount && (
+        <p className="text-red-500 text-sm font-semibold mb-4 bg-red-50 p-3 rounded-xl border border-red-200">
+          ⚠️ {errors.issuesCount}
+        </p>
+      )}
       {hasIssuesValue === "yes" && (
         <div className="space-y-6">
           {(formData.pendingIssues?.issues || []).map((issue, idx) => (
@@ -203,7 +268,9 @@ export default function PendingIssuesStep({ formData, setFormData }: Props) {
                   <select
                     value={issue.type || ""}
                     onChange={(e) => handleIssueChange(idx, "type", e.target.value)}
-                    className="w-full h-12 px-4 rounded-xl border border-[#E5D8B3] outline-none text-sm font-bold text-gray-700 bg-white focus:border-[#C89B1C] cursor-pointer"
+                    className={`w-full h-12 px-4 rounded-xl border outline-none text-sm font-bold text-gray-700 bg-white focus:border-[#C89B1C] cursor-pointer ${
+                      errors?.[`issues.${idx}.type`] ? "border-red-500 bg-red-50/10 focus:border-red-500" : "border-[#E5D8B3]"
+                    }`}
                   >
                     <option value="">Select Issue Type</option>
                     {issueTypes.map((type) => (
@@ -212,6 +279,9 @@ export default function PendingIssuesStep({ formData, setFormData }: Props) {
                       </option>
                     ))}
                   </select>
+                  {errors?.[`issues.${idx}.type`] && (
+                    <p className="text-red-500 text-[10px] font-semibold mt-1 pl-1">{errors[`issues.${idx}.type`]}</p>
+                  )}
                 </div>
 
                 {/* Pending Amount */}
@@ -224,8 +294,13 @@ export default function PendingIssuesStep({ formData, setFormData }: Props) {
                     placeholder="e.g. 50000"
                     value={issue.amount || ""}
                     onChange={(e) => handleIssueChange(idx, "amount", Number(e.target.value))}
-                    className="w-full h-12 px-4 rounded-xl border border-[#E5D8B3] outline-none text-sm font-semibold text-gray-800 focus:border-[#C89B1C] bg-[#FFFDF9]/30"
+                    className={`w-full h-12 px-4 rounded-xl border outline-none text-sm font-semibold text-gray-800 focus:border-[#C89B1C] bg-[#FFFDF9]/30 ${
+                      errors?.[`issues.${idx}.amount`] ? "border-red-500 bg-red-50/10 focus:border-red-500" : "border-[#E5D8B3]"
+                    }`}
                   />
+                  {errors?.[`issues.${idx}.amount`] && (
+                    <p className="text-red-500 text-[10px] font-semibold mt-1 pl-1">{errors[`issues.${idx}.amount`]}</p>
+                  )}
                 </div>
               </div>
 
@@ -239,8 +314,13 @@ export default function PendingIssuesStep({ formData, setFormData }: Props) {
                   placeholder="Detail the pending issue, lender name, status, or any other description..."
                   value={issue.description || ""}
                   onChange={(e) => handleIssueChange(idx, "description", e.target.value)}
-                  className="w-full p-4 rounded-xl border border-[#E5D8B3] outline-none text-sm font-semibold text-gray-800 focus:border-[#C89B1C] bg-[#FFFDF9]/30 resize-none"
+                  className={`w-full p-4 rounded-xl border outline-none text-sm font-semibold text-gray-800 focus:border-[#C89B1C] bg-[#FFFDF9]/30 resize-none ${
+                    errors?.[`issues.${idx}.description`] ? "border-red-500 bg-red-50/10 focus:border-red-500" : "border-[#E5D8B3]"
+                  }`}
                 />
+                {errors?.[`issues.${idx}.description`] && (
+                  <p className="text-red-500 text-[10px] font-semibold mt-1 pl-1">{errors[`issues.${idx}.description`]}</p>
+                )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -260,15 +340,48 @@ export default function PendingIssuesStep({ formData, setFormData }: Props) {
                 {/* Supporting Document */}
                 <div>
                   <label className="flex items-center gap-1.5 mb-2 text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    <FileText size={14} className="text-gray-400" /> Supporting Doc File Name / Info
+                    <FileText size={14} className="text-gray-400" /> Supporting Document / Image
                   </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. loan_statement.pdf (uploaded manually)"
-                    value={issue.supportingDocument || ""}
-                    onChange={(e) => handleIssueChange(idx, "supportingDocument", e.target.value)}
-                    className="w-full h-12 px-4 rounded-xl border border-[#E5D8B3] outline-none text-sm font-semibold text-gray-800 focus:border-[#C89B1C] bg-[#FFFDF9]/30"
-                  />
+                  {uploadingIdx === idx ? (
+                    <div className="flex items-center gap-2 h-12 px-4 border border-dashed border-gray-300 rounded-xl text-xs font-bold text-gray-500">
+                      <Loader2 size={16} className="animate-spin text-[#C89B1C]" />
+                      Uploading file...
+                    </div>
+                  ) : issue.supportingDocument ? (
+                    <div className="flex items-center justify-between h-12 px-4 border border-[#E5D8B3] bg-[#FFFDF6] rounded-xl">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <CheckCircle size={16} className="text-green-600 shrink-0" />
+                        <span className="text-xs font-semibold text-gray-700 truncate">
+                          {getFileName(issue.supportingDocument)}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveDocument(idx)}
+                        className="text-red-500 hover:text-red-700 transition-colors p-1"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div>
+                      <label className="flex items-center justify-center gap-2 h-12 border border-[#C89B1C] hover:bg-[#FFFBF0] rounded-xl text-[#C89B1C] text-xs font-bold transition-all duration-300 cursor-pointer">
+                        <Upload size={14} />
+                        Upload Document / Image
+                        <input
+                          type="file"
+                          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp"
+                          className="hidden"
+                          onChange={(e) => handleDocumentUpload(e, idx)}
+                        />
+                      </label>
+                    </div>
+                  )}
+                  {uploadError && uploadingIdx === null && (
+                    <p className="text-red-500 text-[10px] font-semibold mt-1 pl-1">
+                      ⚠️ {uploadError}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

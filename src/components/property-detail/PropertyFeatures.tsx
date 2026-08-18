@@ -38,7 +38,7 @@ export default function PropertyFeatures({ property }: Props) {
         { icon: <Layers3 size={16} />, title: "Balconies", value: property.balconies !== undefined ? `${property.balconies} Balconies` : "N/A" },
         { icon: <Ruler size={16} />, title: "Built-up Area", value: property.area ? `${property.area.toLocaleString()} sq ft` : "N/A" },
         { icon: <Ruler size={16} />, title: "Carpet Area", value: (property as any).carpetArea ? `${(property as any).carpetArea.toLocaleString()} sq ft` : "N/A" },
-        { icon: <Ruler size={16} />, title: "Super Area", value: (property as any).superArea ? `${(property as any).superArea.toLocaleString()} sq ft` : "N/A" },
+
         { icon: <Building2 size={16} />, title: "Floor", value: property.floor !== undefined ? `${property.floor} of ${(property as any).totalFloors || 'N/A'}` : "N/A" },
         { icon: <Sofa size={16} />, title: "Furnishing", value: property.furnishing || "N/A" },
         { icon: <Car size={16} />, title: "Parking", value: property.parking ? "Available" : "Not Available" },

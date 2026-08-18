@@ -36,17 +36,15 @@ export default function PriceTransparency({ property }: Props) {
   const marketInsight = property.marketInsight;
   const isInsightAvailable = marketInsight && marketInsight.success;
   
-  const averageLocalityPrice = isInsightAvailable ? (marketInsight?.averageLocalityPrice ?? marketInsight?.marketData?.averagePrice) : null;
   const estimatedPricePerSqft = isInsightAvailable ? marketInsight?.estimatedPricePerSqft : null;
-  const estimatedPropertyValue = isInsightAvailable ? marketInsight?.estimatedPropertyValue : null;
   const supported = isInsightAvailable ? (marketInsight?.supported ?? true) : false;
   const message = marketInsight?.message || "";
 
-  // The primary baseline for percentage comparison: prefer estimatedPropertyValue, otherwise averageLocalityPrice
-  const marketBaseline = estimatedPropertyValue ?? averageLocalityPrice;
+  // The primary baseline for percentage comparison is estimatedPricePerSqft * area
+  const marketBaseline = estimatedPricePerSqft && area > 0 ? estimatedPricePerSqft * area : null;
 
-  const percentageDifference = marketBaseline
-    ? ((property.price - marketBaseline) / marketBaseline) * 100
+  const percentageDifference = estimatedPricePerSqft && pricePerSqft
+    ? ((pricePerSqft - estimatedPricePerSqft) / estimatedPricePerSqft) * 100
     : 0;
 
   return (
@@ -123,16 +121,11 @@ export default function PriceTransparency({ property }: Props) {
                   Est. Rate: ₹{estimatedPricePerSqft.toLocaleString()} / sq.ft
                 </span>
               )}
-              {averageLocalityPrice && estimatedPropertyValue && (
-                <span className="block text-[9px] text-gray-400 mt-0.5">
-                  Locality Avg: {formatPrice(averageLocalityPrice)}
-                </span>
-              )}
             </>
           ) : (
             <div className="mt-2.5">
               <span className="block text-xs font-semibold text-gray-400 leading-tight">
-                {message || (!supported ? "Market insight unavailable for this location." : "Price data unavailable")}
+                {message || "AVnester market data unavailable for this locality."}
               </span>
             </div>
           )}

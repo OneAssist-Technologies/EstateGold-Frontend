@@ -31,6 +31,7 @@ import { getLocalityInsights } from "@/src/services/marketInsightService";
 import Navbar from "@/src/components/layout/Navbar";
 import Footer from "@/src/components/layout/Footer";
 import toast from "react-hot-toast";
+import { validatePropertyStep, validateAllPropertySteps } from "@/src/services/propertyValidation";
 
 interface PropertyFormProps {
   mode: "create" | "edit";
@@ -47,6 +48,7 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
   const { user, loading } = useAuth();
   const [published, setPublished] = useState(false);
   const [showAgentModal, setShowAgentModal] = useState(true);
+  const [stepErrors, setStepErrors] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState<PropertyFormData>({
     purpose: "",
@@ -119,7 +121,7 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
   const stepsList = useMemo(() => {
     const list = [];
     list.push({ id: "type", name: "Property Type" });
-    if (role === "agent") {
+    if (role === "agent" || role === "seller" || role === "buyer") {
       list.push({ id: "owner", name: "Owner Details" });
     }
     list.push({ id: "location", name: "Location" });
@@ -134,6 +136,7 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
   }, [role]);
 
   const totalSteps = stepsList.length;
+  const currentStepId = stepsList[step - 1]?.id;
 
   const isPropertyDetailsStepValid = (type: string, data: any) => {
     switch (type) {
@@ -196,57 +199,8 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
 
   const isStepValid = useMemo(() => {
     const currentStepId = stepsList[step - 1]?.id;
-    switch (currentStepId) {
-      case "type":
-        return formData.purpose !== "" && formData.propertyType !== "";
-
-      case "owner":
-        return formData.ownerName.trim() !== "" && formData.ownerPhone.trim() !== "";
-
-      case "location":
-        return (
-          formData.city.trim() !== "" &&
-          formData.locality.trim() !== "" &&
-          formData.address.trim() !== ""
-        );
-
-      case "details":
-        return isPropertyDetailsStepValid(formData.propertyType, formData);
-
-      case "amenities":
-        return true;
-
-      case "neighbourhood":
-        return true;
-
-      case "price":
-        return formData.price > 0 && (formData.photos.length > 0 || (formData.existingPhotos && formData.existingPhotos.length > 0));
-
-      case "issues":
-        if (formData.pendingIssues?.hasPendingIssues === "yes") {
-          const issues = formData.pendingIssues.issues || [];
-          if (issues.length === 0) return false;
-          return issues.every(
-            (issue) =>
-              issue.type &&
-              issue.type.trim() !== "" &&
-              issue.description &&
-              issue.description.trim() !== ""
-          );
-        }
-        return true;
-
-      case "documents":
-        const requiredDocTypes = getRequiredDocTypesForType(formData.propertyType);
-        const uploadedDocTypes = (formData.documents || []).map((d) => d.documentType);
-        return requiredDocTypes.every((t) => uploadedDocTypes.includes(t));
-
-      case "review":
-        return true;
-
-      default:
-        return false;
-    }
+    if (!currentStepId) return false;
+    return validatePropertyStep(currentStepId, formData).isValid;
   }, [step, stepsList, formData]);
 
   useEffect(() => {
@@ -305,7 +259,6 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
           entranceWidth: property.entranceWidth,
           powerLoad: property.powerLoad,
           // New dynamic details fields
-          superArea: property.superArea,
           lift: property.lift,
           powerBackup: property.powerBackup,
           security: property.security,
@@ -445,6 +398,25 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
     fetchInsight();
   }, [formData.city, formData.locality, formData.propertyType, formData.bedrooms, formData.area, formData.carpetArea, formData.plotArea]);
 
+  useEffect(() => {
+    if (mode !== "edit") {
+      const savedDraft = localStorage.getItem("property_form_draft");
+      if (savedDraft) {
+        try {
+          const parsed = JSON.parse(savedDraft);
+          setFormData((prev) => ({
+            ...prev,
+            ...parsed,
+            photos: [],
+          }));
+          toast.success("Loaded your previously saved draft!");
+        } catch (err) {
+          console.error("Failed to parse saved draft:", err);
+        }
+      }
+    }
+  }, [mode]);
+
   if (loadingEdit || loading) {
     return (
       <div className="min-h-screen bg-white flex flex-col font-sans">
@@ -458,7 +430,17 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
   }
 
   const nextStep = () => {
-    if (step < totalSteps && isStepValid) {
+    const currentStepId = stepsList[step - 1]?.id;
+    if (!currentStepId) return;
+    const result = validatePropertyStep(currentStepId, formData);
+    if (!result.isValid) {
+      setStepErrors(result.errors);
+      const firstErrorKey = Object.keys(result.errors)[0];
+      toast.error(result.errors[firstErrorKey]);
+      return;
+    }
+    setStepErrors({});
+    if (step < totalSteps) {
       setStep((prev) => prev + 1);
     }
   };
@@ -470,6 +452,17 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
   };
 
   const handleSubmit = async () => {
+    const allErrors = validateAllPropertySteps(formData, stepsList);
+    const stepWithErrors = stepsList.find((s) => allErrors[s.id] && Object.keys(allErrors[s.id]).length > 0);
+    if (stepWithErrors) {
+      const stepIndex = stepsList.findIndex((s) => s.id === stepWithErrors.id) + 1;
+      setStep(stepIndex);
+      setStepErrors(allErrors[stepWithErrors.id]);
+      const firstErrorKey = Object.keys(allErrors[stepWithErrors.id])[0];
+      toast.error(`Error on step ${stepWithErrors.name}: ${allErrors[stepWithErrors.id][firstErrorKey]}`);
+      return;
+    }
+
     try {
       setLoadingSubmit(true);
 
@@ -549,11 +542,9 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
       if ((formData as any).powerLoad) payload.append("powerLoad", String((formData as any).powerLoad));
 
       // New specifications keys
-      if ((formData as any).superArea) payload.append("superArea", String((formData as any).superArea));
       if ((formData as any).lift !== undefined) payload.append("lift", String((formData as any).lift));
       if ((formData as any).powerBackup) payload.append("powerBackup", (formData as any).powerBackup);
       if ((formData as any).security) payload.append("security", (formData as any).security);
-      if ((formData as any).society) payload.append("society", (formData as any).society);
       if ((formData as any).maintenance !== undefined) payload.append("maintenance", String((formData as any).maintenance));
       if ((formData as any).frontage !== undefined) payload.append("frontage", String((formData as any).frontage));
       if ((formData as any).compoundWall !== undefined) payload.append("compoundWall", String((formData as any).compoundWall));
@@ -650,7 +641,7 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
       if (formData.pan) {
         payload.append("pan", formData.pan);
       }
-      
+
       if (formData.existingPhotos) {
         payload.append("existingPhotos", JSON.stringify(formData.existingPhotos));
       }
@@ -686,6 +677,17 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
       toast.error(errorMsg);
     } finally {
       setLoadingSubmit(false);
+    }
+  };
+
+  const handleSaveDraft = () => {
+    try {
+      const { photos, ...serializableData } = formData;
+      localStorage.setItem("property_form_draft", JSON.stringify(serializableData));
+      toast.success("Draft saved successfully! Your progress is stored on this page.");
+    } catch (err) {
+      console.error("Failed to save draft:", err);
+      toast.error("Failed to save draft.");
     }
   };
 
@@ -762,7 +764,6 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
   }
 
   const renderStep = () => {
-    const currentStepId = stepsList[step - 1]?.id;
     switch (currentStepId) {
       case "type":
         return (
@@ -774,23 +775,30 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
           />
         );
       case "owner":
-        return <OwnerDetailsStep formData={formData} setFormData={setFormData} />;
+        return <OwnerDetailsStep formData={formData} setFormData={setFormData} errors={stepErrors} />;
       case "location":
-        return <LocationStep formData={formData} setFormData={setFormData} />;
+        return <LocationStep formData={formData} setFormData={setFormData} errors={stepErrors} />;
       case "details":
-        return <PropertyDetailsStep formData={formData} setFormData={setFormData} />;
+        return <PropertyDetailsStep formData={formData} setFormData={setFormData} errors={stepErrors} />;
       case "amenities":
         return <AmenitiesStep formData={formData} setFormData={setFormData} />;
       case "neighbourhood":
-        return <NeighbourhoodStep formData={formData} setFormData={setFormData} />;
+        return <NeighbourhoodStep formData={formData} setFormData={setFormData} errors={stepErrors} />;
       case "price":
-        return <PricePhotosStep formData={formData} setFormData={setFormData} />;
+        return <PricePhotosStep formData={formData} setFormData={setFormData} errors={stepErrors} />;
       case "issues":
-        return <PendingIssuesStep formData={formData} setFormData={setFormData} />;
+        return <PendingIssuesStep formData={formData} setFormData={setFormData} errors={stepErrors} />;
       case "documents":
-        return <DocumentsStep formData={formData} setFormData={setFormData} />;
+        return <DocumentsStep formData={formData} setFormData={setFormData} errors={stepErrors} />;
       case "review":
-        return <ReviewSubmitStep formData={formData} onSubmit={handleSubmit} loading={loadingSubmit} />;
+        return (
+          <ReviewSubmitStep
+            formData={formData}
+            onSubmit={handleSubmit}
+            onSaveDraft={handleSaveDraft}
+            loading={loadingSubmit}
+          />
+        );
       default:
         return null;
     }
@@ -901,9 +909,9 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
                   router.push("/");
                 }
               }}
-              className="flex items-center gap-2 text-[#6B7280] hover:text-[#C89B1C] mb-8 font-medium transition-colors cursor-pointer"
+              className="flex items-center gap-2 text-[#6B7280] hover:text-[#C89B1C] mb-5 font-medium transition-colors cursor-pointer text-sm"
             >
-              <ArrowLeft size={18} />
+              <ArrowLeft size={16} />
               {mode === "edit" ? "Cancel & Return to My Properties" : "Back to Home"}
             </motion.button>
 
@@ -911,7 +919,7 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="text-5xl md:text-6xl font-playfair font-bold text-[#161616] mb-3"
+              className="text-3xl md:text-4xl font-playfair font-bold text-[#161616] mb-2 tracking-tight"
             >
               {mode === "edit" ? "Edit Property" : "List Your Property"}
             </motion.h1>
@@ -920,18 +928,18 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="text-lg text-[#6B7280] max-w-2xl"
+              className="text-sm sm:text-base text-[#6B7280] max-w-2xl leading-relaxed"
             >
               {mode === "edit"
                 ? "Update your property information"
                 : isAgent
-                ? "List a property on behalf of your client. Owner information and authorization details are required for agent listings."
-                : "Reach thousands of verified buyers and tenants across India. Publish your property in just a few simple steps."}
+                  ? "List a property on behalf of your client. Owner information and authorization details are required for agent listings."
+                  : "Reach thousands of verified buyers and tenants across India. Publish your property in just a few simple steps."}
             </motion.p>
           </motion.div>
 
           <motion.div
-            layout
+            layout={currentStepId === "location" ? false : "position"}
             className="bg-white border border-[#E5D7B3] p-8 sm:p-10 rounded-[32px] shadow-sm flex flex-col justify-between min-h-[580px]"
           >
             <div>
@@ -952,71 +960,70 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
               </div>
             </div>
 
-              {/* Navigation controls */}
-              <div className="flex items-center justify-between border-t border-gray-100 pt-8 mt-10">
+            {/* Navigation controls */}
+            <div className="flex items-center justify-between border-t border-gray-100 pt-8 mt-10">
+              {step > 1 ? (
                 <motion.button
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={previousStep}
-                  disabled={step === 1}
-                  className="flex items-center gap-2 px-5 py-3 rounded-2xl border border-[#E5D8B3] bg-white text-[#6B7280] font-medium transition-all hover:border-[#C89B1C] hover:text-[#C89B1C] hover:shadow-md disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-[#E5D8B3] disabled:hover:text-[#6B7280] disabled:hover:shadow-none"
+                  className="flex items-center gap-2 px-5 py-3 rounded-2xl border border-[#E5D8B3] bg-white text-[#6B7280] font-medium transition-all hover:border-[#C89B1C] hover:text-[#C89B1C] hover:shadow-md"
                 >
                   <motion.div
-                    animate={{ x: step === 1 ? 0 : [-2, 0, -2] }}
+                    animate={{ x: [-2, 0, -2] }}
                     transition={{ repeat: Infinity, duration: 2 }}
                   >
                     <ArrowLeft size={18} />
                   </motion.div>
                   Previous
                 </motion.button>
+              ) : (
+                <div className="w-[110px]" />
+              )}
 
-                <span className="text-gray-500">
-                  Step {step} of {totalSteps}
-                </span>
+              <span className="text-gray-500 text-sm">
+                Step {step} of {totalSteps}
+              </span>
 
-                {step === totalSteps ? (
-                  <motion.button
-                    whileHover={{ scale: 1.04 }}
-                    whileTap={{ scale: 0.96 }}
-                    onClick={handleSubmit}
-                    disabled={loadingSubmit}
-                    className="bg-[#C89B1C] hover:bg-[#B58A16] text-white px-8 py-3 rounded-2xl font-medium flex items-center gap-2 shadow-lg shadow-[#C89B1C]/20 disabled:opacity-50 disabled:cursor-not-allowed"
+              {step === totalSteps ? (
+                <motion.button
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.96 }}
+                  onClick={handleSubmit}
+                  disabled={loadingSubmit}
+                  className="bg-[#C89B1C] hover:bg-[#B58A16] text-white px-8 py-3 rounded-2xl font-medium flex items-center gap-2 shadow-lg shadow-[#C89B1C]/20 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  {loadingSubmit ? (
+                    <>
+                      <span className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 size={18} />
+                      Submit & Publish Property
+                    </>
+                  )}
+                </motion.button>
+              ) : (
+                <motion.button
+                  whileHover={{ scale: 1.04, x: 3 }}
+                  whileTap={{ scale: 0.96 }}
+                  onClick={nextStep}
+                  disabled={false}
+                  className="bg-[#C89B1C] hover:bg-[#B58A16] text-white px-8 py-3 rounded-2xl font-medium flex items-center gap-2 shadow-lg shadow-[#C89B1C]/20 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  Continue
+                  <motion.div
+                    animate={{ x: [0, 4, 0] }}
+                    transition={{ repeat: Infinity, duration: 1.5 }}
                   >
-                    {loadingSubmit ? (
-                      <>
-                        <motion.div
-                          animate={{ rotate: 360 }}
-                          transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                          className="h-4 w-4 border-2 border-white border-t-transparent rounded-full"
-                        />
-                        Saving...
-                      </>
-                    ) : (
-                      <>
-                        <CheckCircle2 size={18} />
-                        {mode === "edit" ? "Save Changes" : "Publish Property"}
-                      </>
-                    )}
-                  </motion.button>
-                ) : (
-                  <motion.button
-                    whileHover={{ scale: 1.04, x: 3 }}
-                    whileTap={{ scale: 0.96 }}
-                    onClick={nextStep}
-                    disabled={!isStepValid}
-                    className="bg-[#C89B1C] hover:bg-[#B58A16] text-white px-8 py-3 rounded-2xl font-medium flex items-center gap-2 shadow-lg shadow-[#C89B1C]/20 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Continue
-                    <motion.div
-                      animate={{ x: [0, 4, 0] }}
-                      transition={{ repeat: Infinity, duration: 1.5 }}
-                    >
-                      <ArrowRight size={18} />
-                    </motion.div>
-                  </motion.button>
-                )}
-              </div>
-            </motion.div>
+                    <ArrowRight size={18} />
+                  </motion.div>
+                </motion.button>
+              )}
+            </div>
+          </motion.div>
         </div>
       </section>
       <Footer />

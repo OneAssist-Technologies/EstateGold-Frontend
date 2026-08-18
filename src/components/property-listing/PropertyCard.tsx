@@ -40,9 +40,8 @@ export default function PropertyCard({ property }: Props) {
 
   const displayTitle =
     property.bedrooms && property.propertyType
-      ? `${property.bedrooms} BHK ${property.propertyType}${
-          property.locality ? " in " + property.locality : ""
-        }`
+      ? `${property.bedrooms} BHK ${property.propertyType}${property.locality ? " in " + property.locality : ""
+      }`
       : property.propertyType || "Luxury Property";
 
   const isSale =
@@ -171,8 +170,8 @@ export default function PropertyCard({ property }: Props) {
             {property.furnishing === "Fully Furnished"
               ? "Fully"
               : property.furnishing === "Semi Furnished"
-              ? "Semi"
-              : property.furnishing || "Unfurnished"}
+                ? "Semi"
+                : property.furnishing || "Unfurnished"}
           </span>
         </div>
       </div>
