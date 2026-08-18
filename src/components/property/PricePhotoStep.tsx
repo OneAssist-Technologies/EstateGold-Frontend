@@ -17,15 +17,16 @@ interface Props {
   setFormData: React.Dispatch<
     React.SetStateAction<PropertyFormData>
   >;
+  errors?: Record<string, string>;
 }
 
 export default function PricePhotosStep({
   formData,
   setFormData,
+  errors,
 }: Props) {
   const hasLocality = formData.city && formData.locality && formData.propertyType;
   const isInsightAvailable = formData.marketInsight && formData.marketInsight.success;
-  const averageLocalityPrice = isInsightAvailable ? (formData.marketInsight?.averageLocalityPrice ?? formData.marketInsight?.marketData?.averagePrice) : null;
   const estimatedPricePerSqft = isInsightAvailable ? formData.marketInsight?.estimatedPricePerSqft : null;
   const estimatedPropertyValue = isInsightAvailable ? formData.marketInsight?.estimatedPropertyValue : null;
   const supported = isInsightAvailable ? (formData.marketInsight?.supported ?? true) : false;
@@ -34,8 +35,17 @@ export default function PricePhotosStep({
   const highlights = isInsightAvailable ? formData.marketInsight?.marketData?.highlights || [] : [];
   const retrievedAt = isInsightAvailable ? formData.marketInsight?.retrievedAt : null;
 
-  const percentageDifference = averageLocalityPrice && formData.price
-    ? ((formData.price - averageLocalityPrice) / averageLocalityPrice) * 100
+  const getRelevantArea = () => {
+    if (formData.propertyType === "Plot / Land" || formData.propertyType === "Residential Plot" || formData.propertyType === "Agricultural Land") {
+      return formData.plotArea || 0;
+    }
+    return formData.area || 0;
+  };
+  const area = getRelevantArea();
+  const propertyPricePerSqft = area > 0 && formData.price ? formData.price / area : 0;
+
+  const percentageDifference = estimatedPricePerSqft && propertyPricePerSqft
+    ? ((propertyPricePerSqft - estimatedPricePerSqft) / estimatedPricePerSqft) * 100
     : 0;
 
   const formatPrice = (val: number) => {
@@ -112,19 +122,22 @@ export default function PricePhotosStep({
                     })
                   )
                 }
-                className="
+                className={`
                   w-full
                   h-16
                   rounded-2xl
                   border
-                  border-[#E5D8B3]
                   pl-12
                   pr-4
                   text-lg
                   outline-none
                   focus:border-[#C89B1C]
-                "
+                  ${errors?.price ? "border-red-500 bg-red-50/10 focus:border-red-500" : "border-[#E5D8B3]"}
+                `}
               />
+              {errors?.price && (
+                <p className="text-red-500 text-xs mt-1 font-semibold pl-1">{errors.price}</p>
+              )}
             </div>
           </div>
 
@@ -165,9 +178,9 @@ export default function PricePhotosStep({
                   </p>
 
                   <div className="mt-3.5 space-y-3">
-                    {averageLocalityPrice === null && estimatedPricePerSqft === null ? (
+                    {estimatedPricePerSqft === null ? (
                       <div className="text-xs text-amber-800 bg-amber-50/40 border border-amber-200 rounded-xl p-2.5 font-semibold">
-                        {message || "Locality supported, but current price data is unavailable."}
+                        {message || "AVnester market data unavailable for this locality."}
                       </div>
                     ) : (
                       <>
@@ -178,25 +191,15 @@ export default function PricePhotosStep({
                               {formData.locality}, {formData.city}
                             </span>
                           </div>
-                          {averageLocalityPrice !== null && averageLocalityPrice !== undefined && (
-                            <div>
-                              <span className="block text-[9px] uppercase font-bold tracking-wider text-gray-400">Average Locality Property Price</span>
-                              <span className="text-xs font-bold text-gray-900 block">
-                                {formatPrice(Number(averageLocalityPrice))}
-                              </span>
-                            </div>
-                          )}
+                          <div>
+                            <span className="block text-[9px] uppercase font-bold tracking-wider text-gray-400">Local Market Price</span>
+                            <span className="text-xs font-bold text-gray-900 block">
+                              ₹{Number(estimatedPricePerSqft).toLocaleString()} / sq.ft
+                            </span>
+                          </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-2">
-                          {estimatedPricePerSqft !== null && estimatedPricePerSqft !== undefined && (
-                            <div>
-                              <span className="block text-[9px] uppercase font-bold tracking-wider text-gray-400">Estimated Market Rate / Sq.ft</span>
-                              <span className="text-xs font-bold text-gray-900 block">
-                                ₹{Number(estimatedPricePerSqft).toLocaleString()} / sq.ft
-                              </span>
-                            </div>
-                          )}
                           {estimatedPropertyValue !== null && estimatedPropertyValue !== undefined && (
                             <div>
                               <span className="block text-[9px] uppercase font-bold tracking-wider text-gray-400">Estimated Property Value</span>
@@ -209,7 +212,7 @@ export default function PricePhotosStep({
                       </>
                     )}
 
-                    {averageLocalityPrice && formData.price > 0 && (
+                    {estimatedPricePerSqft && propertyPricePerSqft > 0 && (
                       <div className={`p-2.5 rounded-xl border ${
                         percentageDifference < -10
                           ? "bg-green-50/40 border-green-200 text-green-800"
@@ -341,11 +344,10 @@ export default function PricePhotosStep({
           </label>
 
           <label
-            className="
+            className={`
               h-48
               border-2
               border-dashed
-              border-[#E5D8B3]
               rounded-3xl
               flex
               flex-col
@@ -355,7 +357,8 @@ export default function PricePhotosStep({
               hover:bg-[#FFFDF8]
               transition-colors
               group
-            "
+              ${errors?.photos ? "border-red-500 bg-red-50/5 hover:bg-red-50/10" : "border-[#E5D8B3]"}
+            `}
           >
             <div className="w-14 h-14 rounded-full bg-[#FFF9EA] flex items-center justify-center border border-[#F3E5C8] group-hover:scale-105 transition-transform">
               <Upload
@@ -380,6 +383,9 @@ export default function PricePhotosStep({
               onChange={handleFileChange}
             />
           </label>
+          {errors?.photos && (
+            <p className="text-red-500 text-xs mt-2 font-semibold pl-1">{errors.photos}</p>
+          )}
 
           {/* Existing uploaded photos */}
           {formData.existingPhotos && formData.existingPhotos.length > 0 && (

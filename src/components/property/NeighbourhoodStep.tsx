@@ -27,10 +27,8 @@ import {
 
 interface Props {
   formData: PropertyFormData;
-
-  setFormData: Dispatch<
-    SetStateAction<PropertyFormData>
-  >;
+  setFormData: Dispatch<SetStateAction<PropertyFormData>>;
+  errors?: Record<string, string>;
 }
 
 type NearbyPlaceKey =
@@ -53,6 +51,7 @@ interface NearbyPlaceItem {
 export default function NeighbourhoodStep({
   formData,
   setFormData,
+  errors,
 }: Props) {
 
   const nearbyPlaces: NearbyPlaceItem[] = [

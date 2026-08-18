@@ -78,10 +78,7 @@ function MapFlyController({
       !isNaN(lng)
     ) {
       prevTriggerRef.current = flyToTrigger;
-      map.flyTo([lat, lng], 14, {
-        animate: true,
-        duration: 1.2,
-      });
+      map.setView([lat, lng], 14);
     }
   }, [flyToTrigger, lat, lng, map]);
 
@@ -123,6 +120,9 @@ export default function ServiceAreaMapInner({
       center={markerPosition}
       zoom={13}
       scrollWheelZoom={true}
+      zoomAnimation={false}
+      fadeAnimation={false}
+      markerZoomAnimation={false}
       className="w-full h-full rounded-2xl z-0"
     >
       <TileLayer

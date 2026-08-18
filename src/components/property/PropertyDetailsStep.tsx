@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   Bed,
@@ -23,6 +24,7 @@ import { PropertyFormData } from "../../types/property";
 interface Props {
   formData: PropertyFormData;
   setFormData: React.Dispatch<React.SetStateAction<PropertyFormData>>;
+  errors?: Record<string, string>;
 }
 
 const furnishingOptions = [
@@ -96,8 +98,69 @@ const commercialTypeOptions = [
 export default function PropertyDetailsStep({
   formData,
   setFormData,
+  errors,
 }: Props) {
   const propertyType = formData.propertyType || "Apartment / Flat";
+  const [showCustomBedrooms, setShowCustomBedrooms] = useState(formData.bedrooms > 4);
+  const [showCustomBathrooms, setShowCustomBathrooms] = useState(formData.bathrooms > 4);
+  const [showCustomBalconies, setShowCustomBalconies] = useState(formData.balconies > 3);
+
+  function getFieldNameFromLabel(label: string): string {
+    const normalized = label.toLowerCase();
+    if (normalized.includes("bedroom")) return "bedrooms";
+    if (normalized.includes("bathroom")) return "bathrooms";
+    if (normalized.includes("balconies")) return "balconies";
+    if (normalized.includes("built-up area") || (normalized.includes("area") && normalized.includes("sq ft") && !normalized.includes("plot") && !normalized.includes("office") && !normalized.includes("production"))) return "area";
+    if (normalized.includes("carpet area")) return "carpetArea";
+    if (normalized.includes("floor") && !normalized.includes("total") && !normalized.includes("max")) return "floor";
+    if (normalized.includes("total floors") || normalized.includes("floors count") || normalized.includes("max tower floors") || normalized.includes("floor count")) return "totalFloors";
+    if (normalized.includes("furnishing")) return "furnishing";
+    if (normalized.includes("facing")) return "facing";
+    if (normalized.includes("property age")) return "propertyAge";
+    if (normalized.includes("plot area") || normalized.includes("land area")) return "plotArea";
+    if (normalized.includes("length")) return "length";
+    if (normalized.includes("width") && !normalized.includes("entrance")) return "width";
+    if (normalized.includes("road width")) return "roadWidth";
+    if (normalized.includes("frontage")) return "frontage";
+    if (normalized.includes("land approval") || normalized.includes("approval authority")) return "landApproval";
+    if (normalized.includes("land classification")) return "landClassification";
+    if (normalized.includes("corner plot")) return "cornerPlot";
+    if (normalized.includes("survey number")) return "surveyNumber";
+    if (normalized.includes("subdivision")) return "subdivisionNumber";
+    if (normalized.includes("taluk")) return "taluk";
+    if (normalized.includes("soil type")) return "soilType";
+    if (normalized.includes("irrigation")) return "irrigation";
+    if (normalized.includes("commercial type") || normalized.includes("project type")) return "commercialType";
+    if (normalized.includes("washrooms")) return "washrooms";
+    if (normalized.includes("power load")) return "powerLoad";
+    if (normalized.includes("entrance width")) return "entranceWidth";
+    if (normalized.includes("ceiling height")) return "ceilingHeight";
+    if (normalized.includes("main road facing")) return "mainRoadFacing";
+    if (normalized.includes("truck access")) return "truckAccess";
+    if (normalized.includes("storage capacity")) return "storageCapacity";
+    if (normalized.includes("industrial type") || normalized.includes("category type")) return "industrialType";
+    if (normalized.includes("production area")) return "productionArea";
+    if (normalized.includes("zoning") || normalized.includes("industrial zoning")) return "zoning";
+    if (normalized.includes("pollution compliance")) return "pollutionCompliance";
+    if (normalized.includes("number of rooms") || normalized.includes("rooms count")) return "numberOfRooms";
+    if (normalized.includes("room types")) return "roomTypes";
+    if (normalized.includes("occupancy")) return "occupancy";
+    if (normalized.includes("gender type")) return "genderType";
+    if (normalized.includes("sharing types") || normalized.includes("sharing type")) return "roomSharingType";
+    if (normalized.includes("rent per bed")) return "rentPerBed";
+    if (normalized.includes("deposit")) return "deposit";
+    if (normalized.includes("total beds")) return "totalBeds";
+    if (normalized.includes("available beds")) return "availableBeds";
+    if (normalized.includes("project name")) return "projectName";
+    if (normalized.includes("towers")) return "towers";
+    if (normalized.includes("total project units") || normalized.includes("total units")) return "totalUnits";
+    if (normalized.includes("available units")) return "availableUnits";
+    if (normalized.includes("bhk configurations")) return "bhkTypes";
+    if (normalized.includes("possession date")) return "possessionDate";
+    if (normalized.includes("payment plan")) return "paymentPlan";
+    if (normalized.includes("construction status")) return "constructionStatus";
+    return "";
+  }
 
   // Reusable Styled Number Selection Button
   const numberButton = (
@@ -124,6 +187,75 @@ export default function PropertyDetailsStep({
     </motion.button>
   );
 
+  // Reusable Counter Field with custom plus button text input
+  const renderCounterField = (
+    label: string,
+    value: number,
+    onChange: (val: number) => void,
+    icon: React.ReactNode,
+    showCustom: boolean,
+    setShowCustom: (val: boolean) => void,
+    limit: number,
+    isBalcony = false
+  ) => {
+    const fieldName = getFieldNameFromLabel(label);
+    const errorMsg = fieldName ? errors?.[fieldName] : undefined;
+    const cleanLabel = label.endsWith("*") ? label.slice(0, -1).trim() : label;
+
+    const startNum = isBalcony ? 0 : 1;
+    const nums = [];
+    for (let i = startNum; i <= limit; i++) {
+      nums.push(i);
+    }
+
+    return (
+      <div>
+        <label className="flex items-center gap-2 mb-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
+          {icon} {cleanLabel}
+        </label>
+        <div className="flex flex-wrap gap-1.5 items-center">
+          {nums.map((item) =>
+            numberButton(
+              `${fieldName}-${item}`,
+              item,
+              value === item && !showCustom,
+              () => {
+                setShowCustom(false);
+                onChange(item);
+              }
+            )
+          )}
+          {showCustom ? (
+            <input
+              type="number"
+              min={limit + 1}
+              value={value}
+              onChange={(e) => {
+                const val = Math.max(limit + 1, Number(e.target.value));
+                onChange(val);
+              }}
+              className="w-16 h-11 px-2 text-center rounded-xl border border-[#C89B1C] bg-[#FFF8E8] text-[#C89B1C] font-bold outline-none text-xs"
+              autoFocus
+            />
+          ) : (
+            numberButton(
+              `${fieldName}-plus`,
+              "+",
+              false,
+              () => {
+                setShowCustom(true);
+                onChange(limit + 1);
+              }
+            )
+          )}
+        </div>
+        {errorMsg && (
+          <p className="text-red-500 text-[10px] font-semibold mt-1 pl-1">{errorMsg}</p>
+        )}
+      </div>
+    );
+  };
+
   // Reusable Input Field
   const renderInput = (
     label: string,
@@ -132,21 +264,33 @@ export default function PropertyDetailsStep({
     icon: React.ReactNode,
     onChange: (val: string) => void,
     type = "number"
-  ) => (
-    <div>
-      <label className="flex items-center gap-2 mb-2 text-xs font-bold text-gray-700 uppercase tracking-wider">
-        {icon}
-        {label}
-      </label>
-      <input
-        type={type}
-        placeholder={placeholder}
-        value={value || ""}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full h-12 px-4 rounded-xl border border-[#E5D8B3] outline-none text-sm font-semibold text-gray-800 focus:border-[#C89B1C] bg-[#FFFDF9]/30"
-      />
-    </div>
-  );
+  ) => {
+    const fieldName = getFieldNameFromLabel(label);
+    const errorMsg = fieldName ? errors?.[fieldName] : undefined;
+    const cleanLabel = label.endsWith("*") ? label.slice(0, -1).trim() : label;
+    return (
+      <div>
+        <label className="flex items-center gap-2 mb-2 text-xs font-bold text-gray-700 uppercase tracking-wider">
+          {icon}
+          <span>{cleanLabel} <span className="text-red-500 font-bold">*</span></span>
+        </label>
+        <input
+          type={type}
+          placeholder={placeholder}
+          value={value || ""}
+          onChange={(e) => onChange(e.target.value)}
+          className={`w-full h-12 px-4 rounded-xl border outline-none text-sm font-semibold text-gray-800 focus:border-[#C89B1C] bg-[#FFFDF9]/30 ${
+            errorMsg ? "border-red-500 bg-red-50/10 focus:border-red-500" : "border-[#E5D8B3]"
+          }`}
+        />
+        {errorMsg && (
+          <p className="text-red-500 text-[10px] font-semibold mt-1 pl-1">
+            {errorMsg}
+          </p>
+        )}
+      </div>
+    );
+  };
 
   // Reusable Select Field
   const renderSelect = (
@@ -155,26 +299,38 @@ export default function PropertyDetailsStep({
     options: string[],
     icon: React.ReactNode,
     onChange: (val: string) => void
-  ) => (
-    <div>
-      <label className="flex items-center gap-2 mb-2 text-xs font-bold text-gray-700 uppercase tracking-wider">
-        {icon}
-        {label}
-      </label>
-      <select
-        value={value || ""}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full h-12 px-4 rounded-xl border border-[#E5D8B3] outline-none text-sm font-bold text-gray-700 bg-white focus:border-[#C89B1C] cursor-pointer"
-      >
-        <option value="">Select Option</option>
-        {options.map((opt) => (
-          <option key={opt} value={opt}>
-            {opt}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
+  ) => {
+    const fieldName = getFieldNameFromLabel(label);
+    const errorMsg = fieldName ? errors?.[fieldName] : undefined;
+    const cleanLabel = label.endsWith("*") ? label.slice(0, -1).trim() : label;
+    return (
+      <div>
+        <label className="flex items-center gap-2 mb-2 text-xs font-bold text-gray-700 uppercase tracking-wider">
+          {icon}
+          <span>{cleanLabel} <span className="text-red-500 font-bold">*</span></span>
+        </label>
+        <select
+          value={value || ""}
+          onChange={(e) => onChange(e.target.value)}
+          className={`w-full h-12 px-4 rounded-xl border outline-none text-sm font-bold text-gray-700 bg-white focus:border-[#C89B1C] cursor-pointer ${
+            errorMsg ? "border-red-500 bg-red-50/10 focus:border-red-500" : "border-[#E5D8B3]"
+          }`}
+        >
+          <option value="">Select Option</option>
+          {options.map((opt) => (
+            <option key={opt} value={opt}>
+              {opt}
+            </option>
+          ))}
+        </select>
+        {errorMsg && (
+          <p className="text-red-500 text-[10px] font-semibold mt-1 pl-1">
+            {errorMsg}
+          </p>
+        )}
+      </div>
+    );
+  };
 
   // Reusable Toggle Field
   const renderToggle = (
@@ -244,71 +400,9 @@ export default function PropertyDetailsStep({
       {propertyType === "Apartment / Flat" && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <label className="flex items-center gap-2 mb-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
-                <Bed size={16} /> Bedrooms
-              </label>
-              <div className="flex flex-wrap gap-1.5">
-                {[1, 2, 3, 4, 5].map((item) =>
-                  numberButton(
-                    `bedroom-${item}`,
-                    item,
-                    formData.bedrooms === item,
-                    () => setFormData((prev) => ({ ...prev, bedrooms: item }))
-                  )
-                )}
-                {numberButton(
-                  "bedroom-5plus",
-                  "5+",
-                  formData.bedrooms > 5,
-                  () => setFormData((prev) => ({ ...prev, bedrooms: 6 }))
-                )}
-              </div>
-            </div>
-
-            <div>
-              <label className="flex items-center gap-2 mb-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
-                <Bath size={16} /> Bathrooms
-              </label>
-              <div className="flex flex-wrap gap-1.5">
-                {[1, 2, 3, 4].map((item) =>
-                  numberButton(
-                    `bathroom-${item}`,
-                    item,
-                    formData.bathrooms === item,
-                    () => setFormData((prev) => ({ ...prev, bathrooms: item }))
-                  )
-                )}
-                {numberButton(
-                  "bathroom-4plus",
-                  "4+",
-                  formData.bathrooms > 4,
-                  () => setFormData((prev) => ({ ...prev, bathrooms: 5 }))
-                )}
-              </div>
-            </div>
-
-            <div>
-              <label className="flex items-center gap-2 mb-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
-                <Layers3 size={16} /> Balconies
-              </label>
-              <div className="flex flex-wrap gap-1.5">
-                {[0, 1, 2, 3].map((item) =>
-                  numberButton(
-                    `balcony-${item}`,
-                    item,
-                    formData.balconies === item,
-                    () => setFormData((prev) => ({ ...prev, balconies: item }))
-                  )
-                )}
-                {numberButton(
-                  "balcony-3plus",
-                  "3+",
-                  formData.balconies > 3,
-                  () => setFormData((prev) => ({ ...prev, balconies: 4 }))
-                )}
-              </div>
-            </div>
+            {renderCounterField("Bedrooms", formData.bedrooms, (val) => setFormData((prev) => ({ ...prev, bedrooms: val })), <Bed size={16} />, showCustomBedrooms, setShowCustomBedrooms, 4)}
+            {renderCounterField("Bathrooms", formData.bathrooms, (val) => setFormData((prev) => ({ ...prev, bathrooms: val })), <Bath size={16} />, showCustomBathrooms, setShowCustomBathrooms, 4)}
+            {renderCounterField("Balconies", formData.balconies, (val) => setFormData((prev) => ({ ...prev, balconies: val })), <Layers3 size={16} />, showCustomBalconies, setShowCustomBalconies, 3, true)}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -318,9 +412,7 @@ export default function PropertyDetailsStep({
             {renderInput("Built-up Area (sq ft)", formData.area, "e.g. 1100", <Scan size={16} />, (val) =>
               setFormData((prev) => ({ ...prev, area: Number(val) }))
             )}
-            {renderInput("Super Built-up Area (sq ft)", (formData as any).superArea, "e.g. 1300", <Scan size={16} />, (val) =>
-              setFormData((prev) => ({ ...prev, superArea: Number(val) }))
-            )}
+
             {renderInput("Floor Number", formData.floor, "e.g. 2", <Building2 size={16} />, (val) =>
               setFormData((prev) => ({ ...prev, floor: Number(val) }))
             )}
@@ -378,37 +470,8 @@ export default function PropertyDetailsStep({
       {propertyType === "Independent House" && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="flex items-center gap-2 mb-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
-                <Bed size={16} /> Bedrooms
-              </label>
-              <div className="flex flex-wrap gap-1.5">
-                {[1, 2, 3, 4, 5].map((item) =>
-                  numberButton(
-                    `bedroom-${item}`,
-                    item,
-                    formData.bedrooms === item,
-                    () => setFormData((prev) => ({ ...prev, bedrooms: item }))
-                  )
-                )}
-              </div>
-            </div>
-
-            <div>
-              <label className="flex items-center gap-2 mb-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
-                <Bath size={16} /> Bathrooms
-              </label>
-              <div className="flex flex-wrap gap-1.5">
-                {[1, 2, 3, 4].map((item) =>
-                  numberButton(
-                    `bathroom-${item}`,
-                    item,
-                    formData.bathrooms === item,
-                    () => setFormData((prev) => ({ ...prev, bathrooms: item }))
-                  )
-                )}
-              </div>
-            </div>
+            {renderCounterField("Bedrooms", formData.bedrooms, (val) => setFormData((prev) => ({ ...prev, bedrooms: val })), <Bed size={16} />, showCustomBedrooms, setShowCustomBedrooms, 4)}
+            {renderCounterField("Bathrooms", formData.bathrooms, (val) => setFormData((prev) => ({ ...prev, bathrooms: val })), <Bath size={16} />, showCustomBathrooms, setShowCustomBathrooms, 4)}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -475,37 +538,8 @@ export default function PropertyDetailsStep({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="flex items-center gap-2 mb-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
-                <Bed size={16} /> Bedrooms
-              </label>
-              <div className="flex flex-wrap gap-1.5">
-                {[2, 3, 4, 5].map((item) =>
-                  numberButton(
-                    `villa-bedroom-${item}`,
-                    item,
-                    formData.bedrooms === item,
-                    () => setFormData((prev) => ({ ...prev, bedrooms: item }))
-                  )
-                )}
-              </div>
-            </div>
-
-            <div>
-              <label className="flex items-center gap-2 mb-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
-                <Bath size={16} /> Bathrooms
-              </label>
-              <div className="flex flex-wrap gap-1.5">
-                {[2, 3, 4, 5].map((item) =>
-                  numberButton(
-                    `villa-bathroom-${item}`,
-                    item,
-                    formData.bathrooms === item,
-                    () => setFormData((prev) => ({ ...prev, bathrooms: item }))
-                  )
-                )}
-              </div>
-            </div>
+            {renderCounterField("Bedrooms", formData.bedrooms, (val) => setFormData((prev) => ({ ...prev, bedrooms: val })), <Bed size={16} />, showCustomBedrooms, setShowCustomBedrooms, 4)}
+            {renderCounterField("Bathrooms", formData.bathrooms, (val) => setFormData((prev) => ({ ...prev, bathrooms: val })), <Bath size={16} />, showCustomBathrooms, setShowCustomBathrooms, 4)}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -544,53 +578,9 @@ export default function PropertyDetailsStep({
       {propertyType === "Builder Floor" && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <label className="flex items-center gap-2 mb-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
-                <Bed size={16} /> Bedrooms
-              </label>
-              <div className="flex flex-wrap gap-1.5">
-                {[1, 2, 3, 4].map((item) =>
-                  numberButton(
-                    `bf-bedroom-${item}`,
-                    item,
-                    formData.bedrooms === item,
-                    () => setFormData((prev) => ({ ...prev, bedrooms: item }))
-                  )
-                )}
-              </div>
-            </div>
-
-            <div>
-              <label className="flex items-center gap-2 mb-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
-                <Bath size={16} /> Bathrooms
-              </label>
-              <div className="flex flex-wrap gap-1.5">
-                {[1, 2, 3, 4].map((item) =>
-                  numberButton(
-                    `bf-bathroom-${item}`,
-                    item,
-                    formData.bathrooms === item,
-                    () => setFormData((prev) => ({ ...prev, bathrooms: item }))
-                  )
-                )}
-              </div>
-            </div>
-
-            <div>
-              <label className="flex items-center gap-2 mb-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
-                <Layers3 size={16} /> Balconies
-              </label>
-              <div className="flex flex-wrap gap-1.5">
-                {[0, 1, 2, 3].map((item) =>
-                  numberButton(
-                    `bf-balcony-${item}`,
-                    item,
-                    formData.balconies === item,
-                    () => setFormData((prev) => ({ ...prev, balconies: item }))
-                  )
-                )}
-              </div>
-            </div>
+            {renderCounterField("Bedrooms", formData.bedrooms, (val) => setFormData((prev) => ({ ...prev, bedrooms: val })), <Bed size={16} />, showCustomBedrooms, setShowCustomBedrooms, 4)}
+            {renderCounterField("Bathrooms", formData.bathrooms, (val) => setFormData((prev) => ({ ...prev, bathrooms: val })), <Bath size={16} />, showCustomBathrooms, setShowCustomBathrooms, 4)}
+            {renderCounterField("Balconies", formData.balconies, (val) => setFormData((prev) => ({ ...prev, balconies: val })), <Layers3 size={16} />, showCustomBalconies, setShowCustomBalconies, 3, true)}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -665,9 +655,6 @@ export default function PropertyDetailsStep({
             )}
             {renderSelect("Layout Approval Authority", (formData as any).landApproval, approvalOptions, <ShieldCheck size={16} />, (val) =>
               setFormData((prev) => ({ ...prev, landApproval: val }))
-            )}
-            {renderSelect("Plot Type / Zoning", (formData as any).plotType, plotTypeOptions, <Building2 size={16} />, (val) =>
-              setFormData((prev) => ({ ...prev, plotType: val }))
             )}
             {renderSelect("Land Classification", (formData as any).landClassification, ["Patta Land", "Revenue Land", "Gramanatham", "Other"], <FileText size={16} />, (val) =>
               setFormData((prev) => ({ ...prev, landClassification: val }))

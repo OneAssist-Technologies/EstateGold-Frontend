@@ -13,6 +13,7 @@ import {
   X,
   Loader2,
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 import { PropertyFormData } from "../../types/property";
 import LocationSearch, { SearchLocationResult } from "../admin/locations/LocationSearch";
@@ -22,6 +23,7 @@ import api from "../../services/api";
 interface Props {
   formData: PropertyFormData;
   setFormData: React.Dispatch<React.SetStateAction<PropertyFormData>>;
+  errors?: Record<string, string>;
 }
 
 interface ActiveLocation {
@@ -172,7 +174,7 @@ function isServiceAllowed(allowedServices?: string[], targetPurpose?: string) {
   });
 }
 
-export default function LocationStep({ formData, setFormData }: Props) {
+export default function LocationStep({ formData, setFormData, errors }: Props) {
   const [activeLocations, setActiveLocations] = useState<ActiveLocation[]>([]);
   const [loadingLocations, setLoadingLocations] = useState<boolean>(true);
   const [selectedRegion, setSelectedRegion] = useState<string>("India");
@@ -327,13 +329,13 @@ export default function LocationStep({ formData, setFormData }: Props) {
     loadingLocations,
   ]);
 
-  // Auto-open unserviceable popup modal when location exceeds radius
+  // Auto-open unserviceable popup modal when location exceeds radius (only when map modal is closed)
   useEffect(() => {
-    if (serviceabilityResult.status === "unserviceable") {
+    if (serviceabilityResult.status === "unserviceable" && !showMapModal) {
       setShowUnserviceableModal(true);
       setRequestSuccess(false);
     }
-  }, [serviceabilityResult.status, formData.latitude, formData.longitude, formData.city]);
+  }, [serviceabilityResult.status, formData.latitude, formData.longitude, formData.city, showMapModal]);
 
   // Submit Location Request to Admin
   const handleSendLocationRequest = async () => {
@@ -462,8 +464,9 @@ export default function LocationStep({ formData, setFormData }: Props) {
   const defaultMapLng = formData.longitude && !isNaN(formData.longitude) ? formData.longitude : 76.9558;
 
   return (
-    <div>
-      <h2 className="text-4xl font-bold">Where is the property?</h2>
+    <div className="relative">
+      <div className={`transition-all duration-300 ${showMapModal ? "opacity-15 blur-[4px] pointer-events-none select-none" : ""}`}>
+        <h2 className="text-4xl font-bold">Where is the property?</h2>
 
       <p className="text-gray-500 mt-2">
         Accurate location helps buyers find it faster
@@ -520,7 +523,9 @@ export default function LocationStep({ formData, setFormData }: Props) {
               setSelectedState(newSt);
               setSearchQuery("");
             }}
-            className="w-full h-14 rounded-xl border border-[#E8E1D4] bg-[#FAFAF8] px-4 text-sm text-[#161616] outline-none focus:border-[#C89B1C] focus:bg-white focus:ring-2 focus:ring-[#C89B1C]/15 transition-all cursor-pointer"
+            className={`w-full h-14 rounded-xl border px-4 text-sm text-[#161616] outline-none focus:border-[#C89B1C] focus:bg-white focus:ring-2 focus:ring-[#C89B1C]/15 transition-all cursor-pointer ${
+              errors?.state ? "border-red-500 bg-red-50/10 focus:border-red-500" : "border-[#E8E1D4] bg-[#FAFAF8]"
+            }`}
           >
             <option value="">-- Select State --</option>
             {availableStates.map((st) => (
@@ -529,6 +534,9 @@ export default function LocationStep({ formData, setFormData }: Props) {
               </option>
             ))}
           </select>
+          {errors?.state && (
+            <p className="text-red-500 text-xs mt-1 font-semibold pl-1">{errors.state}</p>
+          )}
 
           {!selectedState && (
             <p className="text-xs text-amber-600 mt-1 font-medium">
@@ -569,9 +577,14 @@ export default function LocationStep({ formData, setFormData }: Props) {
                 }))
               }
               placeholder="e.g. Coimbatore, Chennai"
-              className="w-full border rounded-xl h-14 pl-12 pr-4 outline-none focus:border-[#C89B1C]"
+              className={`w-full border rounded-xl h-14 pl-12 pr-4 outline-none focus:border-[#C89B1C] ${
+                errors?.city ? "border-red-500 bg-red-50/10 focus:border-red-500" : "border-gray-200"
+              }`}
             />
           </div>
+          {errors?.city && (
+            <p className="text-red-500 text-xs mt-1 font-semibold pl-1">{errors.city}</p>
+          )}
         </div>
 
         {/* Locality / Area Input */}
@@ -593,9 +606,14 @@ export default function LocationStep({ formData, setFormData }: Props) {
                 }))
               }
               placeholder="e.g. Gandhipuram, Anna Nagar"
-              className="w-full border rounded-xl h-14 pl-12 pr-4 outline-none focus:border-[#C89B1C]"
+              className={`w-full border rounded-xl h-14 pl-12 pr-4 outline-none focus:border-[#C89B1C] ${
+                errors?.locality ? "border-red-500 bg-red-50/10 focus:border-red-500" : "border-gray-200"
+              }`}
             />
           </div>
+          {errors?.locality && (
+            <p className="text-red-500 text-xs mt-1 font-semibold pl-1">{errors.locality}</p>
+          )}
         </div>
 
         {/* Society / Building Name Input */}
@@ -641,13 +659,18 @@ export default function LocationStep({ formData, setFormData }: Props) {
                 }))
               }
               placeholder="Street Address"
-              className="w-full border rounded-xl min-h-[100px] pl-12 p-4 outline-none focus:border-[#C89B1C]"
+              className={`w-full border rounded-xl min-h-[100px] pl-12 p-4 outline-none focus:border-[#C89B1C] ${
+                errors?.address ? "border-red-500 bg-red-50/10 focus:border-red-500" : "border-gray-200"
+              }`}
             />
           </div>
+          {errors?.address && (
+            <p className="text-red-500 text-xs mt-1 font-semibold pl-1">{errors.address}</p>
+          )}
         </div>
 
         {/* INLINE SERVICEABILITY FEEDBACK MESSAGES */}
-        {serviceabilityResult.status === "serviceable" && (
+        {!showMapModal && serviceabilityResult.status === "serviceable" && (
           <div className="p-4 rounded-2xl bg-green-50 border border-green-200 flex items-start gap-3 text-green-800">
             <CheckCircle2 size={20} className="shrink-0 text-green-600 mt-0.5" />
             <div>
@@ -663,7 +686,7 @@ export default function LocationStep({ formData, setFormData }: Props) {
           </div>
         )}
 
-        {serviceabilityResult.status === "unserviceable" && (
+        {!showMapModal && serviceabilityResult.status === "unserviceable" && (
           <div className="p-4 rounded-2xl bg-red-50 border border-red-200 flex items-start gap-3 text-red-800">
             <AlertTriangle size={20} className="shrink-0 text-red-600 mt-0.5" />
             <div>
@@ -677,7 +700,7 @@ export default function LocationStep({ formData, setFormData }: Props) {
           </div>
         )}
 
-        {serviceabilityResult.status === "no_areas" && (
+        {!showMapModal && serviceabilityResult.status === "no_areas" && (
           <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 flex items-start gap-3 text-amber-800">
             <AlertTriangle size={20} className="shrink-0 text-amber-600 mt-0.5" />
             <div>
@@ -691,163 +714,190 @@ export default function LocationStep({ formData, setFormData }: Props) {
           </div>
         )}
       </div>
+      </div>
 
       {/* INTERACTIVE PICK LOCATION ON MAP MODAL */}
-      {showMapModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh] border border-[#ECE7DB]">
-            {/* Modal Header */}
-            <div className="p-4 px-6 border-b border-gray-100 flex items-center justify-between bg-[#FAFAF8]">
-              <div className="flex items-center gap-2">
-                <MapPin size={18} className="text-[#C89B1C]" />
-                <h3 className="font-bold text-base text-[#161616]">Pick Location on Map</h3>
+      <AnimatePresence>
+        {showMapModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="bg-white rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh] border border-[#ECE7DB]"
+            >
+              {/* Modal Header */}
+              <div className="p-4 px-6 border-b border-gray-100 flex items-center justify-between bg-[#FAFAF8]">
+                <div className="flex items-center gap-2">
+                  <MapPin size={18} className="text-[#C89B1C]" />
+                  <h3 className="font-bold text-base text-[#161616]">Pick Location on Map</h3>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowMapModal(false)}
+                  className="p-1.5 rounded-full hover:bg-gray-200 text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X size={18} />
+                </button>
               </div>
 
-              <button
-                type="button"
-                onClick={() => setShowMapModal(false)}
-                className="p-1.5 rounded-full hover:bg-gray-200 text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <X size={18} />
-              </button>
-            </div>
+              {/* Interactive Leaflet Map */}
+              <div className="w-full h-[380px] relative">
+                <ServiceAreaMap
+                  latitude={defaultMapLat}
+                  longitude={defaultMapLng}
+                  radiusKm={10}
+                  showRadius={false}
+                  flyToTrigger={flyToTrigger}
+                  onMarkerDragEnd={handleMarkerDragEnd}
+                />
+              </div>
 
-            {/* Interactive Leaflet Map */}
-            <div className="w-full h-[380px] relative">
-              <ServiceAreaMap
-                latitude={defaultMapLat}
-                longitude={defaultMapLng}
-                radiusKm={10}
-                showRadius={false}
-                flyToTrigger={flyToTrigger}
-                onMarkerDragEnd={handleMarkerDragEnd}
-              />
-            </div>
+              {/* Modal Footer */}
+              <div className="p-4 px-6 bg-white border-t border-gray-100 flex items-center justify-between gap-4">
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs text-gray-500 truncate">Selected Location:</p>
+                  <p className="text-xs font-bold text-[#161616] truncate mt-0.5">
+                    {formData.address || `${defaultMapLat.toFixed(4)}, ${defaultMapLng.toFixed(4)}`}
+                  </p>
+                </div>
 
-            {/* Modal Footer */}
-            <div className="p-4 px-6 bg-white border-t border-gray-100 flex items-center justify-between gap-4">
-              <div className="min-w-0 flex-1">
-                <p className="text-xs text-gray-500 truncate">Selected Location:</p>
-                <p className="text-xs font-bold text-[#161616] truncate mt-0.5">
-                  {formData.address || `${defaultMapLat.toFixed(4)}, ${defaultMapLng.toFixed(4)}`}
+                <button
+                  type="button"
+                  onClick={() => setShowMapModal(false)}
+                  className="px-6 h-11 rounded-xl bg-[#C89B1C] hover:bg-[#B38A18] text-white font-bold text-xs transition-colors shadow-md shrink-0 cursor-pointer"
+                >
+                  Confirm Location
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* UNSERVICEABLE LOCATION ADMIN REQUEST POPUP MODAL */}
+      <AnimatePresence>
+        {showUnserviceableModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/65 backdrop-blur-xs flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl flex flex-col border border-red-100"
+            >
+              {/* Modal Header */}
+              <div className="p-6 text-center bg-[#FFF8F8] border-b border-red-100 relative">
+                <button
+                  type="button"
+                  onClick={() => setShowUnserviceableModal(false)}
+                  className="absolute right-4 top-4 p-1.5 rounded-full hover:bg-red-100 text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X size={18} />
+                </button>
+
+                <div className="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-3 border border-red-200 shadow-xs">
+                  <AlertTriangle size={28} className="text-red-600" />
+                </div>
+
+                <h3 className="text-lg font-bold text-red-900">
+                  We Are Not Servicing In This Area
+                </h3>
+                <p className="text-xs text-red-700 mt-1 max-w-xs mx-auto leading-relaxed">
+                  The selected location exceeds the radius fixed by the admin. Please send a request to the admin to add your property location!
                 </p>
               </div>
 
-              <button
-                type="button"
-                onClick={() => setShowMapModal(false)}
-                className="px-6 h-11 rounded-xl bg-[#C89B1C] hover:bg-[#B38A18] text-white font-bold text-xs transition-colors shadow-md shrink-0 cursor-pointer"
-              >
-                Confirm Location
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* UNSERVICEABLE LOCATION ADMIN REQUEST POPUP MODAL */}
-      {showUnserviceableModal && (
-        <div className="fixed inset-0 z-50 bg-black/65 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl flex flex-col border border-red-100 animate-in fade-in zoom-in duration-200">
-            {/* Modal Header */}
-            <div className="p-6 text-center bg-[#FFF8F8] border-b border-red-100 relative">
-              <button
-                type="button"
-                onClick={() => setShowUnserviceableModal(false)}
-                className="absolute right-4 top-4 p-1.5 rounded-full hover:bg-red-100 text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <X size={18} />
-              </button>
-
-              <div className="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-3 border border-red-200 shadow-xs">
-                <AlertTriangle size={28} className="text-red-600" />
-              </div>
-
-              <h3 className="text-lg font-bold text-red-900">
-                We Are Not Servicing In This Area
-              </h3>
-              <p className="text-xs text-red-700 mt-1 max-w-xs mx-auto leading-relaxed">
-                The selected location exceeds the radius fixed by the admin. Please send a request to the admin to add your property location!
-              </p>
-            </div>
-
-            {/* Modal Content */}
-            <div className="p-6 space-y-4">
-              {requestSuccess ? (
-                <div className="p-4 rounded-2xl bg-green-50 border border-green-200 text-center space-y-2">
-                  <CheckCircle2 size={32} className="text-green-600 mx-auto" />
-                  <p className="font-bold text-sm text-green-900">
-                    Request Submitted to Admin!
-                  </p>
-                  <p className="text-xs text-green-700 leading-relaxed">
-                    Your request for <strong>{formData.locality || formData.city || "this location"}</strong> has been sent to our admin team.
-                  </p>
-                </div>
-              ) : (
-                <>
-                  <div className="p-3.5 rounded-xl bg-gray-50 border border-gray-200 text-xs text-gray-700 space-y-1">
-                    <p className="font-semibold text-gray-900">Selected Location:</p>
-                    <p className="text-gray-600 truncate font-medium">
-                      {formData.address || `${formData.locality || ""}, ${formData.city || ""}`}
+              {/* Modal Content */}
+              <div className="p-6 space-y-4">
+                {requestSuccess ? (
+                  <div className="p-4 rounded-2xl bg-green-50 border border-green-200 text-center space-y-2">
+                    <CheckCircle2 size={32} className="text-green-600 mx-auto" />
+                    <p className="font-bold text-sm text-green-900">
+                      Request Submitted to Admin!
+                    </p>
+                    <p className="text-xs text-green-700 leading-relaxed">
+                      Your request for <strong>{formData.locality || formData.city || "this location"}</strong> has been sent to our admin team.
                     </p>
                   </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1.5">
-                      Request Notes for Admin (Optional)
-                    </label>
-                    <textarea
-                      value={requestNotes}
-                      onChange={(e) => setRequestNotes(e.target.value)}
-                      placeholder="Please add this area for property listing..."
-                      className="w-full border border-gray-200 rounded-xl p-3 text-xs outline-none focus:border-[#C89B1C] focus:ring-2 focus:ring-[#C89B1C]/15 min-h-[75px]"
-                    />
-                  </div>
-                </>
-              )}
-
-              {/* Action Buttons */}
-              <div className="flex items-center gap-3 pt-1">
-                {!requestSuccess ? (
+                ) : (
                   <>
+                    <div className="p-3.5 rounded-xl bg-gray-50 border border-gray-200 text-xs text-gray-700 space-y-1">
+                      <p className="font-semibold text-gray-900">Selected Location:</p>
+                      <p className="text-gray-600 truncate font-medium">
+                        {formData.address || `${formData.locality || ""}, ${formData.city || ""}`}
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+                        Request Notes for Admin (Optional)
+                      </label>
+                      <textarea
+                        value={requestNotes}
+                        onChange={(e) => setRequestNotes(e.target.value)}
+                        placeholder="Please add this area for property listing..."
+                        className="w-full border border-gray-200 rounded-xl p-3 text-xs outline-none focus:border-[#C89B1C] focus:ring-2 focus:ring-[#C89B1C]/15 min-h-[75px]"
+                      />
+                    </div>
+                  </>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex items-center gap-3 pt-1">
+                  {!requestSuccess ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => setShowUnserviceableModal(false)}
+                        className="flex-1 h-11 rounded-xl border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-semibold transition-colors"
+                      >
+                        Select Another Area
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handleSendLocationRequest}
+                        disabled={submittingRequest}
+                        className="flex-1 h-11 rounded-xl bg-[#C89B1C] hover:bg-[#B38A18] text-white text-xs font-bold transition-colors shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                      >
+                        {submittingRequest ? (
+                          <>
+                            <Loader2 size={16} className="animate-spin" />
+                            <span>Submitting...</span>
+                          </>
+                        ) : (
+                          <span>Send Request To Admin</span>
+                        )}
+                      </button>
+                    </>
+                  ) : (
                     <button
                       type="button"
                       onClick={() => setShowUnserviceableModal(false)}
-                      className="flex-1 h-11 rounded-xl border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-semibold transition-colors"
+                      className="w-full h-11 rounded-xl bg-gray-900 hover:bg-black text-white text-xs font-bold transition-colors shadow-md"
                     >
-                      Select Another Area
+                      Close
                     </button>
-
-                    <button
-                      type="button"
-                      onClick={handleSendLocationRequest}
-                      disabled={submittingRequest}
-                      className="flex-1 h-11 rounded-xl bg-[#C89B1C] hover:bg-[#B38A18] text-white text-xs font-bold transition-colors shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-                    >
-                      {submittingRequest ? (
-                        <>
-                          <Loader2 size={16} className="animate-spin" />
-                          <span>Submitting...</span>
-                        </>
-                      ) : (
-                        <span>Send Request To Admin</span>
-                      )}
-                    </button>
-                  </>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => setShowUnserviceableModal(false)}
-                    className="w-full h-11 rounded-xl bg-gray-900 hover:bg-black text-white text-xs font-bold transition-colors shadow-md"
-                  >
-                    Close
-                  </button>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

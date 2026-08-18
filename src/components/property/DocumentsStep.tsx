@@ -8,6 +8,7 @@ import { PropertyFormData, DocumentItem } from "../../types/property";
 interface Props {
   formData: PropertyFormData;
   setFormData: React.Dispatch<React.SetStateAction<PropertyFormData>>;
+  errors?: Record<string, string>;
 }
 
 interface DocRequirement {
@@ -17,7 +18,7 @@ interface DocRequirement {
   applicable: boolean;
 }
 
-export default function DocumentsStep({ formData, setFormData }: Props) {
+export default function DocumentsStep({ formData, setFormData, errors }: Props) {
   const propertyType = formData.propertyType || "Apartment / Flat";
   const [uploadingDocType, setUploadingDocType] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -181,6 +182,25 @@ export default function DocumentsStep({ formData, setFormData }: Props) {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Strict file type validation (Only allow documents or images, no plain text)
+    const allowedTypes = [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
+      "image/jpeg",
+      "image/png",
+      "image/webp"
+    ];
+    const fileType = file.type;
+    const fileExtension = file.name.split('.').pop()?.toLowerCase();
+    const allowedExtensions = ["pdf", "doc", "docx", "jpg", "jpeg", "png", "webp"];
+
+    if (!allowedTypes.includes(fileType) && !allowedExtensions.includes(fileExtension || "")) {
+      setErrorMsg("Strict validation: Only document files (PDF, DOC, DOCX) or images (JPG, JPEG, PNG, WEBP) are allowed.");
+      e.target.value = "";
+      return;
+    }
+
     setUploadingDocType(docType);
     setErrorMsg(null);
 
@@ -203,7 +223,10 @@ export default function DocumentsStep({ formData, setFormData }: Props) {
 
         setFormData((prev) => {
           const currentDocs = prev.documents || [];
-          const filteredDocs = currentDocs.filter((d) => d.documentType !== docType);
+          const isMultiple = docType === "owner_kyc";
+          const filteredDocs = isMultiple
+            ? currentDocs
+            : currentDocs.filter((d) => d.documentType !== docType);
           return {
             ...prev,
             documents: [...filteredDocs, newDocItem],
@@ -227,8 +250,17 @@ export default function DocumentsStep({ formData, setFormData }: Props) {
     }));
   };
 
-  const getUploadedDoc = (docType: string) => {
-    return (formData.documents || []).find((d) => d.documentType === docType);
+  const handleRemoveSpecificDoc = (docType: string, fileUrl: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      documents: (prev.documents || []).filter(
+        (d) => !(d.documentType === docType && d.fileUrl === fileUrl)
+      ),
+    }));
+  };
+
+  const getUploadedDocs = (docType: string) => {
+    return (formData.documents || []).filter((d) => d.documentType === docType);
   };
 
   return (
@@ -251,13 +283,17 @@ export default function DocumentsStep({ formData, setFormData }: Props) {
 
       <div className="space-y-4">
         {docRequirements.map((req) => {
-          const uploaded = getUploadedDoc(req.documentType);
+          const uploadedList = getUploadedDocs(req.documentType);
+          const hasUploaded = uploadedList.length > 0;
           const isUploading = uploadingDocType === req.documentType;
 
+          const docError = errors?.[req.documentType];
           return (
             <div
               key={req.documentType}
-              className="bg-white border border-[#E5D8B3] rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-2xs transition-all duration-300 hover:shadow-xs"
+              className={`bg-white border rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-2xs transition-all duration-300 hover:shadow-xs ${
+                docError ? "border-red-500 bg-red-50/5" : "border-[#E5D8B3]"
+              }`}
             >
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
@@ -274,45 +310,72 @@ export default function DocumentsStep({ formData, setFormData }: Props) {
                     </span>
                   )}
                 </div>
-                {uploaded ? (
-                  <div className="flex items-center gap-1.5 text-xs text-gray-400 mt-1.5 font-medium">
-                    <FileText size={14} className="text-[#C89B1C]" />
-                    <span className="line-clamp-1 max-w-xs">{uploaded.fileName}</span>
+                {docError && (
+                  <p className="text-red-500 text-[10px] font-semibold mt-1">
+                    ⚠️ {docError}
+                  </p>
+                )}
+                {hasUploaded ? (
+                  <div className="space-y-1.5 mt-2">
+                    {uploadedList.map((doc, idx) => (
+                      <div key={idx} className="flex items-center gap-1.5 text-xs text-gray-400 font-medium">
+                        <FileText size={14} className="text-[#C89B1C]" />
+                        <span className="line-clamp-1 max-w-xs">{doc.fileName}</span>
+                        {req.documentType === "owner_kyc" && (
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveSpecificDoc(req.documentType, doc.fileUrl)}
+                            className="text-red-500 hover:text-red-700 ml-2 transition-colors cursor-pointer text-sm font-bold leading-none"
+                          >
+                            ×
+                          </button>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 ) : (
                   <p className="text-xs text-gray-400 mt-1">No file uploaded yet</p>
                 )}
               </div>
 
-              <div className="flex items-center gap-3 self-end md:self-auto">
+              <div className="flex items-center gap-3 self-end md:self-auto flex-wrap">
                 {isUploading ? (
                   <div className="flex items-center gap-2 text-xs font-bold text-gray-500">
                     <Loader2 size={16} className="animate-spin text-[#C89B1C]" />
                     Uploading...
                   </div>
-                ) : uploaded ? (
-                  <div className="flex items-center gap-3">
-                    <span className="bg-green-50 text-green-700 border border-green-200 text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1">
-                      <CheckCircle size={14} /> Uploaded
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveDoc(req.documentType)}
-                      className="h-9 w-9 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl flex items-center justify-center text-red-600 transition-colors cursor-pointer"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
                 ) : (
-                  <label className="h-10 px-4 bg-white hover:bg-[#FFFBF0] border border-[#C89B1C] rounded-xl flex items-center gap-2 text-[#C89B1C] text-xs font-bold transition-all duration-300 cursor-pointer shadow-2xs hover:shadow-xs">
-                    <Upload size={14} />
-                    Upload Document
-                    <input
-                      type="file"
-                      className="hidden"
-                      onChange={(e) => handleFileUpload(e, req.documentType)}
-                    />
-                  </label>
+                  <>
+                    {hasUploaded && (
+                      <span className="bg-green-50 text-green-700 border border-green-200 text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1">
+                        <CheckCircle size={14} /> Uploaded ({uploadedList.length})
+                      </span>
+                    )}
+
+                    {(req.documentType === "owner_kyc" || !hasUploaded) && (
+                      <label className="h-10 px-4 bg-white hover:bg-[#FFFBF0] border border-[#C89B1C] rounded-xl flex items-center gap-2 text-[#C89B1C] text-xs font-bold transition-all duration-300 cursor-pointer shadow-2xs hover:shadow-xs">
+                        <Upload size={14} />
+                        Upload {req.documentType === "owner_kyc" && hasUploaded ? "Another File" : "Document"}
+                        <input
+                          type="file"
+                          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp"
+                          className="hidden"
+                          onChange={(e) => handleFileUpload(e, req.documentType)}
+                        />
+                      </label>
+                    )}
+
+                    {hasUploaded && (
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveDoc(req.documentType)}
+                        className="h-10 px-3 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl flex items-center justify-center text-red-600 transition-colors cursor-pointer text-xs font-bold gap-1"
+                        title="Clear all uploaded documents"
+                      >
+                        <Trash2 size={14} /> {req.documentType === "owner_kyc" ? "Clear All" : ""}
+                      </button>
+                    )}
+                  </>
                 )}
               </div>
             </div>
