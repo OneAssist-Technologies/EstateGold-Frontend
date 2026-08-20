@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+
 import {
   Building2,
   Mail,
@@ -83,6 +85,15 @@ export default function OwnerDetailsStep({
   };
 
   const vLabels = getVerificationLabels();
+
+  useEffect(() => {
+    if (!formData.ownerIdType || !vLabels.options.includes(formData.ownerIdType)) {
+      setFormData((prev) => ({
+        ...prev,
+        ownerIdType: vLabels.defaultOption,
+      }));
+    }
+  }, [ownerType, vLabels.defaultOption, vLabels.options, formData.ownerIdType, setFormData]);
 
   const renderDynamicFields = () => {
     switch (ownerType) {

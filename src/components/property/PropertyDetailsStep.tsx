@@ -44,11 +44,14 @@ const facingOptions = [
   "South-West",
 ];
 
-const ageOptions = [
+const constructionStatusOptions = [
   "Under Construction",
   "New Launch",
   "Ready to Move",
   "Resale",
+];
+
+const ageOptions = [
   "0-1 Year Old",
   "1-5 Years Old",
   "5-10 Years Old",
@@ -116,6 +119,7 @@ export default function PropertyDetailsStep({
     if (normalized.includes("total floors") || normalized.includes("floors count") || normalized.includes("max tower floors") || normalized.includes("floor count")) return "totalFloors";
     if (normalized.includes("furnishing")) return "furnishing";
     if (normalized.includes("facing")) return "facing";
+    if (normalized.includes("association name") || normalized.includes("society")) return "society";
     if (normalized.includes("property age")) return "propertyAge";
     if (normalized.includes("plot area") || normalized.includes("land area")) return "plotArea";
     if (normalized.includes("length")) return "length";
@@ -419,6 +423,9 @@ export default function PropertyDetailsStep({
             {renderInput("Total Floors", (formData as any).totalFloors, "e.g. 10", <Building2 size={16} />, (val) =>
               setFormData((prev) => ({ ...prev, totalFloors: Number(val) }))
             )}
+            {renderSelect("Construction Status", (formData as any).constructionStatus, constructionStatusOptions, <Building2 size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, constructionStatus: val }))
+            )}
             {renderSelect("Property Age", (formData as any).propertyAge, ageOptions, <Calendar size={16} />, (val) =>
               setFormData((prev) => ({ ...prev, propertyAge: val }))
             )}
@@ -469,9 +476,10 @@ export default function PropertyDetailsStep({
       {/* 2. Independent House */}
       {propertyType === "Independent House" && (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {renderCounterField("Bedrooms", formData.bedrooms, (val) => setFormData((prev) => ({ ...prev, bedrooms: val })), <Bed size={16} />, showCustomBedrooms, setShowCustomBedrooms, 4)}
             {renderCounterField("Bathrooms", formData.bathrooms, (val) => setFormData((prev) => ({ ...prev, bathrooms: val })), <Bath size={16} />, showCustomBathrooms, setShowCustomBathrooms, 4)}
+            {renderCounterField("Balconies", formData.balconies, (val) => setFormData((prev) => ({ ...prev, balconies: val })), <Layers3 size={16} />, showCustomBalconies, setShowCustomBalconies, 3, true)}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -502,6 +510,9 @@ export default function PropertyDetailsStep({
             )}
             {renderInput("Frontage (ft)", (formData as any).frontage, "e.g. 30", <Scan size={16} />, (val) =>
               setFormData((prev) => ({ ...prev, frontage: Number(val) }))
+            )}
+            {renderSelect("Construction Status", (formData as any).constructionStatus, constructionStatusOptions, <Building2 size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, constructionStatus: val }))
             )}
             {renderSelect("Property Age", (formData as any).propertyAge, ageOptions, <Calendar size={16} />, (val) =>
               setFormData((prev) => ({ ...prev, propertyAge: val }))
@@ -537,9 +548,10 @@ export default function PropertyDetailsStep({
             )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {renderCounterField("Bedrooms", formData.bedrooms, (val) => setFormData((prev) => ({ ...prev, bedrooms: val })), <Bed size={16} />, showCustomBedrooms, setShowCustomBedrooms, 4)}
             {renderCounterField("Bathrooms", formData.bathrooms, (val) => setFormData((prev) => ({ ...prev, bathrooms: val })), <Bath size={16} />, showCustomBathrooms, setShowCustomBathrooms, 4)}
+            {renderCounterField("Balconies", formData.balconies, (val) => setFormData((prev) => ({ ...prev, balconies: val })), <Layers3 size={16} />, showCustomBalconies, setShowCustomBalconies, 3, true)}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -557,6 +569,9 @@ export default function PropertyDetailsStep({
             )}
             {renderInput("Monthly Maintenance (INR)", (formData as any).maintenance, "e.g. 5000", <DollarSign size={16} />, (val) =>
               setFormData((prev) => ({ ...prev, maintenance: Number(val) }))
+            )}
+            {renderSelect("Construction Status", (formData as any).constructionStatus, constructionStatusOptions, <Building2 size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, constructionStatus: val }))
             )}
             {renderSelect("Villa Age", (formData as any).propertyAge, ageOptions, <Calendar size={16} />, (val) =>
               setFormData((prev) => ({ ...prev, propertyAge: val }))
@@ -602,6 +617,9 @@ export default function PropertyDetailsStep({
             {renderInput("Monthly Maintenance (INR)", (formData as any).maintenance, "e.g. 2000", <DollarSign size={16} />, (val) =>
               setFormData((prev) => ({ ...prev, maintenance: Number(val) }))
             )}
+            {renderSelect("Construction Status", (formData as any).constructionStatus, constructionStatusOptions, <Building2 size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, constructionStatus: val }))
+            )}
             {renderSelect("Floor Age", (formData as any).propertyAge, ageOptions, <Calendar size={16} />, (val) =>
               setFormData((prev) => ({ ...prev, propertyAge: val }))
             )}
@@ -610,11 +628,27 @@ export default function PropertyDetailsStep({
             )}
           </div>
 
-          <div className="max-w-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {renderToggle("Gated Community", (formData as any).gatedLayout || false, <Building2 size={16} />, () =>
+              setFormData((prev) => ({ ...prev, gatedLayout: !(prev as any).gatedLayout }))
+            )}
             {renderToggle("Car Parking Available", formData.parking, <Car size={16} />, () =>
               setFormData((prev) => ({ ...prev, parking: !prev.parking }))
             )}
           </div>
+
+          {(formData as any).gatedLayout && (
+            <div className="bg-[#FFFDF9]/40 border border-[#E5D8B3] rounded-2xl p-5 shadow-2xs space-y-4">
+              <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wider flex items-center gap-2">
+                <Building2 size={16} className="text-[#C89B1C]" /> Gated Community Details
+              </h4>
+              <div className="max-w-md">
+                {renderInput("Association Name *", (formData as any).society || "", "e.g. Greenwood Owners Association", <Building2 size={16} />, (val) =>
+                  setFormData((prev) => ({ ...prev, society: val })), "text"
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -758,6 +792,9 @@ export default function PropertyDetailsStep({
             )}
             {renderSelect("Furnished Status", formData.furnishing, furnishingOptions, <Sparkles size={16} />, (val) =>
               setFormData((prev) => ({ ...prev, furnishing: val }))
+            )}
+            {renderSelect("Construction Status", (formData as any).constructionStatus, constructionStatusOptions, <Building2 size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, constructionStatus: val }))
             )}
             {renderSelect("Property Age", (formData as any).propertyAge, ageOptions, <Calendar size={16} />, (val) =>
               setFormData((prev) => ({ ...prev, propertyAge: val }))

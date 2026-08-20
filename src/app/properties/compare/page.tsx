@@ -1,0 +1,722 @@
+"use client";
+
+import { useEffect, useState, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { ArrowLeft, Plus, X, Heart, ShieldCheck, TrendingUp, Sparkles } from "lucide-react";
+import api from "../../../services/api";
+import { Property } from "../../../types/property";
+import { useCompareSession, removePropertyFromCompare, clearCompareSession } from "../../../services/compareService";
+import Navbar from "@/src/components/layout/Navbar";
+import Footer from "@/src/components/layout/Footer";
+
+// Helper mapping for dynamic attributes comparison
+const getCompareFields = (propertyType: string, commercialType?: string) => {
+  const target = propertyType === "Commercial Space" && commercialType ? commercialType : propertyType;
+  switch (target) {
+    case "Apartment / Flat":
+    case "Builder Floor":
+      return [
+        { key: "bedrooms", label: "BHK", format: (v: any) => (v ? `${v} BHK` : "N/A"), numeric: true },
+        { key: "bedrooms", label: "Bedrooms", format: (v: any) => (v ? `${v} Beds` : "N/A"), numeric: true },
+        { key: "bathrooms", label: "Bathrooms", format: (v: any) => (v ? `${v} Baths` : "N/A"), numeric: true },
+        { key: "balconies", label: "Balconies", format: (v: any) => (v !== undefined ? `${v} Balconies` : "N/A"), numeric: true },
+        { key: "area", label: "Built-up Area", format: (v: any) => (v ? `${v.toLocaleString()} sq ft` : "N/A"), numeric: true },
+        { key: "carpetArea", label: "Carpet Area", format: (v: any) => (v ? `${v.toLocaleString()} sq ft` : "N/A"), numeric: true },
+        { key: "floor", label: "Floor", format: (v: any, p: any) => (v !== undefined ? `${v} of ${p.totalFloors || "N/A"}` : "N/A") },
+        { key: "propertyAge", label: "Property Age", format: (v: any) => v || "N/A" },
+        { key: "furnishing", label: "Furnishing", format: (v: any) => v || "N/A" },
+        { key: "facing", label: "Facing", format: (v: any) => v || "N/A" },
+        { key: "parking", label: "Parking", format: (v: any) => (v ? "Available" : "Not Available") },
+        { key: "maintenance", label: "Maintenance", format: (v: any) => (v ? `₹${v.toLocaleString()}` : "N/A"), numeric: true },
+      ];
+    case "Independent House":
+      return [
+        { key: "bedrooms", label: "BHK", format: (v: any) => (v ? `${v} BHK` : "N/A"), numeric: true },
+        { key: "bedrooms", label: "Bedrooms", format: (v: any) => (v ? `${v} Beds` : "N/A"), numeric: true },
+        { key: "bathrooms", label: "Bathrooms", format: (v: any) => (v ? `${v} Baths` : "N/A"), numeric: true },
+        { key: "plotArea", label: "Plot Area", format: (v: any) => (v ? `${v.toLocaleString()} sq ft` : "N/A"), numeric: true },
+        { key: "area", label: "Built-up Area", format: (v: any) => (v ? `${v.toLocaleString()} sq ft` : "N/A"), numeric: true },
+        { key: "carpetArea", label: "Carpet Area", format: (v: any) => (v ? `${v.toLocaleString()} sq ft` : "N/A"), numeric: true },
+        { key: "totalFloors", label: "Floors", format: (v: any) => (v ? `${v} Floors` : "N/A"), numeric: true },
+        { key: "propertyAge", label: "Property Age", format: (v: any) => v || "N/A" },
+        { key: "dimensions", label: "Plot Dimensions", format: (v: any, p: any) => (p.length && p.width ? `${p.length} × ${p.width} ft` : "N/A") },
+        { key: "roadWidth", label: "Road Width", format: (v: any) => (v ? `${v} ft` : "N/A"), numeric: true },
+        { key: "frontage", label: "Frontage", format: (v: any) => (v ? `${v} ft` : "N/A"), numeric: true },
+        { key: "facing", label: "Facing", format: (v: any) => v || "N/A" },
+        { key: "parking", label: "Parking", format: (v: any) => (v ? "Available" : "Not Available") },
+        { key: "furnishing", label: "Furnishing", format: (v: any) => v || "N/A" },
+        { key: "garden", label: "Garden", format: (v: any) => (v ? "Yes" : "No") },
+        { key: "terrace", label: "Terrace", format: (v: any) => (v ? "Yes" : "No") },
+      ];
+    case "Villa":
+      return [
+        { key: "bedrooms", label: "BHK", format: (v: any) => (v ? `${v} BHK` : "N/A"), numeric: true },
+        { key: "bedrooms", label: "Bedrooms", format: (v: any) => (v ? `${v} Beds` : "N/A"), numeric: true },
+        { key: "bathrooms", label: "Bathrooms", format: (v: any) => (v ? `${v} Baths` : "N/A"), numeric: true },
+        { key: "plotArea", label: "Plot Area", format: (v: any) => (v ? `${v.toLocaleString()} sq ft` : "N/A"), numeric: true },
+        { key: "area", label: "Built-up Area", format: (v: any) => (v ? `${v.toLocaleString()} sq ft` : "N/A"), numeric: true },
+        { key: "carpetArea", label: "Carpet Area", format: (v: any) => (v ? `${v.toLocaleString()} sq ft` : "N/A"), numeric: true },
+        { key: "totalFloors", label: "Floors", format: (v: any) => (v ? `${v} Floors` : "N/A"), numeric: true },
+        { key: "propertyAge", label: "Property Age", format: (v: any) => v || "N/A" },
+        { key: "facing", label: "Facing", format: (v: any) => v || "N/A" },
+        { key: "parking", label: "Parking", format: (v: any) => (v ? "Available" : "Not Available") },
+        { key: "furnishing", label: "Furnishing", format: (v: any) => v || "N/A" },
+        { key: "garden", label: "Garden", format: (v: any) => (v ? "Yes" : "No") },
+        { key: "privatePool", label: "Private Pool", format: (v: any) => (v ? "Yes" : "No") },
+        { key: "terrace", label: "Terrace", format: (v: any) => (v ? "Yes" : "No") },
+        { key: "servantRoom", label: "Servant Room", format: (v: any) => (v ? "Yes" : "No") },
+      ];
+    case "Plot / Land":
+    case "Residential Plot":
+      return [
+        { key: "plotArea", label: "Plot Area", format: (v: any) => (v ? `${v.toLocaleString()} sq ft` : "N/A"), numeric: true },
+        { key: "length", label: "Length", format: (v: any) => (v ? `${v} ft` : "N/A"), numeric: true },
+        { key: "width", label: "Width", format: (v: any) => (v ? `${v} ft` : "N/A"), numeric: true },
+        { key: "dimensions", label: "Dimensions", format: (v: any, p: any) => (p.length && p.width ? `${p.length} × ${p.width} ft` : "N/A") },
+        { key: "roadWidth", label: "Road Width", format: (v: any) => (v ? `${v} ft` : "N/A"), numeric: true },
+        { key: "frontage", label: "Frontage", format: (v: any) => (v ? `${v} ft` : "N/A"), numeric: true },
+        { key: "facing", label: "Facing", format: (v: any, p: any) => v || p.plotFacing || "N/A" },
+        { key: "cornerPlot", label: "Corner Plot", format: (v: any) => (v ? "Yes" : "No") },
+        { key: "layoutName", label: "Layout Name", format: (v: any) => v || "N/A" },
+        { key: "landApproval", label: "Land Approval", format: (v: any) => v || "N/A" },
+        { key: "landClassification", label: "Land Classification", format: (v: any) => v || "N/A" },
+        { key: "gatedLayout", label: "Gated Layout", format: (v: any) => (v ? "Yes" : "No") },
+        { key: "boundaryWall", label: "Boundary Wall", format: (v: any) => (v ? "Yes" : "No") },
+      ];
+    case "Agricultural Land":
+      return [
+        { key: "plotArea", label: "Land Area", format: (v: any) => (v ? `${v.toLocaleString()} sq ft` : "N/A"), numeric: true },
+        { key: "pricePerAcre", label: "Price per Acre", format: (v: any) => (v ? `₹${v.toLocaleString("en-IN")}` : "N/A"), numeric: true },
+        { key: "surveyNumber", label: "Survey Number", format: (v: any) => v || "N/A" },
+        { key: "taluk", label: "Taluk", format: (v: any) => v || "N/A" },
+        { key: "soilType", label: "Soil Type", format: (v: any) => v || "N/A" },
+        { key: "irrigation", label: "Irrigation", format: (v: any) => (v ? "Yes" : "No") },
+        { key: "crops", label: "Crops", format: (v: any) => v || "N/A" },
+        { key: "farmhouse", label: "Farmhouse", format: (v: any) => (v ? "Yes" : "No") },
+        { key: "electricity", label: "Electricity", format: (v: any) => (v ? "Yes" : "No") },
+        { key: "solar", label: "Solar", format: (v: any) => (v ? "Yes" : "No") },
+        { key: "borewell", label: "Borewell", format: (v: any) => (v ? "Yes" : "No") },
+        { key: "facing", label: "Facing", format: (v: any) => v || "N/A" },
+      ];
+    case "Office Space":
+      return [
+        { key: "area", label: "Area", format: (v: any) => (v ? `${v.toLocaleString()} sq ft` : "N/A"), numeric: true },
+        { key: "carpetArea", label: "Carpet Area", format: (v: any) => (v ? `${v.toLocaleString()} sq ft` : "N/A"), numeric: true },
+        { key: "floor", label: "Floor", format: (v: any, p: any) => (v !== undefined ? `${v} of ${p.totalFloors || "N/A"}` : "N/A") },
+        { key: "washrooms", label: "Washrooms", format: (v: any) => (v !== undefined ? String(v) : "N/A"), numeric: true },
+        { key: "powerLoad", label: "Power Load", format: (v: any) => (v ? `${v} kW` : "N/A"), numeric: true },
+        { key: "workstations", label: "Workstations", format: (v: any) => (v !== undefined ? String(v) : "N/A"), numeric: true },
+        { key: "cabins", label: "Cabins", format: (v: any) => (v !== undefined ? String(v) : "N/A"), numeric: true },
+        { key: "meetingRooms", label: "Meeting Rooms", format: (v: any) => (v !== undefined ? String(v) : "N/A"), numeric: true },
+        { key: "reception", label: "Reception", format: (v: any) => (v ? "Yes" : "No") },
+        { key: "pantry", label: "Pantry", format: (v: any) => (v ? "Yes" : "No") },
+        { key: "serverRoom", label: "Server Room", format: (v: any) => (v ? "Yes" : "No") },
+        { key: "ac", label: "AC", format: (v: any) => (v ? "Yes" : "No") },
+        { key: "internet", label: "Internet", format: (v: any) => (v ? "Yes" : "No") },
+        { key: "fireSafety", label: "Fire Safety", format: (v: any) => (v ? "Yes" : "No") },
+        { key: "parking", label: "Parking", format: (v: any) => (v ? "Available" : "Not Available") },
+        { key: "facing", label: "Facing", format: (v: any) => v || "N/A" },
+      ];
+    case "Shop / Retail":
+      return [
+        { key: "area", label: "Area", format: (v: any) => (v ? `${v.toLocaleString()} sq ft` : "N/A"), numeric: true },
+        { key: "carpetArea", label: "Carpet Area", format: (v: any) => (v ? `${v.toLocaleString()} sq ft` : "N/A"), numeric: true },
+        { key: "floor", label: "Floor", format: (v: any, p: any) => (v !== undefined ? `${v} of ${p.totalFloors || "N/A"}` : "N/A") },
+        { key: "washrooms", label: "Washrooms", format: (v: any) => (v !== undefined ? String(v) : "N/A"), numeric: true },
+        { key: "powerLoad", label: "Power Load", format: (v: any) => (v ? `${v} kW` : "N/A"), numeric: true },
+        { key: "entranceWidth", label: "Entrance Width", format: (v: any) => (v ? `${v} ft` : "N/A"), numeric: true },
+        { key: "ceilingHeight", label: "Ceiling Height", format: (v: any) => (v ? `${v} ft` : "N/A"), numeric: true },
+        { key: "mainRoadFacing", label: "Main Road Facing", format: (v: any) => (v ? "Yes" : "No") },
+        { key: "cornerShop", label: "Corner Shop", format: (v: any) => (v ? "Yes" : "No") },
+        { key: "shutters", label: "Shutters", format: (v: any) => (v !== undefined ? String(v) : "N/A"), numeric: true },
+        { key: "signboard", label: "Signboard", format: (v: any) => (v ? "Yes" : "No") },
+        { key: "footfallEstimate", label: "Footfall Estimate", format: (v: any) => v || "N/A" },
+        { key: "suitableBusiness", label: "Suitable Business", format: (v: any) => v || "N/A" },
+        { key: "parking", label: "Parking", format: (v: any) => (v ? "Available" : "Not Available") },
+      ];
+    case "Warehouse":
+      return [
+        { key: "area", label: "Area", format: (v: any) => (v ? `${v.toLocaleString()} sq ft` : "N/A"), numeric: true },
+        { key: "ceilingHeight", label: "Ceiling Height", format: (v: any) => (v ? `${v} ft` : "N/A"), numeric: true },
+        { key: "loadingUnloading", label: "Loading / Unloading", format: (v: any) => (v ? "Yes" : "No") },
+        { key: "dock", label: "Dock", format: (v: any) => (v ? "Yes" : "No") },
+        { key: "truckAccess", label: "Truck Access", format: (v: any) => v || "N/A" },
+        { key: "storageCapacity", label: "Storage Capacity", format: (v: any) => v || "N/A" },
+        { key: "flooring", label: "Flooring", format: (v: any) => v || "N/A" },
+        { key: "powerLoad", label: "Power Load", format: (v: any) => (v ? `${v} kW` : "N/A"), numeric: true },
+        { key: "officeArea", label: "Office Area", format: (v: any) => (v ? `${v.toLocaleString()} sq ft` : "N/A"), numeric: true },
+        { key: "fireSafety", label: "Fire Safety", format: (v: any) => (v ? "Yes" : "No") },
+        { key: "parking", label: "Parking", format: (v: any) => (v ? "Available" : "Not Available") },
+      ];
+    case "Industrial Property":
+      return [
+        { key: "area", label: "Area", format: (v: any) => (v ? `${v.toLocaleString()} sq ft` : "N/A"), numeric: true },
+        { key: "industrialType", label: "Industrial Type", format: (v: any) => v || "N/A" },
+        { key: "powerLoad", label: "Power Load", format: (v: any) => (v ? `${v} kW` : "N/A"), numeric: true },
+        { key: "productionArea", label: "Production Area", format: (v: any) => (v ? `${v.toLocaleString()} sq ft` : "N/A"), numeric: true },
+        { key: "transformer", label: "Transformer", format: (v: any) => (v ? "Yes" : "No") },
+        { key: "crane", label: "Crane", format: (v: any) => (v ? "Yes" : "No") },
+        { key: "workerFacilities", label: "Worker Facilities", format: (v: any) => (v ? "Yes" : "No") },
+        { key: "pollutionCompliance", label: "Pollution Compliance", format: (v: any) => v || "N/A" },
+        { key: "zoning", label: "Industrial Zoning", format: (v: any) => v || "N/A" },
+        { key: "machineryIncluded", label: "Machinery Included", format: (v: any) => (v ? "Yes" : "No") },
+        { key: "parking", label: "Parking", format: (v: any) => (v ? "Available" : "Not Available") },
+      ];
+    case "Hotel / Resort":
+      return [
+        { key: "area", label: "Area", format: (v: any) => (v ? `${v.toLocaleString()} sq ft` : "N/A"), numeric: true },
+        { key: "numberOfRooms", label: "Number of Rooms", format: (v: any) => (v !== undefined ? String(v) : "N/A"), numeric: true },
+        { key: "roomTypes", label: "Room Types", format: (v: any) => v || "N/A" },
+        { key: "totalFloors", label: "Floors", format: (v: any) => (v !== undefined ? String(v) : "N/A"), numeric: true },
+        { key: "restaurant", label: "Restaurant", format: (v: any) => (v ? "Yes" : "No") },
+        { key: "kitchen", label: "Kitchen", format: (v: any) => (v ? "Yes" : "No") },
+        { key: "banquetHall", label: "Banquet Hall", format: (v: any) => (v ? "Yes" : "No") },
+        { key: "gym", label: "Gym", format: (v: any) => (v ? "Yes" : "No") },
+        { key: "occupancy", label: "Occupancy", format: (v: any) => v || "N/A" },
+        { key: "revenue", label: "Revenue", format: (v: any) => (v ? `₹${v.toLocaleString("en-IN")}` : "N/A"), numeric: true },
+        { key: "parking", label: "Parking", format: (v: any) => (v ? "Available" : "Not Available") },
+        { key: "privatePool", label: "Pool", format: (v: any) => (v ? "Yes" : "No") },
+      ];
+    default:
+      return [];
+  }
+};
+
+function ComparisonContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const session = useCompareSession();
+  
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [highlightDiff, setHighlightDiff] = useState(false);
+
+  const idsParam = searchParams.get("ids") || "";
+
+  useEffect(() => {
+    const fetchCompareData = async () => {
+      if (!idsParam) {
+        setLoading(false);
+        return;
+      }
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await api.get(`/properties/compare?ids=${idsParam}`);
+        setProperties(response.data.data || []);
+      } catch (err: any) {
+        console.error("Compare error:", err);
+        setError(err.response?.data?.message || "Failed to load properties for comparison.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCompareData();
+  }, [idsParam]);
+
+  const handleRemove = (id: string) => {
+    removePropertyFromCompare(id);
+    const updatedIds = idsParam
+      .split(",")
+      .filter((x) => x !== id)
+      .join(",");
+    if (updatedIds) {
+      router.replace(`/properties/compare?ids=${updatedIds}`);
+    } else {
+      router.replace("/property-listing");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex flex-col font-sans">
+        <Navbar />
+        <div className="flex-1 flex flex-col items-center justify-center">
+          <div className="h-10 w-10 rounded-full border-3 border-[#E8DCC1] border-t-[#9A720C] animate-spin" />
+          <p className="mt-4 text-xs font-semibold text-gray-500">Loading comparison details...</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  const activeProperties = properties.filter((p) =>
+    session.properties.some((sp) => sp._id === p._id)
+  );
+
+  if (activeProperties.length === 0) {
+    return (
+      <div className="min-h-screen bg-[#FFFDF8] flex flex-col font-sans">
+        <Navbar />
+        <div className="flex-1 flex flex-col items-center justify-center p-8 text-center max-w-md mx-auto">
+          <div className="h-16 w-16 rounded-3xl bg-[#FFF9EC] border border-[#E8DCC1] text-[#9A720C] flex items-center justify-center font-serif text-2xl shadow-xs mb-4">
+            ⚖️
+          </div>
+          <h2 className="text-xl font-bold font-serif text-gray-900">No Properties Selected</h2>
+          <p className="text-xs text-gray-500 mt-2 leading-relaxed font-semibold">
+            Please select similar properties from listings page to start comparison.
+          </p>
+          <button
+            onClick={() => router.push("/property-listing")}
+            className="mt-6 px-5 py-2.5 rounded-xl bg-[#9A720C] hover:bg-[#856108] text-white text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
+          >
+            <ArrowLeft size={14} /> Back to Listings
+          </button>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (activeProperties.length === 1) {
+    return (
+      <div className="min-h-screen bg-[#FFFDF8] flex flex-col font-sans">
+        <Navbar />
+        <div className="flex-1 flex flex-col items-center justify-center p-8 text-center max-w-md mx-auto">
+          <div className="h-16 w-16 rounded-3xl bg-[#FFF9EC] border border-[#E8DCC1] text-[#9A720C] flex items-center justify-center font-serif text-2xl shadow-xs mb-4">
+            ⚖️
+          </div>
+          <h2 className="text-xl font-bold font-serif text-gray-900">Compare Properties</h2>
+          <p className="text-xs text-gray-500 mt-2 leading-relaxed font-semibold">
+            Select another similar property to compare. At least 2 properties of the same type are required.
+          </p>
+          <button
+            onClick={() => router.push("/property-listing")}
+            className="mt-6 px-5 py-2.5 rounded-xl bg-[#9A720C] hover:bg-[#856108] text-white text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
+          >
+            <Plus size={14} /> Add Property
+          </button>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Get dynamic comparative configuration based on type of first property
+  const baseProperty = activeProperties[0];
+  const compareFields = getCompareFields(baseProperty.propertyType, baseProperty.commercialType);
+
+  // Collect unique amenities present across all selected properties
+  const allAmenities = Array.from(
+    new Set(activeProperties.flatMap((p) => p.amenities || []))
+  ).sort();
+
+  return (
+    <div className="min-h-screen bg-[#FFFDF8] flex flex-col font-sans text-gray-900">
+      <Navbar />
+
+      <main className="flex-1 max-w-[1500px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+        {/* Navigation & Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#ECE7DB] pb-6 mb-8">
+          <div>
+            <button
+              onClick={() => router.push("/property-listing")}
+              className="text-xs font-bold text-gray-500 hover:text-[#9A720C] flex items-center gap-1 mb-2 transition-colors cursor-pointer"
+            >
+              <ArrowLeft size={14} /> Back to Listings
+            </button>
+            <h1 className="text-3xl font-bold text-gray-900 font-serif">Compare Properties</h1>
+            <p className="text-xs text-gray-500 mt-1 font-semibold">
+              Compare similar properties side by side
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setHighlightDiff(!highlightDiff)}
+              className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center gap-1.5 ${
+                highlightDiff
+                  ? "bg-[#FFF9EC] border-[#9A720C] text-[#9A720C] shadow-3xs"
+                  : "bg-white border-[#ECE7DB] text-gray-700 hover:border-[#9A720C] hover:text-[#9A720C]"
+              }`}
+            >
+              <Sparkles size={13} />
+              {highlightDiff ? "Highlighting Differences" : "Highlight Differences"}
+            </button>
+            <button
+              onClick={() => router.push("/property-listing")}
+              className="px-4 py-2 rounded-xl text-xs font-bold bg-[#9A720C] hover:bg-[#856108] text-white transition-all cursor-pointer shadow-2xs flex items-center gap-1"
+            >
+              <Plus size={13} /> Add Property
+            </button>
+          </div>
+        </div>
+
+        {/* Responsive Side-by-Side Comparison Container */}
+        <div className="bg-white border border-[#ECE7DB] rounded-3xl shadow-xl overflow-hidden">
+          {/* Header Row: Images, Titles, Remove buttons */}
+          <div className="grid grid-cols-12 border-b border-[#ECE7DB]">
+            {/* Feature Label Sticky Column */}
+            <div className="col-span-3 bg-gray-50/50 p-6 hidden md:flex flex-col justify-end border-r border-[#ECE7DB]">
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">
+                Property comparison
+              </span>
+            </div>
+
+            {/* Properties Columns */}
+            <div className="col-span-12 md:col-span-9 grid grid-cols-2 lg:grid-cols-3 divide-x divide-[#ECE7DB] overflow-x-auto">
+              {activeProperties.map((p) => {
+                const image = p.photos?.[0]
+                  ? p.photos[0].startsWith("http")
+                    ? p.photos[0]
+                    : `http://localhost:5000/uploads/properties/${p.photos[0].replace(/^\/+/, "").replace(/^uploads\/properties\//, "").replace(/^uploads\//, "")}`
+                  : "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80";
+                return (
+                  <div key={p._id} className="p-6 flex flex-col justify-between space-y-4 min-w-[200px]">
+                    <div className="relative h-36 w-full rounded-2xl overflow-hidden border border-[#ECE7DB] bg-gray-100">
+                      <img src={image} className="w-full h-full object-cover" />
+                      <button
+                        onClick={() => handleRemove(p._id)}
+                        className="absolute top-2.5 right-2.5 h-7 w-7 rounded-full bg-white/95 backdrop-blur-xs flex items-center justify-center text-gray-400 hover:text-red-500 shadow-2xs transition-colors cursor-pointer border border-[#ECE7DB]"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+
+                    <div className="text-left space-y-1">
+                      <span className="inline-block px-2 py-0.5 bg-[#FFF9EC] border border-[#F4E3B5] text-[9px] font-bold text-[#9A720C] rounded-full uppercase">
+                        {p.propertyType}
+                      </span>
+                      <h3 className="font-bold text-gray-900 text-sm sm:text-base line-clamp-2 leading-tight">
+                        {p.bedrooms ? `${p.bedrooms} BHK ` : ""}
+                        {p.propertyType} in {p.locality || p.city}
+                      </h3>
+                      <p className="text-xs text-gray-500 font-medium">
+                        {p.locality ? `${p.locality}, ` : ""}
+                        {p.city}
+                      </p>
+                      <h4 className="text-lg font-bold text-[#9A720C] pt-1">
+                        ₹{p.price?.toLocaleString("en-IN")}
+                      </h4>
+                    </div>
+
+                    <div className="pt-2 flex items-center justify-between border-t border-gray-100">
+                      <button
+                        onClick={() => router.push(`/property-detail/${p._id}`)}
+                        className="text-[11px] font-bold text-[#9A720C] hover:underline cursor-pointer"
+                      >
+                        View Details →
+                      </button>
+                      <button
+                        onClick={() => handleRemove(p._id)}
+                        className="text-[11px] font-bold text-gray-400 hover:text-red-500 cursor-pointer"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Section: Overview */}
+          <div className="bg-[#FFFDF8] border-b border-[#ECE7DB] p-4 px-6 text-left">
+            <h2 className="text-sm font-black font-serif uppercase tracking-widest text-[#9A720C]">
+              Overview
+            </h2>
+          </div>
+
+          {/* Common comparison properties grid */}
+          <div className="divide-y divide-[#ECE7DB]">
+            {/* Price Row */}
+            <div className="grid grid-cols-12 items-center text-left">
+              <div className="col-span-3 bg-gray-50/50 p-4 px-6 font-bold text-xs text-gray-700 border-r border-[#ECE7DB]">
+                Price
+              </div>
+              <div className="col-span-9 grid grid-cols-2 lg:grid-cols-3 divide-x divide-[#ECE7DB] font-semibold text-xs text-gray-900">
+                {activeProperties.map((p) => {
+                  const prices = activeProperties.map((ap) => ap.price);
+                  const isLowest = highlightDiff && p.price === Math.min(...prices);
+                  return (
+                    <div
+                      key={p._id}
+                      className={`p-4 px-6 flex items-center justify-between gap-2 ${
+                        isLowest ? "bg-green-50/70" : ""
+                      }`}
+                    >
+                      <span>₹{p.price?.toLocaleString("en-IN")}</span>
+                      {isLowest && (
+                        <span className="text-[9px] font-black text-green-700 uppercase tracking-wide bg-green-100 border border-green-200 px-1.5 py-0.5 rounded-full shrink-0">
+                          Lowest Price
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Area Row */}
+            <div className="grid grid-cols-12 items-center text-left">
+              <div className="col-span-3 bg-gray-50/50 p-4 px-6 font-bold text-xs text-gray-700 border-r border-[#ECE7DB]">
+                Area
+              </div>
+              <div className="col-span-9 grid grid-cols-2 lg:grid-cols-3 divide-x divide-[#ECE7DB] font-semibold text-xs text-gray-900">
+                {activeProperties.map((p) => {
+                  const areas = activeProperties.map((ap) => ap.area || 0);
+                  const isBest = highlightDiff && p.area === Math.max(...areas);
+                  return (
+                    <div
+                      key={p._id}
+                      className={`p-4 px-6 flex items-center justify-between gap-2 ${
+                        isBest ? "bg-green-50/70" : ""
+                      }`}
+                    >
+                      <span>{(p.area || 0).toLocaleString()} sq ft</span>
+                      {isBest && (
+                        <span className="text-[9px] font-black text-green-700 uppercase tracking-wide bg-green-100 border border-green-200 px-1.5 py-0.5 rounded-full shrink-0">
+                          Largest Area
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Facing Row */}
+            <div className="grid grid-cols-12 items-center text-left">
+              <div className="col-span-3 bg-gray-50/50 p-4 px-6 font-bold text-xs text-gray-700 border-r border-[#ECE7DB]">
+                Facing Direction
+              </div>
+              <div className="col-span-9 grid grid-cols-2 lg:grid-cols-3 divide-x divide-[#ECE7DB] font-semibold text-xs text-gray-900">
+                {activeProperties.map((p) => {
+                  const facings = activeProperties.map((ap) => ap.facing || "");
+                  const isDiff = highlightDiff && new Set(facings).size > 1;
+                  return (
+                    <div
+                      key={p._id}
+                      className={`p-4 px-6 ${
+                        isDiff ? "bg-amber-50/40 text-amber-900" : ""
+                      }`}
+                    >
+                      {p.facing || "N/A"}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Status Row */}
+            <div className="grid grid-cols-12 items-center text-left">
+              <div className="col-span-3 bg-gray-50/50 p-4 px-6 font-bold text-xs text-gray-700 border-r border-[#ECE7DB]">
+                Listing Status
+              </div>
+              <div className="col-span-9 grid grid-cols-2 lg:grid-cols-3 divide-x divide-[#ECE7DB] font-semibold text-xs text-gray-900">
+                {activeProperties.map((p) => (
+                  <div key={p._id} className="p-4 px-6 capitalize">
+                    {p.status || "Active"}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Availability Status Row */}
+            <div className="grid grid-cols-12 items-center text-left">
+              <div className="col-span-3 bg-gray-50/50 p-4 px-6 font-bold text-xs text-gray-700 border-r border-[#ECE7DB]">
+                Availability
+              </div>
+              <div className="col-span-9 grid grid-cols-2 lg:grid-cols-3 divide-x divide-[#ECE7DB] font-semibold text-xs text-gray-900">
+                {activeProperties.map((p) => (
+                  <div key={p._id} className="p-4 px-6 capitalize">
+                    {p.availabilityStatus === "on_sale"
+                      ? "On Sale"
+                      : p.availabilityStatus === "hold"
+                      ? "Hold"
+                      : p.availabilityStatus || "Available"}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Section: Specifications */}
+          {compareFields.length > 0 && (
+            <>
+              <div className="bg-[#FFFDF8] border-y border-[#ECE7DB] p-4 px-6 text-left">
+                <h2 className="text-sm font-black font-serif uppercase tracking-widest text-[#9A720C]">
+                  Specifications
+                </h2>
+              </div>
+              <div className="divide-y divide-[#ECE7DB]">
+                {compareFields.map((f, fIdx) => (
+                  <div key={fIdx} className="grid grid-cols-12 items-center text-left">
+                    <div className="col-span-3 bg-gray-50/50 p-4 px-6 font-bold text-xs text-gray-700 border-r border-[#ECE7DB]">
+                      {f.label}
+                    </div>
+                    <div className="col-span-9 grid grid-cols-2 lg:grid-cols-3 divide-x divide-[#ECE7DB] font-semibold text-xs text-gray-900">
+                      {activeProperties.map((p) => {
+                        const val = p[f.key as keyof Property];
+                        const allValues = activeProperties.map((ap) => ap[f.key as keyof Property]);
+                        const isDiff = highlightDiff && new Set(allValues).size > 1;
+                        return (
+                          <div
+                            key={p._id}
+                            className={`p-4 px-6 ${
+                              isDiff ? "bg-amber-50/40 text-amber-900" : ""
+                            }`}
+                          >
+                            {f.format(val, p)}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
+          {/* Section: Amenities */}
+          <div className="bg-[#FFFDF8] border-y border-[#ECE7DB] p-4 px-6 text-left">
+            <h2 className="text-sm font-black font-serif uppercase tracking-widest text-[#9A720C]">
+              Amenities
+            </h2>
+          </div>
+          <div className="divide-y divide-[#ECE7DB]">
+            {allAmenities.length > 0 ? (
+              allAmenities.map((amenity, idx) => (
+                <div key={idx} className="grid grid-cols-12 items-center text-left">
+                  <div className="col-span-3 bg-gray-50/50 p-4 px-6 font-bold text-xs text-gray-700 border-r border-[#ECE7DB]">
+                    {amenity}
+                  </div>
+                  <div className="col-span-9 grid grid-cols-2 lg:grid-cols-3 divide-x divide-[#ECE7DB] font-bold text-xs">
+                    {activeProperties.map((p) => {
+                      const hasAmenity = p.amenities?.includes(amenity);
+                      return (
+                        <div
+                          key={p._id}
+                          className={`p-4 px-6 flex items-center gap-2 ${
+                            hasAmenity ? "text-green-700" : "text-gray-400"
+                          }`}
+                        >
+                          <span className="text-base">{hasAmenity ? "✓" : "✕"}</span>
+                          <span className="font-semibold">{hasAmenity ? "Available" : "Not Available"}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="p-8 text-center text-xs text-gray-400 italic">
+                No amenities registered for comparison.
+              </div>
+            )}
+          </div>
+
+          {/* Section: Market Insight */}
+          <div className="bg-[#FFFDF8] border-y border-[#ECE7DB] p-4 px-6 text-left">
+            <h2 className="text-sm font-black font-serif uppercase tracking-widest text-[#9A720C]">
+              Market Insight
+            </h2>
+          </div>
+          <div className="divide-y divide-[#ECE7DB]">
+            <div className="grid grid-cols-12 items-center text-left">
+              <div className="col-span-3 bg-gray-50/50 p-4 px-6 font-bold text-xs text-gray-700 border-r border-[#ECE7DB]">
+                Locality Price Index
+              </div>
+              <div className="col-span-9 grid grid-cols-2 lg:grid-cols-3 divide-x divide-[#ECE7DB] font-semibold text-xs text-gray-900">
+                {activeProperties.map((p) => {
+                  const indexPrice = p.marketInsight?.averageLocalityPrice;
+                  return (
+                    <div key={p._id} className="p-4 px-6">
+                      {indexPrice ? `₹${indexPrice.toLocaleString("en-IN")}/sq ft` : "Market insight unavailable"}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-12 items-center text-left">
+              <div className="col-span-3 bg-gray-50/50 p-4 px-6 font-bold text-xs text-gray-700 border-r border-[#ECE7DB]">
+                Estimated Value
+              </div>
+              <div className="col-span-9 grid grid-cols-2 lg:grid-cols-3 divide-x divide-[#ECE7DB] font-semibold text-xs text-gray-900">
+                {activeProperties.map((p) => {
+                  const est = p.marketInsight?.estimatedPropertyValue;
+                  return (
+                    <div key={p._id} className="p-4 px-6">
+                      {est ? `₹${est.toLocaleString("en-IN")}` : "Market insight unavailable"}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-12 items-center text-left">
+              <div className="col-span-3 bg-gray-50/50 p-4 px-6 font-bold text-xs text-gray-700 border-r border-[#ECE7DB]">
+                Confidence Level
+              </div>
+              <div className="col-span-9 grid grid-cols-2 lg:grid-cols-3 divide-x divide-[#ECE7DB] font-semibold text-xs text-gray-900">
+                {activeProperties.map((p) => {
+                  const confidence = p.marketInsight?.confidence;
+                  return (
+                    <div key={p._id} className="p-4 px-6">
+                      {confidence ? (
+                        <span className="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-[10px] font-bold uppercase tracking-wider">
+                          {confidence}
+                        </span>
+                      ) : (
+                        "Market insight unavailable"
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Section: Documents */}
+          <div className="bg-[#FFFDF8] border-y border-[#ECE7DB] p-4 px-6 text-left">
+            <h2 className="text-sm font-black font-serif uppercase tracking-widest text-[#9A720C]">
+              Documents Status
+            </h2>
+          </div>
+          <div className="divide-y divide-[#ECE7DB]">
+            <div className="grid grid-cols-12 items-center text-left">
+              <div className="col-span-3 bg-gray-50/50 p-4 px-6 font-bold text-xs text-gray-700 border-r border-[#ECE7DB]">
+                Verification Status
+              </div>
+              <div className="col-span-9 grid grid-cols-2 lg:grid-cols-3 divide-x divide-[#ECE7DB] font-bold text-xs">
+                {activeProperties.map((p) => (
+                  <div
+                    key={p._id}
+                    className={`p-4 px-6 flex items-center gap-1.5 ${
+                      p.documentsAvailable ? "text-green-700" : "text-gray-400"
+                    }`}
+                  >
+                    <span>{p.documentsAvailable ? "✓" : "✕"}</span>
+                    <span>{p.documentsAvailable ? "Documents Available" : "No Documents Available"}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <Footer />
+    </div>
+  );
+}
+
+export default function ComparePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-white flex flex-col font-sans">
+          <Navbar />
+          <div className="flex-1 flex items-center justify-center">
+            <div className="h-10 w-10 rounded-full border-3 border-[#E8DCC1] border-t-[#9A720C] animate-spin" />
+          </div>
+          <Footer />
+        </div>
+      }
+    >
+      <ComparisonContent />
+    </Suspense>
+  );
+}

@@ -279,6 +279,8 @@ export interface Property {
     issues: PendingIssue[];
   };
   documents?: DocumentItem[];
+  documentsAvailable?: boolean;
+  uploadedDocumentTypes?: string[];
 }
 
 export interface MarketInsight {

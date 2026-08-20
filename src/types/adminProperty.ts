@@ -1,3 +1,5 @@
+import { DocumentItem } from "./property";
+
 export interface Place {
   enabled: boolean;
   name: string;
@@ -113,4 +115,6 @@ export interface AdminProperty {
 
   createdAt: string;
   updatedAt: string;
+  documents?: DocumentItem[];
+  uploadedDocumentTypes?: string[];
 }

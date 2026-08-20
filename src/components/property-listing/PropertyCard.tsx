@@ -9,6 +9,11 @@ import {
 import { Property } from "../../types/property";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import {
+  useCompareSession,
+  addPropertyToCompare,
+  removePropertyFromCompare,
+} from "../../services/compareService";
 
 interface Props {
   property: Property;
@@ -28,6 +33,20 @@ function formatPrice(price?: number): string {
 
 export default function PropertyCard({ property }: Props) {
   const router = useRouter();
+  const session = useCompareSession();
+  const isCompared = session.properties.some((p) => p._id === property._id);
+
+  const handleToggleCompare = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isCompared) {
+      removePropertyFromCompare(property._id);
+    } else {
+      const res = addPropertyToCompare(property);
+      if (!res.success && res.message) {
+        alert(res.message);
+      }
+    }
+  };
 
   const getPhotoUrl = (raw?: string) => {
     if (!raw) return "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80";
@@ -125,6 +144,25 @@ export default function PropertyCard({ property }: Props) {
           className="absolute top-3 right-3 h-8 w-8 bg-white/90 backdrop-blur-xs rounded-full flex items-center justify-center text-gray-700 hover:text-red-500 shadow-2xs transition-colors cursor-pointer"
         >
           <Heart size={16} />
+        </button>
+
+        {/* Compare Checkbox Icon */}
+        <button
+          type="button"
+          onClick={handleToggleCompare}
+          className={`absolute top-13 right-3 h-8 px-2.5 bg-white/90 backdrop-blur-xs rounded-lg flex items-center justify-center gap-1.5 text-[11px] font-bold shadow-2xs transition-colors cursor-pointer border ${
+            isCompared
+              ? "border-[#9A720C] text-[#9A720C] bg-[#FFF9EC]"
+              : "border-gray-200 text-gray-700 hover:text-[#9A720C] hover:border-[#9A720C]"
+          }`}
+        >
+          <input
+            type="checkbox"
+            checked={isCompared}
+            readOnly
+            className="h-3 w-3 rounded border-gray-300 text-[#9A720C] focus:ring-[#9A720C] pointer-events-none"
+          />
+          Compare
         </button>
 
         {/* Price Overlay on Bottom-Left */}

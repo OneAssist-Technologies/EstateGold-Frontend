@@ -31,6 +31,45 @@ import StickyContactCard from "../../../components/property-detail/StickyContact
 import LoginRequiredModal from "../../../components/property-detail/LoginRequiredModal";
 import RequestCallbackModal from "../../../components/property-detail/RequestCallbackModal";
 
+const getChecklistDocuments = (propertyType: string) => {
+  switch (propertyType) {
+    case "Apartment / Flat":
+    case "Builder Floor":
+      return [
+        { type: "sale_deed", label: "Sale Deed" },
+        { type: "parent_deeds", label: "Parent / Previous Title Documents" },
+        { type: "encumbrance_certificate", label: "Encumbrance Certificate" },
+        { type: "tax_receipt", label: "Property Tax Receipt" },
+        { type: "building_plan", label: "Approved Building Plan" },
+        { type: "completion_occupancy", label: "Completion / Occupancy Certificate" },
+        { type: "society_documents", label: "Apartment / Society Documents" },
+        { type: "possession_allotment", label: "Possession / Allotment Document" },
+        { type: "owner_kyc", label: "Owner KYC / ID" },
+      ];
+    case "Independent House":
+    case "Villa":
+      return [
+        { type: "sale_deed", label: "Sale Deed" },
+        { type: "parent_deeds", label: "Parent / Title Documents" },
+        { type: "encumbrance_certificate", label: "Encumbrance Certificate" },
+        { type: "tax_receipt", label: "Property Tax Receipt" },
+        { type: "building_plan", label: "Approved Building Plan" },
+        { type: "building_approval", label: "Building Approval" },
+        { type: "completion_occupancy", label: "Completion / Occupancy Documents" },
+        { type: "survey_sketch", label: "Survey / Sketch" },
+        { type: "owner_kyc", label: "Owner KYC" },
+      ];
+    default: // Plots, Commercial, etc.
+      return [
+        { type: "sale_deed", label: "Sale Deed / Title Deed" },
+        { type: "parent_deeds", label: "Parent Deeds / Title Documents" },
+        { type: "encumbrance_certificate", label: "Encumbrance Certificate" },
+        { type: "tax_receipt", label: "Property Tax Receipt" },
+        { type: "owner_kyc", label: "Owner KYC" },
+      ];
+  }
+};
+
 export default function PropertyDetailsPage() {
   const router = useRouter();
   const { user, isAuthenticated, loading: authLoading } = useAuth();
@@ -42,6 +81,7 @@ export default function PropertyDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [loginOpen, setLoginOpen] = useState(false);
   const [callbackOpen, setCallbackOpen] = useState(false);
+  const [showChecklist, setShowChecklist] = useState(false);
 
   const fetchProperty = async () => {
     try {
@@ -264,6 +304,123 @@ export default function PropertyDetailsPage() {
                 <Amenities amenities={property.amenities} />
                 <Neighbourhood property={property} />
                 <LocalityRatings property={property} />
+
+                {/* Documents Section */}
+                <section className="bg-white border border-[#ECE7DB] rounded-2xl p-6 mt-6">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-xl font-bold font-serif text-gray-900">
+                      Documents
+                    </h2>
+                    {!isPropertyOwner && property.documentsAvailable && (
+                      <button
+                        onClick={() => setShowChecklist(!showChecklist)}
+                        className="text-xs font-bold text-[#9A720C] hover:underline cursor-pointer flex items-center gap-1 bg-none border-none"
+                      >
+                        {showChecklist ? "Hide Checklist" : "View Checklist"} <span>{showChecklist ? "▲" : "▼"}</span>
+                      </button>
+                    )}
+                  </div>
+                  <div className="mt-4">
+                    {isPropertyOwner ? (
+                      property.documents && property.documents.length > 0 ? (
+                        <div className="space-y-4">
+                          {property.documents.map((doc: any, index: number) => (
+                            <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-[#ECE7DB] rounded-xl hover:bg-gray-50 transition-colors gap-3">
+                              <div className="space-y-1">
+                                <span className="inline-block px-2.5 py-0.5 bg-[#FFF9EC] text-[#9A720C] text-[10px] font-bold rounded-full border border-[#E8DCC1] uppercase">
+                                  {doc.documentType || "Document"}
+                                </span>
+                                <p className="text-sm font-bold text-gray-900 break-all">
+                                  {doc.fileName || "File"}
+                                </p>
+                                <div className="flex items-center gap-4 text-[11px] text-gray-400 font-medium">
+                                  <span>Status: <strong className={`capitalize ${doc.verificationStatus === "Verified" ? "text-green-600" : doc.verificationStatus === "Rejected" ? "text-red-500" : "text-amber-600"}`}>{doc.verificationStatus || "Uploaded"}</strong></span>
+                                  {doc.uploadedAt && (
+                                    <span>Uploaded: {new Date(doc.uploadedAt).toLocaleDateString()}</span>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {doc.fileUrl && (
+                                  <a
+                                    href={doc.fileUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="px-3.5 py-2 rounded-lg bg-[#9A720C] text-white text-xs font-bold hover:bg-[#856108] transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                                  >
+                                    View Document
+                                  </a>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-xs text-gray-400 italic">No documents uploaded.</p>
+                      )
+                    ) : (
+                      <div className="space-y-4">
+                        <div
+                          onClick={() => {
+                            if (property.documentsAvailable) {
+                              setShowChecklist(!showChecklist);
+                            }
+                          }}
+                          className={`flex items-start justify-between gap-3 p-4 border rounded-xl transition-all ${
+                            property.documentsAvailable
+                              ? "bg-[#FFF9EC] border-[#E8DCC1] cursor-pointer hover:bg-[#FFF7E3]"
+                              : "bg-gray-50 border-gray-200"
+                          }`}
+                        >
+                          <div className="flex items-start gap-3">
+                            <span className={`text-lg font-black mt-0.5 ${property.documentsAvailable ? "text-[#9A720C]" : "text-gray-400"}`}>
+                              {property.documentsAvailable ? "✓" : "✕"}
+                            </span>
+                            <div>
+                              <p className="text-sm font-bold text-gray-900">
+                                {property.documentsAvailable ? "Documents Available" : "No documents available"}
+                              </p>
+                              <p className="text-xs text-gray-500 mt-1">
+                                {property.documentsAvailable
+                                  ? "Click to view which documents are present or unavailable."
+                                  : "No documents have been uploaded for this property yet."}
+                              </p>
+                            </div>
+                          </div>
+                          {property.documentsAvailable && (
+                            <span className="text-xs font-bold text-[#9A720C] mt-1 shrink-0">
+                              {showChecklist ? "Show Less" : "Click to View Details"}
+                            </span>
+                          )}
+                        </div>
+
+                        {showChecklist && property.documentsAvailable && (
+                          <div className="border border-[#ECE7DB] rounded-xl p-4 bg-gray-50 space-y-3 transition-all duration-300">
+                            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                              Property Document Checklist
+                            </p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              {getChecklistDocuments(property.propertyType).map((doc, idx) => {
+                                const isPresent = property.uploadedDocumentTypes?.includes(doc.type);
+                                return (
+                                  <div key={idx} className="flex items-center justify-between p-3 bg-white border border-[#ECE7DB] rounded-lg shadow-2xs">
+                                    <span className="text-xs font-bold text-gray-800">
+                                      {doc.label}
+                                    </span>
+                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${isPresent ? "bg-green-50 text-green-700 border-green-200" : "bg-gray-100 text-gray-400 border-gray-200"}`}>
+                                      {isPresent ? "✓ Present" : "✕ Unavailable"}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </section>
+
                 <OwnerCard property={property} />
                 <SimilarProperties properties={similarProperties} />
               </>
