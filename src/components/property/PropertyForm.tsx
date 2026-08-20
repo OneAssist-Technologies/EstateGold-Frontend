@@ -43,6 +43,8 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
   const [loadingEdit, setLoadingEdit] = useState(false);
 
   const [step, setStep] = useState(1);
+  const [draftId, setDraftId] = useState<string | null>(null);
+  const [syncStatus, setSyncStatus] = useState<"synced" | "saving" | "offline-pending" | "error" | null>(null);
   const router = useRouter();
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const { user, loading } = useAuth();
@@ -398,24 +400,180 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
     fetchInsight();
   }, [formData.city, formData.locality, formData.propertyType, formData.bedrooms, formData.area, formData.carpetArea, formData.plotArea]);
 
+  const LOCAL_STORAGE_KEY = "estateGold:listPropertyDraft";
+
+  const saveDraftLocallyAndCloud = async (currentData: PropertyFormData, currentStep: number, idToUse?: string | null) => {
+    const activeId = idToUse !== undefined ? idToUse : draftId;
+
+    // 1. Save Locally
+    try {
+      const { photos, ...serializableData } = currentData;
+      const localPayload = {
+        version: 1,
+        draftId: activeId,
+        currentStep,
+        formData: serializableData,
+        updatedAt: Date.now(),
+      };
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(localPayload));
+    } catch (err) {
+      console.error("Local draft saving failed:", err);
+    }
+
+    // 2. Save to Cloud if user is authenticated
+    if (!user) return;
+
+    setSyncStatus("saving");
+    try {
+      const { photos, ...serializableData } = currentData;
+      if (activeId) {
+        await api.put(`/properties/draft/${activeId}`, {
+          ...serializableData,
+          currentStep,
+        });
+      } else {
+        const res = await api.post("/properties/draft", {
+          ...serializableData,
+          currentStep,
+        });
+        if (res.data.success && res.data.data?._id) {
+          const newId = res.data.data._id;
+          setDraftId(newId);
+          // Re-save local storage with new draftId
+          const localPayload = {
+            version: 1,
+            draftId: newId,
+            currentStep,
+            formData: serializableData,
+            updatedAt: Date.now(),
+          };
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(localPayload));
+        }
+      }
+      setSyncStatus("synced");
+    } catch (err) {
+      console.error("Cloud draft sync failed:", err);
+      setSyncStatus("offline-pending");
+    }
+  };
+
+  // Debounced Autosave effect
   useEffect(() => {
-    if (mode !== "edit") {
-      const savedDraft = localStorage.getItem("property_form_draft");
-      if (savedDraft) {
-        try {
-          const parsed = JSON.parse(savedDraft);
+    if (mode === "edit") return;
+    if (!formData.purpose || !formData.propertyType) return;
+
+    const timer = setTimeout(() => {
+      saveDraftLocallyAndCloud(formData, step);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [formData, step, mode, user, draftId]);
+
+  // Load draft on mount
+  useEffect(() => {
+    if (mode === "edit") return;
+
+    const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed && parsed.formData) {
+          if (parsed.draftId) {
+            setDraftId(parsed.draftId);
+          }
           setFormData((prev) => ({
             ...prev,
-            ...parsed,
+            ...parsed.formData,
             photos: [],
           }));
+          if (parsed.currentStep) {
+            setStep(parsed.currentStep);
+          }
           toast.success("Loaded your previously saved draft!");
-        } catch (err) {
-          console.error("Failed to parse saved draft:", err);
         }
+      } catch (err) {
+        console.error("Failed to restore draft:", err);
       }
     }
   }, [mode]);
+
+  const handleDiscardDraft = async () => {
+    if (!window.confirm("Are you sure you want to discard this property listing draft? All entered progress will be lost.")) {
+      return;
+    }
+
+    try {
+      if (draftId) {
+        await api.delete(`/properties/draft/${draftId}`);
+      }
+    } catch (err) {
+      console.error("Failed to delete draft on server:", err);
+    }
+
+    localStorage.removeItem(LOCAL_STORAGE_KEY);
+    localStorage.removeItem("property_form_draft");
+    setDraftId(null);
+    setSyncStatus(null);
+    setFormData({
+      purpose: "",
+      propertyType: "",
+      ownerName: "",
+      ownerPhone: "",
+      ownerEmail: "",
+      ownerType: "",
+      agentRelation: "",
+      ownerIdType: "",
+      ownerIdNumber: "",
+      alternatePhone: "",
+      listingType: "my_own",
+      ownerAddress: "",
+      ownerGovtIdDoc: "",
+      ownerNegotiable: false,
+      ownerReadyToMeet: false,
+      city: "",
+      locality: "",
+      society: "",
+      address: "",
+      bedrooms: 0,
+      bathrooms: 0,
+      balconies: 0,
+      area: 0,
+      floor: 0,
+      furnishing: "",
+      parking: false,
+      amenities: [],
+      price: 0,
+      description: "",
+      availableFrom: "",
+      photos: [],
+      neighbourhood: {
+        nearbyPlaces: {
+          school: { enabled: false, name: "", distance: "" },
+          college: { enabled: false, name: "", distance: "" },
+          hospital: { enabled: false, name: "", distance: "" },
+          metro: { enabled: false, name: "", distance: "" },
+          busStand: { enabled: false, name: "", distance: "" },
+          airport: { enabled: false, name: "", distance: "" },
+          park: { enabled: false, name: "", distance: "" },
+          mall: { enabled: false, name: "", distance: "" },
+          temple: { enabled: false, name: "", distance: "" },
+        },
+        landmarks: [],
+        ratings: {
+          connectivity: 0,
+          safety: 0,
+          powerSupply: 0,
+          waterSupply: 0,
+          noiseLevel: 0,
+          internet: 0,
+          greenery: 0,
+        },
+        notes: "",
+      },
+    } as any);
+    setStep(1);
+    toast.success("Draft discarded successfully.");
+  };
 
   if (loadingEdit || loading) {
     return (
@@ -441,13 +599,17 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
     }
     setStepErrors({});
     if (step < totalSteps) {
-      setStep((prev) => prev + 1);
+      const nextStepVal = step + 1;
+      setStep(nextStepVal);
+      saveDraftLocallyAndCloud(formData, nextStepVal);
     }
   };
 
   const previousStep = () => {
     if (step > 1) {
-      setStep((prev) => prev - 1);
+      const prevStepVal = step - 1;
+      setStep(prevStepVal);
+      saveDraftLocallyAndCloud(formData, prevStepVal);
     }
   };
 
@@ -666,6 +828,15 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
           toast.success("Property updated successfully");
           router.push("/my-properties");
         } else {
+          localStorage.removeItem(LOCAL_STORAGE_KEY);
+          localStorage.removeItem("property_form_draft");
+          if (draftId) {
+            try {
+              await api.delete(`/properties/draft/${draftId}`);
+            } catch (err) {
+              console.error("Failed to delete draft from server on final submit:", err);
+            }
+          }
           setPublished(true);
         }
       }
@@ -981,9 +1152,30 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
                 <div className="w-[110px]" />
               )}
 
-              <span className="text-gray-500 text-sm">
-                Step {step} of {totalSteps}
-              </span>
+              <div className="flex flex-col items-center gap-1">
+                <span className="text-gray-500 text-sm font-semibold">
+                  Step {step} of {totalSteps}
+                </span>
+                
+                {mode !== "edit" && syncStatus && (
+                  <span className="text-[10px] text-gray-400 font-medium">
+                    {syncStatus === "saving" && "Saving draft..."}
+                    {syncStatus === "synced" && "Draft synced to cloud"}
+                    {syncStatus === "offline-pending" && "Saved locally (offline)"}
+                    {syncStatus === "error" && "Error syncing draft"}
+                  </span>
+                )}
+
+                {mode !== "edit" && (draftId || (typeof window !== 'undefined' && localStorage.getItem(LOCAL_STORAGE_KEY))) && (
+                  <button
+                    type="button"
+                    onClick={handleDiscardDraft}
+                    className="text-[11px] font-bold text-red-500 hover:text-red-700 underline mt-1 cursor-pointer bg-none border-none outline-none"
+                  >
+                    Discard Draft
+                  </button>
+                )}
+              </div>
 
               {step === totalSteps ? (
                 <motion.button

@@ -211,12 +211,6 @@ export function validatePropertyStep(
         if (!data.propertyAge) {
           errors.propertyAge = "Property Age is required.";
         }
-        if (!data.society || !data.society.trim()) {
-          errors.society = "Society / Association Name is required.";
-        }
-        if (data.maintenance === undefined || data.maintenance === "") {
-          errors.maintenance = "Monthly Maintenance is required.";
-        }
         if (!data.furnishing) {
           errors.furnishing = "Furnishing Status is required.";
         }
@@ -294,6 +288,9 @@ export function validatePropertyStep(
         }
         if (!data.furnishing) {
           errors.furnishing = "Furnishing Status is required.";
+        }
+        if (data.gatedLayout && (!data.society || !data.society.trim())) {
+          errors.society = "Association Name is required for gated community.";
         }
       }
 

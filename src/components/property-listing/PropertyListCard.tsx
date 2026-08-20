@@ -13,6 +13,12 @@ import {
 import { Property } from "../../types/property";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import {
+  useCompareSession,
+  addPropertyToCompare,
+  removePropertyFromCompare,
+} from "../../services/compareService";
+
 interface Props {
   property: Property;
 }
@@ -21,6 +27,20 @@ export default function PropertyListCard({
   property,
 }: Props) {
   const router = useRouter();
+  const session = useCompareSession();
+  const isCompared = session.properties.some((p) => p._id === property._id);
+
+  const handleToggleCompare = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isCompared) {
+      removePropertyFromCompare(property._id);
+    } else {
+      const res = addPropertyToCompare(property);
+      if (!res.success && res.message) {
+        alert(res.message);
+      }
+    }
+  };
   const getPhotoUrl = (raw?: string) => {
     if (!raw) return "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80";
     if (raw.startsWith("http://") || raw.startsWith("https://")) return raw;
@@ -113,9 +133,14 @@ export default function PropertyListCard({
 
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex gap-3 items-center">
 
                 <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    // Favorite logic placeholder
+                  }}
                   className="
                     h-11
                     w-11
@@ -131,6 +156,11 @@ export default function PropertyListCard({
                 </button>
 
                 <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    // Share logic placeholder
+                  }}
                   className="
                     h-11
                     w-11
@@ -143,6 +173,24 @@ export default function PropertyListCard({
                   "
                 >
                   <Share2 size={18} />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleToggleCompare}
+                  className={`h-11 px-4 rounded-full border flex items-center justify-center gap-1.5 text-xs font-bold transition-all cursor-pointer ${
+                    isCompared
+                      ? "border-[#C89B1C] text-[#C89B1C] bg-[#FFF9EC]"
+                      : "border-[#E8DCC1] text-gray-700 hover:text-[#C89B1C] hover:border-[#C89B1C]"
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={isCompared}
+                    readOnly
+                    className="h-3.5 w-3.5 rounded border-gray-300 text-[#C89B1C] focus:ring-[#C89B1C] pointer-events-none"
+                  />
+                  Compare
                 </button>
 
               </div>

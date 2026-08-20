@@ -119,9 +119,9 @@ function calculateDistanceKm(
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos(lat1 * (Math.PI / 180)) *
-      Math.cos(lat2 * (Math.PI / 180)) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
+    Math.cos(lat2 * (Math.PI / 180)) *
+    Math.sin(dLon / 2) *
+    Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 }
@@ -468,252 +468,248 @@ export default function LocationStep({ formData, setFormData, errors }: Props) {
       <div className={`transition-all duration-300 ${showMapModal ? "opacity-15 blur-[4px] pointer-events-none select-none" : ""}`}>
         <h2 className="text-4xl font-bold">Where is the property?</h2>
 
-      <p className="text-gray-500 mt-2">
-        Accurate location helps buyers find it faster
-      </p>
+        <p className="text-gray-500 mt-2">
+          Accurate location helps buyers find it faster
+        </p>
 
-      {/* Serviceable Areas Info Header */}
-      {activeLocations.length > 0 && (
-        <div className="mt-4 p-3.5 rounded-2xl bg-[#FFFBF0] border border-[#F5E4B3] flex items-center gap-2.5 text-xs text-[#8B630B]">
-          <Info size={16} className="shrink-0 text-[#C89B1C]" />
-          <span>
-            <strong>Serviceable Cities:</strong>{" "}
-            {activeLocations.map((l) => l.city).join(", ")}
-          </span>
-        </div>
-      )}
-
-      <div className="space-y-6 mt-6">
-        {/* 1. REGION / COUNTRY SELECTION */}
-        <div>
-          <label className="font-medium flex items-center gap-1.5 text-sm text-gray-800 mb-1.5">
-            <Globe size={16} className="text-[#C89B1C]" />
-            <span>Region / Country <span className="text-red-500">*</span></span>
-          </label>
-
-          <select
-            value={selectedRegion}
-            onChange={(e) => {
-              const newRegion = e.target.value;
-              setSelectedRegion(newRegion);
-              setSelectedState("");
-              setSearchQuery("");
-            }}
-            className="w-full h-14 rounded-xl border border-[#E8E1D4] bg-[#FAFAF8] px-4 text-sm text-[#161616] outline-none focus:border-[#C89B1C] focus:bg-white focus:ring-2 focus:ring-[#C89B1C]/15 transition-all cursor-pointer"
-          >
-            {REGIONS.map((region) => (
-              <option key={region} value={region}>
-                {region}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* 2. STATE SELECTION */}
-        <div>
-          <label className="font-medium flex items-center gap-1.5 text-sm text-gray-800 mb-1.5">
-            <Compass size={16} className="text-[#C89B1C]" />
-            <span>State <span className="text-red-500">*</span></span>
-          </label>
-
-          <select
-            value={selectedState}
-            onChange={(e) => {
-              const newSt = e.target.value;
-              setSelectedState(newSt);
-              setSearchQuery("");
-            }}
-            className={`w-full h-14 rounded-xl border px-4 text-sm text-[#161616] outline-none focus:border-[#C89B1C] focus:bg-white focus:ring-2 focus:ring-[#C89B1C]/15 transition-all cursor-pointer ${
-              errors?.state ? "border-red-500 bg-red-50/10 focus:border-red-500" : "border-[#E8E1D4] bg-[#FAFAF8]"
-            }`}
-          >
-            <option value="">-- Select State --</option>
-            {availableStates.map((st) => (
-              <option key={st} value={st}>
-                {st}
-              </option>
-            ))}
-          </select>
-          {errors?.state && (
-            <p className="text-red-500 text-xs mt-1 font-semibold pl-1">{errors.state}</p>
-          )}
-
-          {!selectedState && (
-            <p className="text-xs text-amber-600 mt-1 font-medium">
-              Please manually select state to enable location search.
-            </p>
-          )}
-        </div>
-
-        {/* 3. LOCATION SEARCH (RIDE-BOOKING UX WITH MAP MODAL TRIGGER) */}
-        <div>
-          <LocationSearch
-            value={searchQuery}
-            onChange={setSearchQuery}
-            onSelectLocation={handleSelectLocation}
-            onOpenMap={() => setShowMapModal(true)}
-            selectedRegion={selectedRegion}
-            selectedState={selectedState}
-            disabled={!selectedState}
-          />
-        </div>
-
-        {/* City Input */}
-        <div>
-          <label className="font-medium text-sm">City <span className="text-red-500">*</span></label>
-
-          <div className="relative mt-2">
-            <MapPin
-              size={18}
-              className="absolute left-4 top-4 text-gray-400"
-            />
-
-            <input
-              value={formData.city}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  city: e.target.value,
-                }))
-              }
-              placeholder="e.g. Coimbatore, Chennai"
-              className={`w-full border rounded-xl h-14 pl-12 pr-4 outline-none focus:border-[#C89B1C] ${
-                errors?.city ? "border-red-500 bg-red-50/10 focus:border-red-500" : "border-gray-200"
-              }`}
-            />
-          </div>
-          {errors?.city && (
-            <p className="text-red-500 text-xs mt-1 font-semibold pl-1">{errors.city}</p>
-          )}
-        </div>
-
-        {/* Locality / Area Input */}
-        <div>
-          <label className="font-medium text-sm">Locality / Area <span className="text-red-500">*</span></label>
-
-          <div className="relative mt-2">
-            <MapPin
-              size={18}
-              className="absolute left-4 top-4 text-gray-400"
-            />
-
-            <input
-              value={formData.locality}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  locality: e.target.value,
-                }))
-              }
-              placeholder="e.g. Gandhipuram, Anna Nagar"
-              className={`w-full border rounded-xl h-14 pl-12 pr-4 outline-none focus:border-[#C89B1C] ${
-                errors?.locality ? "border-red-500 bg-red-50/10 focus:border-red-500" : "border-gray-200"
-              }`}
-            />
-          </div>
-          {errors?.locality && (
-            <p className="text-red-500 text-xs mt-1 font-semibold pl-1">{errors.locality}</p>
-          )}
-        </div>
-
-        {/* Society / Building Name Input */}
-        <div>
-          <label className="font-medium text-sm">Society / Building Name</label>
-
-          <div className="relative mt-2">
-            <Building
-              size={18}
-              className="absolute left-4 top-4 text-gray-400"
-            />
-
-            <input
-              value={formData.society}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  society: e.target.value,
-                }))
-              }
-              placeholder="Building Name"
-              className="w-full border rounded-xl h-14 pl-12 pr-4 outline-none focus:border-[#C89B1C]"
-            />
-          </div>
-        </div>
-
-        {/* Full Address Input */}
-        <div>
-          <label className="font-medium text-sm">Full Address <span className="text-red-500">*</span></label>
-
-          <div className="relative mt-2">
-            <Home
-              size={18}
-              className="absolute left-4 top-4 text-gray-400"
-            />
-
-            <textarea
-              value={formData.address}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  address: e.target.value,
-                }))
-              }
-              placeholder="Street Address"
-              className={`w-full border rounded-xl min-h-[100px] pl-12 p-4 outline-none focus:border-[#C89B1C] ${
-                errors?.address ? "border-red-500 bg-red-50/10 focus:border-red-500" : "border-gray-200"
-              }`}
-            />
-          </div>
-          {errors?.address && (
-            <p className="text-red-500 text-xs mt-1 font-semibold pl-1">{errors.address}</p>
-          )}
-        </div>
-
-        {/* INLINE SERVICEABILITY FEEDBACK MESSAGES */}
-        {!showMapModal && serviceabilityResult.status === "serviceable" && (
-          <div className="p-4 rounded-2xl bg-green-50 border border-green-200 flex items-start gap-3 text-green-800">
-            <CheckCircle2 size={20} className="shrink-0 text-green-600 mt-0.5" />
-            <div>
-              <p className="font-semibold text-sm">
-                ✓ Location is Serviceable
-              </p>
-              <p className="text-xs text-green-700 mt-0.5">
-                Location falls within{" "}
-                <strong>{serviceabilityResult.matchedLocation?.city}</strong>{" "}
-                service area.
-              </p>
-            </div>
+        {/* Serviceable Areas Info Header */}
+        {activeLocations.length > 0 && (
+          <div className="mt-4 p-3.5 rounded-2xl bg-[#FFFBF0] border border-[#F5E4B3] flex items-center gap-2.5 text-xs text-[#8B630B]">
+            <Info size={16} className="shrink-0 text-[#C89B1C]" />
+            <span>
+              <strong>Serviceable Cities:</strong>{" "}
+              {activeLocations.map((l) => l.city).join(", ")}
+            </span>
           </div>
         )}
 
-        {!showMapModal && serviceabilityResult.status === "unserviceable" && (
-          <div className="p-4 rounded-2xl bg-red-50 border border-red-200 flex items-start gap-3 text-red-800">
-            <AlertTriangle size={20} className="shrink-0 text-red-600 mt-0.5" />
-            <div>
-              <p className="font-semibold text-sm">
-                ⚠ Location Not Serviceable
-              </p>
-              <p className="text-xs text-red-700 mt-1 font-medium">
-                {serviceabilityResult.message || "We currently don't provide service in this location. Please select a location within our serviceable areas."}
-              </p>
-            </div>
-          </div>
-        )}
+        <div className="space-y-6 mt-6">
+          {/* 1. REGION / COUNTRY SELECTION */}
+          <div>
+            <label className="font-medium flex items-center gap-1.5 text-sm text-gray-800 mb-1.5">
+              <Globe size={16} className="text-[#C89B1C]" />
+              <span>Region / Country <span className="text-red-500">*</span></span>
+            </label>
 
-        {!showMapModal && serviceabilityResult.status === "no_areas" && (
-          <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 flex items-start gap-3 text-amber-800">
-            <AlertTriangle size={20} className="shrink-0 text-amber-600 mt-0.5" />
-            <div>
-              <p className="font-semibold text-sm">
-                {serviceabilityResult.message}
+            <select
+              value={selectedRegion}
+              onChange={(e) => {
+                const newRegion = e.target.value;
+                setSelectedRegion(newRegion);
+                setSelectedState("");
+                setSearchQuery("");
+              }}
+              className="w-full h-14 rounded-xl border border-[#E8E1D4] bg-[#FAFAF8] px-4 text-sm text-[#161616] outline-none focus:border-[#C89B1C] focus:bg-white focus:ring-2 focus:ring-[#C89B1C]/15 transition-all cursor-pointer"
+            >
+              {REGIONS.map((region) => (
+                <option key={region} value={region}>
+                  {region}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* 2. STATE SELECTION */}
+          <div>
+            <label className="font-medium flex items-center gap-1.5 text-sm text-gray-800 mb-1.5">
+              <Compass size={16} className="text-[#C89B1C]" />
+              <span>State <span className="text-red-500">*</span></span>
+            </label>
+
+            <select
+              value={selectedState}
+              onChange={(e) => {
+                const newSt = e.target.value;
+                setSelectedState(newSt);
+                setSearchQuery("");
+              }}
+              className={`w-full h-14 rounded-xl border px-4 text-sm text-[#161616] outline-none focus:border-[#C89B1C] focus:bg-white focus:ring-2 focus:ring-[#C89B1C]/15 transition-all cursor-pointer ${errors?.state ? "border-red-500 bg-red-50/10 focus:border-red-500" : "border-[#E8E1D4] bg-[#FAFAF8]"
+                }`}
+            >
+              <option value="">-- Select State --</option>
+              {availableStates.map((st) => (
+                <option key={st} value={st}>
+                  {st}
+                </option>
+              ))}
+            </select>
+            {errors?.state && (
+              <p className="text-red-500 text-xs mt-1 font-semibold pl-1">{errors.state}</p>
+            )}
+
+            {!selectedState && (
+              <p className="text-xs text-amber-600 mt-1 font-medium">
+                Please manually select state to enable location search.
               </p>
-              <p className="text-xs text-amber-700 mt-1 font-medium">
-                Property listing is currently disabled until admin configures active service areas.
-              </p>
+            )}
+          </div>
+
+          {/* 3. LOCATION SEARCH (RIDE-BOOKING UX WITH MAP MODAL TRIGGER) */}
+          <div>
+            <LocationSearch
+              value={searchQuery}
+              onChange={setSearchQuery}
+              onSelectLocation={handleSelectLocation}
+              onOpenMap={() => setShowMapModal(true)}
+              selectedRegion={selectedRegion}
+              selectedState={selectedState}
+              disabled={!selectedState}
+            />
+          </div>
+
+          {/* City Input */}
+          <div>
+            <label className="font-medium text-sm">City <span className="text-red-500">*</span></label>
+
+            <div className="relative mt-2">
+              <MapPin
+                size={18}
+                className="absolute left-4 top-4 text-gray-400"
+              />
+
+              <input
+                value={formData.city}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    city: e.target.value,
+                  }))
+                }
+                placeholder="e.g. Coimbatore, Chennai"
+                className={`w-full border rounded-xl h-14 pl-12 pr-4 outline-none focus:border-[#C89B1C] ${errors?.city ? "border-red-500 bg-red-50/10 focus:border-red-500" : "border-gray-200"
+                  }`}
+              />
+            </div>
+            {errors?.city && (
+              <p className="text-red-500 text-xs mt-1 font-semibold pl-1">{errors.city}</p>
+            )}
+          </div>
+
+          {/* Locality / Area Input */}
+          <div>
+            <label className="font-medium text-sm">Locality / Area <span className="text-red-500">*</span></label>
+
+            <div className="relative mt-2">
+              <MapPin
+                size={18}
+                className="absolute left-4 top-4 text-gray-400"
+              />
+
+              <input
+                value={formData.locality}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    locality: e.target.value,
+                  }))
+                }
+                placeholder="e.g. Gandhipuram, Anna Nagar"
+                className={`w-full border rounded-xl h-14 pl-12 pr-4 outline-none focus:border-[#C89B1C] ${errors?.locality ? "border-red-500 bg-red-50/10 focus:border-red-500" : "border-gray-200"
+                  }`}
+              />
+            </div>
+            {errors?.locality && (
+              <p className="text-red-500 text-xs mt-1 font-semibold pl-1">{errors.locality}</p>
+            )}
+          </div>
+
+          {/* Society / Building Name Input */}
+          <div>
+            <label className="font-medium text-sm">Society / Building Name</label>
+
+            <div className="relative mt-2">
+              <Building
+                size={18}
+                className="absolute left-4 top-4 text-gray-400"
+              />
+
+              <input
+                value={formData.society}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    society: e.target.value,
+                  }))
+                }
+                placeholder="Building Name"
+                className="w-full border rounded-xl h-14 pl-12 pr-4 outline-none focus:border-[#C89B1C]"
+              />
             </div>
           </div>
-        )}
-      </div>
+
+          {/* Full Address Input */}
+          <div>
+            <label className="font-medium text-sm">Full Address <span className="text-red-500">*</span></label>
+
+            <div className="relative mt-2">
+              <Home
+                size={18}
+                className="absolute left-4 top-4 text-gray-400"
+              />
+
+              <textarea
+                value={formData.address}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    address: e.target.value,
+                  }))
+                }
+                placeholder="Street Address"
+                className={`w-full border rounded-xl min-h-[100px] pl-12 p-4 outline-none focus:border-[#C89B1C] ${errors?.address ? "border-red-500 bg-red-50/10 focus:border-red-500" : "border-gray-200"
+                  }`}
+              />
+            </div>
+            {errors?.address && (
+              <p className="text-red-500 text-xs mt-1 font-semibold pl-1">{errors.address}</p>
+            )}
+          </div>
+
+          {/* INLINE SERVICEABILITY FEEDBACK MESSAGES */}
+          {!showMapModal && serviceabilityResult.status === "serviceable" && (
+            <div className="p-4 rounded-2xl bg-green-50 border border-green-200 flex items-start gap-3 text-green-800">
+              <CheckCircle2 size={20} className="shrink-0 text-green-600 mt-0.5" />
+              <div>
+                <p className="font-semibold text-sm">
+                  ✓ Location is Serviceable
+                </p>
+                <p className="text-xs text-green-700 mt-0.5">
+                  Location falls within{" "}
+                  <strong>{serviceabilityResult.matchedLocation?.city}</strong>{" "}
+                  service area.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {!showMapModal && serviceabilityResult.status === "unserviceable" && (
+            <div className="p-4 rounded-2xl bg-red-50 border border-red-200 flex items-start gap-3 text-red-800">
+              <AlertTriangle size={20} className="shrink-0 text-red-600 mt-0.5" />
+              <div>
+                <p className="font-semibold text-sm">
+                  ⚠ Location Not Serviceable
+                </p>
+                <p className="text-xs text-red-700 mt-1 font-medium">
+                  {serviceabilityResult.message || "We currently don't provide service in this location. Please select a location within our serviceable areas."}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {!showMapModal && serviceabilityResult.status === "no_areas" && (
+            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 flex items-start gap-3 text-amber-800">
+              <AlertTriangle size={20} className="shrink-0 text-amber-600 mt-0.5" />
+              <div>
+                <p className="font-semibold text-sm">
+                  {serviceabilityResult.message}
+                </p>
+                <p className="text-xs text-amber-700 mt-1 font-medium">
+                  Property listing is currently disabled until admin configures active service areas.
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* INTERACTIVE PICK LOCATION ON MAP MODAL */}

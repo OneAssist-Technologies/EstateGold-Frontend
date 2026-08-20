@@ -64,7 +64,7 @@ export default function PropertyTypeStep({
           {[
             "Sale",
             "Rent",
-            "PG / Coliving",
+            "Lease",
           ].map((item) => (
             <button
               key={item}
@@ -78,14 +78,13 @@ export default function PropertyTypeStep({
                 text-sm
                 transition-all
                 cursor-pointer
-                ${
-                  purpose === item
-                    ? `
+                ${purpose === item
+                  ? `
                     border-[#C89B1C]
                     bg-[#FFF9EC]
                     text-[#C89B1C]
                   `
-                    : `
+                  : `
                     border-[#E6DCC2]
                     bg-white
                     hover:border-[#C89B1C]
@@ -112,8 +111,8 @@ export default function PropertyTypeStep({
               item === "Plot / Land"
                 ? isPlotActive
                 : item === "Commercial Space"
-                ? isCommercialActive
-                : value === item;
+                  ? isCommercialActive
+                  : value === item;
 
             return (
               <button
@@ -131,14 +130,13 @@ export default function PropertyTypeStep({
                   flex-col
                   justify-between
                   cursor-pointer
-                  ${
-                    isSelected
-                      ? `
+                  ${isSelected
+                    ? `
                       border-[#C89B1C]
                       bg-[#FFF9EC]
                       shadow-2xs
                     `
-                      : `
+                    : `
                       border-[#E6DCC2]
                       bg-white
                       hover:border-[#C89B1C]
@@ -188,11 +186,10 @@ export default function PropertyTypeStep({
                 key={subType.id}
                 type="button"
                 onClick={() => onTypeChange(subType.id)}
-                className={`h-11 rounded-lg border font-bold text-xs transition-all flex items-center justify-center cursor-pointer ${
-                  value === subType.id
+                className={`h-11 rounded-lg border font-bold text-xs transition-all flex items-center justify-center cursor-pointer ${value === subType.id
                     ? "border-[#C89B1C] bg-[#FFF9EC] text-[#C89B1C] shadow-2xs"
                     : "border-[#E6DCC2] bg-white hover:border-[#C89B1C] text-gray-700"
-                }`}
+                  }`}
               >
                 {subType.label}
               </button>
@@ -219,11 +216,10 @@ export default function PropertyTypeStep({
                 key={subType.id}
                 type="button"
                 onClick={() => onTypeChange(subType.id)}
-                className={`h-11 rounded-lg border font-bold text-xs transition-all flex items-center justify-center cursor-pointer ${
-                  value === subType.id
+                className={`h-11 rounded-lg border font-bold text-xs transition-all flex items-center justify-center cursor-pointer ${value === subType.id
                     ? "border-[#C89B1C] bg-[#FFF9EC] text-[#C89B1C] shadow-2xs"
                     : "border-[#E6DCC2] bg-white hover:border-[#C89B1C] text-gray-700"
-                }`}
+                  }`}
               >
                 {subType.label}
               </button>

@@ -18,9 +18,17 @@ import PropertyList from "../../components/property-listing/PropertyList";
 import Pagination from "../../components/property-listing/Pagination";
 import Navbar from "@/src/components/layout/Navbar";
 import Footer from "@/src/components/layout/Footer";
+import { useRouter } from "next/navigation";
+import {
+  useCompareSession,
+  removePropertyFromCompare,
+  clearCompareSession,
+} from "../../services/compareService";
 
 function ListingContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const session = useCompareSession();
 
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
@@ -313,6 +321,65 @@ function ListingContent() {
           </section>
         </div>
       </main>
+
+      {/* Floating Compare Bar */}
+      {session.properties.length > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-white/95 backdrop-blur-md border border-[#ECE7DB] shadow-2xl rounded-2xl p-4 flex items-center justify-between gap-6 max-w-4xl w-[90%] md:w-fit transition-all duration-300">
+          <div className="flex items-center gap-2">
+            <span className="h-6 px-2 rounded-full bg-[#FFF9EC] text-[#9A720C] text-xs font-black flex items-center justify-center border border-[#F4E3B5]">
+              {session.properties.length}
+            </span>
+            <span className="text-xs font-black text-gray-800 uppercase tracking-wider hidden md:inline">
+              Compare List
+            </span>
+          </div>
+
+          <div className="hidden sm:flex items-center gap-3">
+            {session.properties.map((p) => {
+              const image = p.photos?.[0] 
+                ? (p.photos[0].startsWith("http") ? p.photos[0] : `http://localhost:5000/uploads/properties/${p.photos[0].replace(/^\/+/, "").replace(/^uploads\/properties\//, "").replace(/^uploads\//, "")}`)
+                : "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=80&q=80";
+              return (
+                <div key={p._id} className="relative group flex items-center gap-2 bg-[#FFFDF6] border border-[#F4E3B5] px-2 py-1.5 rounded-xl shadow-3xs hover:border-[#9A720C] transition-colors shrink-0">
+                  <img src={image} className="w-8 h-8 object-cover rounded-lg border border-[#F4E3B5]" />
+                  <div className="leading-tight max-w-[120px] truncate text-left">
+                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wide block truncate">{p.propertyType}</span>
+                    <span className="text-xs font-bold text-gray-900 block truncate">{p.bedrooms ? `${p.bedrooms} BHK` : ""} {p.locality || p.city}</span>
+                  </div>
+                  <button
+                    onClick={() => removePropertyFromCompare(p._id)}
+                    className="text-gray-400 hover:text-red-500 text-sm font-black ml-1.5 cursor-pointer bg-none border-none"
+                  >
+                    ×
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="flex items-center gap-4 shrink-0">
+            <button onClick={clearCompareSession} className="text-xs font-bold text-gray-400 hover:text-red-500 cursor-pointer bg-none border-none">
+              Clear All
+            </button>
+            <button
+              onClick={() => {
+                if (session.properties.length < 2) {
+                  alert("Select at least 2 properties to compare.");
+                  return;
+                }
+                router.push(`/properties/compare?ids=${session.properties.map(p => p._id).join(",")}`);
+              }}
+              className={`px-5 py-2.5 rounded-xl text-xs font-bold text-white shadow-xs transition-all cursor-pointer flex items-center gap-1.5 ${
+                session.properties.length >= 2
+                  ? "bg-[#9A720C] hover:bg-[#856108]"
+                  : "bg-gray-300 cursor-not-allowed"
+              }`}
+            >
+              Compare Now {session.properties.length >= 2 ? `(${session.properties.length})` : ""}
+            </button>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>
