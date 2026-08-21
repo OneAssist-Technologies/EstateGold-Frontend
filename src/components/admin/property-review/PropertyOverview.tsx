@@ -242,25 +242,13 @@ export default function PropertySummary({
         <div>
 
           <h1
-            className="
-              text-3xl
-              font-playfair
-              font-bold
-              text-[#161616]
-            "
+            className="text-3xl font-bold text-[#161616]"
           >
             {property.propertyType}
           </h1>
 
           <div
-            className="
-              mt-2
-              flex
-              items-center
-              gap-2
-              text-[15px]
-              text-[#6B7280]
-            "
+            className="mt-2 flex items-center gap-2 text-[15px] text-[#6B7280]"
           >
             <MapPin
               size={16}
@@ -277,23 +265,13 @@ export default function PropertySummary({
         </div>
 
         <div
-          className="
-            flex
-            items-center
-            gap-1
-            text-[#C89B1C]
-            shrink-0
-          "
+          className="flex items-center gap-1 text-[#C89B1C] shrink-0"
         >
 
           <IndianRupee size={22} />
 
           <h2
-            className="
-              text-3xl
-              font-bold
-              text-[#C89B1C]
-            "
+            className="text-3xl font-bold text-[#C89B1C]"
           >
             {property.price.toLocaleString()}
           </h2>
@@ -320,23 +298,13 @@ export default function PropertySummary({
       <div className="mt-8">
 
         <h2
-          className="
-            text-2xl
-            font-playfair
-            font-bold
-            text-[#161616]
-          "
+          className="text-2xl font-bold text-[#161616]"
         >
           Description
         </h2>
 
         <p
-          className="
-            mt-3
-            text-[15px]
-            leading-7
-            text-gray-600
-          "
+          className="mt-3 text-[15px] leading-7 text-gray-600"
         >
           {property.description ||
             "No description available."}
@@ -361,32 +329,10 @@ function OverviewCard({
 }: CardProps) {
   return (
     <div
-      className="
-        inline-flex
-        items-center
-        gap-2.5
-        rounded-full
-        border
-        border-[#E7D8B6]
-        bg-[#FFFDF8]
-        px-4
-        py-2
-        hover:bg-[#FFF8EA]
-        transition
-      "
+      className="inline-flex items-center gap-2.5 rounded-full border border-[#E7D8B6] bg-[#FFFDF8] px-4 py-2 hover:bg-[#FFF8EA] transition"
     >
       <div
-        className="
-          h-8
-          w-8
-          rounded-full
-          bg-[#FFF3D8]
-          text-[#C89B1C]
-          flex
-          items-center
-          justify-center
-          shrink-0
-        "
+        className="h-8 w-8 rounded-full bg-[#FFF3D8] text-[#C89B1C] flex items-center justify-center shrink-0"
       >
         {icon}
       </div>
@@ -394,23 +340,13 @@ function OverviewCard({
       <div className="leading-tight">
 
         <p
-          className="
-            text-[10px]
-            uppercase
-            tracking-wide
-            text-gray-500
-          "
+          className="text-[10px] uppercase tracking-wide text-gray-500"
         >
           {title}
         </p>
 
         <p
-          className="
-            text-sm
-            font-semibold
-            text-[#161616]
-            whitespace-nowrap
-          "
+          className="text-sm font-semibold text-[#161616] whitespace-nowrap"
         >
           {value}
         </p>

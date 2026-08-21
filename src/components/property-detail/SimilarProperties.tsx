@@ -29,7 +29,7 @@ export default function SimilarProperties({ properties }: Props) {
 
   return (
     <div className="py-4 space-y-3 border-t border-[#ECE7DB] mt-4">
-      <h2 className="text-base font-bold font-serif text-[#161616]">
+      <h2 className="text-base font-bold text-[#161616]">
         Similar Properties in {city}
       </h2>
 
@@ -72,13 +72,13 @@ export default function SimilarProperties({ properties }: Props) {
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
 
-                <div className="absolute bottom-2 left-2 bg-[#9A720C]/90 backdrop-blur-xs text-white text-xs font-bold px-2.5 py-0.5 rounded-md font-serif">
+                <div className="absolute bottom-2 left-2 bg-[#9A720C]/90 backdrop-blur-xs text-white text-xs font-bold px-2.5 py-0.5 rounded-md">
                   {formatPrice(item.price)}
                 </div>
               </div>
 
               <div className="p-3 space-y-1">
-                <h4 className="text-xs font-bold text-gray-900 truncate font-serif">
+                <h4 className="text-xs font-bold text-gray-900 truncate">
                   {title}
                 </h4>
                 <div className="flex items-center gap-2 text-[10px] text-gray-500 font-medium">

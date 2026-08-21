@@ -22,22 +22,7 @@ export default function PropertyFilters({
 }: Props) {
   return (
  <div
-  className="
-  bg-white/80
-
-  backdrop-blur-xl
-
-  rounded-[32px]
-
-  border
-  border-[#EAE3D6]
-
-  p-5
-
-  shadow-[0_10px_30px_rgba(0,0,0,0.05)]
-
-  mb-8
-  "
+  className="bg-white/80 backdrop-blur-xl rounded-[32px] border border-[#EAE3D6] p-5 shadow-[0_10px_30px_rgba(0,0,0,0.05)] mb-8"
 >
       <div className="grid md:grid-cols-2 gap-4">
         <Search
@@ -51,17 +36,7 @@ export default function PropertyFilters({
             setSearch(e.target.value)
           }
           placeholder="Search properties..."
-          className="
-          w-full
-          h-14
-          pl-11
-          pr-4
-          rounded-xl
-          border
-          border-[#EAE3D6]
-          focus:outline-none
-          focus:border-[#C6A664]
-          "
+          className="w-full h-14 pl-11 pr-4 rounded-xl border border-[#EAE3D6] focus:outline-none focus:border-[#C6A664]"
         />
       </div>
 
@@ -72,15 +47,7 @@ export default function PropertyFilters({
             e.target.value
           )
         }
-        className="
-        h-14
-        px-4
-        rounded-xl
-        border
-        border-[#EAE3D6]
-        bg-white
-        min-w-[220px]
-        "
+        className="h-14 px-4 rounded-xl border border-[#EAE3D6] bg-white min-w-[220px]"
       >
         <option value="">
           All Types

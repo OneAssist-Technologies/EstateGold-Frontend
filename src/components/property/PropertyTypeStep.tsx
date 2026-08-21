@@ -46,7 +46,7 @@ export default function PropertyTypeStep({
     <div className="space-y-6">
       {/* Heading */}
       <div>
-        <h2 className="text-2xl font-bold font-serif text-gray-900">
+        <h2 className="text-2xl font-bold text-gray-900">
           What are you listing?
         </h2>
         <p className="text-xs text-gray-400 mt-1 font-medium">
@@ -145,15 +145,7 @@ export default function PropertyTypeStep({
                 `}
               >
                 <div
-                  className="
-                    h-8
-                    w-8
-                    rounded-lg
-                    bg-[#FAF4E8]
-                    flex
-                    items-center
-                    justify-center
-                  "
+                  className="h-8 w-8 rounded-lg bg-[#FAF4E8] flex items-center justify-center"
                 >
                   <Building2
                     size={16}

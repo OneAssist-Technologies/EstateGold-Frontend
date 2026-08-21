@@ -46,7 +46,7 @@ export default function PropertyCard({
       <div className="p-8">
         <div className="flex justify-between items-start">
           <div>
-            <h3 className="text-2xl font-[var(--font-playfair)]">
+            <h3 className="text-2xl">
               {title}
             </h3>
 

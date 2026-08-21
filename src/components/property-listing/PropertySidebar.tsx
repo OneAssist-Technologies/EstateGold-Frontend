@@ -35,23 +35,7 @@ export default function PropertySidebar({
     x: 0,
     opacity: 1,
   }}
-className="
-sticky
-top-24
-
-bg-white
-
-rounded-[32px]
-
-border
-border-[#EAE3D6]
-
-p-6
-
-h-fit
-
-shadow-[0_10px_40px_rgba(0,0,0,0.05)]
-"
+className="sticky top-24 bg-white rounded-[32px] border border-[#EAE3D6] p-6 h-fit shadow-[0_10px_40px_rgba(0,0,0,0.05)]"
 >
       <h3 className="font-semibold text-xl mb-6">
         Filters

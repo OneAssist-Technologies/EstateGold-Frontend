@@ -28,13 +28,13 @@ export default function Hero() {
                 .filter((c: string) => Boolean(c && c.trim()))
             )
           ) as string[];
-          setPopularLocations(activeCities.slice(0, 6));
+          setPopularLocations(activeCities.slice(0, 4));
         } else {
-          setPopularLocations(["Coimbatore", "Chennai", "Bangalore"]);
+          setPopularLocations(["Coimbatore", "Chennai", "Bengaluru", "Kollengode"]);
         }
       } catch (err) {
         console.error("Failed to fetch serviceable locations for search:", err);
-        setPopularLocations(["Coimbatore", "Chennai", "Bangalore"]);
+        setPopularLocations(["Coimbatore", "Chennai", "Bengaluru", "Kollengode"]);
       } finally {
         setLoadingLocations(false);
       }
@@ -43,22 +43,55 @@ export default function Hero() {
     fetchPopularLocations();
   }, []);
 
-  const handleSearch = (queryOverride?: string) => {
+  const [searching, setSearching] = useState(false);
+
+  const handleSearch = async (queryOverride?: string) => {
     const q = queryOverride !== undefined ? queryOverride : searchQuery;
-    const params = new URLSearchParams();
-    if (activeTab === "Rent") {
-      params.set("purpose", "Rent");
-    } else if (activeTab === "Commercial") {
-      params.set("type", "Commercial");
-    } else {
-      params.set("purpose", "Buy");
+    if (!q || !q.trim()) {
+      const params = new URLSearchParams();
+      if (activeTab === "Rent") params.set("purpose", "Rent");
+      else if (activeTab === "Commercial") params.set("type", "Commercial");
+      else params.set("purpose", "Buy");
+      router.push(`/property-listing?${params.toString()}`);
+      return;
     }
 
-    if (q && q.trim()) {
+    try {
+      setSearching(true);
+      const res = await api.post("/api/ai/parse-search", { query: q.trim() });
+      if (res.data && res.data.success) {
+        const params = new URLSearchParams();
+
+        let hasStructured = false;
+        if (res.data.purpose) { params.set("purpose", res.data.purpose); hasStructured = true; }
+        else if (activeTab === "Rent") params.set("purpose", "Rent");
+        else if (activeTab === "Commercial") params.set("type", "Commercial");
+        else params.set("purpose", "Buy");
+
+        if (res.data.propertyType) { params.set("propertyType", res.data.propertyType); hasStructured = true; }
+        if (res.data.city) { params.set("city", res.data.city); hasStructured = true; }
+        if (res.data.locality) { params.set("locality", res.data.locality); hasStructured = true; }
+        if (res.data.bedrooms) { params.set("bedrooms", res.data.bedrooms); hasStructured = true; }
+        if (res.data.minPrice) { params.set("minPrice", res.data.minPrice); hasStructured = true; }
+        if (res.data.maxPrice) { params.set("maxPrice", res.data.maxPrice); hasStructured = true; }
+
+        // ALWAYS set the search parameter to the original query so it populates the search bar on the listing page
+        params.set("search", q.trim());
+
+        router.push(`/property-listing?${params.toString()}`);
+      } else {
+        const params = new URLSearchParams();
+        params.set("search", q.trim());
+        router.push(`/property-listing?${params.toString()}`);
+      }
+    } catch (err) {
+      console.error("AI Search Parse failed, proceeding with fallback redirect:", err);
+      const params = new URLSearchParams();
       params.set("search", q.trim());
+      router.push(`/property-listing?${params.toString()}`);
+    } finally {
+      setSearching(false);
     }
-
-    router.push(`/property-listing?${params.toString()}`);
   };
 
   const [totalCount, setTotalCount] = useState<number | null>(null);
@@ -91,18 +124,19 @@ export default function Hero() {
 
       <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/35" />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 py-28 w-full">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-28 w-full">
         <div className="inline-flex border border-[#C89B1C] rounded-full px-5 py-2 text-[#C89B1C] font-medium text-sm backdrop-blur-md bg-black/30">
           #1 Trusted Real Estate Platform
         </div>
 
-        <h1 className="mt-8 text-5xl sm:text-6xl font-bold text-white max-w-4xl leading-tight font-serif">
-          Find Your <span className="text-[#C89B1C]">Perfect Home</span>
-          <br />
-          Without Brokerage
+        <h1 className="mt-8 text-2xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-[64px] font-extrabold text-white max-w-5xl leading-tight tracking-tight">
+          Every Property has a Story
+          <span className="block text-sm xs:text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold text-[#C89B1C] mt-2 sm:mt-3 tracking-wide">
+            Find the one that Fits for you
+          </span>
         </h1>
 
-        <p className="text-white/80 text-lg sm:text-xl mt-6 max-w-3xl font-sans">
+        <p className="text-white/80 text-base sm:text-lg mt-4 sm:mt-6 max-w-3xl font-sans">
           Search from {totalCount !== null ? `${totalCount.toLocaleString("en-IN")}+` : "verified"} properties and connect directly with owners.
         </p>
 
@@ -114,11 +148,10 @@ export default function Hero() {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`py-4 px-8 font-bold text-base transition-all cursor-pointer relative ${
-                  activeTab === tab
+                className={`py-4 px-8 font-bold text-base transition-all cursor-pointer relative ${activeTab === tab
                     ? "text-[#F5C438]"
                     : "text-white/80 hover:text-white"
-                }`}
+                  }`}
               >
                 {tab}
                 {activeTab === tab && (
@@ -143,16 +176,26 @@ export default function Hero() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                   placeholder="Search by city, locality, society or project..."
-                  className="w-full h-14 border border-white/25 rounded-2xl pl-12 pr-4 text-white placeholder:text-white/70 outline-none focus:border-[#F5C438] focus:bg-white/20 transition-all text-base bg-white/10 backdrop-blur-sm shadow-inner font-medium"
+                  className="hero-search-input w-full h-14 border border-white/25 rounded-2xl pl-12 pr-4 text-white placeholder:text-white/70 outline-none focus:border-[#F5C438] focus:bg-white/20 transition-all text-base bg-white/10 backdrop-blur-sm shadow-inner font-medium"
                 />
               </div>
 
               <button
                 onClick={() => handleSearch()}
-                className="w-full sm:w-auto bg-[#C89B1C] hover:bg-[#b28917] text-white font-bold px-8 h-14 rounded-2xl flex items-center justify-center gap-2 text-base transition-all shadow-lg cursor-pointer shrink-0 hover:scale-[1.02]"
+                disabled={searching}
+                className="w-full sm:w-auto bg-[#C89B1C] hover:bg-[#b28917] text-white font-bold px-8 h-14 rounded-2xl flex items-center justify-center gap-2 text-base transition-all shadow-lg cursor-pointer shrink-0 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Search size={20} />
-                <span>Search</span>
+                {searching ? (
+                  <>
+                    <span className="h-5 w-5 rounded-full border-2 border-white border-t-transparent animate-spin shrink-0" />
+                    <span>Searching...</span>
+                  </>
+                ) : (
+                  <>
+                    <Search size={20} />
+                    <span>Search</span>
+                  </>
+                )}
               </button>
             </div>
 

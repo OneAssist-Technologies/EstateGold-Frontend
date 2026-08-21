@@ -50,7 +50,7 @@ export default function PriceTransparency({ property }: Props) {
   return (
     <div className="border border-[#ECE7DB] rounded-[32px] p-6 sm:p-8 bg-white space-y-6">
       <div>
-        <h3 className="text-xl sm:text-2xl font-bold font-serif text-gray-900">
+        <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
           Price Transparency
         </h3>
         <p className="text-xs text-gray-500 mt-1 leading-relaxed">
@@ -155,7 +155,7 @@ export default function PriceTransparency({ property }: Props) {
         {/* Card A: Property Charges */}
         <div className="border border-[#ECE7DB] bg-[#FAF8F5]/30 rounded-2xl p-5 flex flex-col justify-between space-y-4">
           <div>
-            <h4 className="text-sm font-bold text-gray-900 font-serif flex items-center gap-1.5 border-b border-gray-100 pb-2">
+            <h4 className="text-sm font-bold text-gray-900 flex items-center gap-1.5 border-b border-gray-100 pb-2">
               🔑 Property Charges
             </h4>
             <div className="mt-4 space-y-3">
@@ -196,7 +196,7 @@ export default function PriceTransparency({ property }: Props) {
         {/* Card B: Govt. & Transaction Charges */}
         <div className="border border-[#ECE7DB] bg-[#FAF8F5]/30 rounded-2xl p-5 flex flex-col justify-between space-y-4">
           <div>
-            <h4 className="text-sm font-bold text-gray-900 font-serif flex items-center gap-1.5 border-b border-gray-100 pb-2">
+            <h4 className="text-sm font-bold text-gray-900 flex items-center gap-1.5 border-b border-gray-100 pb-2">
               📄 Govt. & Transaction Charges
             </h4>
             <div className="mt-4 space-y-3">
@@ -231,7 +231,7 @@ export default function PriceTransparency({ property }: Props) {
         {/* Card C: Platform Charges */}
         <div className="border border-[#ECE7DB] bg-[#FAF8F5]/30 rounded-2xl p-5 flex flex-col justify-between space-y-4">
           <div>
-            <h4 className="text-sm font-bold text-gray-900 font-serif flex items-center gap-1.5 border-b border-gray-100 pb-2">
+            <h4 className="text-sm font-bold text-gray-900 flex items-center gap-1.5 border-b border-gray-100 pb-2">
               🛡️ Platform Charges
             </h4>
             <div className="mt-4 space-y-3">

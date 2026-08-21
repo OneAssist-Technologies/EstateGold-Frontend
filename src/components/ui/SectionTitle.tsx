@@ -25,7 +25,7 @@ export default function SectionTitle({
         </span>
       )}
 
-      <h2 className="mt-4 text-4xl md:text-5xl lg:text-6xl font-[var(--font-playfair)] leading-tight">
+      <h2 className="mt-4 text-4xl md:text-5xl lg:text-6xl leading-tight">
         {title}
       </h2>
 

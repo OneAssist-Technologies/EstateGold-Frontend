@@ -31,12 +31,7 @@ export default function PropertyDetailsModal({
             exit={{
               opacity: 0,
             }}
-            className="
-            fixed
-            inset-0
-            bg-black/50
-            z-50
-            "
+            className="fixed inset-0 bg-black/50 z-50"
             onClick={onClose}
           />
 
@@ -53,32 +48,11 @@ export default function PropertyDetailsModal({
               opacity: 0,
               scale: 0.95,
             }}
-            className="
-            fixed
-            top-1/2
-            left-1/2
-            -translate-x-1/2
-            -translate-y-1/2
-
-            z-50
-
-            w-[95%]
-            max-w-5xl
-
-            bg-white
-
-            rounded-3xl
-            overflow-hidden
-            "
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[95%] max-w-5xl bg-white rounded-3xl overflow-hidden"
           >
             <button
               onClick={onClose}
-              className="
-              absolute
-              top-5
-              right-5
-              z-10
-              "
+              className="absolute top-5 right-5 z-10"
             >
               <X />
             </button>
@@ -88,11 +62,7 @@ export default function PropertyDetailsModal({
                 property.photos?.[0] || "/placeholder.jpg"
               }
               alt=""
-              className="
-              w-full
-              h-[400px]
-              object-cover
-              "
+              className="w-full h-[400px] object-cover"
             />
 
             <div className="p-8">

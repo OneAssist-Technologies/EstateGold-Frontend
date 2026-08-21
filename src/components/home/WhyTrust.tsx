@@ -61,15 +61,7 @@ export default function WhyTrust() {
                   className="flex gap-5"
                 >
                   <div
-                    className="
-                    h-14
-                    w-14
-                    rounded-2xl
-                    bg-[#F8F3E8]
-                    flex
-                    items-center
-                    justify-center
-                    "
+                    className="h-14 w-14 rounded-2xl bg-[#F8F3E8] flex items-center justify-center"
                   >
                     <item.icon
                       size={24}
@@ -102,15 +94,7 @@ export default function WhyTrust() {
             />
 
             <div
-              className="
-              absolute
-              bottom-6
-              left-6
-              bg-white
-              p-6
-              rounded-2xl
-              shadow-xl
-              "
+              className="absolute bottom-6 left-6 bg-white p-6 rounded-2xl shadow-xl"
             >
               <p className="text-3xl font-bold">
                 ₹2.3 Lakhs

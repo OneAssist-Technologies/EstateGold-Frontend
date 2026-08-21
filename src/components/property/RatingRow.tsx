@@ -80,13 +80,7 @@ export default function RatingSection({
   return (
     <motion.div
       layout
-      className="
-        bg-white
-        rounded-[30px]
-        border
-        border-[#ECE6D8]
-        p-8
-      "
+      className="bg-white rounded-[30px] border border-[#ECE6D8] p-8"
     >
       <div className="mb-6">
 
@@ -110,33 +104,13 @@ export default function RatingSection({
 
           <div
             key={item.key}
-            className="
-              border
-              border-[#ECE6D8]
-              rounded-2xl
-              p-5
-              flex
-              items-center
-              justify-between
-              hover:border-[#C89B1C]
-              hover:shadow-md
-              transition
-            "
+            className="border border-[#ECE6D8] rounded-2xl p-5 flex items-center justify-between hover:border-[#C89B1C] hover:shadow-md transition"
           >
 
             <div className="flex items-center gap-5">
 
               <div
-                className="
-                  h-14
-                  w-14
-                  rounded-2xl
-                  bg-[#FFF8EA]
-                  flex
-                  items-center
-                  justify-center
-                  text-2xl
-                "
+                className="h-14 w-14 rounded-2xl bg-[#FFF8EA] flex items-center justify-center text-2xl"
               >
                 {item.emoji}
               </div>
@@ -177,10 +151,7 @@ export default function RatingSection({
                     })
 
                   }
-                  className="
-                    transition
-                    hover:scale-110
-                  "
+                  className="transition hover:scale-110"
                 >
 
                   <Star

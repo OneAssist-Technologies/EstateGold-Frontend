@@ -60,7 +60,7 @@ export default function DashboardCards({
           }}
           className="bg-white rounded-2xl p-6 border border-[#ECE7DB] shadow-2xs hover:shadow-xs transition-all duration-300 flex flex-col justify-center"
         >
-          <span className={`text-4xl font-bold font-serif ${card.colorClass}`}>
+          <span className={`text-4xl font-bold  ${card.colorClass}`}>
             {card.value}
           </span>
           <span className="text-xs font-semibold text-gray-500 mt-1.5 tracking-wide">

@@ -50,16 +50,7 @@ export default function NearbyPlaceCard({
       <div className="flex items-center justify-between p-5">
         <div className="flex items-center gap-4">
           <div
-            className="
-              h-12
-              w-12
-              rounded-xl
-              bg-[#F6F2E8]
-              flex
-              items-center
-              justify-center
-              text-[#B8860B]
-            "
+            className="h-12 w-12 rounded-xl bg-[#F6F2E8] flex items-center justify-center text-[#B8860B]"
           >
             {icon}
           </div>
@@ -129,17 +120,7 @@ export default function NearbyPlaceCard({
               </label>
 
               <div
-                className="
-                  mt-2
-                  h-12
-                  rounded-xl
-                  border
-                  border-[#E5DDC9]
-                  px-4
-                  flex
-                  items-center
-                  gap-3
-                "
+                className="mt-2 h-12 rounded-xl border border-[#E5DDC9] px-4 flex items-center gap-3"
               >
                 <MapPin
                   size={18}
@@ -155,11 +136,7 @@ export default function NearbyPlaceCard({
                     })
                   }
                   placeholder={`e.g. ${title}`}
-                  className="
-                    flex-1
-                    outline-none
-                    bg-transparent
-                  "
+                  className="flex-1 outline-none bg-transparent"
                 />
               </div>
             </div>
@@ -177,16 +154,7 @@ export default function NearbyPlaceCard({
                     distance: e.target.value,
                   })
                 }
-                className="
-                  mt-2
-                  h-12
-                  w-full
-                  rounded-xl
-                  border
-                  border-[#E5DDC9]
-                  px-4
-                  outline-none
-                "
+                className="mt-2 h-12 w-full rounded-xl border border-[#E5DDC9] px-4 outline-none"
               >
                 <option value="">
                   Select

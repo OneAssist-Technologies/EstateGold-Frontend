@@ -359,7 +359,7 @@ export default function AdminSettingsPage() {
       <div className="p-4 sm:p-6 lg:p-8 max-w-[1500px] mx-auto space-y-6 font-sans">
         {/* Page Header */}
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight font-serif">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
             Settings
           </h1>
           <p className="text-xs sm:text-sm text-gray-500 font-medium mt-1">
@@ -443,7 +443,7 @@ export default function AdminSettingsPage() {
                 {/* Profile Photo Header Block */}
                 <div className="flex flex-col sm:flex-row items-center gap-6 p-5 border border-[#F4EFE6] rounded-2xl bg-[#FAFAF8]">
                   <div className="relative shrink-0">
-                    <div className="h-20 w-20 rounded-full border-2 border-[#E5DCC6] bg-[#FAF5EA] flex items-center justify-center text-2xl font-bold font-serif text-[#9A720C] overflow-hidden">
+                    <div className="h-20 w-20 rounded-full border-2 border-[#E5DCC6] bg-[#FAF5EA] flex items-center justify-center text-2xl font-bold text-[#9A720C] overflow-hidden">
                       {profileImage ? (
                         <img src={profileImage} alt="" className="w-full h-full object-cover" />
                       ) : (

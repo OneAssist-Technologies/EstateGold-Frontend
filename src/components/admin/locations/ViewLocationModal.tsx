@@ -57,7 +57,7 @@ export default function ViewLocationModal({
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h2 className="text-xl font-bold font-serif text-[#161616]">
+                  <h2 className="text-xl font-bold text-[#161616]">
                     {location.city}
                   </h2>
                   <span

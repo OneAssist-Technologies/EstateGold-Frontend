@@ -266,7 +266,7 @@ export default function DocumentsStep({ formData, setFormData, errors }: Props) 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold font-serif text-gray-900 leading-tight">
+        <h2 className="text-2xl font-bold text-gray-900 leading-tight">
           Document Collection
         </h2>
         <p className="text-xs text-gray-400 mt-1 font-medium">

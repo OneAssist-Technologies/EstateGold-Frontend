@@ -378,7 +378,7 @@ export default function PropertyDetailsStep({
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold font-serif text-gray-900 leading-tight">
+        <h2 className="text-2xl font-bold text-gray-900 leading-tight">
           Property Details
         </h2>
         <p className="text-xs text-gray-400 mt-1 font-medium">

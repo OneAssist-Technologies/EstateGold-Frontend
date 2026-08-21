@@ -904,7 +904,7 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
               </motion.div>
             </motion.div>
 
-            <h1 className="text-2xl font-playfair font-semibold text-[#161616]">
+            <h1 className="text-2xl font-semibold text-[#161616]">
               Property Listed Successfully!
             </h1>
 
@@ -1000,7 +1000,7 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
               </div>
             </div>
 
-            <h3 className="text-center font-playfair font-bold text-xl sm:text-2xl text-[#161616]">
+            <h3 className="text-center font-bold text-xl sm:text-2xl text-[#161616]">
               Listing As Verified Agent
             </h3>
             <p className="text-center text-xs text-gray-500 mt-2 leading-relaxed">
@@ -1090,7 +1090,7 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="text-3xl md:text-4xl font-playfair font-bold text-[#161616] mb-2 tracking-tight"
+              className="text-3xl md:text-4xl font-bold text-[#161616] mb-2 tracking-tight"
             >
               {mode === "edit" ? "Edit Property" : "List Your Property"}
             </motion.h1>

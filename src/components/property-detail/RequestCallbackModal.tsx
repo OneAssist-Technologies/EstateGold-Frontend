@@ -123,17 +123,7 @@ export default function RequestCallbackModal({
             opacity: 0,
           }}
 
-          className="
-            fixed
-            inset-0
-            bg-black/60
-            backdrop-blur-md
-            flex
-            items-center
-            justify-center
-            z-[999]
-            p-6
-          "
+          className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-[999] p-6"
         >
 
           <motion.div
@@ -155,38 +145,20 @@ export default function RequestCallbackModal({
               opacity: 0,
             }}
 
-            className="
-              w-full
-              max-w-2xl
-              bg-white
-              rounded-[30px]
-              overflow-hidden
-              shadow-2xl
-            "
+            className="w-full max-w-2xl bg-white rounded-[30px] overflow-hidden shadow-2xl"
           >
 
             {/* Header */}
 
             <div
-              className="
-                bg-gradient-to-r
-                from-[#B8860B]
-                to-[#D4AF37]
-                text-white
-                p-8
-                relative
-              "
+              className="bg-gradient-to-r from-[#B8860B] to-[#D4AF37] text-white p-8 relative"
             >
 
               <button
 
                 onClick={onClose}
 
-                className="
-                  absolute
-                  right-6
-                  top-6
-                "
+                className="absolute right-6 top-6"
               >
 
                 <X size={22} />
@@ -233,16 +205,7 @@ export default function RequestCallbackModal({
                   </label>
 
                   <div
-                    className="
-                      mt-2
-                      h-14
-                      border
-                      rounded-xl
-                      px-4
-                      flex
-                      items-center
-                      gap-3
-                    "
+                    className="mt-2 h-14 border rounded-xl px-4 flex items-center gap-3"
                   >
 
                     <User size={18} />
@@ -274,15 +237,7 @@ export default function RequestCallbackModal({
                   </label>
 
                   <div
-                    className="
-                      mt-2
-                      h-14
-                      border
-                      rounded-xl
-                      px-4
-                      flex
-                      items-center
-                    "
+                    className="mt-2 h-14 border rounded-xl px-4 flex items-center"
                   >
 
                     <PhoneCall size={18} />
@@ -317,15 +272,7 @@ export default function RequestCallbackModal({
                   </label>
 
                   <div
-                    className="
-                      mt-2
-                      h-14
-                      border
-                      rounded-xl
-                      px-4
-                      flex
-                      items-center
-                    "
+                    className="mt-2 h-14 border rounded-xl px-4 flex items-center"
                   >
 
                     <Calendar size={18} />
@@ -340,11 +287,7 @@ export default function RequestCallbackModal({
 
                       onChange={handleChange}
 
-                      className="
-                        flex-1
-                        ml-3
-                        outline-none
-                      "
+                      className="flex-1 ml-3 outline-none"
 
                     />
 
@@ -361,15 +304,7 @@ export default function RequestCallbackModal({
                   </label>
 
                   <div
-                    className="
-                      mt-2
-                      h-14
-                      border
-                      rounded-xl
-                      px-4
-                      flex
-                      items-center
-                    "
+                    className="mt-2 h-14 border rounded-xl px-4 flex items-center"
                   >
 
                     <Clock size={18} />
@@ -384,11 +319,7 @@ export default function RequestCallbackModal({
 
                       onChange={handleChange}
 
-                      className="
-                        flex-1
-                        ml-3
-                        outline-none
-                      "
+                      className="flex-1 ml-3 outline-none"
 
                     />
 
@@ -407,14 +338,7 @@ export default function RequestCallbackModal({
                 </label>
 
                 <div
-                  className="
-                    mt-2
-                    border
-                    rounded-xl
-                    p-4
-                    flex
-                    gap-3
-                  "
+                  className="mt-2 border rounded-xl p-4 flex gap-3"
                 >
 
                   <MessageSquare
@@ -432,11 +356,7 @@ export default function RequestCallbackModal({
 
                     onChange={handleChange}
 
-                    className="
-                      flex-1
-                      resize-none
-                      outline-none
-                    "
+                    className="flex-1 resize-none outline-none"
 
                     placeholder="Tell the owner about your requirement..."
 
@@ -452,12 +372,7 @@ export default function RequestCallbackModal({
 
                   onClick={onClose}
 
-                  className="
-                    h-14
-                    px-8
-                    rounded-xl
-                    border
-                  "
+                  className="h-14 px-8 rounded-xl border"
                 >
 
                   Cancel
@@ -470,16 +385,7 @@ export default function RequestCallbackModal({
 
                   onClick={handleSubmit}
 
-                  className="
-                    h-14
-                    px-10
-                    rounded-xl
-                    bg-[#C89B1C]
-                    hover:bg-[#B8860B]
-                    text-white
-                    font-semibold
-                    transition
-                  "
+                  className="h-14 px-10 rounded-xl bg-[#C89B1C] hover:bg-[#B8860B] text-white font-semibold transition"
                 >
 
                   {loading

@@ -42,12 +42,7 @@ export default function Testimonials() {
           {testimonials.map((item) => (
             <div
               key={item.name}
-              className="
-              bg-white
-              p-8
-              rounded-3xl
-              shadow-sm
-              "
+              className="bg-white p-8 rounded-3xl shadow-sm"
             >
               <div className="flex gap-1">
                 {[1,2,3,4,5].map((star) => (
@@ -68,17 +63,7 @@ export default function Testimonials() {
 
               <div className="flex items-center gap-4 mt-8">
                 <div
-                  className="
-                  h-12
-                  w-12
-                  rounded-full
-                  bg-[#C89B1C]
-                  text-white
-                  flex
-                  items-center
-                  justify-center
-                  font-semibold
-                  "
+                  className="h-12 w-12 rounded-full bg-[#C89B1C] text-white flex items-center justify-center font-semibold"
                 >
                   {item.name.charAt(0)}
                 </div>

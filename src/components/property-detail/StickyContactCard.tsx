@@ -88,7 +88,7 @@ export default function StickyContactCard({
         <div className="relative h-24 bg-gradient-to-r from-[#B88A1A] via-[#D4B04C] to-[#8C6605] overflow-hidden select-none pointer-events-none">
           <div className="absolute inset-0 bg-white/40 backdrop-blur-xs" />
           <div className="absolute inset-0 flex flex-col justify-center px-4 space-y-1 opacity-20">
-            <div className="text-2xl font-bold font-serif text-white">
+            <div className="text-2xl font-bold text-white">
               {formatPrice(property.price)}
             </div>
             <p className="text-xs text-amber-100 font-medium truncate">
@@ -104,7 +104,7 @@ export default function StickyContactCard({
           </div>
 
           <div className="space-y-1">
-            <h3 className="text-sm font-bold text-gray-900 font-serif">Sign in to contact</h3>
+            <h3 className="text-sm font-bold text-gray-900">Sign in to contact</h3>
             <p className="text-xs text-gray-500 leading-relaxed max-w-[200px]">
               View owner details and send a request
             </p>
@@ -128,7 +128,7 @@ export default function StickyContactCard({
       <div className="rounded-2xl overflow-hidden shadow-xs border border-[#ECE7DB] bg-white">
         {/* Header Gold Banner */}
         <div className="bg-gradient-to-r from-[#B88A1A] via-[#D4B04C] to-[#8C6605] text-white p-4 space-y-1">
-          <div className="text-2xl font-bold font-serif">
+          <div className="text-2xl font-bold">
             {formatPrice(property.price)}
             {isRent ? <span className="text-sm font-sans font-normal opacity-90"> / month</span> : null}
           </div>
@@ -207,7 +207,7 @@ export default function StickyContactCard({
 
           <div className="flex items-baseline justify-between">
             <span className="text-[11px] font-medium text-gray-600">Monthly EMI</span>
-            <span className="text-lg font-bold font-serif text-[#9A720C]">
+            <span className="text-lg font-bold text-[#9A720C]">
               {calculateEMI(property.price)}
             </span>
           </div>

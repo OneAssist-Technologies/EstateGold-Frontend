@@ -113,7 +113,7 @@ export default function LocalityRatings({ property }: Props) {
           </div>
 
           <div className="space-y-1 min-w-0">
-            <h4 className="text-xs font-bold text-gray-900 font-serif">
+            <h4 className="text-xs font-bold text-gray-900">
               About This Locality ({property.locality || "Locality"}, {property.city || "City"})
             </h4>
             <p className="text-[11px] text-gray-600 leading-relaxed font-medium">

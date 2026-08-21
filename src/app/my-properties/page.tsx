@@ -303,18 +303,7 @@ return (
         {/* Search */}
 
         <div
-          className="
-            bg-white
-            border
-            border-[#E8DCC1]
-            rounded-2xl
-            px-6
-            h-16
-            flex
-            items-center
-            mt-8
-            mb-8
-          "
+          className="bg-white border border-[#E8DCC1] rounded-2xl px-6 h-16 flex items-center mt-8 mb-8"
         >
 
           <Search
@@ -329,12 +318,7 @@ return (
     setPage(1);
   }}
   placeholder="Search by city, locality, property type..."
-  className="
-    flex-1
-    ml-4
-    outline-none
-    text-lg
-  "
+  className="flex-1 ml-4 outline-none text-lg"
 />
 
         </div>
@@ -346,15 +330,7 @@ return (
           <div className="flex justify-center py-32">
 
             <div
-              className="
-                h-14
-                w-14
-                rounded-full
-                border-4
-                border-[#E8DCC1]
-                border-t-[#C89B1C]
-                animate-spin
-              "
+              className="h-14 w-14 rounded-full border-4 border-[#E8DCC1] border-t-[#C89B1C] animate-spin"
             />
 
           </div>
@@ -362,15 +338,7 @@ return (
         ) : properties.length === 0 ? (
 
           <div
-            className="
-              bg-white
-              rounded-3xl
-              border
-              border-dashed
-              border-[#E8DCC1]
-              py-28
-              text-center
-            "
+            className="bg-white rounded-3xl border border-dashed border-[#E8DCC1] py-28 text-center"
           >
 
             <img
@@ -398,14 +366,7 @@ return (
                 setStatus("all");
 
               }}
-              className="
-                mt-8
-                px-7
-                h-12
-                rounded-xl
-                bg-[#C89B1C]
-                text-white
-              "
+              className="mt-8 px-7 h-12 rounded-xl bg-[#C89B1C] text-white"
             >
               Clear Filters
             </button>

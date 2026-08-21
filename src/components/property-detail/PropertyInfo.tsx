@@ -70,7 +70,7 @@ export default function PropertyInfo({ property }: Props) {
     <div className="py-3 border-b border-[#ECE7DB] flex flex-col sm:flex-row sm:items-start justify-between gap-4">
       {/* Title & Location */}
       <div className="space-y-1">
-        <h1 className="text-xl sm:text-2xl font-bold font-serif text-[#161616] leading-tight">
+        <h1 className="text-xl sm:text-2xl font-bold text-[#161616] leading-tight">
           {displayTitle}
         </h1>
 
@@ -104,7 +104,7 @@ export default function PropertyInfo({ property }: Props) {
 
       {/* Price & Rate */}
       <div className="text-left sm:text-right shrink-0">
-        <div className="text-2xl sm:text-3xl font-bold font-serif text-[#9A720C]">
+        <div className="text-2xl sm:text-3xl font-bold text-[#9A720C]">
           {formatPrice(property.price)}
         </div>
         {perSqFt && (

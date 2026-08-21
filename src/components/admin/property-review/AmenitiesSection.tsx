@@ -49,12 +49,7 @@ export default function AmenitiesSection({
     <section className="mt-8">
 
       <h2
-        className="
-          text-2xl
-          font-playfair
-          font-bold
-          text-[#161616]
-        "
+        className="text-2xl font-bold text-[#161616]"
       >
         Amenities
       </h2>
@@ -62,11 +57,7 @@ export default function AmenitiesSection({
       {amenities.length === 0 ? (
 
         <div
-          className="
-            mt-4
-            text-sm
-            text-gray-500
-          "
+          className="mt-4 text-sm text-gray-500"
         >
           No amenities available.
         </div>
@@ -74,42 +65,21 @@ export default function AmenitiesSection({
       ) : (
 
         <div
-          className="
-            mt-5
-            flex
-            flex-wrap
-            gap-3
-          "
+          className="mt-5 flex flex-wrap gap-3"
         >
 
           {amenities.map((item) => (
 
             <div
               key={item}
-              className="
-                inline-flex
-                items-center
-                gap-2
-                rounded-full
-                border
-                border-[#E7D8B6]
-                bg-[#FFFDF8]
-                px-4
-                py-2
-                transition
-                hover:bg-[#FFF8EA]
-              "
+              className="inline-flex items-center gap-2 rounded-full border border-[#E7D8B6] bg-[#FFFDF8] px-4 py-2 transition hover:bg-[#FFF8EA]"
             >
 
            <span className="text-[#C89B1C]">
   {amenityIcons[item] ?? <CircleDot size={14} />}
 </span>
               <span
-                className="
-                  text-[14px]
-                  font-medium
-                  text-[#161616]
-                "
+                className="text-[14px] font-medium text-[#161616]"
               >
                 {item}
               </span>

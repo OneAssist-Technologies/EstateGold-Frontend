@@ -44,13 +44,7 @@ export default function NeighbourhoodSection({
 ) {
   return (
     <section
-      className="
-        rounded-3xl
-        border
-        border-[#ECE7DB]
-        bg-white
-        p-8
-      "
+      className="rounded-3xl border border-[#ECE7DB] bg-white p-8"
     >
       <h2 className="text-2xl font-semibold">
         Neighbourhood
@@ -72,22 +66,12 @@ const ratings = Object.entries(
 );
   return (
     <section
-      className="
-        rounded-3xl
-        border
-        border-[#ECE7DB]
-        bg-white
-        p-8
-      "
+      className="rounded-3xl border border-[#ECE7DB] bg-white p-8"
     >
       <div className="mb-8">
 
         <h2
-          className="
-            text-2xl
-            font-semibold
-            text-[#161616]
-          "
+          className="text-2xl font-semibold text-[#161616]"
         >
           Neighbourhood
         </h2>
@@ -102,24 +86,13 @@ const ratings = Object.entries(
 <div>
 
   <h3
-    className="
-      text-lg
-      font-semibold
-      mb-4
-    "
+    className="text-lg font-semibold mb-4"
   >
     Nearby Places
   </h3>
 
   <div
-    className="
-      grid
-      grid-cols-1
-      sm:grid-cols-2
-      lg:grid-cols-3
-      xl:grid-cols-4
-      gap-3
-    "
+    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3"
   >
 
     {places
@@ -128,33 +101,11 @@ const ratings = Object.entries(
 
         <div
           key={key}
-          className="
-            flex
-            items-center
-            gap-3
-            rounded-xl
-            border
-            border-[#ECE7DB]
-            bg-[#FCFBF8]
-            px-4
-            py-3
-            hover:bg-[#FFFDF8]
-            transition
-          "
+          className="flex items-center gap-3 rounded-xl border border-[#ECE7DB] bg-[#FCFBF8] px-4 py-3 hover:bg-[#FFFDF8] transition"
         >
 
           <div
-            className="
-              h-10
-              w-10
-              rounded-full
-              bg-[#FFF3D8]
-              text-[#C89B1C]
-              flex
-              items-center
-              justify-center
-              shrink-0
-            "
+            className="h-10 w-10 rounded-full bg-[#FFF3D8] text-[#C89B1C] flex items-center justify-center shrink-0"
           >
             {
               placeIcons[
@@ -166,41 +117,23 @@ const ratings = Object.entries(
           <div className="flex-1 min-w-0">
 
             <p
-              className="
-                text-sm
-                font-semibold
-                text-[#161616]
-                truncate
-              "
+              className="text-sm font-semibold text-[#161616] truncate"
             >
               {place.name}
             </p>
 
             <div
-              className="
-                mt-1
-                flex
-                items-center
-                justify-between
-              "
+              className="mt-1 flex items-center justify-between"
             >
 
               <span
-                className="
-                  text-xs
-                  text-gray-500
-                  capitalize
-                "
+                className="text-xs text-gray-500 capitalize"
               >
                 {key}
               </span>
 
               <span
-                className="
-                  text-xs
-                  font-medium
-                  text-[#C89B1C]
-                "
+                className="text-xs font-medium text-[#C89B1C]"
               >
                 {place.distance}
               </span>
@@ -222,21 +155,13 @@ const ratings = Object.entries(
       <div className="mt-12">
 
         <h3
-          className="
-            text-lg
-            font-semibold
-            mb-5
-          "
+          className="text-lg font-semibold mb-5"
         >
           Locality Ratings
         </h3>
 
         <div
-          className="
-            grid
-            md:grid-cols-2
-            gap-5
-          "
+          className="grid md:grid-cols-2 gap-5"
         >
 
           {ratings.map(([key, value]) => (
@@ -260,21 +185,13 @@ const ratings = Object.entries(
   <div className="mt-10">
 
     <h3
-      className="
-        text-lg
-        font-semibold
-        mb-4
-      "
+      className="text-lg font-semibold mb-4"
     >
       Landmarks
     </h3>
 
     <div
-      className="
-        flex
-        flex-wrap
-        gap-3
-      "
+      className="flex flex-wrap gap-3"
     >
 
       {neighbourhood.landmarks.map(
@@ -282,32 +199,11 @@ const ratings = Object.entries(
 
           <div
             key={index}
-            className="
-              inline-flex
-              items-center
-              gap-3
-              rounded-full
-              border
-              border-[#E7D8B6]
-              bg-[#FFFDF8]
-              px-4
-              py-2
-              hover:bg-[#FFF8EA]
-              transition
-            "
+            className="inline-flex items-center gap-3 rounded-full border border-[#E7D8B6] bg-[#FFFDF8] px-4 py-2 hover:bg-[#FFF8EA] transition"
           >
 
             <div
-              className="
-                h-8
-                w-8
-                rounded-full
-                bg-[#FFF3D8]
-                text-[#C89B1C]
-                flex
-                items-center
-                justify-center
-              "
+              className="h-8 w-8 rounded-full bg-[#FFF3D8] text-[#C89B1C] flex items-center justify-center"
             >
               <MapPin size={15} />
             </div>
@@ -315,20 +211,13 @@ const ratings = Object.entries(
             <div className="leading-tight">
 
               <p
-                className="
-                  text-sm
-                  font-medium
-                  text-[#161616]
-                "
+                className="text-sm font-medium text-[#161616]"
               >
                 {landmark.name}
               </p>
 
               <p
-                className="
-                  text-xs
-                  text-gray-500
-                "
+                className="text-xs text-gray-500"
               >
                 {landmark.distance}
               </p>
@@ -353,38 +242,23 @@ const ratings = Object.entries(
         <div className="mt-12">
 
           <h3
-            className="
-              text-lg
-              font-semibold
-              mb-5
-            "
+            className="text-lg font-semibold mb-5"
           >
             Additional Notes
           </h3>
 
           <div
-            className="
-              rounded-2xl
-              bg-[#FAF8F4]
-              border
-              border-[#ECE7DB]
-              p-6
-            "
+            className="rounded-2xl bg-[#FAF8F4] border border-[#ECE7DB] p-6"
           >
 
             <div className="flex gap-3">
 
               <FileText
-                className="
-                  text-[#C89B1C]
-                "
+                className="text-[#C89B1C]"
               />
 
               <p
-                className="
-                  leading-8
-                  text-gray-600
-                "
+                className="leading-8 text-gray-600"
               >
                 {neighbourhood.notes}
               </p>
@@ -440,31 +314,16 @@ function LocalityRatingRow({
 
   return (
     <div
-      className="
-        grid
-        grid-cols-[220px_1fr_30px_90px]
-        items-center
-        gap-4
-        py-2
-      "
+      className="grid grid-cols-[220px_1fr_30px_90px] items-center gap-4 py-2"
     >
       <p
-        className="
-          text-[15px]
-          text-[#161616]
-          font-medium
-        "
+        className="text-[15px] text-[#161616] font-medium"
       >
         {formatTitle(title)}
       </p>
 
       <div
-        className="
-          h-2
-          rounded-full
-          bg-[#E9DFC9]
-          overflow-hidden
-        "
+        className="h-2 rounded-full bg-[#E9DFC9] overflow-hidden"
       >
         <div
           className={`h-full rounded-full ${getColor()}`}

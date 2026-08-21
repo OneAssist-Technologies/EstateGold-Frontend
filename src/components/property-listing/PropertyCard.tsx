@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   BedDouble,
   Bath,
@@ -9,11 +10,13 @@ import {
 import { Property } from "../../types/property";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import api from "../../services/api";
 import {
   useCompareSession,
   addPropertyToCompare,
   removePropertyFromCompare,
 } from "../../services/compareService";
+import { calculatePropertyMatchScore } from "../../services/matchScoreService";
 
 interface Props {
   property: Property;
@@ -35,6 +38,69 @@ export default function PropertyCard({ property }: Props) {
   const router = useRouter();
   const session = useCompareSession();
   const isCompared = session.properties.some((p) => p._id === property._id);
+
+  const [matchData, setMatchData] = useState<any>(null);
+
+  useEffect(() => {
+    const updateScore = () => {
+      const saved = localStorage.getItem("estategold_user_preferences");
+      if (saved) {
+        try {
+          const prefs = JSON.parse(saved);
+          const result = calculatePropertyMatchScore(property, prefs);
+          setMatchData(result);
+          return;
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      
+      if ((property as any).matchScore !== undefined) {
+        let label = "Low Match";
+        const score = (property as any).matchScore;
+        if (score >= 90) label = "Excellent Match";
+        else if (score >= 75) label = "Very Good Match";
+        else if (score >= 60) label = "Good Match";
+        else if (score >= 40) label = "Partial Match";
+
+        setMatchData({
+          score,
+          label,
+          matchedReasons: (property as any).matchedDetails || [],
+          mismatchedReasons: (property as any).mismatchedDetails || [],
+          unverifiedReasons: []
+        });
+      } else {
+        setMatchData(null);
+      }
+    };
+
+    updateScore();
+    window.addEventListener("estategold_user_preferences_changed", updateScore);
+    return () => {
+      window.removeEventListener("estategold_user_preferences_changed", updateScore);
+    };
+  }, [property]);
+
+  const [highlights, setHighlights] = useState<string[]>([]);
+
+  useEffect(() => {
+    let active = true;
+    const fetchHighlights = async () => {
+      try {
+        const res = await api.get(`/api/ai/property-highlights/${property._id}`);
+        if (res.data && res.data.success && active) {
+          setHighlights(res.data.tags || []);
+        }
+      } catch (err) {
+        // Quietly fail
+      }
+    };
+    fetchHighlights();
+    return () => {
+      active = false;
+    };
+  }, [property._id]);
 
   const handleToggleCompare = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -146,27 +212,8 @@ export default function PropertyCard({ property }: Props) {
           <Heart size={16} />
         </button>
 
-        {/* Compare Checkbox Icon */}
-        <button
-          type="button"
-          onClick={handleToggleCompare}
-          className={`absolute top-13 right-3 h-8 px-2.5 bg-white/90 backdrop-blur-xs rounded-lg flex items-center justify-center gap-1.5 text-[11px] font-bold shadow-2xs transition-colors cursor-pointer border ${
-            isCompared
-              ? "border-[#9A720C] text-[#9A720C] bg-[#FFF9EC]"
-              : "border-gray-200 text-gray-700 hover:text-[#9A720C] hover:border-[#9A720C]"
-          }`}
-        >
-          <input
-            type="checkbox"
-            checked={isCompared}
-            readOnly
-            className="h-3 w-3 rounded border-gray-300 text-[#9A720C] focus:ring-[#9A720C] pointer-events-none"
-          />
-          Compare
-        </button>
-
         {/* Price Overlay on Bottom-Left */}
-        <div className="absolute bottom-3 left-3.5 text-white font-serif text-2xl sm:text-3xl font-bold tracking-tight drop-shadow-md">
+        <div className="absolute bottom-3 left-3.5 text-white text-2xl sm:text-3xl font-bold tracking-tight drop-shadow-md">
           {formatPrice(property.price)}
         </div>
 
@@ -192,6 +239,19 @@ export default function PropertyCard({ property }: Props) {
               {property.city}
             </span>
           </div>
+
+          {highlights.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-2.5">
+              {highlights.slice(0, 2).map((tag, idx) => (
+                <span
+                  key={idx}
+                  className="bg-[#FFF9EC] border border-[#F4E3B5] text-[#9A720C] text-[9px] font-bold px-2 py-0.5 rounded-md flex items-center gap-0.5 uppercase tracking-wide shadow-3xs"
+                >
+                  ✨ {tag}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Specs Row */}
@@ -212,6 +272,71 @@ export default function PropertyCard({ property }: Props) {
                 : property.furnishing || "Unfurnished"}
           </span>
         </div>
+
+        {/* Compare Checkbox Row */}
+        <div 
+          onClick={handleToggleCompare}
+          className="border-t border-[#F2EFE9] pt-3 flex items-center gap-2 cursor-pointer select-none hover:text-[#9A720C] transition-all"
+        >
+          <input
+            type="checkbox"
+            checked={isCompared}
+            readOnly
+            className="h-4 w-4 rounded border-gray-300 text-[#9A720C] focus:ring-[#9A720C] cursor-pointer"
+          />
+          <span className={`text-xs font-bold ${isCompared ? "text-[#9A720C]" : "text-gray-700"}`}>
+            Add to Compare
+          </span>
+        </div>
+
+        {/* Compatibility Match Score */}
+        {matchData && (
+          <div className="border-t border-[#F2EFE9] pt-3 mt-3 text-left">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Match Compatibility</span>
+              <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                matchData.score >= 90 ? "bg-green-50 text-green-700 border border-green-200" :
+                matchData.score >= 75 ? "bg-emerald-50 text-emerald-700 border border-emerald-200" :
+                matchData.score >= 60 ? "bg-yellow-50 text-yellow-700 border border-yellow-200" :
+                matchData.score >= 40 ? "bg-amber-50 text-amber-700 border border-[#FFF9EC]" :
+                "bg-red-50 text-red-700 border border-red-200"
+              }`}>
+                {matchData.score}% Match
+              </span>
+            </div>
+            {/* Health Bar Fill */}
+            <div className="w-full bg-gray-200 h-1.5 rounded-full overflow-hidden">
+              <div 
+                className={`h-full transition-all duration-500 ${
+                  matchData.score >= 90 ? "bg-green-500" :
+                  matchData.score >= 75 ? "bg-emerald-500" :
+                  matchData.score >= 60 ? "bg-yellow-500" :
+                  matchData.score >= 40 ? "bg-amber-500" :
+                  "bg-red-500"
+                }`}
+                style={{ width: `${matchData.score}%` }}
+              />
+            </div>
+            {/* Matched Details Breakdown */}
+            <div className="mt-2 flex flex-wrap gap-1">
+              {matchData.matchedReasons.map((det: string, i: number) => (
+                <span key={i} className="text-[9px] font-semibold text-green-700 bg-green-50/70 border border-green-100 rounded-md px-1.5 py-0.5">
+                  ✓ {det}
+                </span>
+              ))}
+              {matchData.mismatchedReasons.map((det: string, i: number) => (
+                <span key={i} className="text-[9px] font-semibold text-red-700 bg-red-50/70 border border-red-100 rounded-md px-1.5 py-0.5">
+                  ✕ {det}
+                </span>
+              ))}
+              {matchData.unverifiedReasons.map((det: string, i: number) => (
+                <span key={i} className="text-[9px] font-semibold text-amber-700 bg-amber-50/70 border border-amber-100 rounded-md px-1.5 py-0.5">
+                  ⚠ {det}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

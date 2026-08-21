@@ -173,10 +173,10 @@ export default function PropertyRow({
           <div>
             {/* Header: Title and Price */}
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
-              <h3 className="text-base sm:text-lg font-bold text-gray-900 line-clamp-1 font-serif">
+              <h3 className="text-base sm:text-lg font-bold text-gray-900 line-clamp-1">
                 {displayTitle}
               </h3>
-              <span className="text-base sm:text-lg font-bold text-[#9A720C] shrink-0 font-serif">
+              <span className="text-base sm:text-lg font-bold text-[#9A720C] shrink-0">
                 {formatPrice(property.price, property.purpose)}
               </span>
             </div>

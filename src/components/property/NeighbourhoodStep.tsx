@@ -162,12 +162,7 @@ export default function NeighbourhoodStep({
       <div>
 
         <h2
-          className="
-            text-3xl
-            font-playfair
-            font-bold
-            text-[#161616]
-          "
+          className="text-3xl font-bold text-[#161616]"
         >
           Neighbourhood &
           Surroundings
@@ -187,11 +182,7 @@ export default function NeighbourhoodStep({
         <div className="mb-3">
 
           <h3
-            className="
-              text-xl
-              font-semibold
-              text-[#161616]
-            "
+            className="text-xl font-semibold text-[#161616]"
           >
             Nearby Places
           </h3>

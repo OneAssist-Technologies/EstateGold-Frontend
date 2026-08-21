@@ -2,10 +2,11 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { ArrowLeft, Plus, X, Heart, ShieldCheck, TrendingUp, Sparkles } from "lucide-react";
+import { ArrowLeft, Plus, X, Heart, ShieldCheck, TrendingUp, Sparkles, Loader2 } from "lucide-react";
 import api from "../../../services/api";
 import { Property } from "../../../types/property";
 import { useCompareSession, removePropertyFromCompare, clearCompareSession } from "../../../services/compareService";
+import { calculatePropertyMatchScore } from "../../../services/matchScoreService";
 import Navbar from "@/src/components/layout/Navbar";
 import Footer from "@/src/components/layout/Footer";
 
@@ -192,7 +193,51 @@ function ComparisonContent() {
   const [error, setError] = useState<string | null>(null);
   const [highlightDiff, setHighlightDiff] = useState(false);
 
+  const [aiInsights, setAiInsights] = useState<any>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [matchScores, setMatchScores] = useState<Record<string, any>>({});
+
+  useEffect(() => {
+    const saved = localStorage.getItem("estategold_user_preferences");
+    if (saved && properties.length > 0) {
+      try {
+        const prefs = JSON.parse(saved);
+        const scores: Record<string, any> = {};
+        properties.forEach((p) => {
+          scores[p._id] = calculatePropertyMatchScore(p, prefs);
+        });
+        setMatchScores(scores);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }, [properties]);
+
   const idsParam = searchParams.get("ids") || "";
+
+  useEffect(() => {
+    const fetchAiInsights = async () => {
+      const activeProps = properties.filter((p) =>
+        session.properties.some((sp) => sp._id === p._id)
+      );
+      if (activeProps.length < 2) return;
+      try {
+        setAiLoading(true);
+        const res = await api.post("/api/ai/compare-properties", { ids: idsParam });
+        if (res.data && res.data.success) {
+          setAiInsights(res.data);
+        }
+      } catch (err) {
+        console.error("AI Comparison Insights error:", err);
+      } finally {
+        setAiLoading(false);
+      }
+    };
+
+    if (properties.length >= 2) {
+      fetchAiInsights();
+    }
+  }, [properties]);
 
   useEffect(() => {
     const fetchCompareData = async () => {
@@ -250,10 +295,10 @@ function ComparisonContent() {
       <div className="min-h-screen bg-[#FFFDF8] flex flex-col font-sans">
         <Navbar />
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center max-w-md mx-auto">
-          <div className="h-16 w-16 rounded-3xl bg-[#FFF9EC] border border-[#E8DCC1] text-[#9A720C] flex items-center justify-center font-serif text-2xl shadow-xs mb-4">
+          <div className="h-16 w-16 rounded-3xl bg-[#FFF9EC] border border-[#E8DCC1] text-[#9A720C] flex items-center justify-center text-2xl shadow-xs mb-4">
             ⚖️
           </div>
-          <h2 className="text-xl font-bold font-serif text-gray-900">No Properties Selected</h2>
+          <h2 className="text-xl font-bold text-gray-900">No Properties Selected</h2>
           <p className="text-xs text-gray-500 mt-2 leading-relaxed font-semibold">
             Please select similar properties from listings page to start comparison.
           </p>
@@ -274,10 +319,10 @@ function ComparisonContent() {
       <div className="min-h-screen bg-[#FFFDF8] flex flex-col font-sans">
         <Navbar />
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center max-w-md mx-auto">
-          <div className="h-16 w-16 rounded-3xl bg-[#FFF9EC] border border-[#E8DCC1] text-[#9A720C] flex items-center justify-center font-serif text-2xl shadow-xs mb-4">
+          <div className="h-16 w-16 rounded-3xl bg-[#FFF9EC] border border-[#E8DCC1] text-[#9A720C] flex items-center justify-center text-2xl shadow-xs mb-4">
             ⚖️
           </div>
-          <h2 className="text-xl font-bold font-serif text-gray-900">Compare Properties</h2>
+          <h2 className="text-xl font-bold text-gray-900">Compare Properties</h2>
           <p className="text-xs text-gray-500 mt-2 leading-relaxed font-semibold">
             Select another similar property to compare. At least 2 properties of the same type are required.
           </p>
@@ -316,7 +361,7 @@ function ComparisonContent() {
             >
               <ArrowLeft size={14} /> Back to Listings
             </button>
-            <h1 className="text-3xl font-bold text-gray-900 font-serif">Compare Properties</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Compare Properties</h1>
             <p className="text-xs text-gray-500 mt-1 font-semibold">
               Compare similar properties side by side
             </p>
@@ -344,7 +389,7 @@ function ComparisonContent() {
         </div>
 
         {/* Responsive Side-by-Side Comparison Container */}
-        <div className="bg-white border border-[#ECE7DB] rounded-3xl shadow-xl overflow-hidden">
+        <div className="hidden md:block bg-white border border-[#ECE7DB] rounded-3xl shadow-xl overflow-hidden">
           {/* Header Row: Images, Titles, Remove buttons */}
           <div className="grid grid-cols-12 border-b border-[#ECE7DB]">
             {/* Feature Label Sticky Column */}
@@ -389,6 +434,39 @@ function ComparisonContent() {
                       <h4 className="text-lg font-bold text-[#9A720C] pt-1">
                         ₹{p.price?.toLocaleString("en-IN")}
                       </h4>
+
+                      {/* Match Compatibility Progress Bar */}
+                      {matchScores[p._id] && (
+                        <div className="pt-2 border-t border-[#ECE7DB] mt-2 text-left">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-wider">Match Compatibility</span>
+                            <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-full ${
+                              matchScores[p._id].score >= 90 ? "bg-green-50 text-green-700" :
+                              matchScores[p._id].score >= 75 ? "bg-emerald-50 text-emerald-700" :
+                              matchScores[p._id].score >= 60 ? "bg-yellow-50 text-yellow-700" :
+                              matchScores[p._id].score >= 40 ? "bg-amber-50 text-amber-700" :
+                              "bg-red-50 text-red-700"
+                            }`}>
+                              {matchScores[p._id].score}%
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-200 h-1.5 rounded-full overflow-hidden">
+                            <div 
+                              className={`h-full transition-all duration-500 ${
+                                matchScores[p._id].score >= 90 ? "bg-green-500" :
+                                matchScores[p._id].score >= 75 ? "bg-emerald-500" :
+                                matchScores[p._id].score >= 60 ? "bg-yellow-500" :
+                                matchScores[p._id].score >= 40 ? "bg-amber-500" :
+                                "bg-red-500"
+                              }`}
+                              style={{ width: `${matchScores[p._id].score}%` }}
+                            />
+                          </div>
+                          <p className="text-[8px] text-gray-500 font-bold mt-1">
+                            {matchScores[p._id].label}
+                          </p>
+                        </div>
+                      )}
                     </div>
 
                     <div className="pt-2 flex items-center justify-between border-t border-gray-100">
@@ -413,13 +491,76 @@ function ComparisonContent() {
 
           {/* Section: Overview */}
           <div className="bg-[#FFFDF8] border-b border-[#ECE7DB] p-4 px-6 text-left">
-            <h2 className="text-sm font-black font-serif uppercase tracking-widest text-[#9A720C]">
+            <h2 className="text-sm font-black uppercase tracking-widest text-[#9A720C]">
               Overview
             </h2>
           </div>
 
           {/* Common comparison properties grid */}
           <div className="divide-y divide-[#ECE7DB]">
+            {/* Match Compatibility Details Row */}
+            {Object.keys(matchScores).length > 0 && (
+              <div className="grid grid-cols-12 items-start text-left">
+                <div className="col-span-3 bg-gray-50/50 p-4 px-6 font-bold text-xs text-gray-700 border-r border-[#ECE7DB] self-stretch flex flex-col justify-start">
+                  <span>Match Details</span>
+                  <span className="text-[9px] text-gray-400 font-bold uppercase mt-1 leading-relaxed">
+                    Based on search filters
+                  </span>
+                </div>
+                <div className="col-span-9 grid grid-cols-2 lg:grid-cols-3 divide-x divide-[#ECE7DB] text-xs text-gray-900">
+                  {activeProperties.map((p) => {
+                    const scoreData = matchScores[p._id];
+                    if (!scoreData) {
+                      return (
+                        <div key={p._id} className="p-4 px-6 text-gray-400 font-medium">
+                          No active preferences
+                        </div>
+                      );
+                    }
+                    return (
+                      <div key={p._id} className="p-4 px-6 space-y-3" style={{ minWidth: "200px" }}>
+                        {scoreData.matchedReasons.length > 0 && (
+                          <div className="space-y-1">
+                            <span className="text-[9px] font-black text-green-700 uppercase tracking-wide">✓ Matched</span>
+                            <div className="flex flex-col gap-0.5">
+                              {scoreData.matchedReasons.map((r: string, idx: number) => (
+                                <span key={idx} className="text-[10px] font-bold text-green-700 leading-tight">
+                                  ✓ {r}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        {scoreData.mismatchedReasons.length > 0 && (
+                          <div className="space-y-1">
+                            <span className="text-[9px] font-black text-red-600 uppercase tracking-wide">✕ Mismatched</span>
+                            <div className="flex flex-col gap-0.5">
+                              {scoreData.mismatchedReasons.map((r: string, idx: number) => (
+                                <span key={idx} className="text-[10px] font-bold text-red-600 leading-tight">
+                                  {r}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        {scoreData.unverifiedReasons.length > 0 && (
+                          <div className="space-y-1">
+                            <span className="text-[9px] font-black text-amber-700 uppercase tracking-wide">⚠ Unverified</span>
+                            <div className="flex flex-wrap gap-1">
+                              {scoreData.unverifiedReasons.map((r: string, idx: number) => (
+                                <span key={idx} className="text-[9px] font-semibold text-amber-700 bg-amber-50/70 border border-amber-100 rounded-md px-1 py-0.5 animate-pulse">
+                                  {r}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
             {/* Price Row */}
             <div className="grid grid-cols-12 items-center text-left">
               <div className="col-span-3 bg-gray-50/50 p-4 px-6 font-bold text-xs text-gray-700 border-r border-[#ECE7DB]">
@@ -536,7 +677,7 @@ function ComparisonContent() {
           {compareFields.length > 0 && (
             <>
               <div className="bg-[#FFFDF8] border-y border-[#ECE7DB] p-4 px-6 text-left">
-                <h2 className="text-sm font-black font-serif uppercase tracking-widest text-[#9A720C]">
+                <h2 className="text-sm font-black uppercase tracking-widest text-[#9A720C]">
                   Specifications
                 </h2>
               </div>
@@ -571,7 +712,7 @@ function ComparisonContent() {
 
           {/* Section: Amenities */}
           <div className="bg-[#FFFDF8] border-y border-[#ECE7DB] p-4 px-6 text-left">
-            <h2 className="text-sm font-black font-serif uppercase tracking-widest text-[#9A720C]">
+            <h2 className="text-sm font-black uppercase tracking-widest text-[#9A720C]">
               Amenities
             </h2>
           </div>
@@ -609,7 +750,7 @@ function ComparisonContent() {
 
           {/* Section: Market Insight */}
           <div className="bg-[#FFFDF8] border-y border-[#ECE7DB] p-4 px-6 text-left">
-            <h2 className="text-sm font-black font-serif uppercase tracking-widest text-[#9A720C]">
+            <h2 className="text-sm font-black uppercase tracking-widest text-[#9A720C]">
               Market Insight
             </h2>
           </div>
@@ -671,7 +812,7 @@ function ComparisonContent() {
 
           {/* Section: Documents */}
           <div className="bg-[#FFFDF8] border-y border-[#ECE7DB] p-4 px-6 text-left">
-            <h2 className="text-sm font-black font-serif uppercase tracking-widest text-[#9A720C]">
+            <h2 className="text-sm font-black uppercase tracking-widest text-[#9A720C]">
               Documents Status
             </h2>
           </div>
@@ -696,6 +837,253 @@ function ComparisonContent() {
             </div>
           </div>
         </div>
+
+        {/* Mobile Stacked Vertical Comparison Cards */}
+        <div className="md:hidden space-y-6">
+          {activeProperties.map((p) => {
+            const image = p.photos?.[0]
+              ? (p.photos[0].startsWith("http")
+                ? p.photos[0]
+                : `http://localhost:5000/uploads/properties/${p.photos[0].replace(/^\/+/, "").replace(/^uploads\/properties\//, "").replace(/^uploads\//, "")}`)
+              : "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80";
+            
+            const fields = getCompareFields(p.propertyType, (p as any).commercialType);
+            const scoreData = matchScores[p._id];
+
+            return (
+              <div key={p._id} className="bg-white border border-[#ECE7DB] rounded-3xl p-6 shadow-md space-y-4 text-left">
+                {/* Header card with image & title */}
+                <div className="relative h-44 w-full rounded-2xl overflow-hidden border border-[#ECE7DB] bg-gray-100">
+                  <img src={image} className="w-full h-full object-cover" />
+                  <button
+                    onClick={() => handleRemove(p._id)}
+                    className="absolute top-2.5 right-2.5 h-8 w-8 rounded-full bg-white/95 backdrop-blur-xs flex items-center justify-center text-gray-405 hover:text-red-500 shadow-sm transition-colors cursor-pointer border border-[#ECE7DB]"
+                  >
+                    <X size={15} />
+                  </button>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="inline-block px-2.5 py-0.5 bg-[#FFF9EC] border border-[#F4E3B5] text-[10px] font-bold text-[#9A720C] rounded-full uppercase">
+                    {p.propertyType}
+                  </span>
+                  <h3 className="font-bold text-gray-900 text-base leading-snug">
+                    {p.bedrooms ? `${p.bedrooms} BHK ` : ""}
+                    {p.propertyType} in {p.locality || p.city}
+                  </h3>
+                  <p className="text-xs text-gray-500 font-semibold">
+                    {p.locality ? `${p.locality}, ` : ""}{p.city}
+                  </p>
+                  <h4 className="text-xl font-bold text-[#9A720C] pt-1">
+                    ₹{p.price?.toLocaleString("en-IN")}
+                  </h4>
+                </div>
+
+                {/* Match Score */}
+                {scoreData && (
+                  <div className="bg-[#FFFDF6] border border-[#F4E3B5] rounded-2xl p-4 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Match Compatibility</span>
+                      <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                        scoreData.score >= 90 ? "bg-green-50 text-green-700 border border-green-200" :
+                        scoreData.score >= 75 ? "bg-emerald-50 text-emerald-700 border border-emerald-200" :
+                        scoreData.score >= 60 ? "bg-yellow-50 text-yellow-700 border border-yellow-200" :
+                        scoreData.score >= 40 ? "bg-amber-50 text-amber-700 border border-[#FFF9EC]" :
+                        "bg-red-50 text-red-700 border border-red-200"
+                      }`}>
+                        {scoreData.score}% Match
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 h-1.5 rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full transition-all duration-500 ${
+                          scoreData.score >= 90 ? "bg-green-500" :
+                          scoreData.score >= 75 ? "bg-emerald-500" :
+                          scoreData.score >= 60 ? "bg-yellow-500" :
+                          scoreData.score >= 40 ? "bg-amber-500" :
+                          "bg-red-500"
+                        }`}
+                        style={{ width: `${scoreData.score}%` }}
+                      />
+                    </div>
+                    <div className="flex flex-wrap gap-1 pt-1">
+                      {scoreData.matchedReasons.map((det: string, i: number) => (
+                        <span key={i} className="text-[9px] font-semibold text-green-700 bg-green-50/70 border border-green-100 rounded-md px-1.5 py-0.5">
+                          ✓ {det}
+                        </span>
+                      ))}
+                      {scoreData.mismatchedReasons.map((det: string, i: number) => (
+                        <span key={i} className="text-[9px] font-semibold text-red-700 bg-red-50/70 border border-red-100 rounded-md px-1.5 py-0.5">
+                          ✕ {det}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Attributes Grid */}
+                <div className="divide-y divide-[#ECE7DB]/60 text-xs font-semibold text-gray-705">
+                  <div className="py-2.5 flex justify-between"><span className="text-gray-400 font-bold uppercase text-[9px] tracking-wider">Purpose</span><span className="text-gray-900 font-bold">{p.purpose}</span></div>
+                  {fields.map((f: any) => {
+                    const rawVal = p[f.key as keyof Property];
+                    const displayVal = f.format(rawVal, p);
+                    return (
+                      <div key={f.label} className="py-2.5 flex justify-between">
+                        <span className="text-gray-400 font-bold uppercase text-[9px] tracking-wider">{f.label}</span>
+                        <span className="text-gray-900 font-bold">{displayVal}</span>
+                      </div>
+                    );
+                  })}
+                  {p.amenities && p.amenities.length > 0 && (
+                    <div className="py-2.5 space-y-1.5">
+                      <span className="text-gray-400 font-bold uppercase text-[9px] tracking-wider block">Amenities</span>
+                      <div className="flex flex-wrap gap-1">
+                        {p.amenities.map((a: string) => (
+                          <span key={a} className="bg-gray-100 text-gray-800 text-[10px] font-semibold px-2 py-0.5 rounded-md border border-gray-200">
+                            {a}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="pt-3 border-t border-[#ECE7DB]/80 flex gap-3">
+                  <button
+                    onClick={() => router.push(`/property-detail/${p._id}`)}
+                    className="flex-1 h-10 rounded-xl bg-[#9A720C] hover:bg-[#856108] text-white text-xs font-bold transition-all cursor-pointer flex items-center justify-center animate-none"
+                  >
+                    View Details
+                  </button>
+                  <button
+                    onClick={() => handleRemove(p._id)}
+                    className="h-10 px-4 rounded-xl border border-red-200 text-red-500 hover:bg-red-50 text-xs font-bold transition-all cursor-pointer flex items-center justify-center"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* AI Smart Insights Section */}
+        {activeProperties.length >= 2 && (
+          <div className="mt-8 bg-gradient-to-r from-[#FFFDF6] to-[#FFF9EC] border border-[#E8DCC1] rounded-3xl p-6 sm:p-8 shadow-md text-left">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-8 h-8 rounded-xl bg-[#FFF9EC] border border-[#F4E3B5] text-[#9A720C] flex items-center justify-center">
+                <Sparkles size={16} />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-900 leading-tight">
+                  AI Smart Insights
+                </h2>
+                <p className="text-xs text-gray-400 font-semibold mt-0.5">
+                  Powered by gpt-4o-mini
+                </p>
+              </div>
+            </div>
+
+            {aiLoading ? (
+              <div className="py-6 flex items-center justify-center gap-2 text-xs font-semibold text-gray-400">
+                <Loader2 size={16} className="animate-spin text-[#9A720C]" />
+                Analyzing property attributes and pricing indices...
+              </div>
+            ) : aiInsights ? (
+              <div className="space-y-6">
+                <div>
+                  <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5">
+                    Comparison Summary
+                  </h4>
+                  <p className="text-sm text-gray-700 leading-relaxed font-semibold">
+                    {aiInsights.summary}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2">
+                  {activeProperties.map((p) => {
+                    const prosCons = aiInsights.prosCons?.[p._id] || { pros: [], cons: [] };
+                    return (
+                      <div key={p._id} className="bg-white border border-[#ECE7DB] rounded-2xl p-5 shadow-2xs flex flex-col justify-between">
+                        <div className="space-y-4">
+                          <div className="border-b border-[#F5F2EC] pb-3">
+                            <span className="inline-block px-2.5 py-0.5 bg-[#FFF9EC] border border-[#F4E3B5] text-[9px] font-bold text-[#9A720C] rounded-full uppercase mb-1">
+                              {p.propertyType}
+                            </span>
+                            <h4 className="font-bold text-gray-900 text-xs sm:text-sm line-clamp-2 leading-tight">
+                              {p.bedrooms ? `${p.bedrooms} BHK ` : ""}{p.propertyType} in {p.locality || p.city}
+                            </h4>
+                          </div>
+
+                          {/* Pros */}
+                          <div>
+                            <h5 className="text-[10px] font-black text-green-700 uppercase tracking-wider mb-2">
+                              Pros
+                            </h5>
+                            <ul className="space-y-1.5">
+                              {prosCons.pros && prosCons.pros.length > 0 ? (
+                                prosCons.pros.map((pro: string, idx: number) => (
+                                  <li key={idx} className="text-xs text-gray-650 flex items-start gap-1.5 leading-snug">
+                                    <span className="text-green-500 font-bold shrink-0">✓</span>
+                                    <span>{pro}</span>
+                                  </li>
+                                ))
+                              ) : (
+                                <li className="text-xs text-gray-450 italic">No specific pros listed.</li>
+                              )}
+                            </ul>
+                          </div>
+
+                          {/* Cons */}
+                          <div>
+                            <h5 className="text-[10px] font-black text-amber-800 uppercase tracking-wider mb-2">
+                              Cons & Limitations
+                            </h5>
+                            <ul className="space-y-1.5">
+                              {prosCons.cons && prosCons.cons.length > 0 ? (
+                                prosCons.cons.map((con: string, idx: number) => (
+                                  <li key={idx} className="text-xs text-gray-650 flex items-start gap-1.5 leading-snug">
+                                    <span className="text-amber-500 font-bold shrink-0">✕</span>
+                                    <span>{con}</span>
+                                  </li>
+                                ))
+                              ) : (
+                                <li className="text-xs text-gray-450 italic">No major limitations noted.</li>
+                              )}
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-[#E8DCC1]/60 pt-6 mt-4">
+                  <div>
+                    <h4 className="text-xs font-black text-[#9A720C] uppercase tracking-widest mb-2">
+                      Value Assessment
+                    </h4>
+                    <p className="text-xs text-gray-600 leading-relaxed font-semibold">
+                      {aiInsights.valueAnalysis}
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-black text-[#9A720C] uppercase tracking-widest mb-2">
+                      AI Verdict & Recommendation
+                    </h4>
+                    <p className="text-xs text-gray-600 leading-relaxed font-semibold">
+                      {aiInsights.recommendation}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="py-4 text-center text-xs text-gray-400 italic">
+                AI insights are temporarily unavailable.
+              </div>
+            )}
+          </div>
+        )}
       </main>
 
       <Footer />

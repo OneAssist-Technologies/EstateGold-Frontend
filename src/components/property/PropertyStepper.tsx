@@ -94,19 +94,10 @@ export default function PropertyStepper({
               {index <
                 stepsList.length - 1 && (
                 <div
-                  className="
-                    flex-1
-                    pt-[20px]
-                  "
+                  className="flex-1 pt-[20px]"
                 >
                   <div
-                    className="
-                      relative
-                      h-[2px]
-                      bg-[#E5E7EB]
-                      rounded-full
-                      overflow-hidden
-                    "
+                    className="relative h-[2px] bg-[#E5E7EB] rounded-full overflow-hidden"
                   >
                     <motion.div
                       initial={false}
@@ -118,14 +109,7 @@ export default function PropertyStepper({
                       transition={{
                         duration: 0.4,
                       }}
-                      className="
-                        absolute
-                        left-0
-                        top-0
-                        h-full
-                        bg-[#16A34A]
-                        rounded-full
-                      "
+                      className="absolute left-0 top-0 h-full bg-[#16A34A] rounded-full"
                     />
                   </div>
                 </div>

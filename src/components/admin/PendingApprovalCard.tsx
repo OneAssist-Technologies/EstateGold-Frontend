@@ -98,39 +98,15 @@ export default function PendingApprovalCard({
           opacity: 1,
           y: 0,
         }}
-        className="
-          bg-white
-          rounded-3xl
-          border
-          border-[#ECE7DB]
-          shadow-sm
-          overflow-hidden
-        "
+        className="bg-white rounded-3xl border border-[#ECE7DB] shadow-sm overflow-hidden"
       >
         {/* Header */}
         <div
-          className="
-            px-6
-            sm:px-8
-            py-6
-            border-b
-            border-[#ECE7DB]
-            flex
-            flex-col
-            sm:flex-row
-            sm:items-center
-            justify-between
-            gap-4
-          "
+          className="px-6 sm:px-8 py-6 border-b border-[#ECE7DB] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
         >
           <div>
             <h2
-              className="
-                text-xl
-                sm:text-2xl
-                font-bold
-                text-[#161616]
-              "
+              className="text-xl sm:text-2xl font-bold text-[#161616]"
             >
               Pending Property Approval
             </h2>
@@ -143,20 +119,7 @@ export default function PendingApprovalCard({
           <button
             type="button"
             onClick={() => router.push("/admin/properties?status=pending")}
-            className="
-              h-11
-              px-5
-              rounded-xl
-              bg-[#C89B1C]
-              text-white
-              hover:bg-[#B8860B]
-              transition
-              text-sm
-              font-medium
-              cursor-pointer
-              self-start
-              sm:self-auto
-            "
+            className="h-11 px-5 rounded-xl bg-[#C89B1C] text-white hover:bg-[#B8860B] transition text-sm font-medium cursor-pointer self-start sm:self-auto"
           >
             View All
           </button>
@@ -187,45 +150,19 @@ export default function PendingApprovalCard({
               return (
                 <div
                   key={item._id}
-                  className="
-                    flex
-                    flex-col
-                    md:flex-row
-                    md:items-center
-                    justify-between
-                    px-6
-                    sm:px-8
-                    py-6
-                    border-b
-                    border-[#F3F0E8]
-                    hover:bg-[#FCFBF8]
-                    transition
-                    gap-4
-                  "
+                  className="flex flex-col md:flex-row md:items-center justify-between px-6 sm:px-8 py-6 border-b border-[#F3F0E8] hover:bg-[#FCFBF8] transition gap-4"
                 >
                   {/* Property */}
                   <div className="flex items-center gap-5">
                     <img
                       src={imageSrc}
                       alt={title}
-                      className="
-                        h-20
-                        w-28
-                        rounded-2xl
-                        object-cover
-                        shrink-0
-                        bg-gray-100
-                      "
+                      className="h-20 w-28 rounded-2xl object-cover shrink-0 bg-gray-100"
                     />
 
                     <div>
                       <h3
-                        className="
-                          font-semibold
-                          text-base
-                          sm:text-lg
-                          text-[#161616]
-                        "
+                        className="font-semibold text-base sm:text-lg text-[#161616]"
                       >
                         {title}
                       </h3>
@@ -235,14 +172,7 @@ export default function PendingApprovalCard({
                       </p>
 
                       <div
-                        className="
-                          flex
-                          items-center
-                          gap-1.5
-                          text-xs
-                          text-gray-400
-                          mt-1.5
-                        "
+                        className="flex items-center gap-1.5 text-xs text-gray-400 mt-1.5"
                       >
                         <MapPin size={14} className="shrink-0" />
                         <span>{item.locality ? `${item.locality}, ${item.city}` : item.city}</span>
@@ -279,22 +209,7 @@ export default function PendingApprovalCard({
                         type="button"
                         onClick={() => handleView(item)}
                         title="View Details"
-                        className="
-                          h-10
-                          w-10
-                          sm:h-11
-                          sm:w-11
-                          rounded-xl
-                          border
-                          border-[#ECE7DB]
-                          hover:bg-[#F6F6F6]
-                          transition
-                          flex
-                          items-center
-                          justify-center
-                          text-gray-600
-                          cursor-pointer
-                        "
+                        className="h-10 w-10 sm:h-11 sm:w-11 rounded-xl border border-[#ECE7DB] hover:bg-[#F6F6F6] transition flex items-center justify-center text-gray-600 cursor-pointer"
                       >
                         <Eye size={18} />
                       </button>
@@ -303,24 +218,7 @@ export default function PendingApprovalCard({
                         type="button"
                         disabled={actionLoadingId === item._id}
                         onClick={() => handleApprove(item._id)}
-                        className="
-                          h-10
-                          sm:h-11
-                          px-4
-                          sm:px-5
-                          rounded-xl
-                          bg-green-600
-                          text-white
-                          hover:bg-green-700
-                          disabled:opacity-50
-                          flex
-                          items-center
-                          gap-2
-                          text-sm
-                          font-medium
-                          cursor-pointer
-                          transition
-                        "
+                        className="h-10 sm:h-11 px-4 sm:px-5 rounded-xl bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 flex items-center gap-2 text-sm font-medium cursor-pointer transition"
                       >
                         <CheckCircle2 size={17} />
                         <span className="hidden sm:inline">Approve</span>
@@ -330,24 +228,7 @@ export default function PendingApprovalCard({
                         type="button"
                         disabled={actionLoadingId === item._id}
                         onClick={() => handleReject(item._id)}
-                        className="
-                          h-10
-                          sm:h-11
-                          px-4
-                          sm:px-5
-                          rounded-xl
-                          bg-red-600
-                          text-white
-                          hover:bg-red-700
-                          disabled:opacity-50
-                          flex
-                          items-center
-                          gap-2
-                          text-sm
-                          font-medium
-                          cursor-pointer
-                          transition
-                        "
+                        className="h-10 sm:h-11 px-4 sm:px-5 rounded-xl bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 flex items-center gap-2 text-sm font-medium cursor-pointer transition"
                       >
                         <XCircle size={17} />
                         <span className="hidden sm:inline">Reject</span>

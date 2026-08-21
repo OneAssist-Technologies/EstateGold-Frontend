@@ -55,7 +55,7 @@ export default function Cities() {
           Top Locations
         </p>
 
-        <h2 className="text-center text-5xl font-bold mt-4 font-serif">
+        <h2 className="text-center text-5xl font-bold mt-4">
           Search by City
         </h2>
 
@@ -64,26 +64,7 @@ export default function Cities() {
             <button
               key={city}
               onClick={() => handleCityClick(city)}
-              className="
-              flex
-              items-center
-              gap-2
-              px-8
-              py-4
-              rounded-full
-              border
-              border-[#ECE7DB]
-              bg-white
-              text-gray-800
-              font-semibold
-              capitalize
-              hover:bg-[#C89B1C]
-              hover:text-white
-              hover:border-[#C89B1C]
-              transition
-              cursor-pointer
-              shadow-2xs
-              "
+              className="flex items-center gap-2 px-8 py-4 rounded-full border border-[#ECE7DB] bg-white text-gray-800 font-semibold capitalize hover:bg-[#C89B1C] hover:text-white hover:border-[#C89B1C] transition cursor-pointer shadow-2xs"
             >
               <MapPin size={16} className="text-[#C89B1C] group-hover:text-white" />
               {city}

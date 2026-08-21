@@ -26,7 +26,7 @@ export default function PropertyDescription({ property }: Props) {
   return (
     <div className="py-3 border-b border-[#ECE7DB] space-y-3">
       <div>
-        <h2 className="text-base font-bold font-serif text-[#161616]">
+        <h2 className="text-base font-bold text-[#161616]">
           About This Property
         </h2>
 
