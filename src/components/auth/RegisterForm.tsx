@@ -171,17 +171,7 @@ export default function RegisterForm() {
       {/* Back Link */}
       <Link
         href="/"
-        className="
-          inline-flex
-          items-center
-          gap-2
-          text-xs
-          font-medium
-          text-gray-500
-          hover:text-[#C89B1C]
-          transition-colors
-          mb-6
-        "
+        className="inline-flex items-center gap-2 text-xs font-medium text-gray-500 hover:text-[#C89B1C] transition-colors mb-6"
       >
         <ArrowLeft size={16} />
         Back to Home
@@ -189,7 +179,7 @@ export default function RegisterForm() {
 
       {/* Heading */}
       <div className="mb-6">
-        <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#171412] tracking-tight">
+        <h2 className="text-3xl sm:text-4xl font-bold text-[#171412] tracking-tight">
           Create Your Free Account
         </h2>
 
@@ -469,32 +459,7 @@ export default function RegisterForm() {
           whileTap={{ scale: 0.99 }}
           type="submit"
           disabled={loading}
-          className="
-            w-full
-            h-[58px]
-            mt-4
-            rounded-2xl
-            bg-gradient-to-r
-            from-[#C89B1C]
-            via-[#D8B75A]
-            to-[#C89B1C]
-            hover:from-[#b88c17]
-            hover:to-[#b88c17]
-            text-white
-            text-base
-            sm:text-lg
-            font-bold
-            tracking-wide
-            shadow-[0_4px_20px_rgba(200,155,28,0.25)]
-            hover:shadow-[0_6px_25px_rgba(200,155,28,0.4)]
-            transition-all
-            duration-300
-            disabled:opacity-50
-            cursor-pointer
-            flex
-            items-center
-            justify-center
-          "
+          className="w-full h-[58px] mt-4 rounded-2xl bg-gradient-to-r from-[#C89B1C] via-[#D8B75A] to-[#C89B1C] hover:from-[#b88c17] hover:to-[#b88c17] text-white text-base sm:text-lg font-bold tracking-wide shadow-[0_4px_20px_rgba(200,155,28,0.25)] hover:shadow-[0_6px_25px_rgba(200,155,28,0.4)] transition-all duration-300 disabled:opacity-50 cursor-pointer flex items-center justify-center"
         >
           {loading
             ? role === "agent"

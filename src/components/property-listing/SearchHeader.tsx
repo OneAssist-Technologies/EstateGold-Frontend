@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 
 interface Props {
@@ -21,18 +22,36 @@ export default function SearchHeader({
   search,
   setSearch,
 }: Props) {
+  const [localSearch, setLocalSearch] = useState(search);
+
+  useEffect(() => {
+    setLocalSearch(search);
+  }, [search]);
+
+  const handleTriggerSearch = () => {
+    setSearch(localSearch);
+  };
+
   return (
     <div className="bg-white border-b border-[#ECE7DB] py-4">
       <div className="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
         {/* Search Input Box */}
-        <div className="h-12 w-full border border-[#E5E0D4] rounded-xl flex items-center px-4 bg-white shadow-2xs focus-within:border-[#9A720C] focus-within:ring-1 focus-within:ring-[#9A720C] transition-all">
+        <div className="h-12 w-full border border-[#E5E0D4] rounded-xl flex items-center pr-2 pl-4 bg-white shadow-2xs focus-within:border-[#9A720C] focus-within:ring-1 focus-within:ring-[#9A720C] transition-all">
           <Search size={18} className="text-gray-400 shrink-0" />
           <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="City, locality, project or society..."
+            value={localSearch}
+            onChange={(e) => setLocalSearch(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleTriggerSearch()}
+            placeholder="Search naturally (e.g. 2 BHK apartment under 60 lakhs in Coimbatore)..."
             className="w-full ml-3 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 outline-none font-medium"
           />
+          <button
+            type="button"
+            onClick={handleTriggerSearch}
+            className="px-4 py-1.5 bg-[#9A720C] hover:bg-[#856108] text-white text-xs font-bold rounded-lg transition-all shadow-xs cursor-pointer shrink-0 ml-2"
+          >
+            Search
+          </button>
         </div>
 
         {/* Purpose Filter Pills */}

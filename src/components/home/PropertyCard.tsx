@@ -22,20 +22,7 @@ export default function PropertyCard({
 }: PropertyCardProps) {
   return (
     <div
-  className="
-    property-card
-  relative
-  group
-  bg-white
-  rounded-3xl
-  overflow-hidden
-  shadow-md
-  hover:shadow-2xl
-  hover:-translate-y-3
-  transition-all
-  duration-500
-  cursor-pointer
-  "
+  className="property-card relative group bg-white rounded-3xl overflow-hidden shadow-md hover:shadow-2xl hover:-translate-y-3 transition-all duration-500 cursor-pointer"
 >
       <div className="relative h-72 overflow-hidden">
        <img
@@ -47,19 +34,7 @@ export default function PropertyCard({
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
 <div
-  className="
-  absolute
-  top-4
-  left-4
-  bg-[#C89B1C]
-  text-white
-  px-4
-  py-2
-  rounded-full
-  text-sm
-  font-medium
-  z-10
-  "
+  className="absolute top-4 left-4 bg-[#C89B1C] text-white px-4 py-2 rounded-full text-sm font-medium z-10"
 >
   Featured
 </div>
@@ -67,14 +42,7 @@ export default function PropertyCard({
 
       <div className="p-5">
        <h3
-  className="
-  text-[#C89B1C]
-  font-bold
-  text-2xl
-  transition-all
-  duration-500
-  group-hover:scale-105
-  "
+  className="text-[#C89B1C] font-bold text-2xl transition-all duration-500 group-hover:scale-105"
 >
           ₹ {property.price.toLocaleString("en-IN")}
         </h3>
@@ -101,21 +69,7 @@ export default function PropertyCard({
         </div>
 
         <button
-  className="
-  mt-6
-  w-full
-  bg-gradient-to-r
-  from-[#C89B1C]
-  to-[#D9B76D]
-  text-white
-  py-3
-  rounded-xl
-  font-medium
-  transition-all
-  duration-500
-  hover:scale-105
-  hover:shadow-lg
-  "
+  className="mt-6 w-full bg-gradient-to-r from-[#C89B1C] to-[#D9B76D] text-white py-3 rounded-xl font-medium transition-all duration-500 hover:scale-105 hover:shadow-lg"
 >
           View Details
         </button>

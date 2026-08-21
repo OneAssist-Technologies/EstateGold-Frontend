@@ -50,23 +50,12 @@ export default function ActivityChart({ monthlyStats = [], loading }: ActivityCh
         opacity: 1,
         y: 0,
       }}
-      className="
-        bg-white
-        rounded-3xl
-        border
-        border-[#ECE7DB]
-        p-8
-        shadow-sm
-      "
+      className="bg-white rounded-3xl border border-[#ECE7DB] p-8 shadow-sm"
     >
       <div className="flex items-center justify-between">
         <div>
           <h2
-            className="
-              text-2xl
-              font-bold
-              text-[#161616]
-            "
+            className="text-2xl font-bold text-[#161616]"
           >
             Property Listings
           </h2>

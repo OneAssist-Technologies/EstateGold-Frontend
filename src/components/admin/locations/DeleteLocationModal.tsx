@@ -74,7 +74,7 @@ export default function DeleteLocationModal({
             </button>
           </div>
 
-          <h3 className="text-xl font-bold font-serif text-[#161616]">
+          <h3 className="text-xl font-bold text-[#161616]">
             Delete Service Area?
           </h3>
           <p className="text-xs text-gray-500 mt-1">

@@ -160,7 +160,7 @@ export default function ForgotPasswordPage() {
 
         {/* Header */}
         <div className="mb-6">
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 font-serif">
+          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">
             {step === 1 && "Forgot Password?"}
             {step === 2 && "Enter OTP Code"}
             {step === 3 && "Create New Password"}

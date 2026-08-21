@@ -75,9 +75,9 @@ export default function PropertyTypesCard({
     <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
-      className="bg-white rounded-3xl border border-[#ECE7DB] p-7 shadow-xs h-full"
+      className="bg-white rounded-3xl border border-[#ECE7DB] p-7 shadow-xs h-full max-h-[536px] flex flex-col"
     >
-      <div className="mb-8">
+      <div className="mb-8 shrink-0">
         <h2 className="text-2xl font-bold text-[#161616]">
           Property Types
         </h2>
@@ -87,15 +87,15 @@ export default function PropertyTypesCard({
       </div>
 
       {loading ? (
-        <div className="py-12 text-center text-gray-400 text-sm">
+        <div className="py-12 text-center text-gray-400 text-sm flex-1 flex items-center justify-center">
           Loading property types...
         </div>
       ) : propertyTypes.length === 0 ? (
-        <div className="py-12 text-center text-gray-400 text-sm">
+        <div className="py-12 text-center text-gray-400 text-sm flex-1 flex items-center justify-center">
           No property data available.
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="flex-1 overflow-y-auto pr-2 space-y-6 custom-scrollbar">
           {propertyTypes.map((item) => {
             const meta = getPropertyTypeMeta(item.type);
             const percentage = (item.count / total) * 100;

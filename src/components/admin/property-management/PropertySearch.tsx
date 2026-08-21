@@ -23,18 +23,7 @@ export default function PropertySearch({
         whileHover={{
           y: -1,
         }}
-        className="
-          flex-1
-          flex
-          items-center
-          gap-3
-          h-12
-          rounded-xl
-          border
-          border-[#E6E2DA]
-          bg-white
-          px-4
-        "
+        className="flex-1 flex items-center gap-3 h-12 rounded-xl border border-[#E6E2DA] bg-white px-4"
       >
         <Search
           size={18}
@@ -47,12 +36,7 @@ export default function PropertySearch({
             setSearch(e.target.value)
           }
           placeholder="Search property, owner, city..."
-          className="
-            flex-1
-            outline-none
-            text-sm
-            placeholder:text-gray-400
-          "
+          className="flex-1 outline-none text-sm placeholder:text-gray-400"
         />
       </motion.div>
 
@@ -66,20 +50,7 @@ export default function PropertySearch({
           scale: .96,
         }}
         onClick={onFilter}
-        className="
-          h-12
-          px-5
-          rounded-xl
-          border
-          border-[#E6E2DA]
-          bg-white
-          flex
-          items-center
-          gap-2
-          hover:border-[#C89B1C]
-          hover:text-[#C89B1C]
-          transition-all
-        "
+        className="h-12 px-5 rounded-xl border border-[#E6E2DA] bg-white flex items-center gap-2 hover:border-[#C89B1C] hover:text-[#C89B1C] transition-all"
       >
         <SlidersHorizontal size={18} />
 

@@ -53,16 +53,7 @@ export default function StatusToggle({
             stiffness: 700,
             damping: 30,
           }}
-          className="
-            absolute
-            top-1
-            left-1
-            h-6
-            w-6
-            rounded-full
-            bg-white
-            shadow-lg
-          "
+          className="absolute top-1 left-1 h-6 w-6 rounded-full bg-white shadow-lg"
           animate={{
             x: checked
               ? 24

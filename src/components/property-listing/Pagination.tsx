@@ -17,12 +17,7 @@ export default function Pagination({
 }: Props) {
   return (
     <div
-      className="
-        flex
-        justify-center
-        gap-3
-        mt-12
-      "
+      className="flex justify-center gap-3 mt-12"
     >
       {[...Array(totalPages)].map(
         (_, index) => (

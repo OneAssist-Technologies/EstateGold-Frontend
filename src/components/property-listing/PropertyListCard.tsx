@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import {
   BedDouble,
@@ -13,11 +14,13 @@ import {
 import { Property } from "../../types/property";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import api from "../../services/api";
 import {
   useCompareSession,
   addPropertyToCompare,
   removePropertyFromCompare,
 } from "../../services/compareService";
+import { calculatePropertyMatchScore } from "../../services/matchScoreService";
 
 interface Props {
   property: Property;
@@ -29,6 +32,69 @@ export default function PropertyListCard({
   const router = useRouter();
   const session = useCompareSession();
   const isCompared = session.properties.some((p) => p._id === property._id);
+
+  const [matchData, setMatchData] = useState<any>(null);
+
+  useEffect(() => {
+    const updateScore = () => {
+      const saved = localStorage.getItem("estategold_user_preferences");
+      if (saved) {
+        try {
+          const prefs = JSON.parse(saved);
+          const result = calculatePropertyMatchScore(property, prefs);
+          setMatchData(result);
+          return;
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      
+      if ((property as any).matchScore !== undefined) {
+        let label = "Low Match";
+        const score = (property as any).matchScore;
+        if (score >= 90) label = "Excellent Match";
+        else if (score >= 75) label = "Very Good Match";
+        else if (score >= 60) label = "Good Match";
+        else if (score >= 40) label = "Partial Match";
+
+        setMatchData({
+          score,
+          label,
+          matchedReasons: (property as any).matchedDetails || [],
+          mismatchedReasons: (property as any).mismatchedDetails || [],
+          unverifiedReasons: []
+        });
+      } else {
+        setMatchData(null);
+      }
+    };
+
+    updateScore();
+    window.addEventListener("estategold_user_preferences_changed", updateScore);
+    return () => {
+      window.removeEventListener("estategold_user_preferences_changed", updateScore);
+    };
+  }, [property]);
+
+  const [highlights, setHighlights] = useState<string[]>([]);
+
+  useEffect(() => {
+    let active = true;
+    const fetchHighlights = async () => {
+      try {
+        const res = await api.get(`/api/ai/property-highlights/${property._id}`);
+        if (res.data && res.data.success && active) {
+          setHighlights(res.data.tags || []);
+        }
+      } catch (err) {
+        // Quietly fail
+      }
+    };
+    fetchHighlights();
+    return () => {
+      active = false;
+    };
+  }, [property._id]);
 
   const handleToggleCompare = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -66,16 +132,7 @@ export default function PropertyListCard({
   }
 >
     <div
-      className="
-        bg-white
-        rounded-3xl
-        border
-        border-[#E8DCC1]
-        overflow-hidden
-        hover:shadow-xl
-        transition-all
-        duration-300
-      "
+      className="bg-white rounded-3xl border border-[#E8DCC1] overflow-hidden hover:shadow-xl transition-all duration-300"
     >
       <div className="grid grid-cols-12">
 
@@ -90,17 +147,7 @@ export default function PropertyListCard({
 />
 
           <div
-            className="
-              absolute
-              top-5
-              left-5
-              bg-[#C89B1C]
-              text-white
-              text-xs
-              px-4
-              py-2
-              rounded-full
-            "
+            className="absolute top-5 left-5 bg-[#C89B1C] text-white text-xs px-4 py-2 rounded-full"
           >
             {property.purpose}
           </div>
@@ -131,6 +178,19 @@ export default function PropertyListCard({
 
                 </div>
 
+                {highlights.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2.5">
+                    {highlights.slice(0, 3).map((tag, idx) => (
+                      <span
+                        key={idx}
+                        className="bg-[#FFF9EC] border border-[#F4E3B5] text-[#9A720C] text-[9px] font-bold px-2 py-0.5 rounded-md flex items-center gap-0.5 uppercase tracking-wide shadow-3xs"
+                      >
+                        ✨ {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
               </div>
 
               <div className="flex gap-3 items-center">
@@ -141,16 +201,7 @@ export default function PropertyListCard({
                     e.stopPropagation();
                     // Favorite logic placeholder
                   }}
-                  className="
-                    h-11
-                    w-11
-                    rounded-full
-                    border
-                    border-[#E8DCC1]
-                    flex
-                    items-center
-                    justify-center
-                  "
+                  className="h-11 w-11 rounded-full border border-[#E8DCC1] flex items-center justify-center"
                 >
                   <Heart size={18} />
                 </button>
@@ -161,16 +212,7 @@ export default function PropertyListCard({
                     e.stopPropagation();
                     // Share logic placeholder
                   }}
-                  className="
-                    h-11
-                    w-11
-                    rounded-full
-                    border
-                    border-[#E8DCC1]
-                    flex
-                    items-center
-                    justify-center
-                  "
+                  className="h-11 w-11 rounded-full border border-[#E8DCC1] flex items-center justify-center"
                 >
                   <Share2 size={18} />
                 </button>
@@ -235,6 +277,54 @@ export default function PropertyListCard({
               {property.description}
             </p>
 
+            {/* Compatibility Match Score */}
+            {matchData && (
+              <div className="border-t border-[#F2EFE9] pt-3 mt-4 text-left">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Match Compatibility</span>
+                  <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                    matchData.score >= 90 ? "bg-green-50 text-green-700 border border-green-200" :
+                    matchData.score >= 75 ? "bg-emerald-50 text-emerald-700 border border-emerald-200" :
+                    matchData.score >= 60 ? "bg-yellow-50 text-yellow-700 border border-yellow-200" :
+                    matchData.score >= 40 ? "bg-amber-50 text-amber-700 border border-[#FFF9EC]" :
+                    "bg-red-50 text-red-700 border border-red-200"
+                  }`}>
+                    {matchData.score}% Match ({matchData.label})
+                  </span>
+                </div>
+                {/* Health Bar Fill */}
+                <div className="w-full bg-gray-200 h-1.5 rounded-full overflow-hidden">
+                  <div 
+                    className={`h-full transition-all duration-500 ${
+                      matchData.score >= 90 ? "bg-green-500" :
+                      matchData.score >= 75 ? "bg-emerald-500" :
+                      matchData.score >= 60 ? "bg-yellow-500" :
+                      matchData.score >= 40 ? "bg-amber-500" :
+                      "bg-red-500"
+                    }`}
+                    style={{ width: `${matchData.score}%` }}
+                  />
+                </div>
+                {/* Matched Details Breakdown */}
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {matchData.matchedReasons.map((det: string, i: number) => (
+                    <span key={i} className="text-[9px] font-semibold text-green-700 bg-green-50/70 border border-green-100 rounded-md px-1.5 py-0.5">
+                      ✓ {det}
+                    </span>
+                  ))}
+                  {matchData.mismatchedReasons.map((det: string, i: number) => (
+                    <span key={i} className="text-[9px] font-semibold text-red-700 bg-red-50/70 border border-red-100 rounded-md px-1.5 py-0.5">
+                      ✕ {det}
+                    </span>
+                  ))}
+                  {matchData.unverifiedReasons.map((det: string, i: number) => (
+                    <span key={i} className="text-[9px] font-semibold text-amber-700 bg-amber-50/70 border border-amber-100 rounded-md px-1.5 py-0.5">
+                      ⚠ {det}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex justify-between items-end mt-8">
@@ -255,16 +345,7 @@ export default function PropertyListCard({
             </div>
 
             <button
-              className="
-                bg-[#C89B1C]
-                hover:bg-[#B68A16]
-                text-white
-                rounded-2xl
-                px-8
-                h-14
-                font-medium
-                transition
-              "
+              className="bg-[#C89B1C] hover:bg-[#B68A16] text-white rounded-2xl px-8 h-14 font-medium transition"
             >
               View Details
             </button>

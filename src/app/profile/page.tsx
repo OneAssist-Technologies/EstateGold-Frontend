@@ -298,7 +298,7 @@ export default function ProfilePage() {
         {/* PAGE HEADER */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold font-serif text-gray-900 tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
               My Profile
             </h1>
             <p className="text-xs sm:text-sm text-gray-500 font-medium mt-1">
@@ -370,7 +370,7 @@ export default function ProfilePage() {
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 text-center sm:text-left">
             {/* Profile Avatar Container with Camera Button */}
             <div className="relative shrink-0">
-              <div className="h-24 w-24 sm:h-28 sm:w-28 rounded-full border-3 border-[#F4EBD7] overflow-hidden bg-[#FAF5EA] flex items-center justify-center text-3xl font-bold font-serif text-[#9A720C] shadow-xs">
+              <div className="h-24 w-24 sm:h-28 sm:w-28 rounded-full border-3 border-[#F4EBD7] overflow-hidden bg-[#FAF5EA] flex items-center justify-center text-3xl font-bold text-[#9A720C] shadow-xs">
                 {profileImage ? (
                   <img
                     src={profileImage}
@@ -613,7 +613,7 @@ export default function ProfilePage() {
                 <div className="border border-[#F4EFE6] rounded-2xl p-4 bg-[#FAFAF8] space-y-3">
                   <label className="text-xs font-bold text-gray-800">Profile Photo</label>
                   <div className="flex items-center gap-4">
-                    <div className="h-16 w-16 rounded-full border border-[#E5DCC6] bg-[#FAF5EA] flex items-center justify-center text-xl font-bold font-serif text-[#9A720C] overflow-hidden shrink-0">
+                    <div className="h-16 w-16 rounded-full border border-[#E5DCC6] bg-[#FAF5EA] flex items-center justify-center text-xl font-bold text-[#9A720C] overflow-hidden shrink-0">
                       {profileImage ? (
                         <img src={profileImage} alt="" className="w-full h-full object-cover" />
                       ) : (
@@ -938,7 +938,7 @@ export default function ProfilePage() {
                   <div className="p-4 rounded-2xl border border-[#ECE7DB] bg-[#FAF8F3] flex items-center justify-between">
                     <div>
                       <span className="text-xs font-bold text-gray-500">Properties Published</span>
-                      <h4 className="text-2xl font-bold font-serif text-[#9A720C]">
+                      <h4 className="text-2xl font-bold text-[#9A720C]">
                         {stats.publishedCount}
                       </h4>
                     </div>

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
 import { motion } from "framer-motion";
-import { Lock, UserPlus, LogIn } from "lucide-react";
+import { Lock, UserPlus, LogIn, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/src/context/AuthContext";
 
 import Navbar from "@/src/components/layout/Navbar";
@@ -30,6 +30,7 @@ import StickyContactCard from "../../../components/property-detail/StickyContact
 
 import LoginRequiredModal from "../../../components/property-detail/LoginRequiredModal";
 import RequestCallbackModal from "../../../components/property-detail/RequestCallbackModal";
+import { calculatePropertyMatchScore } from "../../../services/matchScoreService";
 
 const getChecklistDocuments = (propertyType: string) => {
   switch (propertyType) {
@@ -83,6 +84,23 @@ export default function PropertyDetailsPage() {
   const [callbackOpen, setCallbackOpen] = useState(false);
   const [showChecklist, setShowChecklist] = useState(false);
 
+  const [matchScoreData, setMatchScoreData] = useState<any>(null);
+
+  useEffect(() => {
+    if (property) {
+      const saved = localStorage.getItem("estategold_user_preferences");
+      if (saved) {
+        try {
+          const prefs = JSON.parse(saved);
+          const result = calculatePropertyMatchScore(property, prefs);
+          setMatchScoreData(result);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
+  }, [property]);
+
   const fetchProperty = async () => {
     try {
       setLoading(true);
@@ -127,7 +145,7 @@ export default function PropertyDetailsPage() {
       <div className="min-h-screen bg-white flex flex-col font-sans">
         <Navbar />
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-          <h2 className="text-2xl font-bold font-serif text-gray-900">
+          <h2 className="text-2xl font-bold text-gray-900">
             Property Not Found
           </h2>
           <p className="text-xs text-gray-500 mt-2">
@@ -152,6 +170,43 @@ export default function PropertyDetailsPage() {
   const isPropertyOwner = Boolean(
     currentUserId && propertyOwnerId && String(currentUserId) === String(propertyOwnerId)
   );
+
+  const getVerifiedDocumentLabels = () => {
+    const docs = property.documents || [];
+    
+    if (docs.length > 0) {
+      const labels = docs.map((doc: any) => {
+        if (doc.documentType) {
+          return doc.documentType
+            .split(/[_-]/)
+            .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(" ");
+        }
+        if (doc.fileName) {
+          return doc.fileName
+            .replace(/\.[^/.]+$/, "")
+            .split(/[_-]/)
+            .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
+            .join(" ");
+        }
+        return "Ownership Document";
+      });
+      return Array.from(new Set(labels));
+    }
+
+    const uploadedTypes = property.uploadedDocumentTypes || [];
+    if (uploadedTypes.length > 0) {
+      const labels = uploadedTypes.map((type: string) => {
+        return type
+          .split(/[_-]/)
+          .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ");
+      });
+      return Array.from(new Set(labels));
+    }
+
+    return [];
+  };
 
   const handleLoginRequired = () => {
     setLoginOpen(true);
@@ -248,6 +303,75 @@ export default function PropertyDetailsPage() {
 
             <PropertyInfo property={property} />
 
+            {/* Match Compatibility Section */}
+            {matchScoreData && (
+              <div className="bg-[#FFFDF6] border border-[#E8DCC1] rounded-2xl p-6 mt-4 text-left">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                  <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Match Compatibility</h2>
+                  <span className={`text-xs font-black px-2.5 py-0.5 rounded-full w-fit ${
+                    matchScoreData.score >= 90 ? "bg-green-50 text-green-700 border border-green-200" :
+                    matchScoreData.score >= 75 ? "bg-emerald-50 text-emerald-700 border border-emerald-200" :
+                    matchScoreData.score >= 60 ? "bg-yellow-50 text-yellow-700 border border-yellow-200" :
+                    matchScoreData.score >= 40 ? "bg-amber-50 text-amber-700 border border-[#FFF9EC]" :
+                    "bg-red-50 text-red-700 border border-red-200"
+                  }`}>
+                    {matchScoreData.score}% Match ({matchScoreData.label})
+                  </span>
+                </div>
+                
+                {/* Progress Match Bar */}
+                <div className="w-full bg-gray-200 h-2 rounded-full overflow-hidden mb-4">
+                  <div 
+                    className={`h-full transition-all duration-500 ${
+                      matchScoreData.score >= 90 ? "bg-green-500" :
+                      matchScoreData.score >= 75 ? "bg-emerald-500" :
+                      matchScoreData.score >= 60 ? "bg-yellow-500" :
+                      matchScoreData.score >= 40 ? "bg-amber-500" :
+                      "bg-red-500"
+                    }`}
+                    style={{ width: `${matchScoreData.score}%` }}
+                  />
+                </div>
+
+                {/* Explanations */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                  {matchScoreData.matchedReasons.length > 0 && (
+                    <div className="space-y-1.5">
+                      <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Matches Your Search</h4>
+                      {matchScoreData.matchedReasons.map((reason: string, i: number) => (
+                        <div key={i} className="flex items-center gap-1.5 text-xs font-bold text-green-700">
+                          <span>✓</span> <span>{reason}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {matchScoreData.mismatchedReasons.length > 0 && (
+                    <div className="space-y-1.5">
+                      <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Mismatches</h4>
+                      {matchScoreData.mismatchedReasons.map((reason: string, i: number) => (
+                        <div key={i} className="flex items-center gap-1.5 text-xs font-bold text-red-600">
+                          <span>✕</span> <span>{reason}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {matchScoreData.unverifiedReasons.length > 0 && (
+                  <div className="mt-4 pt-3 border-t border-[#ECE7DB]">
+                    <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Unverified Criteria</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {matchScoreData.unverifiedReasons.map((reason: string, i: number) => (
+                        <span key={i} className="text-[10px] font-semibold text-amber-700 bg-amber-50/70 border border-amber-100 rounded-md px-2 py-0.5 animate-pulse">
+                          ⚠ {reason}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             <PropertyFeatures property={property} />
 
             {isGuest ? (
@@ -271,7 +395,7 @@ export default function PropertyDetailsPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <h3 className="text-xl sm:text-2xl font-bold text-gray-900 font-serif">
+                      <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
                         Sign In to View Full Details
                       </h3>
                       <p className="text-xs sm:text-sm text-gray-500 leading-relaxed max-w-[280px] sm:max-w-sm">
@@ -306,23 +430,15 @@ export default function PropertyDetailsPage() {
                 <LocalityRatings property={property} />
 
                 {/* Documents Section */}
-                <section className="bg-white border border-[#ECE7DB] rounded-2xl p-6 mt-6">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-bold font-serif text-gray-900">
-                      Documents
-                    </h2>
-                    {!isPropertyOwner && property.documentsAvailable && (
-                      <button
-                        onClick={() => setShowChecklist(!showChecklist)}
-                        className="text-xs font-bold text-[#9A720C] hover:underline cursor-pointer flex items-center gap-1 bg-none border-none"
-                      >
-                        {showChecklist ? "Hide Checklist" : "View Checklist"} <span>{showChecklist ? "▲" : "▼"}</span>
-                      </button>
-                    )}
-                  </div>
-                  <div className="mt-4">
-                    {isPropertyOwner ? (
-                      property.documents && property.documents.length > 0 ? (
+                {isPropertyOwner ? (
+                  <section className="bg-white border border-[#ECE7DB] rounded-2xl p-6 mt-6">
+                    <div className="flex items-center justify-between">
+                      <h2 className="text-xl font-bold text-gray-900">
+                        Documents
+                      </h2>
+                    </div>
+                    <div className="mt-4">
+                      {property.documents && property.documents.length > 0 ? (
                         <div className="space-y-4">
                           {property.documents.map((doc: any, index: number) => (
                             <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-[#ECE7DB] rounded-xl hover:bg-gray-50 transition-colors gap-3">
@@ -357,69 +473,48 @@ export default function PropertyDetailsPage() {
                         </div>
                       ) : (
                         <p className="text-xs text-gray-400 italic">No documents uploaded.</p>
-                      )
-                    ) : (
-                      <div className="space-y-4">
-                        <div
-                          onClick={() => {
-                            if (property.documentsAvailable) {
-                              setShowChecklist(!showChecklist);
-                            }
-                          }}
-                          className={`flex items-start justify-between gap-3 p-4 border rounded-xl transition-all ${
-                            property.documentsAvailable
-                              ? "bg-[#FFF9EC] border-[#E8DCC1] cursor-pointer hover:bg-[#FFF7E3]"
-                              : "bg-gray-50 border-gray-200"
-                          }`}
-                        >
-                          <div className="flex items-start gap-3">
-                            <span className={`text-lg font-black mt-0.5 ${property.documentsAvailable ? "text-[#9A720C]" : "text-gray-400"}`}>
-                              {property.documentsAvailable ? "✓" : "✕"}
-                            </span>
-                            <div>
-                              <p className="text-sm font-bold text-gray-900">
-                                {property.documentsAvailable ? "Documents Available" : "No documents available"}
-                              </p>
-                              <p className="text-xs text-gray-500 mt-1">
-                                {property.documentsAvailable
-                                  ? "Click to view which documents are present or unavailable."
-                                  : "No documents have been uploaded for this property yet."}
-                              </p>
-                            </div>
-                          </div>
-                          {property.documentsAvailable && (
-                            <span className="text-xs font-bold text-[#9A720C] mt-1 shrink-0">
-                              {showChecklist ? "Show Less" : "Click to View Details"}
-                            </span>
-                          )}
+                      )}
+                    </div>
+                  </section>
+                ) : (
+                  property.documentsAvailable && (
+                    <div className="bg-[#FFFDF6] border border-[#E8DCC1] rounded-2xl p-6 mt-6 text-left">
+                      <div className="flex items-center gap-2.5 mb-4 pb-3 border-b border-[#ECE7DB]">
+                        <div className="h-9 w-9 rounded-xl bg-green-50 border border-green-200 flex items-center justify-center text-green-600 shadow-2xs">
+                          <ShieldCheck size={20} />
                         </div>
-
-                        {showChecklist && property.documentsAvailable && (
-                          <div className="border border-[#ECE7DB] rounded-xl p-4 bg-gray-50 space-y-3 transition-all duration-300">
-                            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                              Property Document Checklist
-                            </p>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                              {getChecklistDocuments(property.propertyType).map((doc, idx) => {
-                                const isPresent = property.uploadedDocumentTypes?.includes(doc.type);
-                                return (
-                                  <div key={idx} className="flex items-center justify-between p-3 bg-white border border-[#ECE7DB] rounded-lg shadow-2xs">
-                                    <span className="text-xs font-bold text-gray-800">
-                                      {doc.label}
-                                    </span>
-                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${isPresent ? "bg-green-50 text-green-700 border-green-200" : "bg-gray-100 text-gray-400 border-gray-200"}`}>
-                                      {isPresent ? "✓ Present" : "✕ Unavailable"}
-                                    </span>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        )}
+                        <div>
+                          <h3 className="text-base font-bold text-gray-900 leading-tight">Verified Property Documents</h3>
+                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">Government & Ownership Audited</p>
+                        </div>
                       </div>
-                    )}
-                  </div>
-                </section>
+
+                      <p className="text-xs text-gray-500 font-bold mb-4 leading-relaxed">
+                        This property has been successfully audited and verified by EstateGold specialists using the following legal documents to confirm authenticity and clear titles:
+                      </p>
+
+                      {getVerifiedDocumentLabels().length > 0 ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                          {getVerifiedDocumentLabels().map((doc, idx) => (
+                            <div key={idx} className="flex items-center gap-2 p-2.5 px-3 bg-white border border-[#ECE7DB] rounded-xl shadow-3xs">
+                              <span className="h-5 w-5 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-[10px] font-black shrink-0">
+                                ✓
+                              </span>
+                              <span className="text-xs font-bold text-gray-800">{doc}</span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2 p-2.5 px-3 bg-white border border-[#ECE7DB] rounded-xl shadow-3xs">
+                          <span className="h-5 w-5 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-[10px] font-black shrink-0">
+                            ✓
+                          </span>
+                          <span className="text-xs font-bold text-gray-800">Ownership Documents Audited</span>
+                        </div>
+                      )}
+                    </div>
+                  )
+                )}
 
                 <OwnerCard property={property} />
                 <SimilarProperties properties={similarProperties} />

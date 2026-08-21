@@ -24,21 +24,10 @@ export default function SubmissionDetails({
 
   return (
     <section
-      className="
-        mt-8
-        rounded-xl
-        border
-        border-[#ECE7DB]
-        bg-white
-        p-6
-      "
+      className="mt-8 rounded-xl border border-[#ECE7DB] bg-white p-6"
     >
       <h2
-        className="
-          text-xl
-          font-semibold
-          text-[#161616]
-        "
+        className="text-xl font-semibold text-[#161616]"
       >
         Submission Details
       </h2>
@@ -48,12 +37,7 @@ export default function SubmissionDetails({
       <div className="mt-5">
 
         <h3
-          className="
-            text-sm
-            font-semibold
-            text-[#C89B1C]
-            uppercase
-          "
+          className="text-sm font-semibold text-[#C89B1C] uppercase"
         >
           Submitted By ({isAgent ? "Agent" : "Seller"})
         </h3>
@@ -98,12 +82,7 @@ export default function SubmissionDetails({
           <div className="my-5 border-t border-[#ECE7DB]" />
 
           <h3
-            className="
-              text-sm
-              font-semibold
-              text-[#C89B1C]
-              uppercase
-            "
+            className="text-sm font-semibold text-[#C89B1C] uppercase"
           >
             Property Owner
           </h3>
@@ -181,17 +160,10 @@ function InfoRow({
 }: InfoProps) {
   return (
     <div
-      className="
-        flex
-        items-start
-        gap-3
-      "
+      className="flex items-start gap-3"
     >
       <div
-        className="
-          mt-0.5
-          text-[#C89B1C]
-        "
+        className="mt-0.5 text-[#C89B1C]"
       >
         {icon}
       </div>
@@ -199,21 +171,13 @@ function InfoRow({
       <div>
 
         <p
-          className="
-            text-xs
-            text-gray-500
-          "
+          className="text-xs text-gray-500"
         >
           {label}
         </p>
 
         <p
-          className="
-            text-sm
-            font-medium
-            text-[#161616]
-            break-all
-          "
+          className="text-sm font-medium text-[#161616] break-all"
         >
           {value || "-"}
         </p>

@@ -130,13 +130,13 @@ export default function DeletePropertyModal({
 
               {/* Property Card Info */}
               <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-4">
-                <h3 className="font-bold text-sm text-amber-950 font-serif">
+                <h3 className="font-bold text-sm text-amber-950">
                   {property.propertyType}
                 </h3>
                 <p className="text-xs text-amber-800 font-semibold mt-0.5">
                   {property.locality}, {property.city}
                 </p>
-                <p className="mt-2 text-sm text-[#9A720C] font-bold font-serif">
+                <p className="mt-2 text-sm text-[#9A720C] font-bold">
                   ₹{property.price.toLocaleString("en-IN")}
                 </p>
               </div>

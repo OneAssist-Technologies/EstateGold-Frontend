@@ -60,14 +60,7 @@ export default function PropertyHero({
       className="relative"
     >
       <div
-        className="
-          relative
-          overflow-hidden
-          rounded-3xl
-          border
-          border-[#ECE7DB]
-          bg-[#F7F5F1]
-        "
+        className="relative overflow-hidden rounded-3xl border border-[#ECE7DB] bg-[#F7F5F1]"
       >
         <AnimatePresence mode="wait">
 
@@ -92,11 +85,7 @@ export default function PropertyHero({
             transition={{
               duration: 0.35,
             }}
-            className="
-              w-full
-              h-[520px]
-              object-cover
-            "
+            className="w-full h-[520px] object-cover"
           />
 
         </AnimatePresence>
@@ -104,19 +93,7 @@ export default function PropertyHero({
         {/* Property Type */}
 
         <div
-          className="
-            absolute
-            top-6
-            right-6
-            rounded-full
-            bg-black/60
-            backdrop-blur-md
-            px-5
-            py-2
-            text-white
-            text-sm
-            font-medium
-          "
+          className="absolute top-6 right-6 rounded-full bg-black/60 backdrop-blur-md px-5 py-2 text-white text-sm font-medium"
         >
           {property.propertyType}
         </div>
@@ -124,18 +101,7 @@ export default function PropertyHero({
         {/* Purpose */}
 
         <div
-          className="
-            absolute
-            bottom-6
-            left-6
-            rounded-full
-            bg-[#C89B1C]
-            px-5
-            py-2
-            text-white
-            text-sm
-            font-semibold
-          "
+          className="absolute bottom-6 left-6 rounded-full bg-[#C89B1C] px-5 py-2 text-white text-sm font-semibold"
         >
           {property.purpose}
         </div>
@@ -144,18 +110,7 @@ export default function PropertyHero({
 
         {images.length > 1 && (
           <div
-            className="
-              absolute
-              bottom-6
-              right-6
-              rounded-full
-              bg-black/60
-              backdrop-blur-md
-              px-4
-              py-2
-              text-white
-              text-sm
-            "
+            className="absolute bottom-6 right-6 rounded-full bg-black/60 backdrop-blur-md px-4 py-2 text-white text-sm"
           >
             {current + 1} / {images.length}
           </div>
@@ -166,23 +121,7 @@ export default function PropertyHero({
         {images.length > 1 && (
           <button
             onClick={previousImage}
-            className="
-              absolute
-              left-5
-              top-1/2
-              -translate-y-1/2
-              h-12
-              w-12
-              rounded-full
-              bg-white/90
-              backdrop-blur-md
-              shadow-lg
-              flex
-              items-center
-              justify-center
-              hover:scale-105
-              transition
-            "
+            className="absolute left-5 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-white/90 backdrop-blur-md shadow-lg flex items-center justify-center hover:scale-105 transition"
           >
             <ChevronLeft size={24} />
           </button>
@@ -193,23 +132,7 @@ export default function PropertyHero({
         {images.length > 1 && (
           <button
             onClick={nextImage}
-            className="
-              absolute
-              right-5
-              top-1/2
-              -translate-y-1/2
-              h-12
-              w-12
-              rounded-full
-              bg-white/90
-              backdrop-blur-md
-              shadow-lg
-              flex
-              items-center
-              justify-center
-              hover:scale-105
-              transition
-            "
+            className="absolute right-5 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-white/90 backdrop-blur-md shadow-lg flex items-center justify-center hover:scale-105 transition"
           >
             <ChevronRight size={24} />
           </button>

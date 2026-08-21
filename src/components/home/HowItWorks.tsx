@@ -50,18 +50,7 @@ export default function HowItWorks() {
               className="text-center"
             >
               <div
-                className="
-                relative
-                h-24
-                w-24
-                mx-auto
-                rounded-full
-                border
-                border-[#C89B1C]
-                flex
-                items-center
-                justify-center
-                "
+                className="relative h-24 w-24 mx-auto rounded-full border border-[#C89B1C] flex items-center justify-center"
               >
                 <step.icon
                   size={36}
@@ -69,19 +58,7 @@ export default function HowItWorks() {
                 />
 
                 <span
-                  className="
-                  absolute
-                  -top-2
-                  right-0
-                  bg-[#C89B1C]
-                  h-8
-                  w-8
-                  rounded-full
-                  text-sm
-                  flex
-                  items-center
-                  justify-center
-                  "
+                  className="absolute -top-2 right-0 bg-[#C89B1C] h-8 w-8 rounded-full text-sm flex items-center justify-center"
                 >
                   {step.no}
                 </span>

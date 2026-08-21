@@ -77,7 +77,7 @@ export default function DashboardLayout({ children }: { children?: React.ReactNo
               <DashboardCards stats={data} loading={loading} />
 
               {/* Grid Layout */}
-              <div className="mt-6 sm:mt-8 grid grid-cols-12 gap-6 lg:gap-8">
+              <div className="mt-6 sm:mt-8 grid grid-cols-12 gap-6 lg:gap-8 items-start">
                 {/* Chart */}
                 <div className="col-span-12 lg:col-span-8">
                   <ActivityChart monthlyStats={data?.monthlyStats} loading={loading} />

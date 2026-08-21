@@ -41,7 +41,7 @@ export default function Amenities({ amenities = [] }: Props) {
 
   return (
     <div className="py-3 border-b border-[#ECE7DB] space-y-2.5">
-      <h2 className="text-base font-bold font-serif text-[#161616]">
+      <h2 className="text-base font-bold text-[#161616]">
         Amenities
       </h2>
 

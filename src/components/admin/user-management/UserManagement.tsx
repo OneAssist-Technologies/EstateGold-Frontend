@@ -252,7 +252,7 @@ export default function UserManagement() {
       {/* Sticky White Header Bar */}
       <header className="h-20 bg-white border-b border-[#ECE7DB] px-8 flex items-center justify-between sticky top-0 z-30">
         <div>
-          <h1 className="text-3xl font-bold font-serif text-[#161616] tracking-tight">
+          <h1 className="text-3xl font-bold text-[#161616] tracking-tight">
             User Management
           </h1>
           <p className="text-gray-500 text-sm mt-0.5">{todayDate}</p>
@@ -310,13 +310,13 @@ export default function UserManagement() {
             {activeTab === "all" && (
               <>
                 <div className="bg-white rounded-2xl border border-[#ECE7DB] px-4 py-2 shadow-xs flex items-center gap-3">
-                  <span className="text-lg font-bold font-serif text-[#4338CA]">
+                  <span className="text-lg font-bold text-[#4338CA]">
                     {stats.totalUsers.toLocaleString()}
                   </span>
                   <span className="text-xs font-semibold text-[#8C847B]">Total Users</span>
                 </div>
                 <div className="bg-[#ECFDF5] rounded-2xl border border-emerald-200 px-4 py-2 shadow-xs flex items-center gap-3">
-                  <span className="text-lg font-bold font-serif text-[#10B981]">
+                  <span className="text-lg font-bold text-[#10B981]">
                     {(stats.verifiedUsers || 0).toLocaleString()}
                   </span>
                   <span className="text-xs font-semibold text-[#047857]">Verified Users</span>
@@ -327,13 +327,13 @@ export default function UserManagement() {
             {activeTab === "buyer" && (
               <>
                 <div className="bg-white rounded-2xl border border-[#ECE7DB] px-4 py-2 shadow-xs flex items-center gap-3">
-                  <span className="text-lg font-bold font-serif text-[#4338CA]">
+                  <span className="text-lg font-bold text-[#4338CA]">
                     {stats.totalBuyers.toLocaleString()}
                   </span>
                   <span className="text-xs font-semibold text-[#8C847B]">Total Buyers</span>
                 </div>
                 <div className="bg-[#ECFDF5] rounded-2xl border border-emerald-200 px-4 py-2 shadow-xs flex items-center gap-3">
-                  <span className="text-lg font-bold font-serif text-[#10B981]">
+                  <span className="text-lg font-bold text-[#10B981]">
                     {(stats.verifiedBuyers || 0).toLocaleString()}
                   </span>
                   <span className="text-xs font-semibold text-[#047857]">Verified Buyers</span>
@@ -344,13 +344,13 @@ export default function UserManagement() {
             {activeTab === "seller" && (
               <>
                 <div className="bg-white rounded-2xl border border-[#ECE7DB] px-4 py-2 shadow-xs flex items-center gap-3">
-                  <span className="text-lg font-bold font-serif text-[#B8860B]">
+                  <span className="text-lg font-bold text-[#B8860B]">
                     {stats.totalSellers.toLocaleString()}
                   </span>
                   <span className="text-xs font-semibold text-[#8C847B]">Total Sellers</span>
                 </div>
                 <div className="bg-[#FFF4E5] rounded-2xl border border-amber-200 px-4 py-2 shadow-xs flex items-center gap-3">
-                  <span className="text-lg font-bold font-serif text-[#D97706]">
+                  <span className="text-lg font-bold text-[#D97706]">
                     {(stats.verifiedSellers || 0).toLocaleString()}
                   </span>
                   <span className="text-xs font-semibold text-[#B45309]">Verified Sellers</span>
@@ -361,13 +361,13 @@ export default function UserManagement() {
             {activeTab === "agent" && (
               <>
                 <div className="bg-white rounded-2xl border border-[#ECE7DB] px-4 py-2 shadow-xs flex items-center gap-3">
-                  <span className="text-lg font-bold font-serif text-[#9333EA]">
+                  <span className="text-lg font-bold text-[#9333EA]">
                     {(stats.totalAgents || 0).toLocaleString()}
                   </span>
                   <span className="text-xs font-semibold text-[#8C847B]">Total Agents</span>
                 </div>
                 <div className="bg-[#ECFDF5] rounded-2xl border border-emerald-200 px-4 py-2 shadow-xs flex items-center gap-3">
-                  <span className="text-lg font-bold font-serif text-[#10B981]">
+                  <span className="text-lg font-bold text-[#10B981]">
                     {stats.verifiedAgents.toLocaleString()}
                   </span>
                   <span className="text-xs font-semibold text-[#047857]">Verified Agents</span>
@@ -613,11 +613,11 @@ export default function UserManagement() {
 
               {/* User Avatar & Header */}
               <div className="flex items-center gap-4 border-b border-[#F0ECE1] pb-6 mb-6">
-                <div className="h-16 w-16 rounded-full bg-[#B8860B] text-white font-serif text-2xl font-bold flex items-center justify-center shadow-md">
+                <div className="h-16 w-16 rounded-full bg-[#B8860B] text-white text-2xl font-bold flex items-center justify-center shadow-md">
                   {selectedUser.fullName.charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <h3 className="text-2xl font-serif font-bold text-[#1C1917]">
+                  <h3 className="text-2xl font-bold text-[#1C1917]">
                     {selectedUser.fullName}
                   </h3>
                   <div className="flex items-center gap-2 mt-1">
@@ -752,7 +752,7 @@ export default function UserManagement() {
                   {reasonType === "delete" ? <Trash2 size={24} /> : <AlertTriangle size={24} />}
                 </div>
                 <div>
-                  <h3 className="text-xl font-serif font-bold text-[#1C1917]">
+                  <h3 className="text-xl font-bold text-[#1C1917]">
                     {reasonType === "delete" ? "Delete User Account" : "Suspend User Account"}
                   </h3>
                   <p className="text-xs text-gray-500">{targetUser.fullName} ({targetUser.email})</p>

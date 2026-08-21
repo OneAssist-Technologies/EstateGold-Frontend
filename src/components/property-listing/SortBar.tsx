@@ -21,6 +21,9 @@ interface Props {
   setSort: (
     value: string
   ) => void;
+
+  search?: string;
+  isNearby?: boolean;
 }
 
 export default function SortBar({
@@ -29,13 +32,18 @@ export default function SortBar({
   setView,
   sort,
   setSort,
+  search,
+  isNearby,
 }: Props) {
   return (
     <div className="flex items-center justify-between mb-5">
       {/* Total Count */}
       <h2 className="text-xs sm:text-sm font-bold text-gray-800">
-        {total} properties found
+        {isNearby ? "Nearby: " : ""}
+        {total} {total === 1 ? "property" : "properties"} found
+        {search && search.trim() !== "" ? ` for "${search}"` : ""}
       </h2>
+
 
       {/* Right Controls */}
       <div className="flex items-center gap-3">

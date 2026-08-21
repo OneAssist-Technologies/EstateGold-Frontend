@@ -69,7 +69,7 @@ export default function PropertyGallery({
   return (
     <div className="space-y-3">
       {/* Main Hero Media Player */}
-      <div className="relative h-[400px] sm:h-[480px] md:h-[540px] lg:h-[580px] w-full rounded-2xl overflow-hidden bg-gray-950 border border-[#ECE7DB] shadow-md group">
+      <div className="relative h-[250px] xs:h-[320px] sm:h-[420px] md:h-[480px] lg:h-[580px] w-full rounded-2xl overflow-hidden bg-gray-950 border border-[#ECE7DB] shadow-md group">
         {/* Subtle Blurred Background to fill container seamlessly */}
         {!isCurrentVideo && (
           <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">

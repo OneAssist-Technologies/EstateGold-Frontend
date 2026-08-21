@@ -238,7 +238,7 @@ export default function ModifyServiceArea({ locationId }: ModifyServiceAreaProps
             <span>&gt;</span>
             <span className="text-gray-700 font-semibold">Modify Service Area</span>
           </div>
-          <h1 className="text-3xl font-serif font-bold text-[#161616] tracking-tight">
+          <h1 className="text-3xl font-bold text-[#161616] tracking-tight">
             Modify Service Area
           </h1>
         </div>
@@ -282,7 +282,7 @@ export default function ModifyServiceArea({ locationId }: ModifyServiceAreaProps
           <div className="h-9 w-9 rounded-xl bg-[#FFF9EC] border border-[#F4E3B5] text-[#B8860B] flex items-center justify-center font-bold text-sm">
             1
           </div>
-          <h2 className="text-xl font-bold font-serif text-[#161616]">
+          <h2 className="text-xl font-bold text-[#161616]">
             1. Basic Information
           </h2>
         </div>
@@ -371,7 +371,7 @@ export default function ModifyServiceArea({ locationId }: ModifyServiceAreaProps
               <div className="h-9 w-9 rounded-xl bg-[#FFF9EC] border border-[#F4E3B5] text-[#B8860B] flex items-center justify-center font-bold text-sm">
                 2
               </div>
-              <h2 className="text-xl font-bold font-serif text-[#161616]">
+              <h2 className="text-xl font-bold text-[#161616]">
                 2. Location Information
               </h2>
             </div>
@@ -452,7 +452,7 @@ export default function ModifyServiceArea({ locationId }: ModifyServiceAreaProps
               <div className="h-9 w-9 rounded-xl bg-[#FFF9EC] border border-[#F4E3B5] text-[#B8860B] flex items-center justify-center font-bold text-sm">
                 3
               </div>
-              <h2 className="text-xl font-bold font-serif text-[#161616]">
+              <h2 className="text-xl font-bold text-[#161616]">
                 3. Service Coverage
               </h2>
             </div>
@@ -555,7 +555,7 @@ export default function ModifyServiceArea({ locationId }: ModifyServiceAreaProps
           <div className="h-9 w-9 rounded-xl bg-[#FFF9EC] border border-[#F4E3B5] text-[#B8860B] flex items-center justify-center font-bold text-sm">
             4
           </div>
-          <h2 className="text-xl font-bold font-serif text-[#161616]">
+          <h2 className="text-xl font-bold text-[#161616]">
             4. Additional Settings
           </h2>
         </div>

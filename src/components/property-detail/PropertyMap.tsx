@@ -47,14 +47,7 @@ export default function PropertyMap({
 
   return (
     <div
-      className="
-        mt-8
-        bg-white
-        border
-        border-[#E8DCC1]
-        rounded-[30px]
-        overflow-hidden
-      "
+      className="mt-8 bg-white border border-[#E8DCC1] rounded-[30px] overflow-hidden"
     >
       {/* Header */}
 
@@ -63,16 +56,7 @@ export default function PropertyMap({
         <div className="flex items-center gap-4">
 
           <div
-            className="
-              h-14
-              w-14
-              rounded-2xl
-              bg-[#FFF5DA]
-              text-[#C89B1C]
-              flex
-              items-center
-              justify-center
-            "
+            className="h-14 w-14 rounded-2xl bg-[#FFF5DA] text-[#C89B1C] flex items-center justify-center"
           >
             <MapPin size={30} />
           </div>
@@ -95,14 +79,7 @@ export default function PropertyMap({
         {/* Address */}
 
         <div
-          className="
-            mt-8
-            p-6
-            rounded-2xl
-            border
-            border-[#E8DCC1]
-            bg-[#FCFBF8]
-          "
+          className="mt-8 p-6 rounded-2xl border border-[#E8DCC1] bg-[#FCFBF8]"
         >
 
           <div className="flex justify-between items-start gap-6">
@@ -130,18 +107,7 @@ export default function PropertyMap({
 
             <button
               onClick={copyAddress}
-              className="
-                h-12
-                px-5
-                rounded-xl
-                border
-                border-[#E8DCC1]
-                flex
-                items-center
-                gap-3
-                hover:bg-[#FFF9EC]
-                transition
-              "
+              className="h-12 px-5 rounded-xl border border-[#E8DCC1] flex items-center gap-3 hover:bg-[#FFF9EC] transition"
             >
               {copied ? (
                 <>
@@ -172,13 +138,7 @@ export default function PropertyMap({
       <div className="px-8 pb-8">
 
         <div
-          className="
-            rounded-3xl
-            overflow-hidden
-            border
-            border-[#E8DCC1]
-            h-[520px]
-          "
+          className="rounded-3xl overflow-hidden border border-[#E8DCC1] h-[520px]"
         >
 
           <iframe
@@ -201,20 +161,7 @@ export default function PropertyMap({
             href={googleMap}
             target="_blank"
             rel="noopener noreferrer"
-            className="
-              h-14
-              w-fit
-              px-8
-              rounded-2xl
-              bg-[#C89B1C]
-              hover:bg-[#B8860B]
-              text-white
-              font-semibold
-              flex
-              items-center
-              gap-3
-              transition
-            "
+            className="h-14 w-fit px-8 rounded-2xl bg-[#C89B1C] hover:bg-[#B8860B] text-white font-semibold flex items-center gap-3 transition"
           >
 
             <Navigation size={20} />

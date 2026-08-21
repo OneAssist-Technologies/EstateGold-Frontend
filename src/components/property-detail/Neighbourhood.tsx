@@ -76,7 +76,7 @@ export default function Neighbourhood({ property }: Props) {
   return (
     <div className="py-3 border-b border-[#ECE7DB] space-y-3">
       <div>
-        <h2 className="text-base font-bold font-serif text-[#161616]">
+        <h2 className="text-base font-bold text-[#161616]">
           Neighbourhood & Surroundings
         </h2>
         <p className="text-[11px] text-gray-500 font-medium mt-0.5">

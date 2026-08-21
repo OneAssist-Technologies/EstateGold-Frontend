@@ -30,14 +30,7 @@ export default function PropertyPagination({
         onClick={() =>
           onPageChange(currentPage - 1)
         }
-        className="
-          h-10
-          w-10
-          rounded-xl
-          border
-          bg-white
-          disabled:opacity-40
-        "
+        className="h-10 w-10 rounded-xl border bg-white disabled:opacity-40"
       >
         <ChevronLeft size={18} />
       </motion.button>
@@ -82,14 +75,7 @@ export default function PropertyPagination({
         onClick={() =>
           onPageChange(currentPage + 1)
         }
-        className="
-          h-10
-          w-10
-          rounded-xl
-          border
-          bg-white
-          disabled:opacity-40
-        "
+        className="h-10 w-10 rounded-xl border bg-white disabled:opacity-40"
       >
         <ChevronRight size={18} />
       </motion.button>

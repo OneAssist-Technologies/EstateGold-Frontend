@@ -89,7 +89,7 @@ export default function FeaturedProperties() {
             Featured Listings
           </p>
 
-          <h2 className="text-4xl sm:text-5xl font-bold mt-4 font-serif text-[#161616]">
+          <h2 className="text-4xl sm:text-5xl font-bold mt-4 text-[#161616]">
             Featured Properties
           </h2>
 

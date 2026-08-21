@@ -186,14 +186,7 @@ async function handleDelete(
     return (
 
       <div
-        className="
-          min-h-screen
-          flex
-          items-center
-          justify-center
-          text-gray-500
-          text-lg
-        "
+        className="min-h-screen flex items-center justify-center text-gray-500 text-lg"
       >
 
         Property not found.
@@ -220,20 +213,11 @@ async function handleDelete(
   }
 />
     <main
-      className="
-        min-h-screen
-        bg-[#FAF8F3]
-        py-10
-      "
+      className="min-h-screen bg-[#FAF8F3] py-10"
     >
 
       <div
-        className="
-          max-w-[1600px]
-          mx-auto
-          px-8
-          space-y-8
-        "
+        className="max-w-[1600px] mx-auto px-8 space-y-8"
       >
 
         {/* Hero */}

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Calendar,
   IndianRupee,
@@ -8,9 +9,12 @@ import {
   Image as ImageIcon,
   X,
   Play,
+  Sparkles,
+  Loader2,
 } from "lucide-react";
 
 import { PropertyFormData } from "../../types/property";
+import api from "../../services/api";
 
 interface Props {
   formData: PropertyFormData;
@@ -25,6 +29,25 @@ export default function PricePhotosStep({
   setFormData,
   errors,
 }: Props) {
+  const [generating, setGenerating] = useState(false);
+
+  const handleGenerateDescription = async () => {
+    try {
+      setGenerating(true);
+      const res = await api.post("/api/ai/generate-description", formData);
+      if (res.data && res.data.description) {
+        setFormData((prev) => ({
+          ...prev,
+          description: res.data.description,
+        }));
+      }
+    } catch (err) {
+      console.error("Failed to generate description:", err);
+      alert("Failed to generate AI description. Please try again.");
+    } finally {
+      setGenerating(false);
+    }
+  };
   const hasLocality = formData.city && formData.locality && formData.propertyType;
   const isInsightAvailable = formData.marketInsight && formData.marketInsight.success;
   const estimatedPricePerSqft = isInsightAvailable ? formData.marketInsight?.estimatedPricePerSqft : null;
@@ -99,13 +122,7 @@ export default function PricePhotosStep({
             <div className="relative">
               <IndianRupee
                 size={18}
-                className="
-                  absolute
-                  left-5
-                  top-1/2
-                  -translate-y-1/2
-                  text-gray-500
-                "
+                className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500"
               />
 
               <input
@@ -170,7 +187,7 @@ export default function PricePhotosStep({
             ) : (
               <div className="border border-[#E5D8B3] bg-[#FAF8F5] rounded-3xl p-5 flex flex-col justify-between">
                 <div>
-                  <h3 className="text-sm font-bold text-gray-900 font-serif flex items-center gap-1.5">
+                  <h3 className="text-sm font-bold text-gray-900 flex items-center gap-1.5">
                     📊 Local Market Insight
                   </h3>
                   <p className="text-[10px] text-gray-400 mt-0.5">
@@ -260,9 +277,29 @@ export default function PricePhotosStep({
 
         {/* Description */}
         <div>
-          <label className="block mb-3 text-lg font-medium text-[#161616]">
-            Property Description
-          </label>
+          <div className="flex justify-between items-center mb-3">
+            <label className="block text-lg font-medium text-[#161616]">
+              Property Description
+            </label>
+            <button
+              type="button"
+              onClick={handleGenerateDescription}
+              disabled={generating}
+              className="flex items-center gap-1.5 px-4 py-1.5 bg-[#FFF9EC] hover:bg-[#FFF2D3] active:bg-[#FFEABF] text-[#9A720C] border border-[#E8DCC1] rounded-xl text-xs font-bold transition-all cursor-pointer shadow-3xs disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {generating ? (
+                <>
+                  <Loader2 size={13} className="animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Sparkles size={13} />
+                  AI Writer
+                </>
+              )}
+            </button>
+          </div>
 
           <textarea
             value={formData.description}
@@ -276,17 +313,7 @@ export default function PricePhotosStep({
               )
             }
             placeholder="Describe the property — highlight key features, nearby landmarks, society benefits..."
-            className="
-              w-full
-              min-h-[140px]
-              rounded-2xl
-              border
-              border-[#E5D8B3]
-              p-5
-              outline-none
-              resize-none
-              focus:border-[#C89B1C]
-            "
+            className="w-full min-h-[140px] rounded-2xl border border-[#E5D8B3] p-5 outline-none resize-none focus:border-[#C89B1C]"
           />
         </div>
 
@@ -311,28 +338,12 @@ export default function PricePhotosStep({
                   })
                 )
               }
-              className="
-                w-full
-                h-16
-                rounded-2xl
-                border
-                border-[#E5D8B3]
-                px-5
-                outline-none
-                focus:border-[#C89B1C]
-              "
+              className="w-full h-16 rounded-2xl border border-[#E5D8B3] px-5 outline-none focus:border-[#C89B1C]"
             />
 
             <Calendar
               size={18}
-              className="
-                absolute
-                right-5
-                top-1/2
-                -translate-y-1/2
-                text-gray-500
-                pointer-events-none
-              "
+              className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
             />
           </div>
         </div>

@@ -78,13 +78,7 @@ export default function LandmarkSection({
 
     <motion.div
       layout
-      className="
-        bg-white
-        rounded-[30px]
-        border
-        border-[#ECE6D8]
-        p-8
-      "
+      className="bg-white rounded-[30px] border border-[#ECE6D8] p-8"
     >
 
       {/* Header */}
@@ -110,18 +104,7 @@ export default function LandmarkSection({
         <button
           type="button"
           onClick={addLandmark}
-          className="
-            h-12
-            px-5
-            rounded-xl
-            bg-[#C89B1C]
-            hover:bg-[#B8860B]
-            text-white
-            flex
-            items-center
-            gap-2
-            transition
-          "
+          className="h-12 px-5 rounded-xl bg-[#C89B1C] hover:bg-[#B8860B] text-white flex items-center gap-2 transition"
         >
 
           <Plus size={18} />
@@ -162,13 +145,7 @@ export default function LandmarkSection({
                 duration: .25,
               }}
 
-              className="
-                mt-6
-                grid
-                grid-cols-12
-                gap-5
-                items-end
-              "
+              className="mt-6 grid grid-cols-12 gap-5 items-end"
             >
 
               {/* Landmark */}
@@ -176,11 +153,7 @@ export default function LandmarkSection({
               <div className="col-span-7">
 
                 <label
-                  className="
-                    text-sm
-                    font-medium
-                    text-gray-600
-                  "
+                  className="text-sm font-medium text-gray-600"
                 >
 
                   Landmark
@@ -188,17 +161,7 @@ export default function LandmarkSection({
                 </label>
 
                 <div
-                  className="
-                    mt-2
-                    h-14
-                    rounded-2xl
-                    border
-                    border-[#E6DDCC]
-                    px-4
-                    flex
-                    items-center
-                    gap-3
-                  "
+                  className="mt-2 h-14 rounded-2xl border border-[#E6DDCC] px-4 flex items-center gap-3"
                 >
 
                   <MapPin
@@ -218,11 +181,7 @@ export default function LandmarkSection({
 
                     }
                     placeholder="Landmark name"
-                    className="
-                      flex-1
-                      outline-none
-                      bg-transparent
-                    "
+                    className="flex-1 outline-none bg-transparent"
                   />
 
                 </div>
@@ -234,11 +193,7 @@ export default function LandmarkSection({
               <div className="col-span-4">
 
                 <label
-                  className="
-                    text-sm
-                    font-medium
-                    text-gray-600
-                  "
+                  className="text-sm font-medium text-gray-600"
                 >
 
                   Distance
@@ -259,16 +214,7 @@ export default function LandmarkSection({
 
                   }
 
-                  className="
-                    mt-2
-                    h-14
-                    w-full
-                    rounded-2xl
-                    border
-                    border-[#E6DDCC]
-                    px-4
-                    outline-none
-                  "
+                  className="mt-2 h-14 w-full rounded-2xl border border-[#E6DDCC] px-4 outline-none"
                 >
 
                   <option value="">
@@ -306,18 +252,7 @@ export default function LandmarkSection({
 
                   }
 
-                  className="
-                    h-14
-                    w-14
-                    rounded-2xl
-                    bg-red-50
-                    hover:bg-red-100
-                    text-red-500
-                    flex
-                    items-center
-                    justify-center
-                    transition
-                  "
+                  className="h-14 w-14 rounded-2xl bg-red-50 hover:bg-red-100 text-red-500 flex items-center justify-center transition"
                 >
 
                   <Trash2 size={20} />
@@ -336,16 +271,7 @@ export default function LandmarkSection({
       {landmarks.length===0 && (
 
         <div
-          className="
-            mt-8
-            rounded-2xl
-            border-2
-            border-dashed
-            border-[#E6DDCC]
-            py-10
-            text-center
-            text-gray-500
-          "
+          className="mt-8 rounded-2xl border-2 border-dashed border-[#E6DDCC] py-10 text-center text-gray-500"
         >
 
           No landmarks added yet.

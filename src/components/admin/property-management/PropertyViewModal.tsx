@@ -76,20 +76,7 @@ export default function PropertyViewModal({
               opacity: 0,
               scale: .95,
             }}
-            className="
-              fixed
-              left-1/2
-              top-1/2
-              -translate-x-1/2
-              -translate-y-1/2
-              z-50
-              w-[1000px]
-              max-h-[90vh]
-              overflow-y-auto
-              rounded-3xl
-              bg-white
-              shadow-2xl
-            "
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[1000px] max-h-[90vh] overflow-y-auto rounded-3xl bg-white shadow-2xl"
           >
 
             {/* Header */}
@@ -117,15 +104,7 @@ export default function PropertyViewModal({
 
               <button
                 onClick={onClose}
-                className="
-                  h-10
-                  w-10
-                  rounded-xl
-                  hover:bg-gray-100
-                  flex
-                  items-center
-                  justify-center
-                "
+                className="h-10 w-10 rounded-xl hover:bg-gray-100 flex items-center justify-center"
               >
                 <X size={20} />
               </button>
@@ -161,12 +140,7 @@ export default function PropertyViewModal({
                     onError={(e) => {
                       e.currentTarget.src = "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80";
                     }}
-                    className="
-                      w-full
-                      h-[350px]
-                      object-cover
-                      rounded-2xl
-                    "
+                    className="w-full h-[350px] object-cover rounded-2xl"
                   />
                 );
               })()}
@@ -357,14 +331,7 @@ export default function PropertyViewModal({
 
                     <span
                       key={item}
-                      className="
-                        rounded-full
-                        bg-[#F7F2E5]
-                        px-4
-                        py-2
-                        text-sm
-                        text-[#8B6A11]
-                      "
+                      className="rounded-full bg-[#F7F2E5] px-4 py-2 text-sm text-[#8B6A11]"
                     >
                       {item}
                     </span>
@@ -413,17 +380,7 @@ export default function PropertyViewModal({
                     onClick={() =>
                       onReject("Rejected by Admin")
                     }
-                    className="
-                      h-11
-                      px-6
-                      rounded-xl
-                      bg-red-100
-                      text-red-600
-                      hover:bg-red-200
-                      flex
-                      items-center
-                      gap-2
-                    "
+                    className="h-11 px-6 rounded-xl bg-red-100 text-red-600 hover:bg-red-200 flex items-center gap-2"
                   >
                     <XCircle size={18} />
 
@@ -432,17 +389,7 @@ export default function PropertyViewModal({
 
                   <button
                     onClick={onApprove}
-                    className="
-                      h-11
-                      px-6
-                      rounded-xl
-                      bg-[#C89B1C]
-                      text-white
-                      hover:bg-[#B58A16]
-                      flex
-                      items-center
-                      gap-2
-                    "
+                    className="h-11 px-6 rounded-xl bg-[#C89B1C] text-white hover:bg-[#B58A16] flex items-center gap-2"
                   >
                     <CheckCircle2 size={18} />
 
@@ -453,12 +400,7 @@ export default function PropertyViewModal({
 
               <button
                 onClick={onClose}
-                className="
-                  h-11
-                  px-6
-                  rounded-xl
-                  border
-                "
+                className="h-11 px-6 rounded-xl border"
               >
                 Close
               </button>

@@ -551,7 +551,7 @@ export default function OwnerDetailsStep({
   return (
     <div>
       {/* Header */}
-      <h2 className="text-4xl font-bold text-[#161616] font-serif leading-tight">
+      <h2 className="text-4xl font-bold text-[#161616] leading-tight">
         Property Owner Details
       </h2>
 

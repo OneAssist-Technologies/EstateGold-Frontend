@@ -18,21 +18,13 @@ export default function PropertyHeader() {
     >
 
       <h1
-        className="
-          text-3xl
-          font-bold
-          text-[#161616]
-        "
+        className="text-3xl font-bold text-[#161616]"
       >
         Property Management
       </h1>
 
       <p
-        className="
-          mt-2
-          text-sm
-          text-gray-500
-        "
+        className="mt-2 text-sm text-gray-500"
       >
         Review and manage property listings submitted by users.
       </p>

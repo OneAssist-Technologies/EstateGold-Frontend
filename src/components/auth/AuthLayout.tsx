@@ -44,7 +44,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
           </div>
 
           {/* Heading */}
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold leading-tight text-white mb-3 sm:mb-4">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight text-white mb-3 sm:mb-4">
             India's No-Brokerage<br className="hidden sm:inline" /> Property Platform
           </h1>
 

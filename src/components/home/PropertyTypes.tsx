@@ -56,7 +56,7 @@ export default function PropertyTypes() {
           Explore Categories
         </p>
 
-        <h2 className="text-5xl font-bold text-center mt-4 font-serif">
+        <h2 className="text-5xl font-bold text-center mt-4">
           Browse by Property Type
         </h2>
 
@@ -65,32 +65,10 @@ export default function PropertyTypes() {
             <div
               key={item.title}
               onClick={() => handleTypeClick(item.typeParam)}
-              className="
-              bg-white
-              rounded-3xl
-              border
-              border-[#ECE7DB]
-              p-8
-              text-center
-              hover:shadow-xl
-              transition
-              cursor-pointer
-              group
-              "
+              className="bg-white rounded-3xl border border-[#ECE7DB] p-8 text-center hover:shadow-xl transition cursor-pointer group"
             >
               <div
-                className="
-                h-16
-                w-16
-                rounded-2xl
-                bg-[#F8F3E8]
-                mx-auto
-                flex
-                items-center
-                justify-center
-                group-hover:bg-[#C89B1C]
-                transition-colors
-                "
+                className="h-16 w-16 rounded-2xl bg-[#F8F3E8] mx-auto flex items-center justify-center group-hover:bg-[#C89B1C] transition-colors"
               >
                 <item.icon
                   size={28}
