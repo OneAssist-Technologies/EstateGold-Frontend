@@ -9,11 +9,6 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
-const playfair = Inter({
-  subsets: ["latin"],
-  variable: "--font-playfair",
-});
-
 export const metadata: Metadata = {
   title: "Estate Luxe | Luxury Real Estate",
   description:
@@ -35,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en" data-scroll-behavior="smooth">
       <body
-        className={`${inter.variable} ${playfair.variable} antialiased bg-[#F8F6F2] text-[#161616]`}
+        className={`${inter.variable} antialiased bg-[#F8F6F2] text-[#161616]`}
       >
         <AuthProvider>
           <AdminRouteGuard>

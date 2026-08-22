@@ -39,7 +39,7 @@ export default function DashboardCards({
   ];
 
   return (
-    <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-6 mb-8">
+    <div className="grid grid-cols-2 lg:grid-cols-4 md:grid-cols-2 gap-4 sm:gap-6 mb-8">
       {cards.map((card, index) => (
         <motion.div
           key={card.title}
@@ -58,12 +58,12 @@ export default function DashboardCards({
           whileHover={{
             y: -2,
           }}
-          className="bg-white rounded-2xl p-6 border border-[#ECE7DB] shadow-2xs hover:shadow-xs transition-all duration-300 flex flex-col justify-center"
+          className="bg-white rounded-2xl p-4 sm:p-6 border border-[#ECE7DB] shadow-2xs hover:shadow-xs transition-all duration-300 flex flex-col justify-center text-center sm:text-left"
         >
-          <span className={`text-4xl font-bold  ${card.colorClass}`}>
+          <span className={`text-2xl sm:text-4xl font-bold  ${card.colorClass}`}>
             {card.value}
           </span>
-          <span className="text-xs font-semibold text-gray-500 mt-1.5 tracking-wide">
+          <span className="text-[10px] sm:text-xs font-semibold text-gray-500 mt-1 sm:mt-1.5 tracking-wide">
             {card.title}
           </span>
         </motion.div>

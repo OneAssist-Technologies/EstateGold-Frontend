@@ -22,8 +22,8 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
 
   return (
     <div className="h-screen w-full overflow-hidden flex flex-col md:flex-row bg-white font-sans">
-      {/* Left Side: Fixed Luxury Banner */}
-      <div className="w-full md:w-5/12 lg:w-1/2 h-64 md:h-screen relative overflow-hidden shrink-0 sticky top-0">
+      {/* Left Side: Fixed Luxury Banner (Hidden on Mobile) */}
+      <div className="hidden md:block w-full md:w-5/12 lg:w-1/2 h-screen relative overflow-hidden shrink-0 sticky top-0">
         <Image
           src={AuthImage}
           alt="EstateGold Luxury Real Estate"

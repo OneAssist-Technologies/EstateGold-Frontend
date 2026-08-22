@@ -98,20 +98,20 @@ export default function PendingApprovalCard({
           opacity: 1,
           y: 0,
         }}
-        className="bg-white rounded-3xl border border-[#ECE7DB] shadow-sm overflow-hidden"
+        className="bg-white rounded-2xl sm:rounded-3xl border border-[#ECE7DB] shadow-sm overflow-hidden"
       >
         {/* Header */}
         <div
-          className="px-6 sm:px-8 py-6 border-b border-[#ECE7DB] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+          className="px-4 sm:px-8 py-5 sm:py-6 border-b border-[#ECE7DB] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
         >
           <div>
             <h2
-              className="text-xl sm:text-2xl font-bold text-[#161616]"
+              className="text-lg sm:text-2xl font-bold text-[#161616]"
             >
               Pending Property Approval
             </h2>
 
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-xs sm:text-sm text-gray-500 mt-1">
               Review newly submitted properties
             </p>
           </div>
@@ -119,7 +119,7 @@ export default function PendingApprovalCard({
           <button
             type="button"
             onClick={() => router.push("/admin/properties?status=pending")}
-            className="h-11 px-5 rounded-xl bg-[#C89B1C] text-white hover:bg-[#B8860B] transition text-sm font-medium cursor-pointer self-start sm:self-auto"
+            className="h-10 sm:h-11 px-4 sm:px-5 rounded-xl bg-[#C89B1C] text-white hover:bg-[#B8860B] transition text-xs sm:text-sm font-medium cursor-pointer self-start sm:self-auto"
           >
             View All
           </button>
@@ -150,14 +150,14 @@ export default function PendingApprovalCard({
               return (
                 <div
                   key={item._id}
-                  className="flex flex-col md:flex-row md:items-center justify-between px-6 sm:px-8 py-6 border-b border-[#F3F0E8] hover:bg-[#FCFBF8] transition gap-4"
+                  className="flex flex-col md:flex-row md:items-center justify-between px-4 sm:px-8 py-5 sm:py-6 border-b border-[#F3F0E8] hover:bg-[#FCFBF8] transition gap-4"
                 >
                   {/* Property */}
-                  <div className="flex items-center gap-5">
+                  <div className="flex flex-col xs:flex-row items-stretch xs:items-center gap-4 xs:gap-5">
                     <img
                       src={imageSrc}
                       alt={title}
-                      className="h-20 w-28 rounded-2xl object-cover shrink-0 bg-gray-100"
+                      className="h-32 xs:h-20 w-full xs:w-28 rounded-xl xs:rounded-2xl object-cover shrink-0 bg-gray-100"
                     />
 
                     <div>
@@ -167,14 +167,14 @@ export default function PendingApprovalCard({
                         {title}
                       </h3>
 
-                      <p className="text-sm text-gray-500 mt-1">
+                      <p className="text-xs sm:text-sm text-gray-500 mt-1">
                         Owner: <span className="font-medium text-gray-700">{owner}</span>
                       </p>
 
                       <div
                         className="flex items-center gap-1.5 text-xs text-gray-400 mt-1.5"
                       >
-                        <MapPin size={14} className="shrink-0" />
+                        <MapPin size={13} className="shrink-0" />
                         <span>{item.locality ? `${item.locality}, ${item.city}` : item.city}</span>
                       </div>
                     </div>

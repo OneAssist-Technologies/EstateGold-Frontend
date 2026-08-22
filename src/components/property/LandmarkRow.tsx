@@ -78,12 +78,12 @@ export default function LandmarkSection({
 
     <motion.div
       layout
-      className="bg-white rounded-[30px] border border-[#ECE6D8] p-8"
+      className="bg-white rounded-[24px] sm:rounded-[30px] border border-[#ECE6D8] p-4 sm:p-8"
     >
 
       {/* Header */}
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 
         <div>
 
@@ -93,7 +93,7 @@ export default function LandmarkSection({
 
           </h2>
 
-          <p className="text-gray-500 mt-2">
+          <p className="text-gray-500 mt-1.5 text-xs sm:text-sm">
 
             Add famous nearby places to help buyers.
 
@@ -104,10 +104,10 @@ export default function LandmarkSection({
         <button
           type="button"
           onClick={addLandmark}
-          className="h-12 px-5 rounded-xl bg-[#C89B1C] hover:bg-[#B8860B] text-white flex items-center gap-2 transition"
+          className="h-10 px-4 sm:h-12 sm:px-5 rounded-xl bg-[#C89B1C] hover:bg-[#B8860B] text-white flex items-center justify-center gap-2 transition text-xs sm:text-sm self-start sm:self-auto shrink-0 cursor-pointer"
         >
 
-          <Plus size={18} />
+          <Plus size={16} />
 
           Add Landmark
 
@@ -145,15 +145,15 @@ export default function LandmarkSection({
                 duration: .25,
               }}
 
-              className="mt-6 grid grid-cols-12 gap-5 items-end"
+              className="mt-6 grid grid-cols-12 gap-3 sm:gap-5 items-end"
             >
 
               {/* Landmark */}
 
-              <div className="col-span-7">
+              <div className="col-span-12 xs:col-span-7">
 
                 <label
-                  className="text-sm font-medium text-gray-600"
+                  className="text-xs sm:text-sm font-medium text-gray-600"
                 >
 
                   Landmark
@@ -161,11 +161,11 @@ export default function LandmarkSection({
                 </label>
 
                 <div
-                  className="mt-2 h-14 rounded-2xl border border-[#E6DDCC] px-4 flex items-center gap-3"
+                  className="mt-1.5 h-12 sm:h-14 rounded-2xl border border-[#E6DDCC] px-4 flex items-center gap-3"
                 >
 
                   <MapPin
-                    size={20}
+                    size={18}
                     className="text-gray-400"
                   />
 
@@ -181,7 +181,7 @@ export default function LandmarkSection({
 
                     }
                     placeholder="Landmark name"
-                    className="flex-1 outline-none bg-transparent"
+                    className="flex-1 outline-none bg-transparent text-sm"
                   />
 
                 </div>
@@ -190,10 +190,10 @@ export default function LandmarkSection({
 
               {/* Distance */}
 
-              <div className="col-span-4">
+              <div className="col-span-8 xs:col-span-4">
 
                 <label
-                  className="text-sm font-medium text-gray-600"
+                  className="text-xs sm:text-sm font-medium text-gray-600"
                 >
 
                   Distance
@@ -214,7 +214,7 @@ export default function LandmarkSection({
 
                   }
 
-                  className="mt-2 h-14 w-full rounded-2xl border border-[#E6DDCC] px-4 outline-none"
+                  className="mt-1.5 h-12 sm:h-14 w-full rounded-2xl border border-[#E6DDCC] px-4 outline-none text-sm"
                 >
 
                   <option value="">
@@ -238,7 +238,7 @@ export default function LandmarkSection({
 
               {/* Delete */}
 
-              <div className="col-span-1">
+              <div className="col-span-4 xs:col-span-1 flex justify-end xs:block">
 
                 <button
 
@@ -252,10 +252,10 @@ export default function LandmarkSection({
 
                   }
 
-                  className="h-14 w-14 rounded-2xl bg-red-50 hover:bg-red-100 text-red-500 flex items-center justify-center transition"
+                  className="h-12 w-12 sm:h-14 sm:w-14 rounded-2xl bg-red-50 hover:bg-red-100 text-red-500 flex items-center justify-center transition cursor-pointer"
                 >
 
-                  <Trash2 size={20} />
+                  <Trash2 size={18} />
 
                 </button>
 

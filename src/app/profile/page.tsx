@@ -413,21 +413,25 @@ export default function ProfilePage() {
                 </button>
               </div>
 
-              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 text-xs text-gray-600 font-medium">
+              <div className="flex flex-col sm:flex-row flex-wrap items-center sm:items-start justify-center sm:justify-start gap-3 text-xs text-gray-600 font-medium w-full overflow-hidden">
                 {/* Email */}
-                <div className="flex items-center gap-1.5">
-                  <Mail size={14} className="text-gray-400 shrink-0" />
-                  <span>{user.email}</span>
-                  <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-200 flex items-center gap-0.5">
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 w-full sm:w-auto">
+                  <div className="flex items-center gap-1.5 shrink-0 max-w-full">
+                    <Mail size={14} className="text-gray-400" />
+                    <span className="text-gray-800 break-all select-all">{user.email}</span>
+                  </div>
+                  <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-200 flex items-center gap-0.5 shrink-0">
                     Verified <Check size={10} />
                   </span>
                 </div>
 
                 {/* Mobile */}
-                <div className="flex items-center gap-1.5">
-                  <Phone size={14} className="text-gray-400 shrink-0" />
-                  <span>{user.phone || "+91 98765 43210"}</span>
-                  <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-200 flex items-center gap-0.5">
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 w-full sm:w-auto">
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <Phone size={14} className="text-gray-400" />
+                    <span className="text-gray-800">{user.phone || "+91 98765 43210"}</span>
+                  </div>
+                  <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-200 flex items-center gap-0.5 shrink-0">
                     Verified <Check size={10} />
                   </span>
                 </div>
@@ -440,8 +444,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Right Column: Roles & Account Status */}
-          <div className="flex flex-col sm:flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-4 pt-4 md:pt-0 border-t md:border-t-0 border-[#F4EFE6]">
+          <div className="flex flex-col sm:flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-4 pt-4 md:pt-0 border-t md:border-t-0 border-[#F4EFE6] w-full md:w-auto">
             <button
               type="button"
               onClick={() => setActiveTab("personal")}
@@ -475,7 +478,7 @@ export default function ProfilePage() {
               </div>
 
               {/* Account Status */}
-              <div className="flex items-center justify-center md:justify-end gap-2">
+              <div className="flex items-center justify-center md:justify-end gap-2 flex-wrap">
                 <span className="text-xs font-bold text-gray-500 mr-1">Account Status:</span>
                 <span
                   className={`px-3 py-0.5 rounded-full text-xs font-bold border flex items-center gap-1 ${accountStatusBadgeColor}`}
@@ -488,35 +491,33 @@ export default function ProfilePage() {
         </div>
 
         {/* PROFILE NAVIGATION TABS */}
-        <div className="border-b border-[#ECE7DB] overflow-x-auto no-scrollbar">
-          <div className="flex items-center gap-2 sm:gap-6 min-w-max pb-0.5">
-            {[
-              { id: "personal", label: "Personal Information", icon: UserIcon },
-              { id: "address", label: "Address", icon: MapPin },
-              { id: "roles", label: "Roles & Verification", icon: ShieldCheck },
-              { id: "preferences", label: "Preferences", icon: Sliders },
-              { id: "activity", label: "My Activity", icon: Activity },
-            ].map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 pb-1">
+          {[
+            { id: "personal", label: "Personal Information", icon: UserIcon },
+            { id: "address", label: "Address", icon: MapPin },
+            { id: "roles", label: "Roles & Verification", icon: ShieldCheck },
+            { id: "preferences", label: "Preferences", icon: Sliders },
+            { id: "activity", label: "My Activity", icon: Activity },
+          ].map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
 
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex items-center gap-2 py-3 px-3.5 text-xs sm:text-sm font-semibold transition-all cursor-pointer border-b-2 ${
-                    isActive
-                      ? "border-[#9A720C] text-[#9A720C] font-bold"
-                      : "border-transparent text-gray-500 hover:text-gray-800"
-                  }`}
-                >
-                  <Icon size={16} className={isActive ? "text-[#9A720C]" : "text-gray-400"} />
-                  <span>{tab.label}</span>
-                </button>
-              );
-            })}
-          </div>
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`flex items-center gap-1.5 sm:gap-2 py-2 px-3 sm:py-2.5 sm:px-4 text-[10px] sm:text-xs font-semibold rounded-full border transition-all cursor-pointer ${
+                  isActive
+                    ? "bg-[#C89B1C] border-[#C89B1C] text-white shadow-[0_4px_12px_rgba(200,155,28,0.2)] font-bold"
+                    : "bg-white border-[#EBE3D5] text-[#6B7280] hover:border-[#C89B1C] hover:text-[#C89B1C]"
+                }`}
+              >
+                <Icon size={14} className={isActive ? "text-white" : "text-gray-400"} />
+                <span className="whitespace-nowrap">{tab.label}</span>
+              </button>
+            );
+          })}
         </div>
 
         {/* MAIN 2-COLUMN GRID SECTION */}
@@ -961,7 +962,7 @@ export default function ProfilePage() {
           {/* RIGHT-SIDE ACCOUNT OVERVIEW (4 columns) */}
           <div className="lg:col-span-4 space-y-6">
             {/* Account Overview Summary Card */}
-            <div className="bg-white rounded-3xl border border-[#ECE7DB] p-5 shadow-2xs space-y-4">
+            <div className="bg-white rounded-2xl sm:rounded-3xl border border-[#ECE7DB] p-4 sm:p-5 shadow-2xs space-y-4">
               <div className="flex items-center gap-2 border-b border-[#F4EFE6] pb-3">
                 <Activity size={18} className="text-[#9A720C]" />
                 <h3 className="text-sm font-bold text-gray-900">Account Overview</h3>
@@ -1001,7 +1002,7 @@ export default function ProfilePage() {
             </div>
 
             {/* Quick Links Card */}
-            <div className="bg-white rounded-3xl border border-[#ECE7DB] p-5 shadow-2xs space-y-4">
+            <div className="bg-white rounded-2xl sm:rounded-3xl border border-[#ECE7DB] p-4 sm:p-5 shadow-2xs space-y-4">
               <div className="flex items-center gap-2 border-b border-[#F4EFE6] pb-3">
                 <FileText size={18} className="text-[#9A720C]" />
                 <h3 className="text-sm font-bold text-gray-900">Quick Links</h3>

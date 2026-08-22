@@ -111,6 +111,18 @@ function NavbarContent() {
       );
     };
   }, []);
+
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileMenuOpen]);
+
 if (loading) {
   return null;
 }
@@ -296,9 +308,34 @@ if (loading) {
         </div>
       </div>
 
-      {/* Mobile Menu Dropdown Panel */}
-      {mobileMenuOpen && (
-        <div className="md:hidden border-t border-[#ECE7DB] bg-white px-4 py-4 space-y-3 shadow-lg animate-in slide-in-from-top duration-200">
+      {/* Mobile Menu Backdrop */}
+      <div 
+        className={`fixed inset-0 bg-black/45 backdrop-blur-xs z-40 transition-opacity duration-300 md:hidden ${
+          mobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={() => setMobileMenuOpen(false)}
+      />
+
+      {/* Mobile Menu Drawer (Left to Right) */}
+      <div
+        className={`fixed inset-y-0 left-0 w-[280px] bg-white z-50 shadow-2xl flex flex-col p-5 transition-transform duration-300 ease-in-out md:hidden ${
+          mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        {/* Drawer Header with Logo & Close Button */}
+        <div className="flex items-center justify-between pb-4 border-b border-[#ECE7DB]">
+          <Logo className="-ml-1" />
+          <button
+            onClick={() => setMobileMenuOpen(false)}
+            className="p-2 rounded-xl border border-[#E8E1D4] text-gray-700 hover:bg-[#FAFAF8] transition cursor-pointer"
+            aria-label="Close navigation menu"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* Navigation Links */}
+        <div className="flex-1 overflow-y-auto py-4 space-y-3">
           <Link
             href="/property-listing"
             className={`block py-2 text-sm font-semibold ${isBuyActive ? "text-[#9A720C] font-bold" : "text-gray-800"}`}
@@ -350,31 +387,32 @@ if (loading) {
               <span className="text-[#1F2937]">Eyva Chatbot</span>
             </span>
           </Link>
+        </div>
 
-          <div className="border-t border-[#ECE7DB]/80 my-2 pt-2" />
-
+        {/* Bottom Section (Auth/CTA) */}
+        <div className="border-t border-[#ECE7DB] pt-4">
           {!isAuthenticated ? (
-            <div className="flex flex-col gap-2 pt-1">
+            <div className="flex flex-col gap-2">
               <Link
                 href="/login"
-                className="w-full h-11 rounded-xl border border-[#ECE7DB] flex items-center justify-center text-sm font-semibold text-gray-800"
+                className="w-full h-11 rounded-xl border border-[#ECE7DB] flex items-center justify-center text-sm font-semibold text-gray-800 hover:bg-[#FAFAF8] transition"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Sign In
               </Link>
               <Link
                 href="/register"
-                className="w-full h-11 rounded-xl bg-gradient-to-r from-[#B88A1A] via-[#D4B04C] to-[#8C6605] text-white flex items-center justify-center text-sm font-bold"
+                className="w-full h-11 rounded-xl bg-gradient-to-r from-[#B88A1A] via-[#D4B04C] to-[#8C6605] text-white flex items-center justify-center text-sm font-bold hover:opacity-95 transition"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Register Free
               </Link>
             </div>
           ) : (
-            <div className="flex flex-col gap-2 pt-1">
+            <div className="flex flex-col gap-2">
               <Link
                 href="/post-property"
-                className="w-full h-11 rounded-xl border border-[#B88A1A] text-[#9A720C] flex items-center justify-center text-sm font-bold"
+                className="w-full h-11 rounded-xl border border-[#B88A1A] text-[#9A720C] flex items-center justify-center text-sm font-bold hover:bg-[#FFF9EC] transition"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 + List Property
@@ -382,7 +420,7 @@ if (loading) {
             </div>
           )}
         </div>
-      )}
+      </div>
     </header>
   );
 }

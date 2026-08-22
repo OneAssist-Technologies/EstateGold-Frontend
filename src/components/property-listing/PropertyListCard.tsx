@@ -138,7 +138,7 @@ export default function PropertyListCard({
 
         {/* Image */}
 
-        <div className="col-span-4 relative h-[260px]">
+        <div className="col-span-12 sm:col-span-4 relative h-48 xs:h-56 sm:h-[260px]">
 
           <img
   src={image}
@@ -156,15 +156,15 @@ export default function PropertyListCard({
 
         {/* Content */}
 
-        <div className="col-span-8 p-7 flex flex-col justify-between">
+        <div className="col-span-12 sm:col-span-8 p-4 xs:p-5 sm:p-7 flex flex-col justify-between">
 
           <div>
 
-            <div className="flex justify-between">
+            <div className="flex flex-col sm:flex-row justify-between gap-4">
 
               <div>
 
-                <h2 className="text-2xl font-semibold text-[#161616]">
+                <h2 className="text-xl sm:text-2xl font-semibold text-[#161616]">
                   {property.propertyType}
                 </h2>
 
@@ -193,7 +193,7 @@ export default function PropertyListCard({
 
               </div>
 
-              <div className="flex gap-3 items-center">
+              <div className="flex flex-wrap gap-2 sm:gap-3 items-center">
 
                 <button
                   type="button"
@@ -239,7 +239,7 @@ export default function PropertyListCard({
 
             </div>
 
-            <div className="flex gap-8 mt-7">
+            <div className="flex flex-wrap gap-4 sm:gap-8 mt-5 sm:mt-7 text-xs sm:text-sm">
 
               <div className="flex items-center gap-2">
 
@@ -327,7 +327,7 @@ export default function PropertyListCard({
             )}
           </div>
 
-          <div className="flex justify-between items-end mt-8">
+          <div className="flex flex-col xs:flex-row justify-between items-start xs:items-end gap-4 mt-6 sm:mt-8">
 
             <div>
 

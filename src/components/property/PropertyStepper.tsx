@@ -14,8 +14,8 @@ export default function PropertyStepper({
 }: Props) {
 
   return (
-    <div className="w-full overflow-x-auto py-6">
-      <div className="flex items-start min-w-[800px]">
+    <div className="w-full overflow-x-auto py-3 sm:py-6 custom-scrollbar">
+      <div className="flex items-start min-w-[700px] sm:min-w-[800px]">
 
         {stepsList.map((stepObj, index) => {
           const completed =

@@ -76,7 +76,7 @@ export default function PropertyViewModal({
               opacity: 0,
               scale: .95,
             }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[1000px] max-h-[90vh] overflow-y-auto rounded-3xl bg-white shadow-2xl"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[95%] sm:w-[90%] md:w-[1000px] max-h-[90vh] overflow-y-auto rounded-3xl bg-white shadow-2xl"
           >
 
             {/* Header */}
@@ -140,7 +140,7 @@ export default function PropertyViewModal({
                     onError={(e) => {
                       e.currentTarget.src = "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80";
                     }}
-                    className="w-full h-[350px] object-cover rounded-2xl"
+                    className="w-full h-[200px] sm:h-[350px] object-cover rounded-2xl"
                   />
                 );
               })()}
@@ -148,7 +148,7 @@ export default function PropertyViewModal({
 
             {/* Details */}
 
-            <div className="grid grid-cols-2 gap-10 px-6 pb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 px-6 pb-6">
 
               {/* Left */}
 
@@ -346,7 +346,7 @@ export default function PropertyViewModal({
 
             {/* Footer */}
 
-            <div className="border-t p-6 flex justify-end gap-3">
+            <div className="border-t p-6 flex flex-wrap sm:flex-nowrap justify-end gap-3">
 
               {property.deleteRequested ? (
                 <>
@@ -356,7 +356,7 @@ export default function PropertyViewModal({
                         onRejectDeleteRequest(property._id);
                         onClose();
                       }}
-                      className="h-11 px-6 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center gap-2 font-bold cursor-pointer"
+                      className="w-full sm:w-auto h-11 px-6 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-250 flex items-center justify-center gap-2 font-bold cursor-pointer border"
                     >
                       Reject Request
                     </button>
@@ -368,7 +368,7 @@ export default function PropertyViewModal({
                         onApproveDelete(property._id, property.deleteRequestedReason || "User delete request");
                         onClose();
                       }}
-                      className="h-11 px-6 rounded-xl bg-red-600 text-white hover:bg-red-700 flex items-center gap-2 font-bold cursor-pointer"
+                      className="w-full sm:w-auto h-11 px-6 rounded-xl bg-red-600 text-white hover:bg-red-700 flex items-center justify-center gap-2 font-bold cursor-pointer"
                     >
                       Approve Deletion
                     </button>
@@ -380,7 +380,7 @@ export default function PropertyViewModal({
                     onClick={() =>
                       onReject("Rejected by Admin")
                     }
-                    className="h-11 px-6 rounded-xl bg-red-100 text-red-600 hover:bg-red-200 flex items-center gap-2"
+                    className="w-full sm:w-auto h-11 px-6 rounded-xl bg-red-100 text-red-600 hover:bg-red-200 flex items-center justify-center gap-2"
                   >
                     <XCircle size={18} />
 
@@ -389,7 +389,7 @@ export default function PropertyViewModal({
 
                   <button
                     onClick={onApprove}
-                    className="h-11 px-6 rounded-xl bg-[#C89B1C] text-white hover:bg-[#B58A16] flex items-center gap-2"
+                    className="w-full sm:w-auto h-11 px-6 rounded-xl bg-[#C89B1C] text-white hover:bg-[#B58A16] flex items-center justify-center gap-2"
                   >
                     <CheckCircle2 size={18} />
 
@@ -400,7 +400,7 @@ export default function PropertyViewModal({
 
               <button
                 onClick={onClose}
-                className="h-11 px-6 rounded-xl border"
+                className="w-full sm:w-auto h-11 px-6 rounded-xl border justify-center flex items-center"
               >
                 Close
               </button>

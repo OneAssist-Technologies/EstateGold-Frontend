@@ -336,7 +336,7 @@ export default function AnalyticsContent() {
       </div>
 
       {/* 1. KPI Cards (5 compact cards) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         {/* Total Properties */}
         <div className="bg-white rounded-2xl border border-[#ECE7DB] p-4 shadow-2xs flex flex-col justify-between space-y-3">
           <div className="flex items-center justify-between">
@@ -352,7 +352,7 @@ export default function AnalyticsContent() {
             <div className={`flex items-center gap-1 mt-1 text-[11px] font-semibold ${kpis?.totalProperties?.isUp ? "text-emerald-600" : "text-rose-600"}`}>
               {kpis?.totalProperties?.isUp ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
               <span>{kpis?.totalProperties?.trend ?? "0.0%"}</span>
-              <span className="text-gray-400 font-normal ml-0.5">from previous period</span>
+              <span className="text-gray-400 font-normal ml-0.5 hidden sm:inline">from previous period</span>
             </div>
           </div>
         </div>
@@ -372,7 +372,7 @@ export default function AnalyticsContent() {
             <div className={`flex items-center gap-1 mt-1 text-[11px] font-semibold ${kpis?.activeListings?.isUp ? "text-emerald-600" : "text-rose-600"}`}>
               {kpis?.activeListings?.isUp ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
               <span>{kpis?.activeListings?.trend ?? "0.0%"}</span>
-              <span className="text-gray-400 font-normal ml-0.5">from previous period</span>
+              <span className="text-gray-400 font-normal ml-0.5 hidden sm:inline">from previous period</span>
             </div>
           </div>
         </div>
@@ -392,7 +392,7 @@ export default function AnalyticsContent() {
             <div className={`flex items-center gap-1 mt-1 text-[11px] font-semibold ${kpis?.totalUsers?.isUp ? "text-emerald-600" : "text-rose-600"}`}>
               {kpis?.totalUsers?.isUp ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
               <span>{kpis?.totalUsers?.trend ?? "0.0%"}</span>
-              <span className="text-gray-400 font-normal ml-0.5">from previous period</span>
+              <span className="text-gray-400 font-normal ml-0.5 hidden sm:inline">from previous period</span>
             </div>
           </div>
         </div>
@@ -412,13 +412,13 @@ export default function AnalyticsContent() {
             <div className={`flex items-center gap-1 mt-1 text-[11px] font-semibold ${kpis?.totalAgents?.isUp ? "text-emerald-600" : "text-rose-600"}`}>
               {kpis?.totalAgents?.isUp ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
               <span>{kpis?.totalAgents?.trend ?? "0.0%"}</span>
-              <span className="text-gray-400 font-normal ml-0.5">from previous period</span>
+              <span className="text-gray-400 font-normal ml-0.5 hidden sm:inline">from previous period</span>
             </div>
           </div>
         </div>
 
         {/* Pending Requests */}
-        <div className="bg-white rounded-2xl border border-[#ECE7DB] p-4 shadow-2xs flex flex-col justify-between space-y-3">
+        <div className="col-span-2 lg:col-span-1 bg-white rounded-2xl border border-[#ECE7DB] p-4 shadow-2xs flex flex-col justify-between space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-gray-500">Pending Requests</span>
             <div className="h-9 w-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100">
@@ -432,7 +432,7 @@ export default function AnalyticsContent() {
             <div className={`flex items-center gap-1 mt-1 text-[11px] font-semibold ${kpis?.pendingRequests?.isUp ? "text-[#C89B1C]" : "text-emerald-600"}`}>
               {kpis?.pendingRequests?.isUp ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
               <span>{kpis?.pendingRequests?.trend ?? "0.0%"}</span>
-              <span className="text-gray-400 font-normal ml-0.5">from previous period</span>
+              <span className="text-gray-400 font-normal ml-0.5 hidden sm:inline">from previous period</span>
             </div>
           </div>
         </div>
@@ -469,8 +469,8 @@ export default function AnalyticsContent() {
             ) : (
               <>
                 {/* 1. Properties Added */}
-                <div className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0 last:pb-0 first:pt-0">
-                  <div className="flex items-center gap-3.5 w-40 shrink-0">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between py-4 sm:py-2 border-b border-gray-100 last:border-0 last:pb-0 first:pt-0 gap-3">
+                  <div className="flex items-center gap-3.5 w-full sm:w-40 shrink-0">
                     <div className="w-11 h-11 rounded-xl bg-[#FFF9EC] border border-[#F5E8C7] flex items-center justify-center shrink-0 relative">
                       <Home size={18} className="text-[#D4B04C]" />
                       <span className="absolute -bottom-1 -right-1 bg-[#D4B04C] text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold border border-white shrink-0">
@@ -484,7 +484,7 @@ export default function AnalyticsContent() {
                       </span>
                     </div>
                   </div>
-                  <div className="flex-1 h-[72px] pt-1">
+                  <div className="w-full sm:flex-1 h-[72px] pt-1">
                     <ResponsiveContainer width="100%" height="100%">
                       <AreaChart
                         data={listingTrends}
@@ -535,8 +535,8 @@ export default function AnalyticsContent() {
                 </div>
 
                 {/* 2. Properties Sold */}
-                <div className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0 last:pb-0">
-                  <div className="flex items-center gap-3.5 w-40 shrink-0">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between py-4 sm:py-2 border-b border-gray-100 last:border-0 last:pb-0 gap-3">
+                  <div className="flex items-center gap-3.5 w-full sm:w-40 shrink-0">
                     <div className="w-11 h-11 rounded-xl bg-[#ECFDF5] border border-[#D1FAE5] flex items-center justify-center shrink-0">
                       <Handshake size={18} className="text-[#10B981]" />
                     </div>
@@ -547,7 +547,7 @@ export default function AnalyticsContent() {
                       </span>
                     </div>
                   </div>
-                  <div className="flex-1 h-[72px] pt-1">
+                  <div className="w-full sm:flex-1 h-[72px] pt-1">
                     <ResponsiveContainer width="100%" height="100%">
                       <AreaChart
                         data={listingTrends}
@@ -598,8 +598,8 @@ export default function AnalyticsContent() {
                 </div>
 
                 {/* 3. Properties Rented */}
-                <div className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0 last:pb-0">
-                  <div className="flex items-center gap-3.5 w-40 shrink-0">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between py-4 sm:py-2 border-b border-gray-100 last:border-0 last:pb-0 gap-3">
+                  <div className="flex items-center gap-3.5 w-full sm:w-40 shrink-0">
                     <div className="w-11 h-11 rounded-xl bg-[#EFF6FF] border border-[#DBEAFE] flex items-center justify-center shrink-0 relative">
                       <Home size={18} className="text-[#3B82F6]" />
                       <span className="absolute -bottom-1 -right-1 bg-[#3B82F6] text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold border border-white shrink-0">
@@ -613,7 +613,7 @@ export default function AnalyticsContent() {
                       </span>
                     </div>
                   </div>
-                  <div className="flex-1 h-[72px] pt-1">
+                  <div className="w-full sm:flex-1 h-[72px] pt-1">
                     <ResponsiveContainer width="100%" height="100%">
                       <AreaChart
                         data={listingTrends}
@@ -664,8 +664,8 @@ export default function AnalyticsContent() {
                 </div>
 
                 {/* 4. Properties Removed */}
-                <div className="flex items-center justify-between py-2 last:border-0 last:pb-0">
-                  <div className="flex items-center gap-3.5 w-40 shrink-0">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between py-4 sm:py-2 last:border-0 last:pb-0 gap-3">
+                  <div className="flex items-center gap-3.5 w-full sm:w-40 shrink-0">
                     <div className="w-11 h-11 rounded-xl bg-[#FEF2F2] border border-[#FEE2E2] flex items-center justify-center shrink-0">
                       <Trash2 size={18} className="text-[#EF4444]" />
                     </div>
@@ -676,7 +676,7 @@ export default function AnalyticsContent() {
                       </span>
                     </div>
                   </div>
-                  <div className="flex-1 h-[72px] pt-1">
+                  <div className="w-full sm:flex-1 h-[72px] pt-1">
                     <ResponsiveContainer width="100%" height="100%">
                       <AreaChart
                         data={listingTrends}
@@ -997,10 +997,10 @@ export default function AnalyticsContent() {
 
       {/* Row 4: 8. Monthly Overview (Last 6 Months) (Grouped Bar Chart - Full Width) */}
       <div className="bg-white rounded-2xl border border-[#ECE7DB] p-6 shadow-2xs space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
           <h3 className="text-base font-bold text-[#161616]">Monthly Overview (Last 6 Months)</h3>
 
-          <div className="flex items-center gap-4 text-xs font-medium text-gray-600">
+          <div className="flex items-center gap-4 flex-wrap text-xs font-medium text-gray-600">
             <div className="flex items-center gap-1.5">
               <span className="w-3 h-3 rounded-md bg-[#D4B04C]"></span>
               <span>Properties Added</span>

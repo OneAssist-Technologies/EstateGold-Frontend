@@ -15,7 +15,7 @@ export default function PropertySearch({
   onFilter,
 }: Props) {
   return (
-    <div className="flex items-center justify-between gap-5">
+    <div className="flex items-center justify-between gap-3 sm:gap-5">
 
       {/* Search */}
 

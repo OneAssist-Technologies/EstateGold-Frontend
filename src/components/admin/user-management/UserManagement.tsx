@@ -248,41 +248,38 @@ export default function UserManagement() {
   };
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-[#F7F6F3] font-sans relative">
-      {/* Sticky White Header Bar */}
-      <header className="h-20 bg-white border-b border-[#ECE7DB] px-8 flex items-center justify-between sticky top-0 z-30">
-        <div>
-          <h1 className="text-3xl font-bold text-[#161616] tracking-tight">
-            User Management
-          </h1>
-          <p className="text-gray-500 text-sm mt-0.5">{todayDate}</p>
-        </div>
+    <div className="space-y-6">
+      {/* Page Title Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -15 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <h1 className="text-2xl sm:text-3xl font-bold text-[#161616] tracking-tight">
+          User Management
+        </h1>
+        <p className="mt-2 text-sm text-gray-500">
+          Manage user accounts, verification status, and suspensions.
+        </p>
+      </motion.div>
 
-        <div className="flex items-center gap-5">
-          {/* Search */}
-          <div className="w-[360px] h-12 rounded-full border border-[#E8E1D4] bg-[#FAFAF8] px-4 flex items-center gap-3 transition focus-within:border-[#C89B1C] focus-within:shadow-[0_0_0_3px_rgba(200,155,28,.12)]">
-            <Search size={18} className="text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="flex-1 bg-transparent outline-none text-sm text-[#161616]"
-            />
-          </div>
-
-          {/* Notification Bell */}
-          <button className="relative h-12 w-12 rounded-xl border border-[#E8E1D4] bg-white flex items-center justify-center hover:border-[#C89B1C] hover:bg-[#FFF9EC] transition-all">
-            <Bell size={19} />
-            <span className="absolute top-2.5 right-2.5 h-2.5 w-2.5 rounded-full bg-red-500 border-2 border-white" />
-          </button>
-        </div>
-      </header>
-
-      {/* Main Content Area */}
-      <div className="p-8 flex-1">
+      {/* Local Search input */}
+      <div className="flex items-center gap-3">
+        <motion.div
+          whileHover={{ y: -1 }}
+          className="flex-1 max-w-[360px] flex items-center gap-3 h-12 rounded-xl border border-[#ECE7DB] bg-white px-4 transition focus-within:border-[#C89B1C]"
+        >
+          <Search size={18} className="text-gray-400 shrink-0" />
+          <input
+            type="text"
+            placeholder="Search user, email, city..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full bg-transparent outline-none text-sm text-[#161616] placeholder:text-gray-400"
+          />
+        </motion.div>
+      </div>
         {/* Top Header Controls: Filter Tabs (Left) & Dynamic Small Stat Cards (Right) */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           {/* Left: Filter Tabs */}
           <div className="flex items-center gap-2.5 flex-wrap">
             {[
@@ -381,134 +378,211 @@ export default function UserManagement() {
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-3xl border border-[#ECE7DB] shadow-xs p-6 lg:p-8 mb-8 overflow-hidden"
+          className="bg-white rounded-3xl border border-[#ECE7DB] shadow-xs p-4 sm:p-6 lg:p-8 mb-8 overflow-hidden"
         >
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-[#F0ECE1]">
-                  <th className="py-4 px-4 text-xs font-semibold text-[#8C847B] tracking-wide">
-                    User
-                  </th>
-                  <th className="py-4 px-4 text-xs font-semibold text-[#8C847B] tracking-wide">
-                    Email
-                  </th>
-                  <th className="py-4 px-4 text-xs font-semibold text-[#8C847B] tracking-wide">
-                    Role
-                  </th>
-                  <th className="py-4 px-4 text-xs font-semibold text-[#8C847B] tracking-wide">
-                    City
-                  </th>
-                  <th className="py-4 px-4 text-xs font-semibold text-[#8C847B] tracking-wide">
-                    Joined
-                  </th>
-                  <th className="py-4 px-4 text-xs font-semibold text-[#8C847B] tracking-wide text-right">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                  <tr>
-                    <td colSpan={6} className="py-12 text-center text-[#8C847B]">
-                      <div className="inline-block animate-spin rounded-full h-7 w-7 border-2 border-[#C89B1C] border-t-transparent mb-2" />
-                      <p className="text-sm">Loading users from database...</p>
-                    </td>
-                  </tr>
-                ) : users.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="py-12 text-center text-[#8C847B]">
-                      No users found matching your search.
-                    </td>
-                  </tr>
-                ) : (
-                  users.map((user) => {
-                    const initial = user.fullName
-                      ? user.fullName.charAt(0).toUpperCase()
-                      : "U";
+          {loading ? (
+            <div className="py-12 text-center text-[#8C847B]">
+              <div className="inline-block animate-spin rounded-full h-7 w-7 border-2 border-[#C89B1C] border-t-transparent mb-2" />
+              <p className="text-sm">Loading users from database...</p>
+            </div>
+          ) : users.length === 0 ? (
+            <div className="py-12 text-center text-[#8C847B]">
+              No users found matching your search.
+            </div>
+          ) : (
+            <>
+              {/* Desktop View */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-[#F0ECE1]">
+                      <th className="py-4 px-4 text-xs font-semibold text-[#8C847B] tracking-wide">
+                        User
+                      </th>
+                      <th className="py-4 px-4 text-xs font-semibold text-[#8C847B] tracking-wide">
+                        Email
+                      </th>
+                      <th className="py-4 px-4 text-xs font-semibold text-[#8C847B] tracking-wide">
+                        Role
+                      </th>
+                      <th className="py-4 px-4 text-xs font-semibold text-[#8C847B] tracking-wide">
+                        City
+                      </th>
+                      <th className="py-4 px-4 text-xs font-semibold text-[#8C847B] tracking-wide">
+                        Joined
+                      </th>
+                      <th className="py-4 px-4 text-xs font-semibold text-[#8C847B] tracking-wide text-right">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {users.map((user) => {
+                      const initial = user.fullName
+                        ? user.fullName.charAt(0).toUpperCase()
+                        : "U";
 
-                    return (
-                      <tr
-                        key={user._id}
-                        className="border-b border-[#F6F4EF] last:border-b-0 hover:bg-[#FAF9F5]/70 transition-colors"
-                      >
-                        {/* User Avatar + Name */}
-                        <td className="py-4 px-4">
-                          <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-full bg-[#B8860B] text-white font-bold flex items-center justify-center text-sm shadow-sm flex-shrink-0">
-                              {initial}
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="font-semibold text-[#1C1917] text-sm">
-                                {user.fullName}
-                              </span>
-                              {!user.isActive && (
-                                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FFEBEB] text-[#E53E3E] border border-red-200">
-                                  Suspended
+                      return (
+                        <tr
+                          key={user._id}
+                          className="border-b border-[#F6F4EF] last:border-b-0 hover:bg-[#FAF9F5]/70 transition-colors"
+                        >
+                          {/* User Avatar + Name */}
+                          <td className="py-4 px-4">
+                            <div className="flex items-center gap-3">
+                              <div className="h-10 w-10 rounded-full bg-[#B8860B] text-white font-bold flex items-center justify-center text-sm shadow-sm flex-shrink-0">
+                                {initial}
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-semibold text-[#1C1917] text-sm">
+                                  {user.fullName}
                                 </span>
-                              )}
+                                {!user.isActive && (
+                                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FFEBEB] text-[#E53E3E] border border-red-200">
+                                    Suspended
+                                  </span>
+                                )}
+                              </div>
                             </div>
+                          </td>
+
+                          {/* Email */}
+                          <td className="py-4 px-4 text-sm text-[#736B63]">
+                            {user.email}
+                          </td>
+
+                          {/* Role */}
+                          <td className="py-4 px-4">
+                            {getRoleBadge(user.role)}
+                          </td>
+
+                          {/* City */}
+                          <td className="py-4 px-4 text-sm text-[#4A453F]">
+                            {user.city || "-"}
+                          </td>
+
+                          {/* Joined */}
+                          <td className="py-4 px-4 text-sm text-[#736B63]">
+                            {formatDate(user.createdAt)}
+                          </td>
+
+                          {/* Actions */}
+                          <td className="py-4 px-4 text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              {/* View Eye Button */}
+                              <button
+                                onClick={() => {
+                                  setSelectedUser(user);
+                                  setViewModalOpen(true);
+                                }}
+                                title="View User Details"
+                                className="h-8 w-8 rounded-full bg-[#EBF3FF] text-[#3B82F6] hover:bg-[#DBEAFE] flex items-center justify-center transition-all cursor-pointer"
+                              >
+                                <Eye size={16} />
+                              </button>
+
+                              {/* Delete User Button */}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openReasonModal(user, "delete");
+                                }}
+                                title="Delete User"
+                                className="h-8 w-8 rounded-full bg-red-50 text-red-500 hover:bg-red-100 flex items-center justify-center transition-all cursor-pointer"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile/iPad portrait Card View */}
+              <div className="block md:hidden space-y-4">
+                {users.map((user) => {
+                  const initial = user.fullName
+                    ? user.fullName.charAt(0).toUpperCase()
+                    : "U";
+                  return (
+                    <motion.div
+                      key={user._id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-white rounded-2xl border border-[#ECE7DB] p-5 space-y-4 shadow-xs relative"
+                    >
+                      {/* Header: Avatar, Name & Status */}
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-full bg-[#B8860B] text-white font-bold flex items-center justify-center text-sm shadow-sm flex-shrink-0">
+                          {initial}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-bold text-[#1C1917] text-sm truncate">
+                              {user.fullName}
+                            </span>
+                            {!user.isActive && (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#FFEBEB] text-[#E53E3E] border border-red-200">
+                                Suspended
+                              </span>
+                            )}
                           </div>
-                        </td>
+                          <span className="block mt-1">{getRoleBadge(user.role)}</span>
+                        </div>
+                      </div>
 
-                        {/* Email */}
-                        <td className="py-4 px-4 text-sm text-[#736B63]">
-                          {user.email}
-                        </td>
+                      {/* User Details */}
+                      <div className="space-y-2.5 text-xs text-[#736B63] border-t border-dashed border-[#F0ECE1] pt-3">
+                        <div className="flex items-center gap-2">
+                          <Mail size={14} className="text-gray-400 shrink-0" />
+                          <span className="truncate">{user.email}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <MapPin size={14} className="text-gray-400 shrink-0" />
+                          <span>City: {user.city || "-"}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Calendar size={14} className="text-gray-400 shrink-0" />
+                          <span>Joined: {formatDate(user.createdAt)}</span>
+                        </div>
+                      </div>
 
-                        {/* Role */}
-                        <td className="py-4 px-4">
-                          {getRoleBadge(user.role)}
-                        </td>
+                      {/* Actions Bar */}
+                      <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#F0ECE1]">
+                        <button
+                          onClick={() => {
+                            setSelectedUser(user);
+                            setViewModalOpen(true);
+                          }}
+                          className="h-9 px-4 rounded-xl bg-[#EBF3FF] text-[#3B82F6] hover:bg-[#DBEAFE] flex items-center justify-center gap-1.5 text-xs font-semibold cursor-pointer"
+                        >
+                          <Eye size={14} />
+                          <span>View Details</span>
+                        </button>
 
-                        {/* City */}
-                        <td className="py-4 px-4 text-sm text-[#4A453F]">
-                          {user.city || "-"}
-                        </td>
-
-                        {/* Joined */}
-                        <td className="py-4 px-4 text-sm text-[#736B63]">
-                          {formatDate(user.createdAt)}
-                        </td>
-
-                        {/* Actions */}
-                        <td className="py-4 px-4 text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            {/* View Eye Button */}
-                            <button
-                              onClick={() => {
-                                setSelectedUser(user);
-                                setViewModalOpen(true);
-                              }}
-                              title="View User Details"
-                              className="h-8 w-8 rounded-full bg-[#EBF3FF] text-[#3B82F6] hover:bg-[#DBEAFE] flex items-center justify-center transition-all cursor-pointer"
-                            >
-                              <Eye size={16} />
-                            </button>
-
-                            {/* Delete User Button */}
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                openReasonModal(user, "delete");
-                              }}
-                              title="Delete User"
-                              className="h-8 w-8 rounded-full bg-red-50 text-red-500 hover:bg-red-100 flex items-center justify-center transition-all cursor-pointer"
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openReasonModal(user, "delete");
+                          }}
+                          className="h-9 px-3 rounded-xl bg-red-50 text-red-500 hover:bg-red-100 flex items-center justify-center gap-1.5 text-xs font-semibold cursor-pointer"
+                        >
+                          <Trash2 size={14} />
+                          <span>Delete</span>
+                        </button>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </>
+          )}
 
           {/* Premium Pagination Footer */}
-          <div className="mt-6 pt-4 border-t border-[#F0ECE1] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-medium text-[#736B63]">
+          <div className="mt-6 pt-4 border-t border-[#F0ECE1] flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-medium text-[#736B63]">
             {/* Left: Range Info */}
             <div>
               Showing{" "}
@@ -523,7 +597,7 @@ export default function UserManagement() {
             </div>
 
             {/* Center: Pagination Buttons */}
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 flex-wrap justify-center">
               <button
                 onClick={() => setPage((p) => Math.max(p - 1, 1))}
                 disabled={page <= 1 || loading}
@@ -586,7 +660,6 @@ export default function UserManagement() {
             </div>
           </div>
         </motion.div>
-      </div>
 
       {/* Floating Help Button */}
       <button className="fixed bottom-6 right-6 h-10 w-10 bg-[#1C1917] text-white rounded-full flex items-center justify-center shadow-xl hover:bg-black transition-all z-40">
@@ -680,11 +753,11 @@ export default function UserManagement() {
               </div>
 
               {/* Modal Actions */}
-              <div className="mt-8 pt-6 border-t border-[#F0ECE1] flex items-center justify-between gap-3 flex-wrap">
+              <div className="mt-8 pt-6 border-t border-[#F0ECE1] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
                 <button
                   disabled={actionLoading}
                   onClick={() => handleToggleVerify(selectedUser._id)}
-                  className={`flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
+                  className={`w-full sm:flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold transition-all cursor-pointer flex items-center justify-center ${
                     selectedUser.isVerified
                       ? "bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100"
                       : "bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm"
@@ -702,7 +775,7 @@ export default function UserManagement() {
                       handleReactivateUser(selectedUser._id);
                     }
                   }}
-                  className={`flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
+                  className={`w-full sm:flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold transition-all cursor-pointer flex items-center justify-center ${
                     selectedUser.isActive
                       ? "bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100"
                       : "bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
@@ -714,7 +787,7 @@ export default function UserManagement() {
                 <button
                   disabled={actionLoading}
                   onClick={() => openReasonModal(selectedUser, "delete")}
-                  className="py-2.5 px-4 rounded-xl text-sm font-semibold bg-red-600 text-white hover:bg-red-700 shadow-sm transition-all cursor-pointer"
+                  className="w-full sm:w-auto py-2.5 px-6 rounded-xl text-sm font-semibold bg-red-600 text-white hover:bg-red-700 shadow-sm transition-all cursor-pointer flex items-center justify-center"
                 >
                   Delete
                 </button>

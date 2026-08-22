@@ -82,30 +82,30 @@ export default function FeaturedProperties() {
   }, []);
 
   return (
-    <section className="py-24 bg-gray-50">
+    <section className="py-12 md:py-24 bg-gray-50">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center">
-          <p className="text-[#C89B1C] uppercase tracking-widest font-semibold text-xs sm:text-sm">
+          <p className="text-[#C89B1C] uppercase tracking-wider font-semibold text-xs sm:text-sm">
             Featured Listings
           </p>
 
-          <h2 className="text-4xl sm:text-5xl font-bold mt-4 text-[#161616]">
+          <h2 className="text-2xl xs:text-3xl md:text-5xl font-bold mt-2 md:mt-4 text-[#161616]">
             Featured Properties
           </h2>
 
-          <p className="text-gray-500 mt-4 text-base max-w-xl mx-auto">
+          <p className="text-gray-500 mt-2 md:mt-4 text-xs xs:text-sm md:text-base max-w-xl mx-auto">
             Explore our handpicked premium properties available directly from verified owners.
           </p>
         </div>
 
         {loading ? (
-          <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-8 mt-16">
+          <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-5 sm:gap-8 mt-10 sm:mt-16">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-96 bg-gray-200 animate-pulse rounded-3xl" />
+              <div key={i} className="h-72 sm:h-96 bg-gray-200 animate-pulse rounded-2xl xs:rounded-3xl" />
             ))}
           </div>
         ) : properties.length > 0 ? (
-          <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-8 mt-16">
+          <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-5 sm:gap-8 mt-10 sm:mt-16">
             {properties.map((property) => (
               <div key={property._id} onClick={() => router.push(`/property-detail/${property._id}`)}>
                 <PropertyCard property={property} />

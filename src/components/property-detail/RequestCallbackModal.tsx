@@ -145,39 +145,39 @@ export default function RequestCallbackModal({
               opacity: 0,
             }}
 
-            className="w-full max-w-2xl bg-white rounded-[30px] overflow-hidden shadow-2xl"
+            className="w-full max-w-2xl bg-white rounded-2xl sm:rounded-[30px] overflow-hidden shadow-2xl mx-4 my-8"
           >
 
             {/* Header */}
 
             <div
-              className="bg-gradient-to-r from-[#B8860B] to-[#D4AF37] text-white p-8 relative"
+              className="bg-gradient-to-r from-[#B8860B] to-[#D4AF37] text-white p-6 sm:p-8 relative"
             >
 
               <button
 
                 onClick={onClose}
 
-                className="absolute right-6 top-6"
+                className="absolute right-4 top-4 sm:right-6 sm:top-6"
               >
 
-                <X size={22} />
+                <X size={20} />
 
               </button>
 
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3 sm:gap-4">
 
-                <PhoneCall size={36} />
+                <PhoneCall size={30} className="sm:size-9" />
 
                 <div>
 
-                  <h2 className="text-3xl font-bold">
+                  <h2 className="text-2xl sm:text-3xl font-bold">
 
                     Request Callback
 
                   </h2>
 
-                  <p className="opacity-90 mt-2">
+                  <p className="opacity-90 mt-1 sm:mt-2 text-xs sm:text-sm">
 
                     Submit your enquiry and the owner
                     will contact you shortly.
@@ -192,23 +192,23 @@ export default function RequestCallbackModal({
 
             {/* Body */}
 
-            <div className="p-8 space-y-6">
+            <div className="p-5 sm:p-8 space-y-4 sm:space-y-6 max-h-[calc(100vh-200px)] overflow-y-auto">
 
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
 
                 <div>
 
-                  <label className="font-medium">
+                  <label className="font-medium text-xs sm:text-sm">
 
                     Full Name
 
                   </label>
 
                   <div
-                    className="mt-2 h-14 border rounded-xl px-4 flex items-center gap-3"
+                    className="mt-1.5 h-12 sm:h-14 border rounded-xl px-4 flex items-center gap-3"
                   >
 
-                    <User size={18} />
+                    <User size={16} />
 
                     <input
 
@@ -218,7 +218,7 @@ export default function RequestCallbackModal({
 
                       onChange={handleChange}
 
-                      className="flex-1 outline-none"
+                      className="flex-1 outline-none text-xs sm:text-sm"
 
                       placeholder="Enter name"
 
@@ -230,17 +230,17 @@ export default function RequestCallbackModal({
 
                 <div>
 
-                  <label className="font-medium">
+                  <label className="font-medium text-xs sm:text-sm">
 
                     Phone Number
 
                   </label>
 
                   <div
-                    className="mt-2 h-14 border rounded-xl px-4 flex items-center"
+                    className="mt-1.5 h-12 sm:h-14 border rounded-xl px-4 flex items-center"
                   >
 
-                    <PhoneCall size={18} />
+                    <PhoneCall size={16} />
 
                     <input
                       type="tel"
@@ -251,7 +251,7 @@ export default function RequestCallbackModal({
                         const val = e.target.value.replace(/\D/g, "").slice(0, 10);
                         setForm((prev) => ({ ...prev, phone: val }));
                       }}
-                      className="flex-1 ml-3 outline-none"
+                      className="flex-1 ml-3 outline-none text-xs sm:text-sm"
                       placeholder="Mobile Number (10 digits)"
                     />
 
@@ -261,21 +261,21 @@ export default function RequestCallbackModal({
 
               </div>
 
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
 
                 <div>
 
-                  <label className="font-medium">
+                  <label className="font-medium text-xs sm:text-sm">
 
                     Preferred Date
 
                   </label>
 
                   <div
-                    className="mt-2 h-14 border rounded-xl px-4 flex items-center"
+                    className="mt-1.5 h-12 sm:h-14 border rounded-xl px-4 flex items-center"
                   >
 
-                    <Calendar size={18} />
+                    <Calendar size={16} />
 
                     <input
 
@@ -287,7 +287,7 @@ export default function RequestCallbackModal({
 
                       onChange={handleChange}
 
-                      className="flex-1 ml-3 outline-none"
+                      className="flex-1 ml-3 outline-none text-xs sm:text-sm"
 
                     />
 
@@ -297,17 +297,17 @@ export default function RequestCallbackModal({
 
                 <div>
 
-                  <label className="font-medium">
+                  <label className="font-medium text-xs sm:text-sm">
 
                     Preferred Time
 
                   </label>
 
                   <div
-                    className="mt-2 h-14 border rounded-xl px-4 flex items-center"
+                    className="mt-1.5 h-12 sm:h-14 border rounded-xl px-4 flex items-center"
                   >
 
-                    <Clock size={18} />
+                    <Clock size={16} />
 
                     <input
 
@@ -319,7 +319,7 @@ export default function RequestCallbackModal({
 
                       onChange={handleChange}
 
-                      className="flex-1 ml-3 outline-none"
+                      className="flex-1 ml-3 outline-none text-xs sm:text-sm"
 
                     />
 
@@ -331,24 +331,24 @@ export default function RequestCallbackModal({
 
               <div>
 
-                <label className="font-medium">
+                <label className="font-medium text-xs sm:text-sm">
 
                   Message
 
                 </label>
 
                 <div
-                  className="mt-2 border rounded-xl p-4 flex gap-3"
+                  className="mt-1.5 border rounded-xl p-3 sm:p-4 flex gap-3"
                 >
 
                   <MessageSquare
-                    size={18}
+                    size={16}
                     className="mt-1"
                   />
 
                   <textarea
 
-                    rows={5}
+                    rows={4}
 
                     name="message"
 
@@ -356,7 +356,7 @@ export default function RequestCallbackModal({
 
                     onChange={handleChange}
 
-                    className="flex-1 resize-none outline-none"
+                    className="flex-1 resize-none outline-none text-xs sm:text-sm"
 
                     placeholder="Tell the owner about your requirement..."
 
@@ -366,13 +366,13 @@ export default function RequestCallbackModal({
 
               </div>
 
-              <div className="flex justify-end gap-4 pt-4">
+              <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-2 sm:pt-4">
 
                 <button
 
                   onClick={onClose}
 
-                  className="h-14 px-8 rounded-xl border"
+                  className="h-12 sm:h-14 px-6 sm:px-8 rounded-xl border text-xs sm:text-sm font-semibold text-gray-700 hover:bg-gray-50 transition order-2 sm:order-1"
                 >
 
                   Cancel
@@ -385,7 +385,7 @@ export default function RequestCallbackModal({
 
                   onClick={handleSubmit}
 
-                  className="h-14 px-10 rounded-xl bg-[#C89B1C] hover:bg-[#B8860B] text-white font-semibold transition"
+                  className="h-12 sm:h-14 px-8 sm:px-10 rounded-xl bg-[#C89B1C] hover:bg-[#B8860B] text-white font-semibold text-xs sm:text-sm transition order-1 sm:order-2"
                 >
 
                   {loading

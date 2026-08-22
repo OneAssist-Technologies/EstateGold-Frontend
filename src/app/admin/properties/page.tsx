@@ -16,7 +16,7 @@ export default function PropertyManagementPage() {
   
           <AdminNavbar /> 
         <main
-          className="flex-1 overflow-y-auto p-8"
+          className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8"
         ><PropertyManagement /></main>
           </div></div>;
 }

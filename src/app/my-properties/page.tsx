@@ -252,7 +252,7 @@ return (
 
     <div className="min-h-screen bg-[#FAFAFA]">
 
-      <div className="max-w-[1500px] mx-auto px-8 py-10">
+      <div className="max-w-[1500px] mx-auto px-4 sm:px-8 py-6 sm:py-10">
 
         {/* Header */}
 
@@ -260,7 +260,7 @@ return (
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35 }}
-          className="flex justify-between items-center mb-6"
+          className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6"
         >
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
@@ -283,7 +283,7 @@ return (
         {/* Dashboard */}
 
       <DashboardCards
-        total={totalProperties}
+        total={counts.all}
         active={counts.active}
         views={totalViews}
         enquiries={totalEnquiries}

@@ -80,82 +80,55 @@ export default function RatingSection({
   return (
     <motion.div
       layout
-      className="bg-white rounded-[30px] border border-[#ECE6D8] p-8"
+      className="bg-white rounded-[24px] sm:rounded-[30px] border border-[#ECE6D8] p-4 sm:p-8"
     >
       <div className="mb-6">
-
         <h2 className="text-xl font-semibold">
-
           Neighbourhood Ratings
-
         </h2>
-
-        <p className="text-gray-500 mt-2">
-
+        <p className="text-gray-500 mt-2 text-sm">
           Rate the locality to help buyers.
-
         </p>
-
       </div>
 
       <div className="space-y-5">
-
         {ratingItems.map((item) => (
-
           <div
             key={item.key}
-            className="border border-[#ECE6D8] rounded-2xl p-5 flex items-center justify-between hover:border-[#C89B1C] hover:shadow-md transition"
+            className="border border-[#ECE6D8] rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-[#C89B1C] hover:shadow-md transition"
           >
-
-            <div className="flex items-center gap-5">
-
+            <div className="flex items-start sm:items-center gap-4">
               <div
-                className="h-14 w-14 rounded-2xl bg-[#FFF8EA] flex items-center justify-center text-2xl"
+                className="h-12 w-12 sm:h-14 sm:w-14 rounded-xl sm:rounded-2xl bg-[#FFF8EA] flex items-center justify-center text-xl sm:text-2xl shrink-0"
               >
                 {item.emoji}
               </div>
 
               <div>
-
-                <h3 className="font-semibold text-lg">
-
+                <h3 className="font-semibold text-base sm:text-lg">
                   {item.title}
-
                 </h3>
-
-                <p className="text-sm text-gray-500 mt-1">
-
+                <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
                   {item.description}
-
                 </p>
-
               </div>
-
             </div>
 
-            <div className="flex gap-2">
-
+            <div className="flex gap-1.5 sm:gap-2 justify-start sm:justify-end mt-1 sm:mt-0">
               {[1,2,3,4,5].map((star)=>(
-
                 <button
                   key={star}
                   type="button"
                   onClick={()=>
-
                     onChange({
-
                       ...ratings,
-
                       [item.key]:star,
-
                     })
-
                   }
                   className="transition hover:scale-110"
                 >
-
                   <Star
-                    size={28}
+                    className="h-5.5 w-5.5 sm:h-7 sm:w-7 transition-colors"
                     fill={
                       star <=
                       ratings[
@@ -173,11 +146,8 @@ export default function RatingSection({
                         : "#D1D5DB"
                     }
                   />
-
                 </button>
-
               ))}
-
             </div>
 
           </div>

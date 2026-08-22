@@ -1,6 +1,7 @@
 "use client";
 
 import AdminSidebar from "@/src/components/admin/AdminSidebar";
+import AdminNavbar from "@/src/components/admin/AdminNavbar";
 import UserManagement from "@/src/components/admin/user-management/UserManagement";
 
 export default function UserManagementPage() {
@@ -11,7 +12,8 @@ export default function UserManagementPage() {
 
       {/* Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        <main className="flex-1 overflow-y-auto">
+        <AdminNavbar />
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8">
           <UserManagement />
         </main>
       </div>
