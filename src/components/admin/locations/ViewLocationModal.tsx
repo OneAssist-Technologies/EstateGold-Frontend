@@ -201,10 +201,10 @@ export default function ViewLocationModal({
           </div>
 
           {/* Footer Actions */}
-          <div className="px-6 py-4 border-t border-[#ECE7DB] bg-[#FAFAF8] flex items-center justify-between">
+          <div className="px-6 py-4 border-t border-[#ECE7DB] bg-[#FAFAF8] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
             <button
               onClick={onClose}
-              className="px-5 py-2.5 rounded-xl border border-[#E8E1D4] bg-white text-sm font-semibold text-gray-700 hover:bg-gray-100 transition"
+              className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-[#E8E1D4] bg-white text-sm font-semibold text-gray-700 hover:bg-gray-100 transition text-center flex items-center justify-center cursor-pointer"
             >
               Close
             </button>
@@ -214,7 +214,7 @@ export default function ViewLocationModal({
                 onClose();
                 onEdit(location);
               }}
-              className="px-5 py-2.5 rounded-xl bg-[#C89B1C] hover:bg-[#b68c17] text-white text-sm font-bold shadow-md flex items-center gap-2 transition"
+              className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#C89B1C] hover:bg-[#b68c17] text-white text-sm font-bold shadow-md flex items-center justify-center gap-2 transition cursor-pointer"
             >
               <Pencil size={16} />
               <span>Edit Service Area</span>

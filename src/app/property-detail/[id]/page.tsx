@@ -517,14 +517,13 @@ export default function PropertyDetailsPage() {
                 )}
 
                 <OwnerCard property={property} />
-                <SimilarProperties properties={similarProperties} />
               </>
             )}
           </div>
 
           {/* Right Sidebar - Hidden ONLY when logged-in user is the actual property owner */}
           {!isPropertyOwner && (
-            <aside className="lg:col-span-4 sticky top-24">
+            <aside className="lg:col-span-4 lg:sticky lg:top-24">
               <StickyContactCard
                 property={property}
                 user={user}
@@ -537,6 +536,13 @@ export default function PropertyDetailsPage() {
                 onToggleStatus={handleToggleStatus}
               />
             </aside>
+          )}
+
+          {/* Similar Properties Section - Rendered below Left and Right columns on mobile/desktop when logged in */}
+          {!isGuest && (
+            <div className={isPropertyOwner ? "lg:col-span-12 mt-6" : "lg:col-span-8 mt-6"}>
+              <SimilarProperties properties={similarProperties} />
+            </div>
           )}
         </div>
       </main>

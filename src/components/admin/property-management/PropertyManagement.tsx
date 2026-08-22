@@ -55,6 +55,7 @@ export default function PropertyManagement() {
       pending: 0,
       approved: 0,
       rejected: 0,
+      delete_requests: 0,
     });
 
   useEffect(() => {
@@ -85,6 +86,7 @@ export default function PropertyManagement() {
           pending: response.stats.pending ?? 0,
           approved: response.stats.approved ?? 0,
           rejected: response.stats.rejected ?? 0,
+          delete_requests: response.stats.delete_requests ?? 0,
         });
       } else {
         setCounts({
@@ -92,6 +94,7 @@ export default function PropertyManagement() {
           pending: response.properties.filter((item: AdminProperty) => item.status === "pending").length,
           approved: response.properties.filter((item: AdminProperty) => item.status === "approved").length,
           rejected: response.properties.filter((item: AdminProperty) => item.status === "rejected").length,
+          delete_requests: response.properties.filter((item: AdminProperty) => item.deleteRequested).length,
         });
       }
     } catch (error) {

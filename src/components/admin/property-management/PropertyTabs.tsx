@@ -49,7 +49,7 @@ export default function PropertyTabs({
   ];
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex flex-wrap items-center gap-2.5">
 
       {tabs.map((tab) => {
 

@@ -50,27 +50,27 @@ export default function ActivityChart({ monthlyStats = [], loading }: ActivityCh
         opacity: 1,
         y: 0,
       }}
-      className="bg-white rounded-3xl border border-[#ECE7DB] p-8 shadow-sm"
+      className="bg-white rounded-2xl sm:rounded-3xl border border-[#ECE7DB] p-4 sm:p-8 shadow-sm"
     >
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         <div>
           <h2
-            className="text-2xl font-bold text-[#161616]"
+            className="text-lg sm:text-2xl font-bold text-[#161616]"
           >
             Property Listings
           </h2>
 
-          <p className="text-gray-500 mt-2">
+          <p className="text-xs sm:text-sm text-gray-500 mt-1 sm:mt-2">
             Monthly property publishing statistics
           </p>
         </div>
 
-        <div className="text-xs font-semibold text-[#C89B1C] bg-[#FFF9EC] px-3 py-1.5 rounded-lg border border-[#F5E8C7]">
+        <div className="text-[10px] sm:text-xs font-semibold text-[#C89B1C] bg-[#FFF9EC] px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg border border-[#F5E8C7] shrink-0">
           Trailing 12 Months
         </div>
       </div>
 
-      <div className="mt-8 h-[380px]">
+      <div className="mt-6 sm:mt-8 h-[260px] sm:h-[380px]">
         {loading ? (
           <div className="h-full flex items-center justify-center text-gray-400 text-sm">
             Loading chart analytics...

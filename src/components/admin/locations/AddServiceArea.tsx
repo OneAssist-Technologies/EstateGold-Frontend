@@ -442,7 +442,7 @@ export default function AddServiceArea() {
               <label className="block text-xs font-semibold text-gray-700 mb-3">
                 Property Types <span className="text-red-500">*</span>
               </label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {[
                   "Apartment / Flat",
                   "Independent House",
@@ -605,22 +605,22 @@ export default function AddServiceArea() {
       </motion.div>
 
       {/* Bottom Action Buttons Footer */}
-      <div className="pt-6 border-t border-[#ECE7DB] flex items-center justify-between gap-4 mt-8">
+      <div className="pt-6 border-t border-[#ECE7DB] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mt-8">
         {/* Left */}
         <Link
           href="/admin/locations"
-          className="px-6 py-3 rounded-xl border border-[#E8E1D4] bg-white text-sm font-semibold text-gray-700 hover:bg-[#FAFAF8] hover:border-gray-400 transition-all cursor-pointer shadow-2xs"
+          className="px-6 py-3 rounded-xl border border-[#E8E1D4] bg-white text-sm font-semibold text-gray-700 hover:bg-[#FAFAF8] hover:border-gray-400 transition-all cursor-pointer shadow-2xs text-center flex items-center justify-center"
         >
           Cancel
         </Link>
 
         {/* Right */}
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <button
             type="button"
             disabled={loading}
             onClick={() => handleSave(true)}
-            className="px-6 py-3 rounded-xl border border-[#C89B1C] bg-white text-sm font-semibold text-[#B8860B] hover:bg-[#FFFDF6] transition-all cursor-pointer disabled:opacity-50 shadow-2xs"
+            className="px-6 py-3 rounded-xl border border-[#C89B1C] bg-white text-sm font-semibold text-[#B8860B] hover:bg-[#FFFDF6] transition-all cursor-pointer disabled:opacity-50 shadow-2xs w-full sm:w-auto text-center"
           >
             Save Draft
           </button>
@@ -629,7 +629,7 @@ export default function AddServiceArea() {
             type="button"
             disabled={loading || !cityName}
             onClick={() => handleSave(false)}
-            className="px-7 py-3 rounded-xl bg-gradient-to-r from-[#C89B1C] to-[#D8B75A] hover:from-[#b68c17] hover:to-[#c7a74a] text-white text-sm font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+            className="px-7 py-3 rounded-xl bg-gradient-to-r from-[#C89B1C] to-[#D8B75A] hover:from-[#b68c17] hover:to-[#c7a74a] text-white text-sm font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 w-full sm:w-auto"
           >
             <Send size={16} />
             <span>{loading ? "Saving..." : "Add Service Area"}</span>

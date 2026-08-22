@@ -101,21 +101,21 @@ export default function PricePhotosStep({
   return (
     <div>
       {/* Header */}
-      <h2 className="text-4xl font-bold text-[#161616]">
+      <h2 className="text-xl sm:text-3xl md:text-4xl font-bold text-[#161616]">
         Price & Media
       </h2>
 
-      <p className="mt-2 text-lg text-[#6B7280]">
+      <p className="mt-1.5 sm:mt-2 text-xs sm:text-base md:text-lg text-[#6B7280]">
         Set the price and upload property photos or videos
       </p>
 
-      <div className="space-y-8 mt-10">
+      <div className="space-y-6 sm:space-y-8 mt-6 sm:mt-10">
 
         {/* Pricing & Market Insights Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 items-stretch">
           {/* Price Input Column */}
           <div className="flex flex-col justify-center">
-            <label className="block mb-3 text-lg font-medium text-[#161616]">
+            <label className="block mb-3 text-sm sm:text-lg font-medium text-[#161616]">
               Expected Price (Total Price)
             </label>
 
@@ -141,12 +141,15 @@ export default function PricePhotosStep({
                 }
                 className={`
                   w-full
-                  h-16
+                  h-12
+                  sm:h-16
                   rounded-2xl
                   border
-                  pl-12
+                  pl-10
+                  sm:pl-12
                   pr-4
-                  text-lg
+                  text-sm
+                  sm:text-lg
                   outline-none
                   focus:border-[#C89B1C]
                   ${errors?.price ? "border-red-500 bg-red-50/10 focus:border-red-500" : "border-[#E5D8B3]"}
@@ -278,7 +281,7 @@ export default function PricePhotosStep({
         {/* Description */}
         <div>
           <div className="flex justify-between items-center mb-3">
-            <label className="block text-lg font-medium text-[#161616]">
+            <label className="block text-sm sm:text-lg font-medium text-[#161616]">
               Property Description
             </label>
             <button
@@ -313,13 +316,13 @@ export default function PricePhotosStep({
               )
             }
             placeholder="Describe the property — highlight key features, nearby landmarks, society benefits..."
-            className="w-full min-h-[140px] rounded-2xl border border-[#E5D8B3] p-5 outline-none resize-none focus:border-[#C89B1C]"
+            className="w-full min-h-[140px] rounded-2xl border border-[#E5D8B3] p-4 sm:p-5 outline-none resize-none focus:border-[#C89B1C] text-sm sm:text-base"
           />
         </div>
 
         {/* Available From */}
         <div>
-          <label className="block mb-3 text-lg font-medium text-[#161616]">
+          <label className="block mb-3 text-sm sm:text-lg font-medium text-[#161616]">
             Available From
           </label>
 
@@ -338,28 +341,30 @@ export default function PricePhotosStep({
                   })
                 )
               }
-              className="w-full h-16 rounded-2xl border border-[#E5D8B3] px-5 outline-none focus:border-[#C89B1C]"
+              className="w-full h-12 sm:h-16 rounded-2xl border border-[#E5D8B3] px-4 sm:px-5 outline-none focus:border-[#C89B1C] text-sm sm:text-base"
             />
 
             <Calendar
-              size={18}
-              className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
+              size={16}
+              className="absolute right-4 sm:right-5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
             />
           </div>
         </div>
 
         {/* Upload Photos & Videos */}
         <div>
-          <label className="block mb-3 text-lg font-medium text-[#161616]">
+          <label className="block mb-3 text-sm sm:text-lg font-medium text-[#161616]">
             Upload Photos & Videos
           </label>
 
           <label
             className={`
-              h-48
+              h-40
+              sm:h-48
               border-2
               border-dashed
-              rounded-3xl
+              rounded-2xl
+              sm:rounded-3xl
               flex
               flex-col
               items-center
@@ -368,21 +373,23 @@ export default function PricePhotosStep({
               hover:bg-[#FFFDF8]
               transition-colors
               group
+              p-4
+              sm:p-0
               ${errors?.photos ? "border-red-500 bg-red-50/5 hover:bg-red-50/10" : "border-[#E5D8B3]"}
             `}
           >
-            <div className="w-14 h-14 rounded-full bg-[#FFF9EA] flex items-center justify-center border border-[#F3E5C8] group-hover:scale-105 transition-transform">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#FFF9EA] flex items-center justify-center border border-[#F3E5C8] group-hover:scale-105 transition-transform">
               <Upload
-                size={28}
+                size={24}
                 className="text-[#C89B1C]"
               />
             </div>
 
-            <p className="mt-3 text-xl font-bold text-[#161616]">
+            <p className="mt-3 text-base sm:text-xl font-bold text-[#161616]">
               Click to upload photos or videos
             </p>
 
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-[10px] sm:text-xs text-gray-500 text-center">
               JPG, PNG, WEBP, MP4, WEBM, MOV up to 50MB each. Min. 3 files recommended.
             </p>
 

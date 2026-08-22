@@ -168,11 +168,11 @@ export default function EyvaPage() {
   };
 
   return (
-    <main className="min-h-[calc(100vh-80px)] bg-[#FAF8F5] py-8 px-4 sm:px-6">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:h-[calc(100vh-140px)] h-[calc(100vh-160px)] min-h-[500px]">
+    <main className="h-screen w-full bg-[#FAF8F5] overflow-hidden">
+      <div className="w-full h-full grid grid-cols-1 lg:grid-cols-12">
 
         {/* Left Column: Chat Area */}
-        <section className="lg:col-span-5 flex flex-col bg-white border border-[#EBE3D5] rounded-3xl overflow-hidden shadow-sm h-full">
+        <section className="lg:col-span-5 flex flex-col bg-white border-r border-[#EBE3D5] h-full overflow-hidden">
           {/* Chat Header */}
           <div className="bg-[#FAF6EE] border-b border-[#EBE3D5] px-6 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -191,8 +191,9 @@ export default function EyvaPage() {
             {/* Return to Home Link */}
             <Link
               href="/"
-              className="text-xs font-bold text-[#9A720C] hover:text-[#805F0A] flex items-center gap-1 bg-white border border-[#EBE3D5] px-3 py-1.5 rounded-xl transition-all shadow-3xs"
+              className="text-xs font-bold text-[#9A720C] hover:text-[#805F0A] flex items-center gap-1.5 bg-white border border-[#EBE3D5] px-3 py-1.5 rounded-xl transition-all shadow-3xs"
             >
+              <Home size={14} className="text-[#9A720C]" />
               <span>Return Home</span>
             </Link>
           </div>
@@ -284,7 +285,7 @@ export default function EyvaPage() {
         </section>
 
         {/* Right Column: Properties Results Area */}
-        <section className="hidden lg:flex lg:col-span-7 flex flex-col bg-white border border-[#EBE3D5] rounded-3xl overflow-hidden shadow-sm h-full">
+        <section className="hidden lg:flex lg:col-span-7 flex flex-col bg-white h-full overflow-hidden">
           {/* Header Panel */}
           <div className="px-6 py-5 bg-[#FAF6EE] border-b border-[#EBE3D5] flex items-center justify-between">
             <h2 className="font-bold text-gray-900 text-base flex items-center gap-2">

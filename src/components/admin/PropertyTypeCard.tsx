@@ -75,13 +75,13 @@ export default function PropertyTypesCard({
     <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
-      className="bg-white rounded-3xl border border-[#ECE7DB] p-7 shadow-xs h-full max-h-[536px] flex flex-col"
+      className="bg-white rounded-2xl sm:rounded-3xl border border-[#ECE7DB] p-4 sm:p-7 shadow-xs h-full max-h-[536px] flex flex-col"
     >
-      <div className="mb-8 shrink-0">
-        <h2 className="text-2xl font-bold text-[#161616]">
+      <div className="mb-5 sm:mb-8 shrink-0">
+        <h2 className="text-lg sm:text-2xl font-bold text-[#161616]">
           Property Types
         </h2>
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="text-xs sm:text-sm text-gray-500 mt-1">
           Distribution of active listings
         </p>
       </div>

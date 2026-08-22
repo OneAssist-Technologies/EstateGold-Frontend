@@ -877,52 +877,50 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
     return (
       <>
         <Navbar />
-        <div className="min-h-screen flex items-center justify-center px-6">
-          <div className="text-center max-w-xl">
+        <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 py-12 sm:py-20">
+          <div className="text-center max-w-xl w-full">
             <motion.div
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ type: "spring", stiffness: 180 }}
-              className="flex justify-center mb-8"
+              className="flex justify-center mb-6 sm:mb-8"
             >
               <motion.div
                 animate={{ scale: [1, 1.05, 1] }}
                 transition={{ duration: 2, repeat: Infinity }}
-                className="h-24 w-24 rounded-full border-[4px] border-green-500 flex items-center justify-center"
+                className="h-16 w-16 sm:h-24 sm:w-24 rounded-full border-[3px] sm:border-[4px] border-green-500 flex items-center justify-center"
               >
                 <svg
-                  width="36"
-                  height="36"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2.5"
-                  className="text-green-500"
+                  className="text-green-500 w-8 h-8 sm:w-10 sm:h-10"
                 >
                   <path d="M20 6L9 17L4 12" />
                 </svg>
               </motion.div>
             </motion.div>
 
-            <h1 className="text-2xl font-semibold text-[#161616]">
+            <h1 className="text-xl sm:text-3xl font-bold text-[#161616]">
               Property Listed Successfully!
             </h1>
 
-            <p className="mt-5 text-xl text-gray-600 leading-relaxed">
+            <p className="mt-3 sm:mt-5 text-sm sm:text-lg text-gray-600 leading-relaxed px-2 sm:px-0">
               The listing is submitted for admin review. Owner will be notified once approved.
             </p>
 
-            <div className="mt-10 flex justify-center gap-4">
+            <div className="mt-6 sm:mt-10 flex flex-col xs:flex-row justify-center items-center gap-3 w-full max-w-xs sm:max-w-none mx-auto sm:w-auto">
               <button
                 onClick={() => router.push("/property-listing")}
-                className="bg-[#C89B1C] text-white px-8 py-4 rounded-2xl font-semibold hover:bg-[#B58A16]"
+                className="bg-[#C89B1C] text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl sm:rounded-2xl font-semibold hover:bg-[#B58A16] text-sm sm:text-base w-full sm:w-auto cursor-pointer"
               >
                 View Listings
               </button>
 
               <button
                 onClick={() => window.location.reload()}
-                className="border border-[#D8B56A] px-8 py-4 rounded-2xl font-semibold text-[#161616] hover:bg-[#FFF8E8] hover:border-[#C89B1C] hover:shadow-[0_4px_20px_rgba(200,155,28,0.15)] transition-all duration-300"
+                className="border border-[#D8B56A] px-6 py-3 sm:px-8 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-[#161616] hover:bg-[#FFF8E8] hover:border-[#C89B1C] hover:shadow-[0_4px_20px_rgba(200,155,28,0.15)] transition-all duration-300 text-sm sm:text-base w-full sm:w-auto cursor-pointer"
               >
                 List Another
               </button>
@@ -933,6 +931,13 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
       </>
     );
   }
+
+  const handleEditStep = (stepId: string) => {
+    const index = stepsList.findIndex((s) => s.id === stepId);
+    if (index !== -1) {
+      setStep(index + 1);
+    }
+  };
 
   const renderStep = () => {
     switch (currentStepId) {
@@ -968,6 +973,7 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
             onSubmit={handleSubmit}
             onSaveDraft={handleSaveDraft}
             loading={loadingSubmit}
+            onEditStep={handleEditStep}
           />
         );
       default:
@@ -1062,13 +1068,13 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
         </div>
       )}
 
-      <section className="min-h-screen bg-[#FAF8F3] py-12">
-        <div className="max-w-5xl mx-auto px-6">
+      <section className="min-h-screen bg-[#FAF8F3] py-6 sm:py-12">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="mb-8"
+            className="mb-6 sm:mb-8"
           >
             <motion.button
               whileHover={{ x: -4 }}
@@ -1080,7 +1086,7 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
                   router.push("/");
                 }
               }}
-              className="flex items-center gap-2 text-[#6B7280] hover:text-[#C89B1C] mb-5 font-medium transition-colors cursor-pointer text-sm"
+              className="flex items-center gap-2 text-[#6B7280] hover:text-[#C89B1C] mb-4 sm:mb-5 font-medium transition-colors cursor-pointer text-sm"
             >
               <ArrowLeft size={16} />
               {mode === "edit" ? "Cancel & Return to My Properties" : "Back to Home"}
@@ -1090,7 +1096,7 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="text-3xl md:text-4xl font-bold text-[#161616] mb-2 tracking-tight"
+              className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#161616] mb-2 tracking-tight"
             >
               {mode === "edit" ? "Edit Property" : "List Your Property"}
             </motion.h1>
@@ -1099,7 +1105,7 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="text-sm sm:text-base text-[#6B7280] max-w-2xl leading-relaxed"
+              className="text-xs sm:text-sm md:text-base text-[#6B7280] max-w-2xl leading-relaxed"
             >
               {mode === "edit"
                 ? "Update your property information"
@@ -1111,12 +1117,12 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
 
           <motion.div
             layout={currentStepId === "location" ? false : "position"}
-            className="bg-white border border-[#E5D7B3] p-8 sm:p-10 rounded-[32px] shadow-sm flex flex-col justify-between min-h-[580px]"
+            className="bg-white border border-[#E5D7B3] p-4 xs:p-6 sm:p-10 rounded-2xl sm:rounded-[32px] shadow-sm flex flex-col justify-between min-h-[460px] sm:min-h-[580px]"
           >
             <div>
               <PropertyStepper currentStep={step} stepsList={stepsList} />
 
-              <div className="mt-12">
+              <div className="mt-6 sm:mt-12">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={step}
@@ -1132,33 +1138,16 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
             </div>
 
             {/* Navigation controls */}
-            <div className="flex items-center justify-between border-t border-gray-100 pt-8 mt-10">
-              {step > 1 ? (
-                <motion.button
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={previousStep}
-                  className="flex items-center gap-2 px-5 py-3 rounded-2xl border border-[#E5D8B3] bg-white text-[#6B7280] font-medium transition-all hover:border-[#C89B1C] hover:text-[#C89B1C] hover:shadow-md"
-                >
-                  <motion.div
-                    animate={{ x: [-2, 0, -2] }}
-                    transition={{ repeat: Infinity, duration: 2 }}
-                  >
-                    <ArrowLeft size={18} />
-                  </motion.div>
-                  Previous
-                </motion.button>
-              ) : (
-                <div className="w-[110px]" />
-              )}
-
-              <div className="flex flex-col items-center gap-1">
-                <span className="text-gray-500 text-sm font-semibold">
+            <div className="flex flex-wrap sm:flex-nowrap items-center justify-between border-t border-gray-100 pt-8 mt-10 gap-y-4 gap-x-2">
+              
+              {/* Step info tracking block (Spans full width on mobile at the top, centered in middle on desktop) */}
+              <div className="w-full sm:w-auto order-1 sm:order-2 flex flex-col items-center gap-1 text-center">
+                <span className="text-gray-500 text-xs sm:text-sm font-semibold">
                   Step {step} of {totalSteps}
                 </span>
                 
                 {mode !== "edit" && syncStatus && (
-                  <span className="text-[10px] text-gray-400 font-medium">
+                  <span className="text-[9px] sm:text-[10px] text-gray-400 font-medium">
                     {syncStatus === "saving" && "Saving draft..."}
                     {syncStatus === "synced" && "Draft synced to cloud"}
                     {syncStatus === "offline-pending" && "Saved locally (offline)"}
@@ -1170,50 +1159,75 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
                   <button
                     type="button"
                     onClick={handleDiscardDraft}
-                    className="text-[11px] font-bold text-red-500 hover:text-red-700 underline mt-1 cursor-pointer bg-none border-none outline-none"
+                    className="text-[9px] sm:text-[11px] font-bold text-red-500 hover:text-red-700 underline mt-1 cursor-pointer bg-none border-none outline-none"
                   >
                     Discard Draft
                   </button>
                 )}
               </div>
 
-              {step === totalSteps ? (
-                <motion.button
-                  whileHover={{ scale: 1.04 }}
-                  whileTap={{ scale: 0.96 }}
-                  onClick={handleSubmit}
-                  disabled={loadingSubmit}
-                  className="bg-[#C89B1C] hover:bg-[#B58A16] text-white px-8 py-3 rounded-2xl font-medium flex items-center gap-2 shadow-lg shadow-[#C89B1C]/20 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                >
-                  {loadingSubmit ? (
-                    <>
-                      <span className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
-                      Submitting...
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle2 size={18} />
-                      Submit & Publish Property
-                    </>
-                  )}
-                </motion.button>
-              ) : (
-                <motion.button
-                  whileHover={{ scale: 1.04, x: 3 }}
-                  whileTap={{ scale: 0.96 }}
-                  onClick={nextStep}
-                  disabled={false}
-                  className="bg-[#C89B1C] hover:bg-[#B58A16] text-white px-8 py-3 rounded-2xl font-medium flex items-center gap-2 shadow-lg shadow-[#C89B1C]/20 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                >
-                  Continue
-                  <motion.div
-                    animate={{ x: [0, 4, 0] }}
-                    transition={{ repeat: Infinity, duration: 1.5 }}
+              {/* Previous button (Aligned left) */}
+              <div className="order-2 sm:order-1">
+                {step > 1 ? (
+                  <motion.button
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={previousStep}
+                    className="flex items-center gap-1.5 px-3.5 py-2 sm:px-5 sm:py-3 rounded-xl sm:rounded-2xl border border-[#E5D8B3] bg-white text-[#6B7280] font-medium transition-all hover:border-[#C89B1C] hover:text-[#C89B1C] hover:shadow-md text-xs sm:text-sm"
                   >
-                    <ArrowRight size={18} />
-                  </motion.div>
-                </motion.button>
-              )}
+                    <motion.div
+                      animate={{ x: [-2, 0, -2] }}
+                      transition={{ repeat: Infinity, duration: 2 }}
+                    >
+                      <ArrowLeft size={16} />
+                    </motion.div>
+                    Previous
+                  </motion.button>
+                ) : (
+                  <div className="w-[80px] sm:w-[110px]" />
+                )}
+              </div>
+
+              {/* Next/Submit button (Aligned right) */}
+              <div className="order-3 sm:order-3">
+                {step === totalSteps ? (
+                  <motion.button
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.96 }}
+                    onClick={handleSubmit}
+                    disabled={loadingSubmit}
+                    className="bg-[#C89B1C] hover:bg-[#B58A16] text-white px-4 py-2 sm:px-8 sm:py-3 rounded-xl sm:rounded-2xl font-medium flex items-center gap-1.5 shadow-lg shadow-[#C89B1C]/20 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-xs sm:text-sm"
+                  >
+                    {loadingSubmit ? (
+                      <>
+                        <span className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 size={16} />
+                        Submit & Publish
+                      </>
+                    )}
+                  </motion.button>
+                ) : (
+                  <motion.button
+                    whileHover={{ scale: 1.04, x: 3 }}
+                    whileTap={{ scale: 0.96 }}
+                    onClick={nextStep}
+                    disabled={false}
+                    className="bg-[#C89B1C] hover:bg-[#B58A16] text-white px-4 py-2 sm:px-8 sm:py-3 rounded-xl sm:rounded-2xl font-medium flex items-center gap-1.5 shadow-lg shadow-[#C89B1C]/20 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-xs sm:text-sm"
+                  >
+                    Continue
+                    <motion.div
+                      animate={{ x: [0, 4, 0] }}
+                      transition={{ repeat: Infinity, duration: 1.5 }}
+                    >
+                      <ArrowRight size={16} />
+                    </motion.div>
+                  </motion.button>
+                )}
+              </div>
             </div>
           </motion.div>
         </div>

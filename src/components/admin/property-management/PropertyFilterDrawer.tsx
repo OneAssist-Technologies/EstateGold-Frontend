@@ -56,7 +56,7 @@ export default function PropertyFilterDrawer({
               stiffness: 260,
               damping: 25,
             }}
-            className="fixed right-0 top-0 h-screen w-[360px] bg-white shadow-2xl z-50 flex flex-col"
+            className="fixed right-0 top-0 h-screen w-full max-w-[360px] bg-white shadow-2xl z-50 flex flex-col"
           >
 
             {/* Header */}

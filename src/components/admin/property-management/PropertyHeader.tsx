@@ -18,7 +18,7 @@ export default function PropertyHeader() {
     >
 
       <h1
-        className="text-3xl font-bold text-[#161616]"
+        className="text-2xl sm:text-3xl font-bold text-[#161616]"
       >
         Property Management
       </h1>

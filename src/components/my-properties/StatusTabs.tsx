@@ -62,9 +62,9 @@ export default function StatusTabs({
 
   return (
     <div
-      className="bg-white border border-[#E8DCC1] rounded-2xl p-2 mt-8 mb-8 overflow-x-auto"
+      className="bg-white border border-[#E8DCC1] rounded-2xl p-2 mt-8 mb-8"
     >
-      <div className="flex gap-2 min-w-max">
+      <div className="flex flex-wrap sm:flex-nowrap gap-1.5 sm:gap-2 justify-center sm:justify-start">
         {tabs.map((tab) => {
           const active =
             activeTab === tab.key;
@@ -75,7 +75,7 @@ export default function StatusTabs({
               onClick={() =>
                 setActiveTab(tab.key)
               }
-              className="relative px-6 py-3 rounded-xl font-medium transition-all duration-300 whitespace-nowrap"
+              className="relative px-3 py-2 sm:px-6 sm:py-3 rounded-xl font-medium transition-all duration-300 whitespace-nowrap text-xs sm:text-sm flex-1 sm:flex-none text-center"
             >
               {active && (
                 <motion.div

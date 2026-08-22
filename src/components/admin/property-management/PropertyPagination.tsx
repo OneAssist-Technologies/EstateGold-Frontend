@@ -22,7 +22,7 @@ export default function PropertyPagination({
   );
 
   return (
-    <div className="flex items-center justify-end gap-2">
+    <div className="flex items-center justify-center sm:justify-end gap-2">
 
       <motion.button
         whileTap={{ scale: 0.95 }}

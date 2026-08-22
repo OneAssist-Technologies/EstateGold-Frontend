@@ -35,18 +35,18 @@ function StatCard({
       transition={{
         duration: 0.2,
       }}
-      className="bg-white rounded-3xl border border-[#ECE7DB] p-6 shadow-sm"
+      className="bg-white rounded-2xl sm:rounded-3xl border border-[#ECE7DB] p-4 sm:p-6 shadow-sm h-full"
     >
       <div className="flex justify-between items-start">
 
         <div>
 
-          <p className="text-gray-500 text-sm">
+          <p className="text-gray-500 text-xs sm:text-sm leading-tight font-medium">
             {title}
           </p>
 
           <h2
-            className="text-4xl font-bold mt-3 text-[#161616]"
+            className="text-2xl sm:text-4xl font-bold mt-2 sm:mt-3 text-[#161616]"
           >
             {value}
           </h2>
@@ -55,38 +55,46 @@ function StatCard({
 
         <div
           className={`
-            h-16
-            w-16
-            rounded-2xl
+            h-10
+            w-10
+            sm:h-16
+            sm:w-16
+            rounded-xl
+            sm:rounded-2xl
             flex
             items-center
             justify-center
+            shrink-0
             ${color}
           `}
         >
-          {icon}
+          <div className="scale-75 sm:scale-100 flex items-center justify-center">
+            {icon}
+          </div>
         </div>
 
       </div>
 
-      <div className="mt-6 flex items-center gap-2">
+      <div className="mt-4 sm:mt-6 flex items-center gap-1.5 sm:gap-2">
 
         {positive ? (
           <TrendingUp
-            size={18}
-            className="text-green-600"
+            size={14}
+            className="text-green-600 sm:size-[18px]"
           />
         ) : (
           <TrendingDown
-            size={18}
-            className="text-red-600"
+            size={14}
+            className="text-red-600 sm:size-[18px]"
           />
         )}
 
         <span
           className={`
-            text-sm
-            font-medium
+            text-[10px]
+            sm:text-sm
+            font-semibold
+            sm:font-medium
             ${
               positive
                 ? "text-green-600"
@@ -126,7 +134,7 @@ export default function DashboardCards({ stats, loading }: DashboardCardsProps) 
         />
       ),
       color: "bg-[#FFF7E2]",
-      change: `${stats?.approved ?? 0} approved listings`,
+      change: `${stats?.approved ?? 0} approved`,
       positive: true,
     },
     {
@@ -139,7 +147,7 @@ export default function DashboardCards({ stats, loading }: DashboardCardsProps) 
         />
       ),
       color: "bg-[#FFF4E5]",
-      change: "Requires admin review",
+      change: "Requires review",
       positive: (stats?.pending ?? 0) === 0,
     },
     {
@@ -152,7 +160,7 @@ export default function DashboardCards({ stats, loading }: DashboardCardsProps) 
         />
       ),
       color: "bg-[#EEF5FF]",
-      change: "Registered platform users",
+      change: "Registered users",
       positive: true,
     },
     {
@@ -165,14 +173,14 @@ export default function DashboardCards({ stats, loading }: DashboardCardsProps) 
         />
       ),
       color: "bg-[#EEFFF3]",
-      change: "Verified professionals",
+      change: "Verified pros",
       positive: true,
     },
   ];
 
   return (
     <div
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+      className="grid grid-cols-2 lg:grid-cols-4 md:grid-cols-2 gap-4 sm:gap-6"
     >
       {cards.map((card, index) => (
         <motion.div
@@ -188,6 +196,7 @@ export default function DashboardCards({ stats, loading }: DashboardCardsProps) 
           transition={{
             delay: index * 0.1,
           }}
+          className="h-full"
         >
           <StatCard
             {...card}

@@ -400,11 +400,11 @@ export default function AdminSettingsPage() {
         </AnimatePresence>
 
         {/* Two-Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* LEFT: Settings Navigation Sidebar (3 Cols) */}
-          <div className="lg:col-span-3 bg-white rounded-3xl border border-[#ECE7DB] p-3 shadow-2xs">
-            {/* Mobile Scrollable Horizontal Tabs */}
-            <div className="flex lg:flex-col overflow-x-auto lg:overflow-visible gap-1.5 no-scrollbar">
+        <div className="flex gap-4 sm:gap-6 items-start">
+          {/* LEFT: Settings Navigation Sidebar (Icon-only on mobile, Full on sm+) */}
+          <div className="w-14 sm:w-60 md:w-64 lg:w-72 shrink-0 bg-white rounded-3xl border border-[#ECE7DB] p-2 sm:p-3 shadow-2xs">
+            {/* Settings Navigation Tabs List */}
+            <div className="flex flex-col gap-1.5">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = activeSection === item.id;
@@ -414,22 +414,22 @@ export default function AdminSettingsPage() {
                     key={item.id}
                     type="button"
                     onClick={() => setActiveSection(item.id as any)}
-                    className={`flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer whitespace-nowrap text-left w-full ${
+                    className={`flex items-center justify-center sm:justify-start gap-3.5 px-3 py-3 sm:px-4 sm:py-3 rounded-2xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer whitespace-nowrap text-left w-full ${
                       isActive
                         ? "bg-[#FAF5EA] border border-[#C89B1C]/50 text-[#9A720C] font-bold shadow-2xs"
                         : "text-gray-600 hover:bg-[#FAF8F3] hover:text-gray-900 font-medium"
                     }`}
                   >
                     <Icon size={19} className={isActive ? "text-[#9A720C]" : "text-gray-400"} />
-                    <span className="tracking-wide">{item.label}</span>
+                    <span className="tracking-wide hidden sm:inline">{item.label}</span>
                   </button>
                 );
               })}
             </div>
           </div>
 
-          {/* RIGHT: Selected Section Content Panel (9 Cols) */}
-          <div className="lg:col-span-9 bg-white rounded-3xl border border-[#ECE7DB] p-5 sm:p-7 shadow-2xs space-y-6">
+          {/* RIGHT: Selected Section Content Panel */}
+          <div className="flex-1 min-w-0 bg-white rounded-3xl border border-[#ECE7DB] p-5 sm:p-7 shadow-2xs space-y-6">
             {/* SECTION 1: ADMIN PROFILE */}
             {activeSection === "profile" && (
               <div className="space-y-6">
@@ -809,22 +809,22 @@ export default function AdminSettingsPage() {
 
                 {/* Selected User Summary Badge */}
                 {selectedStaffUser && (
-                  <div className="p-4 rounded-2xl border border-[#ECE7DB] bg-[#FAF8F3] flex items-center justify-between">
+                  <div className="p-4 rounded-2xl border border-[#ECE7DB] bg-[#FAF8F3] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-[#9A720C] text-white font-bold flex items-center justify-center text-sm">
+                      <div className="h-10 w-10 rounded-full bg-[#9A720C] text-white font-bold flex items-center justify-center text-sm shrink-0">
                         {selectedStaffUser.fullName.charAt(0).toUpperCase()}
                       </div>
-                      <div>
-                        <h4 className="text-xs font-bold text-gray-900">{selectedStaffUser.fullName}</h4>
-                        <p className="text-[11px] text-gray-500 font-medium">{selectedStaffUser.email}</p>
+                      <div className="min-w-0">
+                        <h4 className="text-xs font-bold text-gray-900 truncate">{selectedStaffUser.fullName}</h4>
+                        <p className="text-[11px] text-gray-500 font-medium truncate">{selectedStaffUser.email}</p>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                      <span className="px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 text-[11px] font-bold border border-amber-200 capitalize">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 text-[11px] font-bold border border-amber-200 capitalize shrink-0">
                         Role: {selectedStaffUser.role}
                       </span>
-                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-bold border border-emerald-200">
+                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-bold border border-emerald-200 shrink-0">
                         Status: Active
                       </span>
                     </div>
@@ -832,58 +832,60 @@ export default function AdminSettingsPage() {
                 )}
 
                 {/* Permissions Matrix */}
-                <div className="border border-[#ECE7DB] rounded-2xl overflow-hidden shadow-2xs">
-                  <div className="bg-[#F8F5EE] px-4 py-3 border-b border-[#ECE7DB] grid grid-cols-6 gap-2 text-xs font-bold text-gray-700">
-                    <span>Module</span>
-                    <span className="text-center">View</span>
-                    <span className="text-center">Create</span>
-                    <span className="text-center">Edit</span>
-                    <span className="text-center">Delete</span>
-                    <span className="text-center">Approve</span>
-                  </div>
+                <div className="border border-[#ECE7DB] rounded-2xl overflow-hidden shadow-2xs overflow-x-auto no-scrollbar">
+                  <div className="min-w-[600px]">
+                    <div className="bg-[#F8F5EE] px-4 py-3 border-b border-[#ECE7DB] grid grid-cols-6 gap-2 text-xs font-bold text-gray-700">
+                      <span>Module</span>
+                      <span className="text-center">View</span>
+                      <span className="text-center">Create</span>
+                      <span className="text-center">Edit</span>
+                      <span className="text-center">Delete</span>
+                      <span className="text-center">Approve</span>
+                    </div>
 
-                  <div className="divide-y divide-gray-100 bg-white">
-                    {[
-                      { key: "dashboard", label: "Dashboard" },
-                      { key: "properties", label: "Properties" },
-                      { key: "users", label: "Users" },
-                      { key: "locations", label: "Locations" },
-                      { key: "analytics", label: "Analytics" },
-                      { key: "settings", label: "Settings" },
-                    ].map((mod) => (
-                      <div key={mod.key} className="px-4 py-3.5 grid grid-cols-6 gap-2 items-center text-xs">
-                        <span className="font-bold text-gray-800">{mod.label}</span>
+                    <div className="divide-y divide-gray-100 bg-white">
+                      {[
+                        { key: "dashboard", label: "Dashboard" },
+                        { key: "properties", label: "Properties" },
+                        { key: "users", label: "Users" },
+                        { key: "locations", label: "Locations" },
+                        { key: "analytics", label: "Analytics" },
+                        { key: "settings", label: "Settings" },
+                      ].map((mod) => (
+                        <div key={mod.key} className="px-4 py-3.5 grid grid-cols-6 gap-2 items-center text-xs">
+                          <span className="font-bold text-gray-800">{mod.label}</span>
 
-                        {["view", "create", "edit", "delete", "approve"].map((action) => {
-                          const isChecked = permissions[mod.key]?.[action] ?? false;
+                          {["view", "create", "edit", "delete", "approve"].map((action) => {
+                            const isChecked = permissions[mod.key]?.[action] ?? false;
 
-                          return (
-                            <div key={action} className="flex items-center justify-center">
-                              <input
-                                type="checkbox"
-                                checked={isChecked}
-                                onChange={() => togglePermission(mod.key, action)}
-                                className="h-4 w-4 rounded text-[#9A720C] focus:ring-[#9A720C] cursor-pointer"
-                              />
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ))}
+                            return (
+                              <div key={action} className="flex items-center justify-center">
+                                <input
+                                  type="checkbox"
+                                  checked={isChecked}
+                                  onChange={() => togglePermission(mod.key, action)}
+                                  className="h-4 w-4 rounded text-[#9A720C] focus:ring-[#9A720C] cursor-pointer"
+                                />
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
-                <div className="pt-2 flex items-center justify-between">
+                <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <button
                     type="button"
                     onClick={handleSavePermissions}
                     disabled={saving || !selectedStaffUser}
-                    className="px-6 py-2.5 bg-[#9A720C] hover:bg-[#856108] text-white text-xs font-bold rounded-xl transition-all shadow-xs cursor-pointer disabled:opacity-50 flex items-center gap-2"
+                    className="w-full sm:w-auto px-6 py-2.5 bg-[#9A720C] hover:bg-[#856108] text-white text-xs font-bold rounded-xl transition-all shadow-xs cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     <Save size={14} /> {saving ? "Enforcing Permissions..." : "Save & Enforce Permissions"}
                   </button>
 
-                  <span className="text-[11px] text-gray-400 font-medium">
+                  <span className="text-[11px] text-gray-400 font-medium text-center sm:text-right">
                     Enforced both on Frontend & Backend API middleware
                   </span>
                 </div>
@@ -1059,14 +1061,14 @@ export default function AdminSettingsPage() {
                 </div>
 
                 {/* Two-Factor Authentication Block */}
-                <div className="p-5 border border-[#ECE7DB] rounded-2xl bg-[#FAF8F3] flex items-center justify-between gap-4">
+                <div className="p-5 border border-[#ECE7DB] rounded-2xl bg-[#FAF8F3] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
                     <h4 className="text-xs font-bold text-gray-900">Two-Factor Authentication (2FA)</h4>
                     <p className="text-[11px] text-gray-500 font-medium">
                       Require an authenticator code alongside your password for admin logins.
                     </p>
                   </div>
-                  <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-300 text-xs font-bold">
+                  <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-300 text-xs font-bold w-fit shrink-0">
                     Optional / Configurable
                   </span>
                 </div>
@@ -1077,12 +1079,12 @@ export default function AdminSettingsPage() {
                     <Laptop size={16} className="text-[#9A720C]" /> Active Admin Sessions
                   </h4>
 
-                  <div className="p-3.5 rounded-xl border border-gray-200 bg-[#FAFAF8] flex items-center justify-between text-xs">
+                  <div className="p-3.5 rounded-xl border border-gray-200 bg-[#FAFAF8] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
                     <div>
                       <span className="font-bold text-gray-900">Current Session (Chrome on Windows)</span>
                       <p className="text-[11px] text-gray-500">IP: 127.0.0.1 • Active Now</p>
                     </div>
-                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-bold border border-emerald-200">
+                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-bold border border-emerald-200 w-fit shrink-0">
                       Active
                     </span>
                   </div>

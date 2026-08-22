@@ -68,19 +68,19 @@ export default function LoginForm() {
         Back to Home
       </Link>
 
-      <div className="lg:hidden text-center mb-10">
-        <h1 className="text-4xl font-bold text-[#C89B1C]">
+      <div className="md:hidden text-center mb-6">
+        <h1 className="text-3xl font-bold text-[#C89B1C]">
           EstateGold
         </h1>
       </div>
 
       {/* Heading */}
-      <div className="mb-8">
-        <h2 className="text-5xl font-bold text-gray-900">
+      <div className="mb-6 sm:mb-8">
+        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900">
           Welcome Back
         </h2>
 
-        <p className="mt-4 text-lg text-gray-500">
+        <p className="mt-2 sm:mt-4 text-sm sm:text-base lg:text-lg text-gray-500">
           Sign in to continue your property journey
         </p>
       </div>

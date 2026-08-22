@@ -177,13 +177,20 @@ export default function RegisterForm() {
         Back to Home
       </Link>
 
+      {/* Brand Header for Mobile App View */}
+      <div className="md:hidden text-center mb-6">
+        <h1 className="text-3xl font-bold text-[#C89B1C]">
+          EstateGold
+        </h1>
+      </div>
+
       {/* Heading */}
-      <div className="mb-6">
-        <h2 className="text-3xl sm:text-4xl font-bold text-[#171412] tracking-tight">
+      <div className="mb-4 sm:mb-6">
+        <h2 className="text-2xl xs:text-3xl sm:text-4xl font-bold text-[#171412] tracking-tight">
           Create Your Free Account
         </h2>
 
-        <p className="mt-1.5 text-xs sm:text-sm text-gray-500">
+        <p className="mt-1 text-xs sm:text-sm text-gray-500">
           Already registered?{" "}
           <Link
             href="/login"

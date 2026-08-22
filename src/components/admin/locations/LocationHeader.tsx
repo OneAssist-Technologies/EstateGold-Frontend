@@ -37,7 +37,7 @@ export default function LocationHeader({
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         {/* Left */}
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
