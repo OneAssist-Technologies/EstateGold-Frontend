@@ -5,8 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Search, MapPin } from "lucide-react";
-import HeroImage from "../../assests/hero.jpg";
-import api from "../../services/api";
+import HeroImage from "../../assets/images/hero.jpg";
+import api from "../../lib/api";
 
 export default function Hero() {
   const router = useRouter();

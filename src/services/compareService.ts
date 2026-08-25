@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
 import { Property } from "../types/property";
+import { STORAGE_KEYS } from "../config/index";
 
 export interface CompareSession {
   properties: Property[];
@@ -7,7 +7,7 @@ export interface CompareSession {
   targetCommercialSubtype?: string;
 }
 
-const STORAGE_KEY = "estategold_compare_session";
+const STORAGE_KEY = STORAGE_KEYS.COMPARE_SESSION;
 
 export const getCompareSession = (): CompareSession => {
   if (typeof window === "undefined") {
@@ -92,19 +92,3 @@ export const removePropertyFromCompare = (propertyId: string) => {
   saveCompareSession(session);
 };
 
-export const useCompareSession = () => {
-  const [session, setSession] = useState<CompareSession>({ properties: [], targetType: "" });
-
-  useEffect(() => {
-    setSession(getCompareSession());
-    const handleUpdate = () => {
-      setSession(getCompareSession());
-    };
-    window.addEventListener("compare_session_changed", handleUpdate);
-    return () => {
-      window.removeEventListener("compare_session_changed", handleUpdate);
-    };
-  }, []);
-
-  return session;
-};

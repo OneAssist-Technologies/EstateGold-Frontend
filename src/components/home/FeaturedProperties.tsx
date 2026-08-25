@@ -5,7 +5,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import PropertyCard, { Property as HomeProperty } from "./PropertyCard";
-import api from "../../services/api";
+import api from "../../lib/api";
 import { Property } from "../../types/property";
 
 export default function FeaturedProperties() {

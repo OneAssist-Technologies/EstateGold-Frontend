@@ -1,4 +1,4 @@
-import api from "./api";
+import api from "../lib/api";
 import { GetUsersResponse } from "../types/adminUser";
 
 export const getUsers = async (params: {

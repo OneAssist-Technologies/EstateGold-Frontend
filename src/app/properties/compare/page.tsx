@@ -3,12 +3,13 @@
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { ArrowLeft, Plus, X, Heart, ShieldCheck, TrendingUp, Sparkles, Loader2 } from "lucide-react";
-import api from "../../../services/api";
+import api from "../../../lib/api";
 import { Property } from "../../../types/property";
-import { useCompareSession, removePropertyFromCompare, clearCompareSession } from "../../../services/compareService";
-import { calculatePropertyMatchScore } from "../../../services/matchScoreService";
-import Navbar from "@/src/components/layout/Navbar";
-import Footer from "@/src/components/layout/Footer";
+import { useCompareSession } from "../../../hooks/useCompareSession";
+import { removePropertyFromCompare, clearCompareSession } from "../../../services/compareService";;
+import { calculatePropertyMatchScore } from "../../../utils/matchScore";
+import Navbar from "@/src/components/navbar/Navbar";
+import Footer from "@/src/components/footer/Footer";
 
 // Helper mapping for dynamic attributes comparison
 const getCompareFields = (propertyType: string, commercialType?: string) => {

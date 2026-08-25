@@ -4,10 +4,11 @@ import { useState, useEffect, useRef } from "react";
 import { Send, Sparkles, Home } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import api from "../../services/api";
+import api from "../../lib/api";
 import { Property } from "../../types/property";
-import PropertyCard from "../../components/property-listing/PropertyCard";
-import { useCompareSession, removePropertyFromCompare, clearCompareSession } from "../../services/compareService";
+import PropertyCard from "../../components/property/listing/PropertyCard";
+import { useCompareSession } from "../../hooks/useCompareSession";
+import { removePropertyFromCompare, clearCompareSession } from "../../services/compareService";;
 
 interface ExtendedProperty extends Property {
   matchScore?: number;

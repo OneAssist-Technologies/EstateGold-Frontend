@@ -5,7 +5,7 @@ import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import api from "../../services/api";
+import api from "../../lib/api";
 
 import {
   User,

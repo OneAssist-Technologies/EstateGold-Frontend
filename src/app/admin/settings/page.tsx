@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useAuth } from "@/src/context/AuthContext";
+import { useAuth } from "@/src/hooks/useAuth";;
 import DashboardLayout from "@/src/components/admin/DashboardLayout";
-import api from "@/src/services/api";
+import api from "@/src/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   User as UserIcon,

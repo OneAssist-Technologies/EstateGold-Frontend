@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Check } from "lucide-react";
-import AuthImage from "../../assests/auth.jpg";
+import AuthImage from "../../assets/images/auth.jpg";
 import Logo from "../common/Logo";
 
 interface AuthLayoutProps {

@@ -1,4 +1,4 @@
-import api from "./api";
+import api from "../lib/api";
 import { MarketInsight } from "../types/property";
 
 export interface GetLocalityInsightsParams {
