@@ -16,7 +16,7 @@ import {
   ShieldCheck,
   RefreshCw,
 } from "lucide-react";
-import api from "@/src/services/api";
+import api from "@/src/lib/api";
 import AuthLayout from "@/src/components/auth/AuthLayout";
 import PasswordStrengthMeter, { getPasswordValidationState } from "@/src/components/auth/PasswordStrengthMeter";
 

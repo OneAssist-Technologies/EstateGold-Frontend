@@ -3,9 +3,9 @@
 export const dynamic = "force-dynamic";
 
 import { Suspense } from "react";
-import PropertyForm from "../../components/property/PropertyForm";
-import Navbar from "@/src/components/layout/Navbar";
-import Footer from "@/src/components/layout/Footer";
+import PropertyForm from "../../components/property/form/PropertyForm";
+import Navbar from "@/src/components/navbar/Navbar";
+import Footer from "@/src/components/footer/Footer";
 
 export default function PostPropertyPage() {
   return (

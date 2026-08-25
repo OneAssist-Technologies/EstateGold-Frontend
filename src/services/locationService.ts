@@ -1,4 +1,4 @@
-import api from "./api";
+import api from "../lib/api";
 import { LocationResponse, ServiceLocation } from "../types/location";
 
 export const getLocations = async (params?: {

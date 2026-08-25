@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { MapPin } from "lucide-react";
-import api from "../../services/api";
+import api from "../../lib/api";
 
 const fallbackCities = [
   "Mumbai",

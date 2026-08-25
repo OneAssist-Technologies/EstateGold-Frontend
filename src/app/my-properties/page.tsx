@@ -3,20 +3,20 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import api from "@/src/services/api";
+import api from "@/src/lib/api";
 
-import Navbar from "@/src/components/layout/Navbar";
-import Footer from "@/src/components/layout/Footer";
+import Navbar from "@/src/components/navbar/Navbar";
+import Footer from "@/src/components/footer/Footer";
 
-import DashboardCards from "@/src/components/my-properties/DashboardCards";
+import DashboardCards from "@/src/components/property/my-properties/DashboardCards";
 import StatusTabs, {
   PropertyStatus,
-} from "@/src/components/my-properties/StatusTabs";
-import PropertyRow from "@/src/components/my-properties/PropertyRow";
-import Pagination from "@/src/components/property-listing/Pagination";
-import DeletePropertyModal from "@/src/components/my-properties/DeletePropertyModal";
+} from "@/src/components/property/my-properties/StatusTabs";
+import PropertyRow from "@/src/components/property/my-properties/PropertyRow";
+import Pagination from "@/src/components/property/listing/Pagination";
+import DeletePropertyModal from "@/src/components/property/my-properties/DeletePropertyModal";
 
-import { useAuth } from "@/src/context/AuthContext";
+import { useAuth } from "@/src/hooks/useAuth";;
 import { Property } from "@/src/types/property";
 
 import {

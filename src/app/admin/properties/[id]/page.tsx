@@ -1,8 +1,7 @@
 "use client";
 import AdminSidebar from "@/src/components/admin/AdminSidebar";
 import AdminNavbar from "@/src/components/admin/AdminNavbar";
-import PropertyReview
-from "@/src/components/admin/property-review/PropertyReviewPage";
+import PropertyReview from "@/src/components/admin/property-review/PropertyReviewPage";
 
 export default function Page() {
 

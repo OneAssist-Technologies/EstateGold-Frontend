@@ -6,24 +6,21 @@ import { useEffect, useState, Suspense, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { User, Briefcase, X } from "lucide-react";
 
-import api from "../../services/api";
+import api from "../../lib/api";
 
 import { Property } from "../../types/property";
 import { motion, AnimatePresence } from "framer-motion";
-import FilterSidebar from "../../components/property-listing/FilterSidebar";
-import SearchHeader from "../../components/property-listing/SearchHeader";
-import SortBar from "../../components/property-listing/SortBar";
-import PropertyGrid from "../../components/property-listing/PropertyGrid";
-import PropertyList from "../../components/property-listing/PropertyList";
-import Pagination from "../../components/property-listing/Pagination";
-import Navbar from "@/src/components/layout/Navbar";
-import Footer from "@/src/components/layout/Footer";
+import FilterSidebar from "../../components/filters/FilterSidebar";
+import SearchHeader from "../../components/search/SearchHeader";
+import SortBar from "../../components/property/listing/SortBar";
+import PropertyGrid from "../../components/property/listing/PropertyGrid";
+import PropertyList from "../../components/property/listing/PropertyList";
+import Pagination from "../../components/property/listing/Pagination";
+import Navbar from "@/src/components/navbar/Navbar";
+import Footer from "@/src/components/footer/Footer";
 import { useRouter } from "next/navigation";
-import {
-  useCompareSession,
-  removePropertyFromCompare,
-  clearCompareSession,
-} from "../../services/compareService";
+import { useCompareSession } from "../../hooks/useCompareSession";
+import { removePropertyFromCompare, clearCompareSession } from "../../services/compareService";;
 
 function ListingContent() {
   const searchParams = useSearchParams();

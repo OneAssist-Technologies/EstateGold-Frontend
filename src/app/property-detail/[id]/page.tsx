@@ -5,32 +5,32 @@ import { useParams, useRouter } from "next/navigation";
 
 import { motion } from "framer-motion";
 import { Lock, UserPlus, LogIn, ShieldCheck } from "lucide-react";
-import { useAuth } from "@/src/context/AuthContext";
+import { useAuth } from "@/src/hooks/useAuth";;
 
-import Navbar from "@/src/components/layout/Navbar";
-import Footer from "@/src/components/layout/Footer";
+import Navbar from "@/src/components/navbar/Navbar";
+import Footer from "@/src/components/footer/Footer";
 
-import api from "@/src/services/api";
+import api from "@/src/lib/api";
 
 import { Property } from "@/src/types/property";
 
 import Link from "next/link";
-import PropertyGallery from "../../../components/property-detail/PropertyGallery";
-import PropertyInfo from "../../../components/property-detail/PropertyInfo";
-import PropertyFeatures from "../../../components/property-detail/PropertyFeatures";
-import PropertyDescription from "../../../components/property-detail/PropertyDescription";
-import PriceTransparency from "../../../components/property-detail/PriceTransparency";
-import Amenities from "../../../components/property-detail/Amenities";
-import Neighbourhood from "../../../components/property-detail/Neighbourhood";
-import LocalityRatings from "../../../components/property-detail/LocalityRatings";
-import OwnerCard from "../../../components/property-detail/OwnerCard";
-import SimilarProperties from "../../../components/property-detail/SimilarProperties";
+import PropertyGallery from "../../../components/property/detail/PropertyGallery";
+import PropertyInfo from "../../../components/property/detail/PropertyInfo";
+import PropertyFeatures from "../../../components/property/detail/PropertyFeatures";
+import PropertyDescription from "../../../components/property/detail/PropertyDescription";
+import PriceTransparency from "../../../components/property/detail/PriceTransparency";
+import Amenities from "../../../components/property/detail/Amenities";
+import Neighbourhood from "../../../components/property/detail/Neighbourhood";
+import LocalityRatings from "../../../components/property/detail/LocalityRatings";
+import OwnerCard from "../../../components/property/detail/OwnerCard";
+import SimilarProperties from "../../../components/property/detail/SimilarProperties";
 
-import StickyContactCard from "../../../components/property-detail/StickyContactCard";
+import StickyContactCard from "../../../components/property/detail/StickyContactCard";
 
-import LoginRequiredModal from "../../../components/property-detail/LoginRequiredModal";
-import RequestCallbackModal from "../../../components/property-detail/RequestCallbackModal";
-import { calculatePropertyMatchScore } from "../../../services/matchScoreService";
+import LoginRequiredModal from "../../../components/property/detail/LoginRequiredModal";
+import RequestCallbackModal from "../../../components/property/detail/RequestCallbackModal";
+import { calculatePropertyMatchScore } from "../../../utils/matchScore";
 
 const getChecklistDocuments = (propertyType: string) => {
   switch (propertyType) {

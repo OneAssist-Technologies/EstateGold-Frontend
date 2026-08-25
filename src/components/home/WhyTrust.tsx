@@ -7,7 +7,7 @@ import {
   BadgeCheck,
   Clock3,
 } from "lucide-react";
-import trustProperty from "../../assests/trust-property.jpg";
+import trustProperty from "../../assets/images/trust-property.jpg";
 
 const features = [
   {

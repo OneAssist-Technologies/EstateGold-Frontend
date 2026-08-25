@@ -5,8 +5,8 @@ import Link from "next/link";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import api from "../../services/api"
-import { useAuth } from "@/src/context/AuthContext";
+import api from "../../lib/api"
+import { useAuth } from "@/src/hooks/useAuth";;
 
 
 import {

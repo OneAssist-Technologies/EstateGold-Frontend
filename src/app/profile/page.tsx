@@ -34,10 +34,11 @@ import {
   Upload,
 } from "lucide-react";
 
-import { useAuth, User } from "@/src/context/AuthContext";
-import Navbar from "@/src/components/layout/Navbar";
-import Footer from "@/src/components/layout/Footer";
-import api from "@/src/services/api";
+import { useAuth } from "@/src/hooks/useAuth";
+import { User } from "@/src/providers/AuthContext";;
+import Navbar from "@/src/components/navbar/Navbar";
+import Footer from "@/src/components/footer/Footer";
+import api from "@/src/lib/api";
 
 export default function ProfilePage() {
   const router = useRouter();

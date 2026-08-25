@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../hooks/useAuth";;
 
 export default function CTA() {
   const { isAuthenticated } = useAuth();
