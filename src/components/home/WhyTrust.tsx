@@ -7,13 +7,7 @@ import {
   BadgeCheck,
   Clock3,
 } from "lucide-react";
-import trustProperty from "../../assests/trust-property.jpg";
-
-<Image
-  src={trustProperty}
-  alt="Luxury Interior"
-  className="rounded-3xl"
-/>
+import trustProperty from "../../assets/images/trust-property.jpg";
 
 const features = [
   {
@@ -44,57 +38,45 @@ const features = [
 
 export default function WhyTrust() {
   return (
-    <section className="py-24 bg-white">
+    <section className="py-12 md:py-24 bg-white">
       <div className="max-w-7xl mx-auto px-6">
 
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
+        <div className="grid lg:grid-cols-2 gap-10 md:gap-16 items-center">
 
           <div>
-
-            <p className="uppercase tracking-widest text-[#C89B1C]">
+            <p className="uppercase tracking-wider text-xs md:text-sm text-[#C89B1C]">
               Our Promise
             </p>
 
-            <h2 className="text-5xl font-bold mt-4">
+            <h2 className="text-2xl xs:text-3xl md:text-5xl font-bold mt-2 md:mt-4 leading-tight">
               Why 50,000+ Families Trust EstateGold
             </h2>
 
-            <div className="mt-10 space-y-8">
-
+            <div className="mt-6 md:mt-10 space-y-5 md:space-y-8">
               {features.map((item) => (
                 <div
                   key={item.title}
-                  className="flex gap-5"
+                  className="flex gap-3.5 xs:gap-5"
                 >
                   <div
-                    className="
-                    h-14
-                    w-14
-                    rounded-2xl
-                    bg-[#F8F3E8]
-                    flex
-                    items-center
-                    justify-center
-                    "
+                    className="h-11 w-11 xs:h-14 xs:w-14 rounded-xl xs:rounded-2xl bg-[#F8F3E8] flex items-center justify-center shrink-0"
                   >
                     <item.icon
-                      size={24}
-                      className="text-[#C89B1C]"
+                      className="text-[#C89B1C] h-5 w-5 xs:h-6 xs:w-6"
                     />
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-xl">
+                    <h4 className="font-semibold text-base xs:text-xl">
                       {item.title}
                     </h4>
 
-                    <p className="text-gray-600 mt-2">
+                    <p className="text-xs xs:text-sm md:text-base text-gray-600 mt-1 md:mt-2 leading-relaxed">
                       {item.description}
                     </p>
                   </div>
                 </div>
               ))}
-
             </div>
           </div>
 
@@ -104,25 +86,17 @@ export default function WhyTrust() {
               alt="Luxury Interior"
               width={700}
               height={700}
-              className="rounded-3xl"
+              className="rounded-2xl xs:rounded-3xl"
             />
 
             <div
-              className="
-              absolute
-              bottom-6
-              left-6
-              bg-white
-              p-6
-              rounded-2xl
-              shadow-xl
-              "
+              className="absolute bottom-4 left-4 xs:bottom-6 xs:left-6 bg-white p-3.5 xs:p-6 rounded-xl xs:rounded-2xl shadow-xl"
             >
-              <p className="text-3xl font-bold">
+              <p className="text-xl xs:text-3xl font-bold">
                 ₹2.3 Lakhs
               </p>
 
-              <p className="text-gray-500">
+              <p className="text-[10px] xs:text-sm text-gray-500">
                 Average brokerage saved
               </p>
             </div>

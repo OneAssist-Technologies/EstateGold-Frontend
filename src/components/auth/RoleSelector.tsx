@@ -1,162 +1,130 @@
 "use client";
 
-import {
-  User,
-  Home,
-  Building2,
-  CheckCircle,
-} from "lucide-react";
+import { motion } from "framer-motion";
+import { Home, ShieldCheck, Check } from "lucide-react";
 
 interface Props {
   role: string;
   setRole: (role: string) => void;
 }
 
-export default function RoleSelector({
-  role,
-  setRole,
-}: Props) {
-  const roles = [
-    {
-      id: "buyer",
-      title: "Buyer",
-      icon: User,
-      description:
-        "I want to buy or rent a property",
-    },
-    {
-      id: "seller",
-      title: "Owner / Seller",
-      icon: Home,
-      description:
-        "I want to sell or rent my property",
-    },
-    {
-      id: "agent",
-      title: "Agent / Broker",
-      icon: Building2,
-      description:
-        "I manage properties professionally",
-    },
-  ];
+export default function RoleSelector({ role, setRole }: Props) {
+  // Map "seller" or "buyer" to "seller" (Member / Owner)
+  const isMember = role === "seller" || role === "buyer";
+  const isAgent = role === "agent";
 
   return (
-    <div>
-      <h3 className="text-2xl font-semibold mb-6">
-        I am a...
-      </h3>
+    <div className="mb-6">
+      <label className="block text-sm font-semibold text-gray-700 mb-3">
+        I am registering as
+      </label>
 
-      <div className="grid grid-cols-3 gap-4">
-        {roles.map((item) => {
-          const Icon = item.icon;
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Card 1: Buyer / Seller / Owner */}
+        <motion.button
+          type="button"
+          whileHover={{ y: -2, scale: 1.01 }}
+          whileTap={{ scale: 0.99 }}
+          onClick={() => setRole("seller")}
+          className={`
+            p-5
+            rounded-2xl
+            border-2
+            text-left
+            transition-all
+            duration-300
+            cursor-pointer
+            relative
+            flex
+            flex-col
+            justify-between
+            h-full
+            ${
+              isMember
+                ? "border-[#C89B1C] bg-[#FFFBF0] shadow-md ring-1 ring-[#C89B1C]/30"
+                : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-md"
+            }
+          `}
+        >
+          <div>
+            <div
+              className={`h-11 w-11 rounded-xl flex items-center justify-center mb-3 transition-colors ${
+                isMember ? "bg-[#C89B1C]/15 text-[#C89B1C]" : "bg-gray-100 text-gray-500"
+              }`}
+            >
+              <Home size={22} />
+            </div>
 
-          const active =
-            role === item.id;
+            <h4 className="font-bold text-base text-[#171412] mb-1">
+              Buyer / Seller / Owner
+            </h4>
 
-          return (
-       <button
-  key={item.id}
-  type="button"
-  onClick={() => setRole(item.id)}
-  className={`
-    group
-    h-44
-    rounded-3xl
-    border-2
-    flex
-    flex-col
-    items-center
-    justify-center
-    gap-4
-    cursor-pointer
-    transition-all
-    duration-300
-    hover:-translate-y-2
-    hover:shadow-xl
-    hover:scale-[1.02]
-    ${
-      active
-        ? `
-          border-[#C89B1C]
-          bg-[#FFF9EC]
-          shadow-lg
-          scale-[1.02]
-        `
-        : `
-          border-gray-200
-          bg-white
-        `
-    }
-  `}
->
-             <div
-  className={`
-    h-16
-    w-16
-    rounded-full
-    flex
-    items-center
-    justify-center
-    transition-all
-    duration-300
-    group-hover:scale-110
-    ${
-      active
-        ? "bg-[#F3E5B5]"
-        : "bg-gray-100"
-    }
-  `}
->
-               <Icon
-  size={28}
-  className={`
-    transition-all
-    duration-300
-    group-hover:scale-110
-    ${
-      active
-        ? "text-[#C89B1C]"
-        : "text-gray-500"
-    }
-  `}
-/>
-              </div>
+            <p className="text-xs text-gray-500 mb-4 leading-relaxed">
+              I want to buy, rent, or list my own property
+            </p>
 
-              <span
-  className={`
-    font-semibold
-    text-lg
-    transition-all
-    duration-300
-    ${
-      active
-        ? "text-[#C89B1C]"
-        : "text-gray-700"
-    }
-  `}
->
-                {item.title}
-              </span>
+            <ul className="space-y-1.5 text-xs text-gray-600 font-medium">
+              <li className="flex items-center gap-1.5">
+                <Check size={14} className="text-[#C89B1C] shrink-0" />
+                <span>Browse & enquire about properties</span>
+              </li>
+              <li className="flex items-center gap-1.5">
+                <Check size={14} className="text-[#C89B1C] shrink-0" />
+                <span>List your own property for free</span>
+              </li>
+              <li className="flex items-center gap-1.5">
+                <Check size={14} className="text-[#C89B1C] shrink-0" />
+                <span>No brokerage fees</span>
+              </li>
+            </ul>
+          </div>
+        </motion.button>
 
-              {active && (
-                <CheckCircle
-                  size={18}
-                  className="text-[#C89B1C]"
-                />
-              )}
-            </button>
-          );
-        })}
+        {/* Card 2: Agent / Broker */}
+        <motion.button
+          type="button"
+          whileHover={{ y: -2, scale: 1.01 }}
+          whileTap={{ scale: 0.99 }}
+          onClick={() => setRole("agent")}
+          className={`
+            p-5
+            rounded-2xl
+            border-2
+            text-left
+            transition-all
+            duration-300
+            cursor-pointer
+            relative
+            flex
+            flex-col
+            justify-between
+            h-full
+            ${
+              isAgent
+                ? "border-[#C89B1C] bg-[#FFFBF0] shadow-md ring-1 ring-[#C89B1C]/30"
+                : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-md"
+            }
+          `}
+        >
+          <div>
+            <div
+              className={`h-11 w-11 rounded-xl flex items-center justify-center mb-3 transition-colors ${
+                isAgent ? "bg-[#C89B1C]/15 text-[#C89B1C]" : "bg-gray-100 text-gray-500"
+              }`}
+            >
+              <ShieldCheck size={22} />
+            </div>
+
+            <h4 className="font-bold text-base text-[#171412] mb-1">
+              Agent / Broker
+            </h4>
+
+            <p className="text-xs text-gray-500 leading-relaxed">
+              I manage or list properties professionally for clients
+            </p>
+          </div>
+        </motion.button>
       </div>
-
-      <p className="text-center text-gray-500 mt-4">
-        {
-          roles.find(
-            (item) =>
-              item.id === role
-          )?.description
-        }
-      </p>
     </div>
   );
 }

@@ -1,3 +1,5 @@
+import { DocumentItem } from "./property";
+
 export interface Place {
   enabled: boolean;
   name: string;
@@ -48,6 +50,7 @@ export interface AdminProperty {
   ownerName: string;
   ownerPhone: string;
   ownerEmail: string;
+  listingType?: string;
 
   ownerType: string;
   agentRelation: string;
@@ -85,6 +88,12 @@ export interface AdminProperty {
   neighbourhood: Neighbourhood;
 
   status: "pending" | "approved" | "rejected";
+  availabilityStatus?: "on_sale" | "hold" | "sold";
+  deleteRequested?: boolean;
+  deleteRequestedReason?: string;
+  deleteRequestedAt?: string;
+  ownerNegotiable?: boolean;
+  ownerReadyToMeet?: boolean;
 
  createdBy?: {
   _id: string;
@@ -106,4 +115,6 @@ export interface AdminProperty {
 
   createdAt: string;
   updatedAt: string;
+  documents?: DocumentItem[];
+  uploadedDocumentTypes?: string[];
 }

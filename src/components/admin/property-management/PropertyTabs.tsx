@@ -11,6 +11,7 @@ interface Props {
     pending: number;
     approved: number;
     rejected: number;
+    delete_requests?: number;
   };
 }
 
@@ -40,10 +41,15 @@ export default function PropertyTabs({
       label: "Rejected",
       count: counts.rejected,
     },
+    {
+      key: "delete_requests",
+      label: "Delete Requests",
+      count: counts.delete_requests || 0,
+    },
   ];
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex flex-wrap items-center gap-2.5">
 
       {tabs.map((tab) => {
 

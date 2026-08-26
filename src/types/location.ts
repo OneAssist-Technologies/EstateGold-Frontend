@@ -2,26 +2,39 @@ export type LocationStatus = "active" | "inactive";
 
 export interface ServiceLocation {
   _id: string;
-
   city: string;
   state: string;
-
+  country?: string;
   latitude: number;
   longitude: number;
-
   radiusKm: number;
-
-  activeListings: number;
-
+  pincodes?: string[];
+  propertyTypes?: string[];
+  allowedServices?: string[];
+  maxListings?: number;
+  displayPriority?: number;
+  isFeatured?: boolean;
+  bannerImage?: string;
+  activeListings?: number;
   status: LocationStatus;
-
   notes?: string;
-
+  requestedBy?: {
+    _id: string;
+    fullName?: string;
+    email?: string;
+    phone?: string;
+    role?: string;
+  };
+  requestedAddress?: string;
+  requestedLocality?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  slug?: string;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface LocationStats {
+export interface LocationStatsData {
   totalCities: number;
   activeCities: number;
   inactiveCities: number;
@@ -29,11 +42,13 @@ export interface LocationStats {
   averageRadius: number;
 }
 
+export type LocationStats = LocationStatsData;
+
 export interface LocationResponse {
   success: boolean;
   locations: ServiceLocation[];
-
   page: number;
   pages: number;
   total: number;
+  stats?: LocationStatsData;
 }

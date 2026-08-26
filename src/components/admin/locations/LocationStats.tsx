@@ -51,14 +51,14 @@ export default function LocationStats({
   ];
 
   return (
-    <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid gap-4 sm:gap-5 grid-cols-2 xl:grid-cols-4">
       {cards.map((card) => {
         const Icon = card.icon;
 
         return (
           <div
             key={card.title}
-            className={`${card.bg} rounded-xl border border-gray-200 p-5 shadow-sm transition-all hover:shadow-md`}
+            className={`${card.bg} rounded-xl border border-gray-200 p-4 sm:p-5 shadow-sm transition-all hover:shadow-md`}
           >
             <div className="flex items-center justify-between">
               <div>
@@ -72,7 +72,7 @@ export default function LocationStats({
               </div>
 
               <div
-                className={`${card.iconBg} rounded-xl p-3`}
+                className={`${card.iconBg} rounded-xl p-2 sm:p-3 shrink-0`}
               >
                 <Icon
                   className={card.iconColor}

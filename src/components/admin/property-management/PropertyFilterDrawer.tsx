@@ -36,12 +36,7 @@ export default function PropertyFilterDrawer({
               opacity: 0,
             }}
             onClick={onClose}
-            className="
-              fixed
-              inset-0
-              bg-black/30
-              z-40
-            "
+            className="fixed inset-0 bg-black/30 z-40"
           />
 
           {/* Drawer */}
@@ -61,37 +56,17 @@ export default function PropertyFilterDrawer({
               stiffness: 260,
               damping: 25,
             }}
-            className="
-              fixed
-              right-0
-              top-0
-              h-screen
-              w-[360px]
-              bg-white
-              shadow-2xl
-              z-50
-              flex
-              flex-col
-            "
+            className="fixed right-0 top-0 h-screen w-full max-w-[360px] bg-white shadow-2xl z-50 flex flex-col"
           >
 
             {/* Header */}
 
             <div
-              className="
-                flex
-                justify-between
-                items-center
-                p-6
-                border-b
-              "
+              className="flex justify-between items-center p-6 border-b"
             >
 
               <h2
-                className="
-                  text-xl
-                  font-semibold
-                "
+                className="text-xl font-semibold"
               >
                 Filters
               </h2>
@@ -117,14 +92,7 @@ export default function PropertyFilterDrawer({
                 </label>
 
                 <select
-                  className="
-                    mt-3
-                    w-full
-                    h-11
-                    rounded-xl
-                    border
-                    px-4
-                  "
+                  className="mt-3 w-full h-11 rounded-xl border px-4"
                 >
                   <option>All</option>
                   <option>Pending</option>
@@ -143,14 +111,7 @@ export default function PropertyFilterDrawer({
                 </label>
 
                 <select
-                  className="
-                    mt-3
-                    w-full
-                    h-11
-                    rounded-xl
-                    border
-                    px-4
-                  "
+                  className="mt-3 w-full h-11 rounded-xl border px-4"
                 >
                   <option>All</option>
                   <option>Apartment</option>
@@ -170,14 +131,7 @@ export default function PropertyFilterDrawer({
                 </label>
 
                 <select
-                  className="
-                    mt-3
-                    w-full
-                    h-11
-                    rounded-xl
-                    border
-                    px-4
-                  "
+                  className="mt-3 w-full h-11 rounded-xl border px-4"
                 >
                   <option>All Cities</option>
                   <option>Coimbatore</option>
@@ -192,34 +146,18 @@ export default function PropertyFilterDrawer({
             {/* Footer */}
 
             <div
-              className="
-                p-6
-                border-t
-                flex
-                gap-3
-              "
+              className="p-6 border-t flex gap-3"
             >
 
               <button
-                className="
-                  flex-1
-                  h-11
-                  rounded-xl
-                  border
-                "
+                className="flex-1 h-11 rounded-xl border"
               >
                 Reset
               </button>
 
               <button
                 onClick={onClose}
-                className="
-                  flex-1
-                  h-11
-                  rounded-xl
-                  bg-[#C89B1C]
-                  text-white
-                "
+                className="flex-1 h-11 rounded-xl bg-[#C89B1C] text-white"
               >
                 Apply
               </button>

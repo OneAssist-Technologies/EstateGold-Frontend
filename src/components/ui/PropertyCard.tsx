@@ -32,6 +32,7 @@ export default function PropertyCard({
           src={image}
           alt={title}
           fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-cover group-hover:scale-110 transition duration-700"
         />
 
@@ -45,7 +46,7 @@ export default function PropertyCard({
       <div className="p-8">
         <div className="flex justify-between items-start">
           <div>
-            <h3 className="text-2xl font-[var(--font-playfair)]">
+            <h3 className="text-2xl">
               {title}
             </h3>
 

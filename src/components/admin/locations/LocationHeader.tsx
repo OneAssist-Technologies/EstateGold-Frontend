@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Search, Plus } from "lucide-react";
 
 interface LocationHeaderProps {
@@ -24,9 +25,19 @@ export default function LocationHeader({
   onStateChange,
   onAddClick,
 }: LocationHeaderProps) {
+  const router = useRouter();
+
+  const handleAddClick = () => {
+    if (onAddClick) {
+      onAddClick();
+    } else {
+      router.push("/admin/locations/add");
+    }
+  };
+
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         {/* Left */}
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
@@ -40,8 +51,9 @@ export default function LocationHeader({
 
         {/* Right */}
         <button
-          onClick={onAddClick}
-          className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-white font-medium hover:bg-indigo-700 transition"
+          type="button"
+          onClick={handleAddClick}
+          className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#C89B1C] to-[#D8B75A] hover:from-[#b68c17] hover:to-[#c7a74a] px-5 py-2.5 text-white font-bold shadow-md hover:shadow-lg transition cursor-pointer text-sm"
         >
           <Plus size={18} />
           Add Service Area

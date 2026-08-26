@@ -1,8 +1,7 @@
 "use client";
 import AdminSidebar from "@/src/components/admin/AdminSidebar";
 import AdminNavbar from "@/src/components/admin/AdminNavbar";
-import PropertyReview
-from "@/src/components/admin/property-review/PropertyReviewPage";
+import PropertyReview from "@/src/components/admin/property-review/PropertyReviewPage";
 
 export default function Page() {
 
@@ -18,11 +17,7 @@ export default function Page() {
     
             <AdminNavbar /> 
           <main
-            className="
-              flex-1
-              overflow-y-auto
-              px-4
-            "
+            className="flex-1 overflow-y-auto px-4"
           ><PropertyReview /></main>
             </div></div>;
 

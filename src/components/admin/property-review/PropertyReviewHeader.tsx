@@ -40,47 +40,23 @@ export default function PropertyReviewHeader({
       transition={{
         duration: 0.35,
       }}
-      className="
-        sticky
-        top-0
-        z-40
-        bg-[#FAF8F3]
-        backdrop-blur-md
-      "
+      className="sticky top-0 z-40 bg-[#FAF8F3] backdrop-blur-md"
     >
       <div
-        className="
-          flex
-          items-center
-          justify-between
-       
-          border-b
-          border-[#E8E1D4]
-        "
+        className="flex items-center justify-between border-b border-[#E8E1D4]"
       >
         {/* Left */}
 
         <div>
 
           <h1
-            className="
-              text-[24px]
-              font-playfair
-              font-bold
-              text-[#161616]
-              leading-none
-              pt-3
-            "
+            className="text-[24px] font-bold text-[#161616] leading-none pt-3"
           >
             Property Detail
           </h1>
 
           <p
-            className="
-              mt-2
-              text-[17px]
-              text-[#737373]
-            "
+            className="mt-2 text-[17px] text-[#737373]"
           >
             Admin review
           </p>
@@ -90,11 +66,7 @@ export default function PropertyReviewHeader({
         {/* Right */}
 
         <div
-          className="
-            flex
-            items-center
-            gap-3
-          "
+          className="flex items-center gap-3"
         >
 
           {status === "pending" && (
@@ -103,22 +75,7 @@ export default function PropertyReviewHeader({
   whileHover={{ y: -1 }}
   whileTap={{ scale: 0.97 }}
   onClick={onApprove}
-  className="
-    h-9
-    px-4
-    rounded-lg
-    bg-[#ECFDF3]
-    border
-    border-[#BBF7D0]
-    text-[#15803D]
-    text-sm
-    font-medium
-    flex
-    items-center
-    gap-2
-    transition-all
-    hover:bg-[#DCFCE7]
-  "
+  className="h-9 px-4 rounded-lg bg-[#ECFDF3] border border-[#BBF7D0] text-[#15803D] text-sm font-medium flex items-center gap-2 transition-all hover:bg-[#DCFCE7]"
 >
   <CheckCircle2 size={16} />
   Approve
@@ -127,22 +84,7 @@ export default function PropertyReviewHeader({
   whileHover={{ y: -1 }}
   whileTap={{ scale: 0.97 }}
   onClick={onReject}
-  className="
-    h-9
-    px-4
-    rounded-lg
-    bg-[#FEF2F2]
-    border
-    border-[#FECACA]
-    text-[#DC2626]
-    text-sm
-    font-medium
-    flex
-    items-center
-    gap-2
-    transition-all
-    hover:bg-[#FEE2E2]
-  "
+  className="h-9 px-4 rounded-lg bg-[#FEF2F2] border border-[#FECACA] text-[#DC2626] text-sm font-medium flex items-center gap-2 transition-all hover:bg-[#FEE2E2]"
 >
   <XCircle size={16} />
   Reject
@@ -154,22 +96,7 @@ export default function PropertyReviewHeader({
   whileHover={{ y: -1 }}
   whileTap={{ scale: 0.97 }}
   onClick={onDelete}
-  className="
-    h-9
-    px-4
-    rounded-lg
-    bg-white
-    border
-    border-[#FECACA]
-    text-[#DC2626]
-    text-sm
-    font-medium
-    flex
-    items-center
-    gap-2
-    transition-all
-    hover:bg-[#FFF5F5]
-  "
+  className="h-9 px-4 rounded-lg bg-white border border-[#FECACA] text-[#DC2626] text-sm font-medium flex items-center gap-2 transition-all hover:bg-[#FFF5F5]"
 >
   <Trash2 size={16} />
   Delete
@@ -182,16 +109,7 @@ export default function PropertyReviewHeader({
   }}
   whileTap={{ scale: 0.9 }}
   onClick={onClose}
-  className="
-    h-8
-    w-8
-    rounded-full
-    flex
-    items-center
-    justify-center
-    text-gray-500
-    transition-all
-  "
+  className="h-8 w-8 rounded-full flex items-center justify-center text-gray-500 transition-all"
 >
   <X size={16} />
 </motion.button>

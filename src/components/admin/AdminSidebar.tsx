@@ -1,24 +1,30 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
   Building2,
   Users,
-  Shield,
   MapPin,
   BarChart3,
   Settings,
   LogOut,
-  Home,
+  X,
 } from "lucide-react";
-import {
-  useAuth,
-} from "../../context/AuthContext";
+import { useAuth } from "../../hooks/useAuth";;
+import { getUnreadCounts } from "../../services/adminPropertyService";
+import Logo from "../common/Logo";
 
-const menu = [
+interface MenuItem {
+  title: string;
+  icon: any;
+  href: string;
+}
+
+const menuTop: MenuItem[] = [
   {
     title: "Overview",
     icon: LayoutDashboard,
@@ -28,7 +34,6 @@ const menu = [
     title: "Properties",
     icon: Building2,
     href: "/admin/properties",
-    badge: 4,
   },
   {
     title: "Users",
@@ -36,15 +41,13 @@ const menu = [
     href: "/admin/users",
   },
   {
-    title: "Agents",
-    icon: Shield,
-    href: "/admin/agents",
-  },
-  {
     title: "Locations",
     icon: MapPin,
     href: "/admin/locations",
   },
+];
+
+const menuBottom: MenuItem[] = [
   {
     title: "Analytics",
     icon: BarChart3,
@@ -58,269 +61,221 @@ const menu = [
 ];
 
 export default function AdminSidebar() {
-
   const pathname = usePathname();
- const {
-  logout,
-} = useAuth();
-  return (
+  const { user, logout } = useAuth();
 
-    <aside
-      className="
-        w-[290px]
-        bg-[#171412]
-        text-white
-        flex
-        flex-col
-        border-r
-        border-[#2A2724]
-      "
-    >
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [unreadCounts, setUnreadCounts] = useState({
+    properties: 0,
+    users: 0,
+    locations: 0,
+  });
 
-      {/* Logo */}
+  // Listen for mobile sidebar toggle event
+  useEffect(() => {
+    const handleToggle = () => setMobileOpen((prev) => !prev);
+    window.addEventListener("toggle-admin-mobile-sidebar", handleToggle);
+    return () =>
+      window.removeEventListener("toggle-admin-mobile-sidebar", handleToggle);
+  }, []);
 
-      <div
-        className="
-          px-7
-          py-7
-          border-b
-          border-[#2A2724]
-        "
+  // Update timestamps and fetch dynamic unread counts relative to last visits
+  useEffect(() => {
+    if (!pathname) return;
+
+    setMobileOpen(false);
+
+    // Save visit timestamp for active page instantly
+    const nowStr = new Date().toISOString();
+    if (pathname === "/admin/properties" || pathname.startsWith("/admin/properties/")) {
+      localStorage.setItem("admin_last_visited_properties", nowStr);
+    } else if (pathname === "/admin/users" || pathname.startsWith("/admin/users/")) {
+      localStorage.setItem("admin_last_visited_users", nowStr);
+    } else if (pathname === "/admin/locations" || pathname.startsWith("/admin/locations/")) {
+      localStorage.setItem("admin_last_visited_locations", nowStr);
+    }
+
+    async function fetchCounts() {
+      try {
+        const lastVisitedProperties = localStorage.getItem("admin_last_visited_properties") || "";
+        const lastVisitedUsers = localStorage.getItem("admin_last_visited_users") || "";
+        const lastVisitedLocations = localStorage.getItem("admin_last_visited_locations") || "";
+
+        const res = await getUnreadCounts({
+          lastVisitedProperties,
+          lastVisitedUsers,
+          lastVisitedLocations,
+        });
+
+        if (res && res.success) {
+          const activeProperties = pathname === "/admin/properties" || pathname.startsWith("/admin/properties/");
+          const activeUsers = pathname === "/admin/users" || pathname.startsWith("/admin/users/");
+          const activeLocations = pathname === "/admin/locations" || pathname.startsWith("/admin/locations/");
+
+          setUnreadCounts({
+            properties: activeProperties ? 0 : (res.unreadProperties || 0),
+            users: activeUsers ? 0 : (res.unreadUsers || 0),
+            locations: activeLocations ? 0 : (res.unreadLocations || 0),
+          });
+        }
+      } catch (err) {
+        console.error("Failed to fetch notification counts:", err);
+      }
+    }
+
+    fetchCounts();
+
+    // Check periodically for new arrivals (every 15s)
+    const interval = setInterval(fetchCounts, 15000);
+    return () => clearInterval(interval);
+  }, [pathname]);
+
+  const userInitial = user?.fullName ? user.fullName[0].toUpperCase() : "A";
+  const userName = user?.fullName || "Admin User";
+  const userRole = user?.role === "admin" ? "Administrator" : "Admin User";
+
+  const renderMenuItem = (item: MenuItem) => {
+    const Icon = item.icon;
+    const active =
+      pathname === item.href ||
+      (item.href !== "/admin" && pathname.startsWith(item.href));
+
+    let badgeCount = 0;
+    if (item.href === "/admin/properties") {
+      badgeCount = unreadCounts.properties;
+    } else if (item.href === "/admin/users") {
+      badgeCount = unreadCounts.users;
+    } else if (item.href === "/admin/locations") {
+      badgeCount = unreadCounts.locations;
+    }
+
+    return (
+      <Link
+        key={item.title}
+        href={item.href}
+        className={`
+          flex
+          items-center
+          justify-between
+          px-4
+          py-3
+          rounded-2xl
+          transition-all
+          duration-200
+          ${
+            active
+              ? "bg-[#382E15] border border-[#C89B1C]/40 text-[#C89B1C] font-bold shadow-xs"
+              : "hover:bg-[#23201D] text-[#C9C2B8] hover:text-white font-medium"
+          }
+        `}
       >
-
-        <div className="flex items-center gap-4">
-
-          <div
-            className="
-              h-12
-              w-12
-              rounded-xl
-              bg-[#C89B1C]
-              flex
-              items-center
-              justify-center
-            "
-          >
-
-            <Home size={22} />
-
-          </div>
-
-          <div>
-
-            <h2
-              className="
-                text-2xl
-                font-bold
-                text-[#F6E4A6]
-              "
-            >
-              EstateGold
-            </h2>
-
-            <p className="text-sm text-gray-400">
-              Admin Console
-            </p>
-
-          </div>
-
+        <div className="flex items-center gap-3.5">
+          <Icon size={20} className={active ? "text-[#C89B1C]" : "text-[#C9C2B8]"} />
+          <span className="text-sm tracking-wide">{item.title}</span>
         </div>
 
+        {badgeCount > 0 && (
+          <span className="h-5 min-w-[20px] px-1.5 rounded-full bg-red-500 text-[11px] font-bold flex items-center justify-center text-white shadow-xs">
+            {badgeCount}
+          </span>
+        )}
+      </Link>
+    );
+  };
+
+  const renderSidebarContent = (isMobile = false) => (
+    <div className="flex flex-col justify-between h-full bg-[#181614] text-white">
+      {/* Top Section */}
+      <div>
+        {/* Logo Header */}
+        <div className="px-6 py-6 border-b border-[#2A2724] flex items-center justify-between">
+          <div className="flex items-center gap-3.5">
+            <Logo lightText />
+          </div>
+
+          {isMobile && (
+            <button
+              onClick={() => setMobileOpen(false)}
+              className="p-2 rounded-xl text-gray-400 hover:text-white hover:bg-[#23201D]"
+            >
+              <X size={20} />
+            </button>
+          )}
+        </div>
+
+        {/* Navigation Section 1 */}
+        <nav className="px-4 py-5 space-y-1.5">
+          {menuTop.map(renderMenuItem)}
+        </nav>
+
+        {/* Section Divider */}
+        <div className="px-4 my-2">
+          <div className="border-t border-[#2A2724]" />
+        </div>
+
+        {/* Navigation Section 2 */}
+        <nav className="px-4 py-3 space-y-1.5">
+          {menuBottom.map(renderMenuItem)}
+        </nav>
       </div>
 
-      {/* Menu */}
-
-      <nav
-        className="
-          flex-1
-          px-4
-          py-6
-        "
-      >
-
-        <div className="space-y-2">
-
-          {menu.map((item) => {
-
-            const Icon = item.icon;
-
-            const active =
-              pathname === item.href;
-
-            return (
-
-              <Link
-                key={item.title}
-                href={item.href}
-                className={`
-                  flex
-                  items-center
-                  justify-between
-                  px-5
-                  py-4
-                  rounded-2xl
-                  transition-all
-                  duration-300
-                  ${
-                    active
-                      ? "bg-[#3C3112] text-[#F6D56E]"
-                      : "hover:bg-[#23201D] text-gray-300"
-                  }
-                `}
-              >
-
-                <div className="flex items-center gap-4">
-
-                  <Icon size={20} />
-
-                  <span className="font-medium">
-
-                    {item.title}
-
-                  </span>
-
-                </div>
-
-                {item.badge && (
-
-                  <span
-                    className="
-                      h-6
-                      w-6
-                      rounded-full
-                      bg-red-500
-                      text-xs
-                      flex
-                      items-center
-                      justify-center
-                      text-white
-                    "
-                  >
-                    {item.badge}
-                  </span>
-
-                )}
-
-              </Link>
-
-            );
-
-          })}
-
+      {/* Footer Profile & Sign Out */}
+      <div className="border-t border-[#2A2724] p-4 bg-[#181614] space-y-3">
+        <div className="flex items-center gap-3 px-1 overflow-hidden">
+          <div className="h-10 w-10 rounded-full bg-[#C89B1C] text-[#181614] font-bold flex items-center justify-center text-sm shadow-md shrink-0">
+            {userInitial}
+          </div>
+          <div className="overflow-hidden">
+            <h4 className="text-sm font-bold text-white leading-tight truncate">
+              {userName}
+            </h4>
+            <p className="text-xs text-gray-400 truncate">{userRole}</p>
+          </div>
         </div>
 
-      </nav>
-
-      {/* Profile */}
-
-     {/* Bottom */}
-
-<div
-  className="
-    mt-auto
-    border-t
-    border-[#2A2724]
-    p-5
-  "
->
-
-
-  {/* Sign Out */}
-
-<motion.button
-  onClick={logout}
-  whileHover={{
-    x: 4,
-    scale: 1.02,
-  }}
-  whileTap={{
-    scale: 0.97,
-  }}
-  className="
-    relative
-    mt-5
-    w-full
-    flex
-    items-center
-    gap-3
-    rounded-xl
-    px-4
-    py-3
-    bg-[#26221E]
-    text-[#F5D46A]
-    transition-all
-    duration-300
-    overflow-hidden
-  "
->
-
-  {/* Permanent Gold Indicator */}
-
-  <span
-    className="
-      absolute
-      left-0
-      top-2
-      bottom-2
-      w-1
-      rounded-r-full
-      bg-[#C89B1C]
-    "
-  />
-
-  {/* Permanent Glow */}
-
-  <span
-    className="
-      absolute
-      inset-0
-      bg-gradient-to-r
-      from-[#C89B1C]/10
-      via-transparent
-      to-transparent
-    "
-  />
-
-  <motion.div
-    animate={{
-      x: [0, 2, 0],
-      rotate: [0, -8, 0],
-    }}
-    transition={{
-      duration: 2,
-      repeat: Infinity,
-      ease: "easeInOut",
-    }}
-    className="relative z-10"
-  >
-    <LogOut size={20} />
-  </motion.div>
-
-  <motion.span
-    animate={{
-      x: [0, 2, 0],
-    }}
-    transition={{
-      duration: 2,
-      repeat: Infinity,
-      ease: "easeInOut",
-    }}
-    className="
-      relative
-      z-10
-      font-medium
-      text-[16px]
-    "
-  >
-    Sign Out
-  </motion.span>
-
-</motion.button>
-
-</div>
-
-    </aside>
-
+        <button
+          type="button"
+          onClick={logout}
+          title="Sign Out"
+          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all cursor-pointer text-sm font-medium"
+        >
+          <LogOut size={17} className="text-red-400" />
+          <span>Sign Out</span>
+        </button>
+      </div>
+    </div>
   );
 
+  return (
+    <>
+      {/* Desktop Sidebar */}
+      <aside className="hidden lg:flex w-[270px] h-screen sticky top-0 bg-[#181614] text-white flex-col justify-between border-r border-[#2A2724] shrink-0 z-30">
+        {renderSidebarContent(false)}
+      </aside>
+
+      {/* Mobile Drawer Overlay */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMobileOpen(false)}
+              className="fixed inset-0 bg-black/70 backdrop-blur-xs z-50 lg:hidden"
+            />
+            <motion.aside
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 250 }}
+              className="fixed top-0 left-0 bottom-0 w-[270px] bg-[#181614] text-white z-50 border-r border-[#2A2724] shadow-2xl lg:hidden"
+            >
+              {renderSidebarContent(true)}
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+    </>
+  );
 }

@@ -16,13 +16,17 @@ import {
   getPropertyById,
   approveProperty,
   rejectProperty,
+  updatePropertyAvailabilityStatus,
+  deleteProperty,
+  rejectDeleteRequest,
+  requestDelete,
 } from "@/src/services/adminPropertyService";
 import { AdminProperty } from "@/src/types/adminProperty";
+import toast from "react-hot-toast";
 
 export default function PropertyManagement() {
   const [loading, setLoading] =
     useState(true);
-
 
   const [page, setPage] =
     useState(1);
@@ -39,11 +43,11 @@ export default function PropertyManagement() {
   const [filterOpen, setFilterOpen] =
     useState(false);
 
-const [properties, setProperties] =
-  useState<AdminProperty[]>([]);
+  const [properties, setProperties] =
+    useState<AdminProperty[]>([]);
 
-const [selectedProperty, setSelectedProperty] =
-  useState<AdminProperty | null>(null);
+  const [selectedProperty, setSelectedProperty] =
+    useState<AdminProperty | null>(null);
   const [viewOpen, setViewOpen] =
     useState(false);
 
@@ -53,6 +57,7 @@ const [selectedProperty, setSelectedProperty] =
       pending: 0,
       approved: 0,
       rejected: 0,
+      delete_requests: 0,
     });
 
   useEffect(() => {
@@ -63,45 +68,43 @@ const [selectedProperty, setSelectedProperty] =
     status,
   ]);
 
-async function loadProperties() {
-  try {
-    setLoading(true);
+  async function loadProperties() {
+    try {
+      setLoading(true);
 
-    const response = await getProperties({
-      page,
-      limit: 10,
-      search,
-      status: status === "all" ? "" : status,
-    });
+      const response = await getProperties({
+        page,
+        limit: 10,
+        search,
+        status: status === "all" ? "" : status,
+      });
 
-    setProperties(response.properties);
+      setProperties(response.properties);
+      setPages(response.pages);
 
-    setPages(response.pages);
-
-   setCounts({
-  all: response.total,
-
-  pending: response.properties.filter(
-    (item: AdminProperty) =>
-      item.status === "pending"
-  ).length,
-
-  approved: response.properties.filter(
-    (item: AdminProperty) =>
-      item.status === "approved"
-  ).length,
-
-  rejected: response.properties.filter(
-    (item: AdminProperty) =>
-      item.status === "rejected"
-  ).length,
-});
-  } catch (error) {
-    console.log(error);
-  } finally {
-    setLoading(false);
+      if (response.stats) {
+        setCounts({
+          all: response.stats.total ?? response.total ?? 0,
+          pending: response.stats.pending ?? 0,
+          approved: response.stats.approved ?? 0,
+          rejected: response.stats.rejected ?? 0,
+          delete_requests: response.stats.delete_requests ?? 0,
+        });
+      } else {
+        setCounts({
+          all: response.total ?? 0,
+          pending: response.properties.filter((item: AdminProperty) => item.status === "pending").length,
+          approved: response.properties.filter((item: AdminProperty) => item.status === "approved").length,
+          rejected: response.properties.filter((item: AdminProperty) => item.status === "rejected").length,
+          delete_requests: response.properties.filter((item: AdminProperty) => item.deleteRequested).length,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
   }
-}
 
   const handleView =
     async (id: string) => {
@@ -156,17 +159,96 @@ async function loadProperties() {
       loadProperties();
     };
 
+  const handleQuickApprove = async (id: string) => {
+    try {
+      setLoading(true);
+      await approveProperty(id);
+      await loadProperties();
+    } catch (error) {
+      console.error(error);
+      setLoading(false);
+    }
+  };
+
+  const handleQuickReject = async (id: string) => {
+    const reason = window.prompt(
+      "Enter reason for rejecting this property:",
+      "Property details require verification."
+    );
+    if (!reason || !reason.trim()) return;
+
+    try {
+      setLoading(true);
+      await rejectProperty(id, reason.trim());
+      await loadProperties();
+    } catch (error) {
+      console.error(error);
+      setLoading(false);
+    }
+  };
+
+  const handleAvailabilityStatusChange = async (id: string, newStatus: "on_sale" | "hold" | "sold") => {
+    try {
+      setLoading(true);
+      await updatePropertyAvailabilityStatus(id, newStatus);
+      await loadProperties();
+    } catch (error) {
+      console.error("Failed to update availability status:", error);
+      setLoading(false);
+    }
+  };
+
+  const handleApproveDelete = async (id: string, reason: string) => {
+    if (!window.confirm("Are you sure you want to approve this deletion? The property listing will be permanently removed.")) return;
+    try {
+      setLoading(true);
+      await deleteProperty(id, reason);
+      await loadProperties();
+    } catch (error) {
+      console.error("Failed to approve deletion:", error);
+      setLoading(false);
+    }
+  };
+
+  const handleRejectDeleteRequest = async (id: string) => {
+    if (!window.confirm("Are you sure you want to reject this deletion request? The property listing will remain active.")) return;
+    try {
+      setLoading(true);
+      await rejectDeleteRequest(id);
+      await loadProperties();
+    } catch (error) {
+      console.error("Failed to reject delete request:", error);
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteRequest = async (id: string) => {
+    const reason = window.prompt("Enter reason for requesting deletion of this property:");
+    if (reason === null) return;
+    if (!reason.trim()) {
+      toast.error("Deletion reason is required.");
+      return;
+    }
+    try {
+      setLoading(true);
+      await requestDelete(id, reason);
+      toast.success("Property marked for deletion.");
+      await loadProperties();
+    } catch (error: any) {
+      console.error("Failed to request deletion:", error);
+      toast.error(error.response?.data?.message || "Failed to request deletion.");
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-8">
-
       <PropertyHeader />
 
       <PropertySearch
         search={search}
         setSearch={setSearch}
-        onFilter={() =>
-          setFilterOpen(true)
-        }
+        onFilter={() => setFilterOpen(true)}
       />
 
       <PropertyTabs
@@ -176,21 +258,19 @@ async function loadProperties() {
       />
 
       <motion.div
-        initial={{
-          opacity: 0,
-          y: 20,
-        }}
-        animate={{
-          opacity: 1,
-          y: 0,
-        }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
       >
         <PropertyTable
           loading={loading}
           properties={properties}
-          onView={
-            handleView
-          }
+          onView={handleView}
+          onApprove={handleQuickApprove}
+          onReject={handleQuickReject}
+          onApproveDelete={handleApproveDelete}
+          onRejectDeleteRequest={handleRejectDeleteRequest}
+          onAvailabilityStatusChange={handleAvailabilityStatusChange}
+          onDeleteRequest={handleDeleteRequest}
         />
       </motion.div>
 
@@ -235,6 +315,8 @@ async function loadProperties() {
         onReject={
           handleReject
         }
+        onApproveDelete={handleApproveDelete}
+        onRejectDeleteRequest={handleRejectDeleteRequest}
       />
     </div>
   );
