@@ -196,7 +196,7 @@ export default function StickyContactCard({
       </div>
 
       {/* EMI Calculator Card - ONLY for Buy / Sale properties */}
-      {!isRent && (
+      {/* {!isRent && (
         <div className="bg-[#FFFDF6] border border-[#F4E3B5] rounded-2xl p-4 space-y-3 shadow-2xs">
           <div>
             <h4 className="text-xs font-bold text-gray-900">EMI Calculator</h4>
@@ -219,7 +219,7 @@ export default function StickyContactCard({
             Check Loan Eligibility
           </button>
         </div>
-      )}
+      )} */}
     </div>
   );
 }

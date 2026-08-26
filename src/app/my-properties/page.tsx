@@ -15,6 +15,7 @@ import StatusTabs, {
 import PropertyRow from "@/src/components/property/my-properties/PropertyRow";
 import Pagination from "@/src/components/property/listing/Pagination";
 import DeletePropertyModal from "@/src/components/property/my-properties/DeletePropertyModal";
+import PropertyEnquiriesModal from "@/src/components/property/my-properties/PropertyEnquiriesModal";
 
 import { useAuth } from "@/src/hooks/useAuth";;
 import { Property } from "@/src/types/property";
@@ -65,6 +66,8 @@ useState<Property|null>(null);
 
 const [openDelete,setOpenDelete]=
 useState(false);
+
+const [enquiriesPropertyId, setEnquiriesPropertyId] = useState<string | null>(null);
 
 const [counts,setCounts]=
 useState({
@@ -287,6 +290,7 @@ return (
         active={counts.active}
         views={totalViews}
         enquiries={totalEnquiries}
+        onEnquiriesClick={() => setEnquiriesPropertyId("all")}
       />
 
         {/* Status */}
@@ -389,6 +393,7 @@ return (
                     onView={handleView}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
+                    onViewEnquiries={(id) => setEnquiriesPropertyId(id)}
                     onStatusChange={() =>
                       handleStatusChange(
                         property
@@ -436,6 +441,12 @@ return (
     setOpenDelete(false);
     fetchProperties();
   }}
+/>
+
+<PropertyEnquiriesModal
+  open={Boolean(enquiriesPropertyId)}
+  propertyId={enquiriesPropertyId}
+  onClose={() => setEnquiriesPropertyId(null)}
 />
 
     </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Star } from "lucide-react";
+import { Star, Train, ShieldCheck, Zap, Droplet, Volume2, Wifi, Trees } from "lucide-react";
 import { motion } from "framer-motion";
 
 export interface Ratings {
@@ -25,51 +25,44 @@ const ratingItems = [
   {
     key: "connectivity",
     title: "Connectivity",
-    description:
-      "Roads, public transport & accessibility",
-    emoji: "🚇",
+    description: "Roads, public transport & accessibility",
+    icon: <Train className="text-[#C89B1C] h-6 w-6 sm:h-7 sm:w-7" />,
   },
   {
     key: "safety",
     title: "Safety",
-    description:
-      "Crime rate & neighbourhood safety",
-    emoji: "🛡️",
+    description: "Crime rate & neighbourhood safety",
+    icon: <ShieldCheck className="text-[#C89B1C] h-6 w-6 sm:h-7 sm:w-7" />,
   },
   {
     key: "powerSupply",
     title: "Power Supply",
-    description:
-      "Electricity availability",
-    emoji: "⚡",
+    description: "Electricity availability",
+    icon: <Zap className="text-[#C89B1C] h-6 w-6 sm:h-7 sm:w-7" />,
   },
   {
     key: "waterSupply",
     title: "Water Supply",
-    description:
-      "Water availability",
-    emoji: "💧",
+    description: "Water availability",
+    icon: <Droplet className="text-[#C89B1C] h-6 w-6 sm:h-7 sm:w-7" />,
   },
   {
     key: "noiseLevel",
     title: "Noise Level",
-    description:
-      "Traffic & surrounding noise",
-    emoji: "🔊",
+    description: "Traffic & surrounding noise",
+    icon: <Volume2 className="text-[#C89B1C] h-6 w-6 sm:h-7 sm:w-7" />,
   },
   {
     key: "internet",
     title: "Internet",
-    description:
-      "Broadband & mobile network",
-    emoji: "📶",
+    description: "Broadband & mobile network",
+    icon: <Wifi className="text-[#C89B1C] h-6 w-6 sm:h-7 sm:w-7" />,
   },
   {
     key: "greenery",
     title: "Greenery",
-    description:
-      "Parks & natural surroundings",
-    emoji: "🌳",
+    description: "Parks & natural surroundings",
+    icon: <Trees className="text-[#C89B1C] h-6 w-6 sm:h-7 sm:w-7" />,
   },
 ];
 
@@ -99,9 +92,9 @@ export default function RatingSection({
           >
             <div className="flex items-start sm:items-center gap-4">
               <div
-                className="h-12 w-12 sm:h-14 sm:w-14 rounded-xl sm:rounded-2xl bg-[#FFF8EA] flex items-center justify-center text-xl sm:text-2xl shrink-0"
+                className="h-12 w-12 sm:h-14 sm:w-14 rounded-xl sm:rounded-2xl bg-[#FFF8EA] flex items-center justify-center shrink-0"
               >
-                {item.emoji}
+                {item.icon}
               </div>
 
               <div>

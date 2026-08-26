@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   X,
@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import api from "@/src/lib/api";
+import toast from "react-hot-toast";
 
 interface Props {
   open: boolean;
@@ -29,6 +30,7 @@ export default function RequestCallbackModal({
 
   const [loading, setLoading] =
     useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   const [form, setForm] =
     useState({
@@ -61,8 +63,44 @@ export default function RequestCallbackModal({
 
   };
 
+  const handleClose = () => {
+    setSubmitted(false);
+    onClose();
+  };
+
+  useEffect(() => {
+    if (!open) {
+      setSubmitted(false);
+    }
+  }, [open]);
+
   const handleSubmit =
     async () => {
+      // Validate all fields are mandatory
+      if (!form.name.trim()) {
+        toast.error("Full Name is required.");
+        return;
+      }
+      if (!form.phone.trim()) {
+        toast.error("Phone Number is required.");
+        return;
+      }
+      if (form.phone.trim().length < 10) {
+        toast.error("Please enter a valid 10-digit Phone Number.");
+        return;
+      }
+      if (!form.preferredDate) {
+        toast.error("Preferred Date is required.");
+        return;
+      }
+      if (!form.preferredTime) {
+        toast.error("Preferred Time is required.");
+        return;
+      }
+      if (!form.message.trim()) {
+        toast.error("Message is required.");
+        return;
+      }
 
       try {
 
@@ -81,17 +119,17 @@ export default function RequestCallbackModal({
           }
         );
 
-        alert(
-          "Callback request sent successfully."
+        toast.success(
+          "Request submitted successfully"
         );
 
-        onClose();
+        setSubmitted(true);
 
       } catch (err) {
 
         console.log(err);
 
-        alert(
+        toast.error(
           "Unable to submit callback request."
         );
 
@@ -156,7 +194,7 @@ export default function RequestCallbackModal({
 
               <button
 
-                onClick={onClose}
+                onClick={handleClose}
 
                 className="absolute right-4 top-4 sm:right-6 sm:top-6"
               >
@@ -192,211 +230,235 @@ export default function RequestCallbackModal({
 
             {/* Body */}
 
-            <div className="p-5 sm:p-8 space-y-4 sm:space-y-6 max-h-[calc(100vh-200px)] overflow-y-auto">
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-
-                <div>
-
-                  <label className="font-medium text-xs sm:text-sm">
-
-                    Full Name
-
-                  </label>
-
-                  <div
-                    className="mt-1.5 h-12 sm:h-14 border rounded-xl px-4 flex items-center gap-3"
-                  >
-
-                    <User size={16} />
-
-                    <input
-
-                      name="name"
-
-                      value={form.name}
-
-                      onChange={handleChange}
-
-                      className="flex-1 outline-none text-xs sm:text-sm"
-
-                      placeholder="Enter name"
-
-                    />
-
-                  </div>
-
+            {submitted ? (
+              <div className="p-8 sm:p-12 flex flex-col items-center text-center space-y-5">
+                <div className="h-16 w-16 rounded-full bg-green-50 border border-green-200 text-green-600 flex items-center justify-center shrink-0">
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  </svg>
                 </div>
-
-                <div>
-
-                  <label className="font-medium text-xs sm:text-sm">
-
-                    Phone Number
-
-                  </label>
-
-                  <div
-                    className="mt-1.5 h-12 sm:h-14 border rounded-xl px-4 flex items-center"
-                  >
-
-                    <PhoneCall size={16} />
-
-                    <input
-                      type="tel"
-                      name="phone"
-                      maxLength={10}
-                      value={form.phone}
-                      onChange={(e) => {
-                        const val = e.target.value.replace(/\D/g, "").slice(0, 10);
-                        setForm((prev) => ({ ...prev, phone: val }));
-                      }}
-                      className="flex-1 ml-3 outline-none text-xs sm:text-sm"
-                      placeholder="Mobile Number (10 digits)"
-                    />
-
-                  </div>
-
+                <div className="space-y-2">
+                  <h3 className="text-xl sm:text-2xl font-black text-gray-900">
+                    Request Submitted Successfully!
+                  </h3>
+                  <p className="text-xs sm:text-sm text-gray-500 max-w-md mx-auto leading-relaxed">
+                    Thank you. Your callback request has been registered and the property publisher has been notified. They will contact you shortly.
+                  </p>
                 </div>
-
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-
-                <div>
-
-                  <label className="font-medium text-xs sm:text-sm">
-
-                    Preferred Date
-
-                  </label>
-
-                  <div
-                    className="mt-1.5 h-12 sm:h-14 border rounded-xl px-4 flex items-center"
-                  >
-
-                    <Calendar size={16} />
-
-                    <input
-
-                      type="date"
-
-                      name="preferredDate"
-
-                      value={form.preferredDate}
-
-                      onChange={handleChange}
-
-                      className="flex-1 ml-3 outline-none text-xs sm:text-sm"
-
-                    />
-
-                  </div>
-
-                </div>
-
-                <div>
-
-                  <label className="font-medium text-xs sm:text-sm">
-
-                    Preferred Time
-
-                  </label>
-
-                  <div
-                    className="mt-1.5 h-12 sm:h-14 border rounded-xl px-4 flex items-center"
-                  >
-
-                    <Clock size={16} />
-
-                    <input
-
-                      type="time"
-
-                      name="preferredTime"
-
-                      value={form.preferredTime}
-
-                      onChange={handleChange}
-
-                      className="flex-1 ml-3 outline-none text-xs sm:text-sm"
-
-                    />
-
-                  </div>
-
-                </div>
-
-              </div>
-
-              <div>
-
-                <label className="font-medium text-xs sm:text-sm">
-
-                  Message
-
-                </label>
-
-                <div
-                  className="mt-1.5 border rounded-xl p-3 sm:p-4 flex gap-3"
-                >
-
-                  <MessageSquare
-                    size={16}
-                    className="mt-1"
-                  />
-
-                  <textarea
-
-                    rows={4}
-
-                    name="message"
-
-                    value={form.message}
-
-                    onChange={handleChange}
-
-                    className="flex-1 resize-none outline-none text-xs sm:text-sm"
-
-                    placeholder="Tell the owner about your requirement..."
-
-                  />
-
-                </div>
-
-              </div>
-
-              <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-2 sm:pt-4">
-
                 <button
-
-                  onClick={onClose}
-
-                  className="h-12 sm:h-14 px-6 sm:px-8 rounded-xl border text-xs sm:text-sm font-semibold text-gray-700 hover:bg-gray-50 transition order-2 sm:order-1"
+                  onClick={handleClose}
+                  className="mt-2 h-12 px-10 rounded-xl bg-[#C89B1C] hover:bg-[#B8860B] text-white font-semibold text-xs sm:text-sm transition cursor-pointer"
                 >
-
-                  Cancel
-
+                  Close Window
                 </button>
+              </div>
+            ) : (
+              <div className="p-5 sm:p-8 space-y-4 sm:space-y-6 max-h-[calc(100vh-200px)] overflow-y-auto">
 
-                <button
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
 
-                  disabled={loading}
+                  <div>
 
-                  onClick={handleSubmit}
+                    <label className="font-medium text-xs sm:text-sm">
 
-                  className="h-12 sm:h-14 px-8 sm:px-10 rounded-xl bg-[#C89B1C] hover:bg-[#B8860B] text-white font-semibold text-xs sm:text-sm transition order-1 sm:order-2"
-                >
+                      Full Name <span className="text-red-500">*</span>
 
-                  {loading
-                    ? "Submitting..."
-                    : "Submit Request"}
+                    </label>
 
-                </button>
+                    <div
+                      className="mt-1.5 h-12 sm:h-14 border rounded-xl px-4 flex items-center gap-3"
+                    >
+
+                      <User size={16} />
+
+                      <input
+
+                        name="name"
+
+                        value={form.name}
+
+                        onChange={handleChange}
+
+                        className="flex-1 outline-none text-xs sm:text-sm"
+
+                        placeholder="Enter name"
+
+                      />
+
+                    </div>
+
+                  </div>
+
+                  <div>
+
+                    <label className="font-medium text-xs sm:text-sm">
+
+                      Phone Number <span className="text-red-500">*</span>
+
+                    </label>
+
+                    <div
+                      className="mt-1.5 h-12 sm:h-14 border rounded-xl px-4 flex items-center"
+                    >
+
+                      <PhoneCall size={16} />
+
+                      <input
+                        type="tel"
+                        name="phone"
+                        maxLength={10}
+                        value={form.phone}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, "").slice(0, 10);
+                          setForm((prev) => ({ ...prev, phone: val }));
+                        }}
+                        className="flex-1 ml-3 outline-none text-xs sm:text-sm"
+                        placeholder="Mobile Number (10 digits)"
+                      />
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+
+                  <div>
+
+                    <label className="font-medium text-xs sm:text-sm">
+
+                      Preferred Date <span className="text-red-500">*</span>
+
+                    </label>
+
+                    <div
+                      className="mt-1.5 h-12 sm:h-14 border rounded-xl px-4 flex items-center"
+                    >
+
+                      <Calendar size={16} />
+
+                      <input
+
+                        type="date"
+
+                        name="preferredDate"
+
+                        value={form.preferredDate}
+
+                        onChange={handleChange}
+
+                        className="flex-1 ml-3 outline-none text-xs sm:text-sm"
+
+                      />
+
+                    </div>
+
+                  </div>
+
+                  <div>
+
+                    <label className="font-medium text-xs sm:text-sm">
+
+                      Preferred Time <span className="text-red-500">*</span>
+
+                    </label>
+
+                    <div
+                      className="mt-1.5 h-12 sm:h-14 border rounded-xl px-4 flex items-center"
+                    >
+
+                      <Clock size={16} />
+
+                      <input
+
+                        type="time"
+
+                        name="preferredTime"
+
+                        value={form.preferredTime}
+
+                        onChange={handleChange}
+
+                        className="flex-1 ml-3 outline-none text-xs sm:text-sm"
+
+                      />
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+                <div>
+
+                  <label className="font-medium text-xs sm:text-sm">
+
+                    Message <span className="text-red-500">*</span>
+
+                  </label>
+
+                  <div
+                    className="mt-1.5 border rounded-xl p-3 sm:p-4 flex gap-3"
+                  >
+
+                    <MessageSquare
+                      size={16}
+                      className="mt-1"
+                    />
+
+                    <textarea
+
+                      rows={4}
+
+                      name="message"
+
+                      value={form.message}
+
+                      onChange={handleChange}
+
+                      className="flex-1 resize-none outline-none text-xs sm:text-sm"
+
+                      placeholder="Tell the owner about your requirement..."
+
+                    />
+
+                  </div>
+
+                </div>
+
+                <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-2 sm:pt-4">
+
+                  <button
+
+                    onClick={handleClose}
+
+                    className="h-12 sm:h-14 px-6 sm:px-8 rounded-xl border text-xs sm:text-sm font-semibold text-gray-700 hover:bg-gray-50 transition order-2 sm:order-1"
+                  >
+
+                    Cancel
+
+                  </button>
+
+                  <button
+
+                    disabled={loading}
+
+                    onClick={handleSubmit}
+
+                    className="h-12 sm:h-14 px-8 sm:px-10 rounded-xl bg-[#C89B1C] hover:bg-[#B8860B] text-white font-semibold text-xs sm:text-sm transition order-1 sm:order-2"
+                  >
+
+                    {loading
+                      ? "Submitting..."
+                      : "Submit Request"}
+
+                  </button>
+
+                </div>
 
               </div>
-
-            </div>
+            )}
 
           </motion.div>
 

@@ -9,6 +9,7 @@ import {
   MapPin,
   Heart,
   Share2,
+  Sparkles,
 } from "lucide-react";
 
 import { Property } from "../../../types/property";
@@ -180,9 +181,9 @@ export default function PropertyListCard({
                     {highlights.slice(0, 3).map((tag, idx) => (
                       <span
                         key={idx}
-                        className="bg-[#FFF9EC] border border-[#F4E3B5] text-[#9A720C] text-[9px] font-bold px-2 py-0.5 rounded-md flex items-center gap-0.5 uppercase tracking-wide shadow-3xs"
+                        className="bg-[#FFF9EC] border border-[#F4E3B5] text-[#9A720C] text-[9px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 uppercase tracking-wide shadow-3xs"
                       >
-                        ✨ {tag}
+                        <Sparkles size={9} className="text-[#9A720C]" /> {tag}
                       </span>
                     ))}
                   </div>

@@ -208,6 +208,14 @@ if (loading) {
               <>
                 <Link
                   href="/login"
+                  className="sm:hidden p-2.5 rounded-xl border border-[#E8E1D4] text-gray-700 hover:bg-[#FAFAF8] transition cursor-pointer"
+                  aria-label="Login / Sign In"
+                >
+                  <User size={18} />
+                </Link>
+
+                <Link
+                  href="/login"
                   className="hidden sm:inline-flex font-semibold text-sm hover:text-[#9A720C] transition-colors"
                 >
                   Sign In

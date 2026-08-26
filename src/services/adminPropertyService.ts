@@ -69,6 +69,11 @@ export const deleteProperty = async (
   return response.data;
 };
 
+export const requestDelete = async (id: string, reason: string) => {
+  const response = await api.patch(`/my-properties/${id}/request-delete`, { reason });
+  return response.data;
+};
+
 export const rejectDeleteRequest = async (id: string) => {
   const response = await api.patch(`/admin/properties/${id}/reject-delete-request`);
   return response.data;

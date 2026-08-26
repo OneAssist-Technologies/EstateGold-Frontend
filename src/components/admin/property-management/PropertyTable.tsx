@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Eye, CheckCircle2, XCircle, MapPin, User, Phone, Calendar } from "lucide-react";
+import { Eye, CheckCircle2, XCircle, MapPin, User, Phone, Calendar, Trash2 } from "lucide-react";
 
 import { AdminProperty } from "@/src/types/adminProperty";
 
@@ -17,6 +17,7 @@ interface Props {
   onApproveDelete?: (id: string, reason: string) => void;
   onRejectDeleteRequest?: (id: string) => void;
   onAvailabilityStatusChange?: (id: string, newStatus: "on_sale" | "hold" | "sold") => void;
+  onDeleteRequest?: (id: string) => void;
 }
 
 export default function PropertyTable({
@@ -28,6 +29,7 @@ export default function PropertyTable({
   onApproveDelete,
   onRejectDeleteRequest,
   onAvailabilityStatusChange,
+  onDeleteRequest,
 }: Props) {
   const router = useRouter();
   if (loading) {
@@ -218,6 +220,17 @@ export default function PropertyTable({
                           <span>Reject</span>
                         </button>
                       )}
+
+                      {/* Quick Delete Button */}
+                      {onDeleteRequest && (
+                        <button
+                          onClick={() => onDeleteRequest(property._id)}
+                          title="Delete Property"
+                          className="h-9 w-9 rounded-lg bg-red-50 text-red-700 border border-red-200 hover:bg-red-600 hover:text-white transition-all flex items-center justify-center cursor-pointer shadow-3xs"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      )}
                     </>
                   )}
                 </div>
@@ -397,6 +410,16 @@ export default function PropertyTable({
                       >
                         <XCircle size={14} />
                         <span>Reject</span>
+                      </button>
+                    )}
+
+                    {onDeleteRequest && (
+                      <button
+                        onClick={() => onDeleteRequest(property._id)}
+                        title="Delete Property"
+                        className="h-9 w-9 rounded-lg bg-red-50 text-red-700 border border-red-200 hover:bg-red-600 hover:text-white transition-all flex items-center justify-center cursor-pointer shrink-0"
+                      >
+                        <Trash2 size={15} />
                       </button>
                     )}
                   </>
