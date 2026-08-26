@@ -33,7 +33,7 @@ export default function AdminSettingsPage() {
   const { user, refreshUser } = useAuth();
 
   const [activeSection, setActiveSection] = useState<
-    "profile" | "platform" | "property" | "access" | "notification" | "security"
+    "profile" | "platform" | "property" | "notification" | "security"
   >("profile");
 
   const [saving, setSaving] = useState(false);
@@ -341,7 +341,6 @@ export default function AdminSettingsPage() {
     { id: "profile", label: "Admin Profile", icon: UserIcon },
     { id: "platform", label: "Platform Settings", icon: Globe },
     { id: "property", label: "Property Settings", icon: Building2 },
-    { id: "access", label: "Access Control", icon: ShieldCheck },
     { id: "notification", label: "Notification Settings", icon: Bell },
     { id: "security", label: "Security", icon: Lock },
   ];
@@ -778,119 +777,7 @@ export default function AdminSettingsPage() {
               </div>
             )}
 
-            {/* SECTION 4: ACCESS CONTROL */}
-            {activeSection === "access" && (
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-base font-bold text-gray-900">Access Control & Staff Permissions</h3>
-                  <p className="text-xs text-gray-500 font-medium mt-0.5">
-                    Configure module-level view, edit, approve, and delete permissions for admin & staff users
-                  </p>
-                </div>
 
-                {/* Staff User Selector */}
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-700">Select Admin / Staff User</label>
-                  <select
-                    value={selectedStaffUser?._id || ""}
-                    onChange={(e) => {
-                      const u = staffUsers.find((userItem) => userItem._id === e.target.value);
-                      if (u) handleSelectStaffUser(u);
-                    }}
-                    className="w-full sm:w-80 h-11 px-4 text-xs font-medium rounded-xl border border-gray-300 focus:border-[#9A720C] focus:ring-1 focus:ring-[#9A720C] outline-none bg-white"
-                  >
-                    {staffUsers.map((u) => (
-                      <option key={u._id} value={u._id}>
-                        {u.fullName} ({u.role.toUpperCase()}) - {u.email}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Selected User Summary Badge */}
-                {selectedStaffUser && (
-                  <div className="p-4 rounded-2xl border border-[#ECE7DB] bg-[#FAF8F3] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-[#9A720C] text-white font-bold flex items-center justify-center text-sm shrink-0">
-                        {selectedStaffUser.fullName.charAt(0).toUpperCase()}
-                      </div>
-                      <div className="min-w-0">
-                        <h4 className="text-xs font-bold text-gray-900 truncate">{selectedStaffUser.fullName}</h4>
-                        <p className="text-[11px] text-gray-500 font-medium truncate">{selectedStaffUser.email}</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 text-[11px] font-bold border border-amber-200 capitalize shrink-0">
-                        Role: {selectedStaffUser.role}
-                      </span>
-                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-bold border border-emerald-200 shrink-0">
-                        Status: Active
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                {/* Permissions Matrix */}
-                <div className="border border-[#ECE7DB] rounded-2xl overflow-hidden shadow-2xs overflow-x-auto no-scrollbar">
-                  <div className="min-w-[600px]">
-                    <div className="bg-[#F8F5EE] px-4 py-3 border-b border-[#ECE7DB] grid grid-cols-6 gap-2 text-xs font-bold text-gray-700">
-                      <span>Module</span>
-                      <span className="text-center">View</span>
-                      <span className="text-center">Create</span>
-                      <span className="text-center">Edit</span>
-                      <span className="text-center">Delete</span>
-                      <span className="text-center">Approve</span>
-                    </div>
-
-                    <div className="divide-y divide-gray-100 bg-white">
-                      {[
-                        { key: "dashboard", label: "Dashboard" },
-                        { key: "properties", label: "Properties" },
-                        { key: "users", label: "Users" },
-                        { key: "locations", label: "Locations" },
-                        { key: "analytics", label: "Analytics" },
-                        { key: "settings", label: "Settings" },
-                      ].map((mod) => (
-                        <div key={mod.key} className="px-4 py-3.5 grid grid-cols-6 gap-2 items-center text-xs">
-                          <span className="font-bold text-gray-800">{mod.label}</span>
-
-                          {["view", "create", "edit", "delete", "approve"].map((action) => {
-                            const isChecked = permissions[mod.key]?.[action] ?? false;
-
-                            return (
-                              <div key={action} className="flex items-center justify-center">
-                                <input
-                                  type="checkbox"
-                                  checked={isChecked}
-                                  onChange={() => togglePermission(mod.key, action)}
-                                  className="h-4 w-4 rounded text-[#9A720C] focus:ring-[#9A720C] cursor-pointer"
-                                />
-                              </div>
-                            );
-                          })}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <button
-                    type="button"
-                    onClick={handleSavePermissions}
-                    disabled={saving || !selectedStaffUser}
-                    className="w-full sm:w-auto px-6 py-2.5 bg-[#9A720C] hover:bg-[#856108] text-white text-xs font-bold rounded-xl transition-all shadow-xs cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
-                  >
-                    <Save size={14} /> {saving ? "Enforcing Permissions..." : "Save & Enforce Permissions"}
-                  </button>
-
-                  <span className="text-[11px] text-gray-400 font-medium text-center sm:text-right">
-                    Enforced both on Frontend & Backend API middleware
-                  </span>
-                </div>
-              </div>
-            )}
 
             {/* SECTION 5: NOTIFICATION SETTINGS */}
             {activeSection === "notification" && (

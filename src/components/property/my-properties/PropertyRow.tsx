@@ -23,12 +23,13 @@ interface Props {
   onEdit: (property: Property) => void;
   onDelete: (property: Property) => void;
   onStatusChange: () => void;
+  onViewEnquiries: (id: string) => void;
 }
 
 function formatPrice(price?: number, purpose?: string): string {
   if (!price || isNaN(price)) return "₹0";
   const isRent = (purpose || "").toLowerCase().includes("rent") || (purpose || "").toLowerCase().includes("lease");
-  
+
   let formatted = "";
   if (price >= 10000000) {
     const cr = (price / 10000000).toFixed(2);
@@ -39,7 +40,7 @@ function formatPrice(price?: number, purpose?: string): string {
   } else {
     formatted = `₹${price.toLocaleString("en-IN")}`;
   }
-  
+
   return isRent ? `${formatted}/mo` : formatted;
 }
 
@@ -49,6 +50,7 @@ export default function PropertyRow({
   onEdit,
   onDelete,
   onStatusChange,
+  onViewEnquiries,
 }: Props) {
   const mainPhoto =
     property.photos && property.photos.length > 0
@@ -121,6 +123,7 @@ export default function PropertyRow({
     specs.push({ icon: <Building size={14} className="text-[#C89B1C]" />, text: "Commercial" });
   } else {
     // Residential
+    
     if (property.bedrooms) specs.push({ icon: <BedDouble size={14} className="text-[#C89B1C]" />, text: `${property.bedrooms} BHK` });
     if (property.bathrooms) specs.push({ icon: <Bath size={14} className="text-[#C89B1C]" />, text: `${property.bathrooms} Bath` });
     if (property.area) specs.push({ icon: <Scan size={14} className="text-[#C89B1C]" />, text: `${property.area.toLocaleString()} sq ft` });
@@ -208,10 +211,23 @@ export default function PropertyRow({
                 <Eye size={14} className="text-gray-400" />
                 {property.views || 0} views
               </span>
-              <span className="flex items-center gap-1 hover:text-gray-600 transition-colors">
-                <MessageSquare size={14} className="text-gray-400" />
-                {(property.enquiries?.length || 0) || 0} enquiries
-              </span>
+              {property.enquiries && property.enquiries.length > 0 ? (
+                <span
+                  onClick={() => onViewEnquiries(property._id)}
+                  className="flex items-center gap-1.5 hover:text-[#9A720C] text-[#C89B1C] transition-colors cursor-pointer bg-[#FFF9EC] px-2 py-0.5 rounded-full border border-[#FAF0D4]"
+                >
+                  <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse shrink-0" />
+                  <span className="font-black">{(property.enquiries?.length || 0)} enquiries</span>
+                </span>
+              ) : (
+                <span
+                  onClick={() => onViewEnquiries(property._id)}
+                  className="flex items-center gap-1 hover:text-gray-600 transition-colors cursor-pointer"
+                >
+                  <MessageSquare size={14} className="text-gray-400" />
+                  0 enquiries
+                </span>
+              )}
               {property.furnishing && !isPlot && (
                 <span className="px-2 py-0.5 rounded-md bg-[#FFF8EA] border border-[#E8DCC1] text-[#9D791E] text-[10px] font-bold capitalize">
                   {property.furnishing}
@@ -220,15 +236,14 @@ export default function PropertyRow({
             </div>
 
             {/* Right Action buttons */}
-            <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-start sm:justify-end shrink-0">
               {/* Dynamic Status Toggle button pill */}
               <button
                 onClick={onStatusChange}
-                className={`h-8 px-3 rounded-lg border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
-                  isActive
+                className={`h-8 px-3 rounded-lg border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${isActive
                     ? "border-green-200 text-green-700 bg-green-50/50 hover:bg-green-50"
                     : "border-gray-200 text-gray-500 bg-gray-50 hover:bg-gray-100"
-                }`}
+                  }`}
               >
                 <span className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-green-500" : "bg-gray-400"}`} />
                 {isActive ? "Active" : "Inactive"}
@@ -243,6 +258,23 @@ export default function PropertyRow({
               </button>
 
               <button
+                onClick={() => onViewEnquiries(property._id)}
+                className={`h-8 px-3 rounded-lg border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer relative ${
+                  property.enquiries && property.enquiries.length > 0
+                    ? "border-red-300 text-white bg-red-600 hover:bg-red-700"
+                    : "border-[#E8DCC1] text-[#9A720C] bg-[#FFFDF6] hover:bg-[#FFF9EC]"
+                }`}
+              >
+                <MessageSquare size={13} />
+                Enquiries
+                {property.enquiries && property.enquiries.length > 0 && (
+                  <span className="flex items-center justify-center h-4 min-w-4 px-1 rounded-full bg-white text-red-600 text-[9px] font-black leading-none shrink-0 ml-0.5">
+                    {property.enquiries.length}
+                  </span>
+                )}
+              </button>
+
+              <button
                 onClick={() => onEdit(property)}
                 className="h-8 px-3 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
               >
@@ -253,11 +285,10 @@ export default function PropertyRow({
               <button
                 onClick={() => onDelete(property)}
                 disabled={property.deleteRequested}
-                className={`h-8 px-3 rounded-lg border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
-                  property.deleteRequested
+                className={`h-8 px-3 rounded-lg border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${property.deleteRequested
                     ? "border-amber-200 text-amber-600 bg-amber-50/50 cursor-not-allowed opacity-75"
                     : "border-red-200 text-red-600 bg-red-50/50 hover:bg-red-100/50"
-                }`}
+                  }`}
               >
                 <Trash2 size={13} />
                 {property.deleteRequested ? "Delete Pending" : "Delete"}

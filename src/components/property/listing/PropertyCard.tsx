@@ -6,6 +6,10 @@ import {
   Bath,
   Heart,
   MapPin,
+  Lock,
+  User,
+  Check,
+  Sparkles,
 } from "lucide-react";
 import { Property } from "../../../types/property";
 import { motion } from "framer-motion";
@@ -148,7 +152,9 @@ export default function PropertyCard({ property }: Props) {
   const isCoverVideo = isVideo(photoUrl);
 
   return (
-    <div
+    <motion.div
+      whileHover={{ y: -6 }}
+      transition={{ duration: 0.25 }}
       onClick={() => router.push(`/property-detail/${property._id}`)}
       className="bg-white rounded-2xl border border-[#ECE7DB] overflow-hidden shadow-2xs hover:shadow-md transition-all duration-300 group flex flex-col justify-between cursor-pointer"
     >
@@ -185,18 +191,18 @@ export default function PropertyCard({ property }: Props) {
 
           {property.availabilityStatus === "hold" && (
             <span className="bg-amber-600 text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-2xs flex items-center gap-1">
-              <span>🔒</span> On Hold
+              <Lock size={11} /> On Hold
             </span>
           )}
 
           {property.availabilityStatus === "sold" && (
             <span className="bg-gray-800 text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-2xs flex items-center gap-1">
-              <span>✓</span> Sold
+              <Check size={11} /> Sold
             </span>
           )}
 
           <span className="bg-[#0DBB58] text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-2xs flex items-center gap-1">
-            <span className="text-[10px]">✓</span> Verified
+            <Check size={11} /> Verified
           </span>
         </div>
 
@@ -217,7 +223,7 @@ export default function PropertyCard({ property }: Props) {
         {/* Posted By (Owner/Agent) Badge at Bottom Right of Image */}
         <div className="absolute bottom-3 right-3 z-10">
           <span className="bg-[#9A720C] text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-2xs flex items-center gap-1 border border-[#B88A1A]">
-            <span className="text-[9px]">👤</span> {property.listingType === "another_owner" ? "Agent" : "Owner"}
+            <User size={10} /> {property.listingType === "another_owner" ? "Agent" : "Owner"}
           </span>
         </div>
       </div>
@@ -242,9 +248,9 @@ export default function PropertyCard({ property }: Props) {
               {highlights.slice(0, 2).map((tag, idx) => (
                 <span
                   key={idx}
-                  className="bg-[#FFF9EC] border border-[#F4E3B5] text-[#9A720C] text-[9px] font-bold px-2 py-0.5 rounded-md flex items-center gap-0.5 uppercase tracking-wide shadow-3xs"
+                  className="bg-[#FFF9EC] border border-[#F4E3B5] text-[#9A720C] text-[9px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 uppercase tracking-wide shadow-3xs"
                 >
-                  ✨ {tag}
+                  <Sparkles size={9} className="text-[#9A720C]" /> {tag}
                 </span>
               ))}
             </div>
@@ -335,6 +341,6 @@ export default function PropertyCard({ property }: Props) {
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }

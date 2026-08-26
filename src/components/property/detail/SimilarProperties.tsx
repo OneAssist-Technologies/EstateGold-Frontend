@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Property } from "@/src/types/property";
+import { BedDouble, Maximize } from "lucide-react";
 
 interface Props {
   properties: Property[];
@@ -46,17 +47,13 @@ export default function SimilarProperties({ properties }: Props) {
           const isCommercial = item.propertyType === "Commercial Space";
 
           let title = "";
-          let subtitle = "";
 
           if (isPlot) {
             title = `${item.propertyType} — ${item.locality || item.city || "Local"}`;
-            subtitle = `📐 ${item.plotArea ? `${item.plotArea.toLocaleString()} sq ft` : "Plot Area"}`;
           } else if (isCommercial) {
             title = `${(item as any).commercialType || item.propertyType} — ${item.locality || item.city || "Local"}`;
-            subtitle = `📐 ${item.area ? `${item.area.toLocaleString()} sq ft` : "Built Area"}`;
           } else {
             title = `${item.bedrooms ? `${item.bedrooms} BHK ` : ""}${item.propertyType} — ${item.locality || item.city || "Local"}`;
-            subtitle = `🛏️ ${item.bedrooms || 0} Beds  •  📐 ${item.area ? `${item.area.toLocaleString()} sq ft` : "N/A"}`;
           }
 
           return (
@@ -81,8 +78,30 @@ export default function SimilarProperties({ properties }: Props) {
                 <h4 className="text-xs font-bold text-gray-900 truncate">
                   {title}
                 </h4>
-                <div className="flex items-center gap-2 text-[10px] text-gray-500 font-medium">
-                  {subtitle}
+                <div className="flex items-center gap-3.5 text-[10px] text-gray-500 font-semibold mt-1">
+                  {isPlot ? (
+                    <span className="flex items-center gap-1">
+                      <Maximize size={12} className="text-[#C89B1C]" />
+                      {item.plotArea ? `${item.plotArea.toLocaleString()} sq ft` : "Plot Area"}
+                    </span>
+                  ) : isCommercial ? (
+                    <span className="flex items-center gap-1">
+                      <Maximize size={12} className="text-[#C89B1C]" />
+                      {item.area ? `${item.area.toLocaleString()} sq ft` : "Built Area"}
+                    </span>
+                  ) : (
+                    <>
+                      <span className="flex items-center gap-1">
+                        <BedDouble size={12} className="text-[#C89B1C]" />
+                        {item.bedrooms || 0} Beds
+                      </span>
+                      <span className="text-gray-300">•</span>
+                      <span className="flex items-center gap-1">
+                        <Maximize size={12} className="text-[#C89B1C]" />
+                        {item.area ? `${item.area.toLocaleString()} sq ft` : "N/A"}
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
             </div>

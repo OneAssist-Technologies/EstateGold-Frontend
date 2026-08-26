@@ -58,7 +58,7 @@ export default function AdminNavbar() {
             transition={{ duration: 0.5 }}
             className="text-xl sm:text-3xl font-bold text-[#161616]"
           >
-            Welcome Back 👋
+            Welcome Back
           </motion.h2>
 
           <p className="text-xs sm:text-sm text-gray-500 mt-0.5 hidden sm:block">

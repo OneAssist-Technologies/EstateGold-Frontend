@@ -512,7 +512,9 @@ export default function UserManagement() {
                       key={user._id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="bg-white rounded-2xl border border-[#ECE7DB] p-5 space-y-4 shadow-xs relative"
+                      whileHover={{ y: -4 }}
+                      transition={{ duration: 0.2 }}
+                      className="bg-white rounded-2xl border border-[#ECE7DB] p-5 space-y-4 shadow-xs relative hover:shadow-md transition-all duration-200"
                     >
                       {/* Header: Avatar, Name & Status */}
                       <div className="flex items-center gap-3">

@@ -183,7 +183,7 @@ export default function EyvaPage() {
                 className="h-10 w-10 rounded-full object-cover border border-[#EBE3D5] bg-white shadow-3xs"
               />
               <div>
-                <h1 className="font-bold text-gray-900 text-base leading-tight flex items-center gap-1.5 animate-pulse">
+                <h1 className="font-bold text-gray-900 text-base leading-tight flex items-center gap-1.5">
                   Eyva <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#FFF9EC] text-[#9A720C] border border-[#F3EAD9] font-medium">Assistant</span>
                 </h1>
                 <p className="text-[11px] text-gray-500 font-medium">EstateGold Personal Property Consultant</p>

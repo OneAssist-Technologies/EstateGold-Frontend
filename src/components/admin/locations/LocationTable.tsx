@@ -2,6 +2,7 @@
 
 import { Eye, Pencil, Trash2, MapPin } from "lucide-react";
 import { ServiceLocation } from "../../../types/location";
+import { motion } from "framer-motion";
 
 function formatPrice(val?: number): string {
   if (!val || isNaN(val)) return "—";
@@ -173,9 +174,11 @@ export default function LocationTable({
       {/* Mobile Card View */}
       <div className="block md:hidden space-y-4">
         {locations.map((location) => (
-          <div
+          <motion.div
             key={location._id}
-            className="bg-white rounded-xl border border-gray-200 p-5 space-y-4 shadow-sm relative animate-fadeIn"
+            whileHover={{ y: -4 }}
+            transition={{ duration: 0.2 }}
+            className="bg-white rounded-xl border border-gray-200 p-5 space-y-4 shadow-sm relative animate-fadeIn hover:shadow-md transition-all duration-200"
           >
             {/* Top row: City Name, State and Status badge */}
             <div className="flex justify-between items-start gap-2">
@@ -256,7 +259,7 @@ export default function LocationTable({
                 <Trash2 size={16} />
               </button>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
     </div>

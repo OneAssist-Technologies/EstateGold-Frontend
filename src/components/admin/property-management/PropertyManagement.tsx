@@ -19,8 +19,10 @@ import {
   updatePropertyAvailabilityStatus,
   deleteProperty,
   rejectDeleteRequest,
+  requestDelete,
 } from "@/src/services/adminPropertyService";
 import { AdminProperty } from "@/src/types/adminProperty";
+import toast from "react-hot-toast";
 
 export default function PropertyManagement() {
   const [loading, setLoading] =
@@ -220,6 +222,25 @@ export default function PropertyManagement() {
     }
   };
 
+  const handleDeleteRequest = async (id: string) => {
+    const reason = window.prompt("Enter reason for requesting deletion of this property:");
+    if (reason === null) return;
+    if (!reason.trim()) {
+      toast.error("Deletion reason is required.");
+      return;
+    }
+    try {
+      setLoading(true);
+      await requestDelete(id, reason);
+      toast.success("Property marked for deletion.");
+      await loadProperties();
+    } catch (error: any) {
+      console.error("Failed to request deletion:", error);
+      toast.error(error.response?.data?.message || "Failed to request deletion.");
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-8">
       <PropertyHeader />
@@ -249,6 +270,7 @@ export default function PropertyManagement() {
           onApproveDelete={handleApproveDelete}
           onRejectDeleteRequest={handleRejectDeleteRequest}
           onAvailabilityStatusChange={handleAvailabilityStatusChange}
+          onDeleteRequest={handleDeleteRequest}
         />
       </motion.div>
 

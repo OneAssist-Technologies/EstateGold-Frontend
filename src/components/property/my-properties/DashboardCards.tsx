@@ -7,6 +7,7 @@ interface Props {
   active: number;
   views: number;
   enquiries: number;
+  onEnquiriesClick?: () => void;
 }
 
 export default function DashboardCards({
@@ -14,27 +15,32 @@ export default function DashboardCards({
   active,
   views,
   enquiries,
+  onEnquiriesClick,
 }: Props) {
   const cards = [
     {
       title: "Total Listed",
       value: total,
       colorClass: "text-[#9A720C]",
+      onClick: undefined,
     },
     {
       title: "Active",
       value: active,
       colorClass: "text-green-600",
+      onClick: undefined,
     },
     {
       title: "Total Views",
       value: views,
       colorClass: "text-blue-600",
+      onClick: undefined,
     },
     {
       title: "Enquiries",
       value: enquiries,
       colorClass: "text-[#B88A1A]",
+      onClick: onEnquiriesClick,
     },
   ];
 
@@ -56,9 +62,15 @@ export default function DashboardCards({
             duration: 0.35,
           }}
           whileHover={{
-            y: -2,
+            y: card.onClick ? -4 : -2,
+            scale: card.onClick ? 1.01 : 1,
           }}
-          className="bg-white rounded-2xl p-4 sm:p-6 border border-[#ECE7DB] shadow-2xs hover:shadow-xs transition-all duration-300 flex flex-col justify-center text-center sm:text-left"
+          onClick={card.onClick}
+          className={`bg-white rounded-2xl p-4 sm:p-6 border shadow-2xs hover:shadow-xs transition-all duration-300 flex flex-col justify-center text-center sm:text-left ${
+            card.onClick
+              ? "cursor-pointer border-[#E8DCC1] hover:border-[#B88A1A] hover:bg-[#FFFDF8]"
+              : "border-[#ECE7DB]"
+          }`}
         >
           <span className={`text-2xl sm:text-4xl font-bold  ${card.colorClass}`}>
             {card.value}
