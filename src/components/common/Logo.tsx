@@ -20,15 +20,15 @@ export default function Logo({
     size === "sm"
       ? "h-8 w-8 rounded-lg text-sm"
       : size === "lg"
-      ? "h-12 w-12 rounded-2xl text-xl"
-      : "h-10 w-10 sm:h-11 sm:w-11 rounded-2xl text-lg";
+        ? "h-12 w-12 rounded-2xl text-xl"
+        : "h-10 w-10 sm:h-11 sm:w-11 rounded-2xl text-lg";
 
   const textSizeClass =
     size === "sm"
       ? "text-xl"
       : size === "lg"
-      ? "text-3xl sm:text-4xl"
-      : "text-2xl sm:text-3xl";
+        ? "text-3xl sm:text-4xl"
+        : "text-2xl sm:text-3xl";
 
   const svgSize = size === "sm" ? 18 : size === "lg" ? 26 : 22;
 
@@ -44,11 +44,10 @@ export default function Logo({
       {/* Text with metallic gold gradient */}
       {showText && (
         <span
-          className={`${textSizeClass} font-bold  tracking-tight leading-none ${
-            lightText
+          className={`${textSizeClass} font-bold  tracking-tight leading-none ${lightText
               ? "bg-gradient-to-r from-[#F4E3B5] via-[#E5C365] to-[#C89B1C] bg-clip-text text-transparent"
               : "bg-gradient-to-r from-[#A87B15] via-[#D4B04C] to-[#8C6605] bg-clip-text text-transparent"
-          }`}
+            }`}
         >
           EstateGold
         </span>
