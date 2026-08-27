@@ -48,8 +48,8 @@ export default function WhyTrust() {
               Our Promise
             </p>
 
-            <h2 className="text-2xl xs:text-3xl md:text-5xl font-bold mt-2 md:mt-4 leading-tight">
-              Why 50,000+ Families Trust EstateGold
+            <h2 className="text-2xl xs:text-3xl md:text-4xl font-bold mt-2 md:mt-4 leading-tight">
+              Why Choose EstateGold For Your Property Needs?
             </h2>
 
             <div className="mt-6 md:mt-10 space-y-5 md:space-y-8">

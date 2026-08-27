@@ -48,15 +48,15 @@ export default function PricePhotosStep({
       setGenerating(false);
     }
   };
-  const hasLocality = formData.city && formData.locality && formData.propertyType;
-  const isInsightAvailable = formData.marketInsight && formData.marketInsight.success;
-  const estimatedPricePerSqft = isInsightAvailable ? formData.marketInsight?.estimatedPricePerSqft : null;
-  const estimatedPropertyValue = isInsightAvailable ? formData.marketInsight?.estimatedPropertyValue : null;
-  const supported = isInsightAvailable ? (formData.marketInsight?.supported ?? true) : false;
-  const message = formData.marketInsight?.message || "";
+  // const hasLocality = formData.city && formData.locality && formData.propertyType;
+  // const isInsightAvailable = formData.marketInsight && formData.marketInsight.success;
+  // const estimatedPricePerSqft = isInsightAvailable ? formData.marketInsight?.estimatedPricePerSqft : null;
+  //  const estimatedPropertyValue = isInsightAvailable ? formData.marketInsight?.estimatedPropertyValue : null;
+  // const supported = isInsightAvailable ? (formData.marketInsight?.supported ?? true) : false;
+  // const message = formData.marketInsight?.message || "";
 
-  const highlights = isInsightAvailable ? formData.marketInsight?.marketData?.highlights || [] : [];
-  const retrievedAt = isInsightAvailable ? formData.marketInsight?.retrievedAt : null;
+  // const highlights = isInsightAvailable ? formData.marketInsight?.marketData?.highlights || [] : [];
+  // const retrievedAt = isInsightAvailable ? formData.marketInsight?.retrievedAt : null;
 
   const getRelevantArea = () => {
     if (formData.propertyType === "Plot / Land" || formData.propertyType === "Residential Plot" || formData.propertyType === "Agricultural Land") {
@@ -67,9 +67,9 @@ export default function PricePhotosStep({
   const area = getRelevantArea();
   const propertyPricePerSqft = area > 0 && formData.price ? formData.price / area : 0;
 
-  const percentageDifference = estimatedPricePerSqft && propertyPricePerSqft
-    ? ((propertyPricePerSqft - estimatedPricePerSqft) / estimatedPricePerSqft) * 100
-    : 0;
+  // const percentageDifference = estimatedPricePerSqft && propertyPricePerSqft
+  //   ? ((propertyPricePerSqft - estimatedPricePerSqft) / estimatedPricePerSqft) * 100
+  //   : 0;
 
   const formatPrice = (val: number) => {
     if (val >= 10000000) {
@@ -111,8 +111,8 @@ export default function PricePhotosStep({
 
       <div className="space-y-6 sm:space-y-8 mt-6 sm:mt-10">
 
-        {/* Pricing & Market Insights Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 items-stretch">
+        {/* Pricing & Market Insights Grid
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 items-stretch"> */}
           {/* Price Input Column */}
           <div className="flex flex-col justify-center">
             <label className="block mb-3 text-sm sm:text-lg font-medium text-[#161616]">
@@ -162,7 +162,7 @@ export default function PricePhotosStep({
           </div>
 
           {/* Market Insight Column */}
-          <div className="flex flex-col justify-between">
+          {/* {/* <div className="flex flex-col justify-between">
             {!hasLocality ? (
               <div className="border border-dashed border-[#E5D8B3] rounded-3xl p-5 min-h-[120px] flex flex-col justify-center items-center text-center text-gray-400 bg-gray-50/20">
                 <span className="text-xl mb-1">📍</span>
@@ -176,8 +176,8 @@ export default function PricePhotosStep({
                 <p className="text-xs font-semibold animate-pulse">
                   Loading locality insights...
                 </p>
-              </div>
-            ) : (!isInsightAvailable || !supported) ? (
+              </div> */}
+            {/* ) : (!isInsightAvailable || !supported) ? (
               <div className="border border-red-100 rounded-3xl p-5 min-h-[120px] flex flex-col justify-center items-center text-center text-red-800 bg-red-50/20">
                 <span className="text-xl mb-1">⚠️</span>
                 <p className="text-xs font-bold">
@@ -186,7 +186,7 @@ export default function PricePhotosStep({
                 <p className="text-[10px] text-gray-400 mt-0.5">
                   You can still proceed to list your property.
                 </p>
-              </div>
+              </div> 
             ) : (
               <div className="border border-[#E5D8B3] bg-[#FAF8F5] rounded-3xl p-5 flex flex-col justify-between">
                 <div>

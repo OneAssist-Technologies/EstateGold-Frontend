@@ -558,6 +558,8 @@ export default function PropertyDetailsPage() {
         open={callbackOpen}
         propertyId={property._id}
         ownerId={property.ownerId || (property.createdBy && typeof property.createdBy === "object" ? property.createdBy._id : property.createdBy)}
+        userName={user?.fullName}
+        userPhone={user?.phone}
         onClose={() => setCallbackOpen(false)}
       />
     </div>
