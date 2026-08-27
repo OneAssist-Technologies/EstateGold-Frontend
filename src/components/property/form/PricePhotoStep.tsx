@@ -34,7 +34,7 @@ export default function PricePhotosStep({
   const handleGenerateDescription = async () => {
     try {
       setGenerating(true);
-      const res = await api.post("/api/ai/generate-description", formData);
+      const res = await api.post("/ai/generate-description", formData);
       if (res.data && res.data.description) {
         setFormData((prev) => ({
           ...prev,

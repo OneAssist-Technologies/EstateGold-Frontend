@@ -10,6 +10,8 @@ export default function AnalyticsPage() {
       {/* Sidebar - UNTOUCHED */}
       <AdminSidebar />
 
+
+
       {/* Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <AdminNavbar />

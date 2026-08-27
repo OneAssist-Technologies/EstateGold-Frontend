@@ -65,7 +65,7 @@ export function AuthProvider({
         }
 
         if (token) {
-          const response = await fetch(`${API_URL}/get-profile`, {
+          const response = await fetch(`${API_URL}/users/me`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           if (response.ok) {
@@ -112,7 +112,7 @@ export function AuthProvider({
     try {
       const token = localStorage.getItem("token");
       if (!token) return;
-      const response = await fetch(`${API_URL}/get-profile`, {
+      const response = await fetch(`${API_URL}/users/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();

@@ -50,7 +50,7 @@ export default function ForgotPasswordPage() {
 
     try {
       setLoading(true);
-      const res = await api.post("/forgot-password", { email: email.trim() });
+      const res = await api.post("/auth/forgot-password", { email: email.trim() });
       if (res.data.success) {
         setMessage({ type: "success", text: res.data.message || "OTP code sent to your email address!" });
         setStep(2);
@@ -77,7 +77,7 @@ export default function ForgotPasswordPage() {
 
     try {
       setLoading(true);
-      const res = await api.post("/verify-otp", { email: email.trim(), otp: otp.trim() });
+      const res = await api.post("/auth/verify-otp", { email: email.trim(), otp: otp.trim() });
       if (res.data.success) {
         setMessage({ type: "success", text: "OTP verified successfully. Please set a new password." });
         setStep(3);
@@ -125,7 +125,7 @@ export default function ForgotPasswordPage() {
 
     try {
       setLoading(true);
-      const res = await api.post("/reset-password", {
+      const res = await api.post("/auth/reset-password", {
         email: email.trim(),
         otp: otp.trim(),
         newPassword,

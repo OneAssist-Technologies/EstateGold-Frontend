@@ -8,14 +8,14 @@ export const getLocations = async (params?: {
   page?: number;
   limit?: number;
 }): Promise<LocationResponse> => {
-  const response = await api.get("/admin/locations", { params });
+  const response = await api.get("/locations", { params });
   return response.data;
 };
 
 export const getLocationById = async (
   id: string
 ): Promise<{ success: boolean; location: ServiceLocation }> => {
-  const response = await api.get(`/admin/locations/${id}`);
+  const response = await api.get(`/locations/${id}`);
   return response.data;
 };
 

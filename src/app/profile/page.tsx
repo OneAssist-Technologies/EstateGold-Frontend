@@ -126,7 +126,7 @@ export default function ProfilePage() {
   const fetchUserStats = async () => {
     try {
       // Published Properties Count
-      const propRes = await api.get("/my-properties");
+      const propRes = await api.get("/properties/mine");
       const pubCount = propRes.data.counts?.all || propRes.data.data?.length || 0;
 
       setStats({
@@ -149,7 +149,7 @@ export default function ProfilePage() {
       const formData = new FormData();
       formData.append("photo", file);
 
-      const res = await api.post("/upload-profile-image", formData, {
+      const res = await api.post("/users/me/avatar", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -183,7 +183,7 @@ export default function ProfilePage() {
         profileImage,
       };
 
-      const res = await api.put("/profile", payload);
+      const res = await api.put("/users/me", payload);
       if (res.data.success) {
         await refreshUser();
         setMessage({ type: "success", text: "Personal information saved successfully!" });
@@ -213,7 +213,7 @@ export default function ProfilePage() {
         country,
       };
 
-      const res = await api.put("/profile", payload);
+      const res = await api.put("/users/me", payload);
       if (res.data.success) {
         await refreshUser();
         setMessage({ type: "success", text: "Address details saved successfully!" });
@@ -233,7 +233,7 @@ export default function ProfilePage() {
       setSaving(true);
       setMessage(null);
 
-      const res = await api.put("/profile", { preferences });
+      const res = await api.put("/users/me", { preferences });
       if (res.data.success) {
         await refreshUser();
         setMessage({ type: "success", text: "Preferences saved successfully!" });

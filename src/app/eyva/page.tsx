@@ -66,7 +66,7 @@ export default function EyvaPage() {
         content: m.content,
       }));
 
-      const res = await api.post("/api/ai/eyva", {
+      const res = await api.post("/ai/eyva", {
         messages: backendMessages,
         filters: filters,
       });
@@ -124,7 +124,7 @@ export default function EyvaPage() {
         content: m.content,
       }));
 
-      const res = await api.post("/api/ai/eyva", {
+      const res = await api.post("/ai/eyva", {
         messages: backendMessages,
         filters: filters,
       });
