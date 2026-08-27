@@ -24,9 +24,20 @@ function formatPrice(price?: number): string {
 export default function SimilarProperties({ properties }: Props) {
   const router = useRouter();
 
-  if (!properties || properties.length === 0) return null;
+  // Filter out any draft, unapproved, or invalid price=0 properties
+  const validProperties = (properties || []).filter(
+    (item) =>
+      item &&
+      item._id &&
+      item.price &&
+      item.price > 0 &&
+      item.status !== "draft" &&
+      (item as any).isDraft !== true
+  );
 
-  const city = properties[0]?.city || "City";
+  if (validProperties.length === 0) return null;
+
+  const city = validProperties[0]?.city || "City";
 
   return (
     <div className="py-4 space-y-3 border-t border-[#ECE7DB] mt-4">
@@ -35,7 +46,7 @@ export default function SimilarProperties({ properties }: Props) {
       </h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {properties.slice(0, 2).map((item) => {
+        {validProperties.slice(0, 4).map((item) => {
           const mainPhoto =
             item.photos && item.photos.length > 0
               ? item.photos[0].startsWith("http")

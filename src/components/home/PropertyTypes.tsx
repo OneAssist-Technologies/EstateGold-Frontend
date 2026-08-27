@@ -12,31 +12,31 @@ import {
 const propertyTypes = [
   {
     title: "Flat / Apartment",
-    count: "4.2L+ properties",
+    count: "",
     icon: Building2,
     typeParam: "Apartment / Flat",
   },
   {
     title: "Independent House",
-    count: "1.8L+ properties",
+    count: "",
     icon: Home,
     typeParam: "Independent House",
   },
   {
     title: "Villa",
-    count: "42K+ properties",
+    count: "",
     icon: Award,
     typeParam: "Villa",
   },
   {
     title: "Plot / Land",
-    count: "93K+ properties",
+    count: "",
     icon: Map,
     typeParam: "Plot / Land",
   },
   {
     title: "Commercial",
-    count: "31K+ properties",
+    count: "",
     icon: Landmark,
     typeParam: "Commercial Space",
   },

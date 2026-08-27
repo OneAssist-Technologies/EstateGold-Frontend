@@ -69,11 +69,8 @@ export default function PropertyTable({
             </div>
 
             {properties.map((property) => (
-              <motion.div
+              <div
                 key={property._id}
-                whileHover={{
-                  backgroundColor: "#FCFBF8",
-                }}
                 className="grid grid-cols-8 items-center px-6 py-5 border-b"
               >
                 {/* Owner */}
@@ -234,7 +231,7 @@ export default function PropertyTable({
                     </>
                   )}
                 </div>
-              </motion.div>
+              </div>
             ))}
 
             {!loading && properties.length === 0 && (
