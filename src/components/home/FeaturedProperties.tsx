@@ -4,6 +4,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Building2 } from "lucide-react";
 import PropertyCard, { Property as HomeProperty } from "./PropertyCard";
 import api from "../../lib/api";
 import { Property } from "../../types/property";
@@ -12,11 +13,13 @@ export default function FeaturedProperties() {
   const router = useRouter();
   const [properties, setProperties] = useState<HomeProperty[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     async function fetchFeaturedProperties() {
       try {
         setLoading(true);
+        setError(false);
         // Fetch a larger pool of latest properties to filter from
         const res = await api.get("/properties?limit=100&sort=latest");
         const list = res.data.data || res.data.properties || [];
@@ -73,6 +76,7 @@ export default function FeaturedProperties() {
         setProperties(mapped);
       } catch (err) {
         console.error("Failed to fetch featured properties:", err);
+        setError(true);
       } finally {
         setLoading(false);
       }
@@ -104,6 +108,10 @@ export default function FeaturedProperties() {
               <div key={i} className="h-72 sm:h-96 bg-gray-200 animate-pulse rounded-2xl xs:rounded-3xl" />
             ))}
           </div>
+        ) : error ? (
+          <div className="text-center py-16 text-gray-500 font-medium">
+            No properties published yet. Check back soon!
+          </div>
         ) : properties.length > 0 ? (
           <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-5 sm:gap-8 mt-10 sm:mt-16">
             {properties.map((property) => (
@@ -113,8 +121,33 @@ export default function FeaturedProperties() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-16 text-gray-500 font-medium">
-            No properties published yet. Check back soon!
+          <div className="max-w-3xl mx-auto mt-10 sm:mt-16 p-8 sm:p-12 rounded-3xl bg-gradient-to-br from-[#FAF8F5] via-[#F8F4EA] to-[#F2EFE6] border border-[#EBE7DD] shadow-xs text-center">
+            <div className="mx-auto h-14 w-14 rounded-full bg-gradient-to-br from-[#FAF6EE] to-[#F3EAD9] border border-[#E5C365]/35 flex items-center justify-center text-[#9A720C] mb-5 shadow-xs">
+              <Building2 size={26} className="stroke-[1.75]" />
+            </div>
+
+            <p className="text-[#C89B1C] uppercase tracking-widest font-bold text-xs sm:text-sm">
+              {" LIST YOUR PROPERTY"}
+            </p>
+
+            <h3 className="text-xl sm:text-3xl font-bold mt-3 text-[#161616]">
+              Have a property to sell or rent?
+            </h3>
+
+            <p className="text-gray-500 mt-2 text-xs sm:text-sm max-w-lg mx-auto">
+              Be among the first property owners to showcase your property on EstateGold.
+            </p>
+
+            <button
+              onClick={() => router.push("/post-property")}
+              className="mt-6 inline-flex items-center justify-center bg-gradient-to-r from-[#B88A1A] via-[#D4B04C] to-[#8C6605] text-white px-6 py-3 rounded-xl text-sm font-bold shadow-xs transition-all duration-300 hover:shadow-md hover:shadow-[#D4B04C]/20 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+            >
+              + List Your Property Free
+            </button>
+
+            <p className="text-[11px] sm:text-xs text-gray-400 mt-4 font-medium">
+              No brokerage • Reach genuine buyers
+            </p>
           </div>
         )}
       </div>

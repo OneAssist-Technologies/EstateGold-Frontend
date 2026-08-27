@@ -1,6 +1,6 @@
 import { NEXT_PUBLIC_API_URL } from "./env";
 
-export const API_URL = NEXT_PUBLIC_API_URL || "http://localhost:5000";
+export const API_URL = NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 export const STORAGE_KEYS = {
   COMPARE_SESSION: "estategold_compare_session",

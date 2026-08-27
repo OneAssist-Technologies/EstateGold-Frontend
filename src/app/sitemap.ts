@@ -3,7 +3,7 @@ import { NEXT_PUBLIC_SITE_URL, NEXT_PUBLIC_API_URL } from "../config/env";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = NEXT_PUBLIC_SITE_URL || "https://estategold.com";
-  const apiUrl = NEXT_PUBLIC_API_URL || "http://localhost:5000";
+  const apiUrl = NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
   // Define verified public static routes
   const staticRoutes: MetadataRoute.Sitemap = [
