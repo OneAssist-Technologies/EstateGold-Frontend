@@ -28,6 +28,7 @@ import {
   toggleUserStatus,
   deleteUser,
 } from "@/src/services/adminUserService";
+import PropertyPagination from "../property-management/PropertyPagination";
 
 export default function UserManagement() {
   const [users, setUsers] = useState<AdminUser[]>([]);
@@ -41,7 +42,7 @@ export default function UserManagement() {
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [total, setTotal] = useState<number>(0);
-  const [limit] = useState<number>(10);
+  const [limit, setLimit] = useState<number>(10);
 
   const [stats, setStats] = useState<UserStats>({
     totalBuyers: 0,
@@ -77,6 +78,8 @@ export default function UserManagement() {
 
         if (res.stats) {
           setStats({
+            totalMembers: res.stats.totalMembers ?? ((res.stats.totalSellers || 0) + (res.stats.totalBuyers || 0)),
+            verifiedMembers: res.stats.verifiedMembers ?? ((res.stats.verifiedSellers || 0) + (res.stats.verifiedBuyers || 0)),
             totalBuyers: res.stats.totalBuyers || 0,
             verifiedBuyers: res.stats.verifiedBuyers || 0,
             totalSellers: res.stats.totalSellers || 0,
@@ -220,16 +223,13 @@ export default function UserManagement() {
 
   const getRoleBadge = (role: string) => {
     switch (role?.toLowerCase()) {
-      case "buyer":
-        return (
-          <span className="px-3.5 py-1 rounded-full text-xs font-medium bg-[#EBF3FF] text-[#3B82F6] border border-blue-200/50">
-            Buyer
-          </span>
-        );
       case "seller":
+      case "buyer":
+      case "member":
+      case "user":
         return (
           <span className="px-3.5 py-1 rounded-full text-xs font-medium bg-[#FFF4E5] text-[#D97706] border border-amber-200/50">
-            Seller
+            Member
           </span>
         );
       case "agent":
@@ -238,10 +238,16 @@ export default function UserManagement() {
             Agent
           </span>
         );
-      default:
+      case "admin":
         return (
           <span className="px-3.5 py-1 rounded-full text-xs font-medium bg-[#ECFDF5] text-[#059669] border border-emerald-200/50">
-            {role}
+            Admin
+          </span>
+        );
+      default:
+        return (
+          <span className="px-3.5 py-1 rounded-full text-xs font-medium bg-[#FFF4E5] text-[#D97706] border border-amber-200/50">
+            Member
           </span>
         );
     }
@@ -258,15 +264,16 @@ export default function UserManagement() {
           User Management
         </h1>
         <p className="mt-2 text-sm text-gray-500">
-          Manage user accounts, verification status, and suspensions.
+          Manage member accounts, property agents, verification status, and permissions.
         </p>
       </motion.div>
 
-      {/* Local Search input */}
-      <div className="flex items-center gap-3">
+      {/* Search Input Bar */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
         <motion.div
-          whileHover={{ y: -1 }}
-          className="flex-1 max-w-[360px] flex items-center gap-3 h-12 rounded-xl border border-[#ECE7DB] bg-white px-4 transition focus-within:border-[#C89B1C]"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-full border border-[#ECE7DB] px-4 py-2.5 shadow-2xs flex items-center gap-3 w-full md:max-w-md"
         >
           <Search size={18} className="text-gray-400 shrink-0" />
           <input
@@ -278,101 +285,84 @@ export default function UserManagement() {
           />
         </motion.div>
       </div>
-        {/* Top Header Controls: Filter Tabs (Left) & Dynamic Small Stat Cards (Right) */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-          {/* Left: Filter Tabs */}
-          <div className="flex items-center gap-2.5 flex-wrap">
-            {[
-              { key: "all", label: "All Users" },
-              { key: "buyer", label: "Buyers" },
-              { key: "seller", label: "Sellers" },
-              { key: "agent", label: "Agents" },
-            ].map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all cursor-pointer ${
-                  activeTab === tab.key
-                    ? "bg-[#B8860B] text-white shadow-sm"
-                    : "bg-[#EFECE6] text-[#6B6557] hover:bg-[#E5E0D6]"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
 
-          {/* Right: Dynamic Small Stat Cards */}
-          <div className="flex items-center gap-3 flex-wrap">
-            {activeTab === "all" && (
-              <>
-                <div className="bg-white rounded-2xl border border-[#ECE7DB] px-4 py-2 shadow-xs flex items-center gap-3">
-                  <span className="text-lg font-bold text-[#4338CA]">
-                    {stats.totalUsers.toLocaleString()}
-                  </span>
-                  <span className="text-xs font-semibold text-[#8C847B]">Total Users</span>
-                </div>
-                <div className="bg-[#ECFDF5] rounded-2xl border border-emerald-200 px-4 py-2 shadow-xs flex items-center gap-3">
-                  <span className="text-lg font-bold text-[#10B981]">
-                    {(stats.verifiedUsers || 0).toLocaleString()}
-                  </span>
-                  <span className="text-xs font-semibold text-[#047857]">Verified Users</span>
-                </div>
-              </>
-            )}
-
-            {activeTab === "buyer" && (
-              <>
-                <div className="bg-white rounded-2xl border border-[#ECE7DB] px-4 py-2 shadow-xs flex items-center gap-3">
-                  <span className="text-lg font-bold text-[#4338CA]">
-                    {stats.totalBuyers.toLocaleString()}
-                  </span>
-                  <span className="text-xs font-semibold text-[#8C847B]">Total Buyers</span>
-                </div>
-                <div className="bg-[#ECFDF5] rounded-2xl border border-emerald-200 px-4 py-2 shadow-xs flex items-center gap-3">
-                  <span className="text-lg font-bold text-[#10B981]">
-                    {(stats.verifiedBuyers || 0).toLocaleString()}
-                  </span>
-                  <span className="text-xs font-semibold text-[#047857]">Verified Buyers</span>
-                </div>
-              </>
-            )}
-
-            {activeTab === "seller" && (
-              <>
-                <div className="bg-white rounded-2xl border border-[#ECE7DB] px-4 py-2 shadow-xs flex items-center gap-3">
-                  <span className="text-lg font-bold text-[#B8860B]">
-                    {stats.totalSellers.toLocaleString()}
-                  </span>
-                  <span className="text-xs font-semibold text-[#8C847B]">Total Sellers</span>
-                </div>
-                <div className="bg-[#FFF4E5] rounded-2xl border border-amber-200 px-4 py-2 shadow-xs flex items-center gap-3">
-                  <span className="text-lg font-bold text-[#D97706]">
-                    {(stats.verifiedSellers || 0).toLocaleString()}
-                  </span>
-                  <span className="text-xs font-semibold text-[#B45309]">Verified Sellers</span>
-                </div>
-              </>
-            )}
-
-            {activeTab === "agent" && (
-              <>
-                <div className="bg-white rounded-2xl border border-[#ECE7DB] px-4 py-2 shadow-xs flex items-center gap-3">
-                  <span className="text-lg font-bold text-[#9333EA]">
-                    {(stats.totalAgents || 0).toLocaleString()}
-                  </span>
-                  <span className="text-xs font-semibold text-[#8C847B]">Total Agents</span>
-                </div>
-                <div className="bg-[#ECFDF5] rounded-2xl border border-emerald-200 px-4 py-2 shadow-xs flex items-center gap-3">
-                  <span className="text-lg font-bold text-[#10B981]">
-                    {stats.verifiedAgents.toLocaleString()}
-                  </span>
-                  <span className="text-xs font-semibold text-[#047857]">Verified Agents</span>
-                </div>
-              </>
-            )}
-          </div>
+      {/* Top Header Controls: Filter Tabs (Left) & Dynamic Small Stat Cards (Right) */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+        {/* Left: Filter Tabs */}
+        <div className="flex items-center gap-2.5 flex-wrap">
+          {[
+            { key: "all", label: "All Users" },
+            { key: "member", label: "Members" },
+            { key: "agent", label: "Agents" },
+          ].map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all cursor-pointer ${
+                activeTab === tab.key
+                  ? "bg-[#B8860B] text-white shadow-sm"
+                  : "bg-[#EFECE6] text-[#6B6557] hover:bg-[#E5E0D6]"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
+
+        {/* Right: Dynamic Small Stat Cards */}
+        <div className="flex items-center gap-3 flex-wrap">
+          {activeTab === "all" && (
+            <>
+              <div className="bg-white rounded-2xl border border-[#ECE7DB] px-4 py-2 shadow-xs flex items-center gap-3">
+                <span className="text-lg font-bold text-[#4338CA]">
+                  {stats.totalUsers.toLocaleString()}
+                </span>
+                <span className="text-xs font-semibold text-[#8C847B]">Total Users</span>
+              </div>
+              <div className="bg-[#ECFDF5] rounded-2xl border border-emerald-200 px-4 py-2 shadow-xs flex items-center gap-3">
+                <span className="text-lg font-bold text-[#10B981]">
+                  {(stats.verifiedUsers || 0).toLocaleString()}
+                </span>
+                <span className="text-xs font-semibold text-[#047857]">Verified Users</span>
+              </div>
+            </>
+          )}
+
+          {activeTab === "member" && (
+            <>
+              <div className="bg-white rounded-2xl border border-[#ECE7DB] px-4 py-2 shadow-xs flex items-center gap-3">
+                <span className="text-lg font-bold text-[#B8860B]">
+                  {(stats.totalMembers ?? ((stats.totalSellers || 0) + (stats.totalBuyers || 0))).toLocaleString()}
+                </span>
+                <span className="text-xs font-semibold text-[#8C847B]">Total Members</span>
+              </div>
+              <div className="bg-[#FFF4E5] rounded-2xl border border-amber-200 px-4 py-2 shadow-xs flex items-center gap-3">
+                <span className="text-lg font-bold text-[#D97706]">
+                  {(stats.verifiedMembers ?? ((stats.verifiedSellers || 0) + (stats.verifiedBuyers || 0))).toLocaleString()}
+                </span>
+                <span className="text-xs font-semibold text-[#B45309]">Verified Members</span>
+              </div>
+            </>
+          )}
+
+          {activeTab === "agent" && (
+            <>
+              <div className="bg-white rounded-2xl border border-[#ECE7DB] px-4 py-2 shadow-xs flex items-center gap-3">
+                <span className="text-lg font-bold text-[#9333EA]">
+                  {(stats.totalAgents || 0).toLocaleString()}
+                </span>
+                <span className="text-xs font-semibold text-[#8C847B]">Total Agents</span>
+              </div>
+              <div className="bg-[#ECFDF5] rounded-2xl border border-emerald-200 px-4 py-2 shadow-xs flex items-center gap-3">
+                <span className="text-lg font-bold text-[#10B981]">
+                  {stats.verifiedAgents.toLocaleString()}
+                </span>
+                <span className="text-xs font-semibold text-[#047857]">Verified Agents</span>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
 
         {/* Users Table Card */}
         <motion.div
@@ -583,84 +573,18 @@ export default function UserManagement() {
             </>
           )}
 
-          {/* Premium Pagination Footer */}
-          <div className="mt-6 pt-4 border-t border-[#F0ECE1] flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-medium text-[#736B63]">
-            {/* Left: Range Info */}
-            <div>
-              Showing{" "}
-              <span className="font-bold text-[#1C1917]">
-                {total === 0 ? 0 : (page - 1) * limit + 1}
-              </span>{" "}
-              to{" "}
-              <span className="font-bold text-[#1C1917]">
-                {Math.min(page * limit, total)}
-              </span>{" "}
-              of <span className="font-bold text-[#1C1917]">{total}</span> users
-            </div>
-
-            {/* Center: Pagination Buttons */}
-            <div className="flex items-center gap-1.5 flex-wrap justify-center">
-              <button
-                onClick={() => setPage((p) => Math.max(p - 1, 1))}
-                disabled={page <= 1 || loading}
-                className="h-9 px-3 rounded-xl border border-[#E8E1D4] bg-white flex items-center gap-1 hover:border-[#C89B1C] hover:bg-[#FFF9EC] disabled:opacity-40 disabled:hover:bg-white disabled:hover:border-[#E8E1D4] transition-all cursor-pointer"
-              >
-                <ChevronLeft size={15} />
-                <span>Prev</span>
-              </button>
-
-              {/* Page Number Buttons */}
-              {Array.from({ length: totalPages }, (_, i) => i + 1)
-                .filter((p) => {
-                  return p === 1 || p === totalPages || Math.abs(p - page) <= 1;
-                })
-                .map((p, idx, array) => {
-                  const prevPage = array[idx - 1];
-                  const showEllipsis = prevPage && p - prevPage > 1;
-
-                  return (
-                    <div key={p} className="flex items-center gap-1.5">
-                      {showEllipsis && <span className="px-1 text-gray-400">...</span>}
-                      <button
-                        onClick={() => setPage(p)}
-                        className={`h-9 w-9 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                          page === p
-                            ? "bg-[#B8860B] text-white shadow-sm"
-                            : "border border-[#E8E1D4] bg-white text-[#4A453F] hover:border-[#C89B1C] hover:bg-[#FFF9EC]"
-                        }`}
-                      >
-                        {p}
-                      </button>
-                    </div>
-                  );
-                })}
-
-              <button
-                onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
-                disabled={page >= totalPages || loading}
-                className="h-9 px-3 rounded-xl border border-[#E8E1D4] bg-white flex items-center gap-1 hover:border-[#C89B1C] hover:bg-[#FFF9EC] disabled:opacity-40 disabled:hover:bg-white disabled:hover:border-[#E8E1D4] transition-all cursor-pointer"
-              >
-                <span>Next</span>
-                <ChevronRight size={15} />
-              </button>
-            </div>
-
-            {/* Right: Direct Page Selector */}
-            <div className="flex items-center gap-2">
-              <span>Go to page:</span>
-              <select
-                value={page}
-                onChange={(e) => setPage(Number(e.target.value))}
-                className="h-9 px-3 rounded-xl border border-[#E8E1D4] bg-[#FAFAF8] text-xs font-bold text-[#1C1917] outline-none focus:border-[#C89B1C] cursor-pointer"
-              >
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                  <option key={p} value={p}>
-                    Page {p}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
+          {/* Centered Pagination Component matching Image 2 */}
+          <PropertyPagination
+            currentPage={page}
+            totalPages={totalPages}
+            totalRecords={total}
+            limit={limit}
+            onPageChange={setPage}
+            onLimitChange={(newLimit: number) => {
+              setLimit(newLimit);
+              setPage(1);
+            }}
+          />
         </motion.div>
 
       {/* Floating Help Button */}

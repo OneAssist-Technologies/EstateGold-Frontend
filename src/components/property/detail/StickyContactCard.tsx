@@ -1,19 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import {
   Phone,
   MessageCircle,
   Pencil,
   Eye,
   Lock,
-  UserPlus,
-  LogIn,
-  ToggleLeft,
-  ToggleRight,
 } from "lucide-react";
-
-import { User } from "@/src/providers/AuthContext";;
-
+import { User } from "@/src/providers/AuthContext";
 import { Property } from "@/src/types/property";
 
 interface Props {
@@ -42,20 +37,6 @@ function formatPrice(price?: number): string {
   }
 }
 
-function calculateEMI(price?: number): string {
-  if (!price || isNaN(price) || price === 0) return "₹63,623";
-  const loanAmount = price * 0.8;
-  const annualRate = 0.085;
-  const monthlyRate = annualRate / 12;
-  const tenureMonths = 240;
-  const emi =
-    (loanAmount *
-      monthlyRate *
-      Math.pow(1 + monthlyRate, tenureMonths)) /
-    (Math.pow(1 + monthlyRate, tenureMonths) - 1);
-  return `₹${Math.round(emi).toLocaleString("en-IN")}`;
-}
-
 export default function StickyContactCard({
   property,
   user,
@@ -65,12 +46,15 @@ export default function StickyContactCard({
   onWhatsapp,
   onEdit,
   onViewEnquiries,
-  onToggleStatus,
 }: Props) {
   const isGuest = !user;
   const isOwner = user?._id === property.createdBy;
   const canManage =
     isOwner && (user?.role === "seller" || user?.role === "agent");
+
+  const [name, setName] = useState(user?.fullName || "");
+  const [phone, setPhone] = useState(user?.phone || "");
+  const [message, setMessage] = useState("I am interested in this property. Please contact me.");
 
   const isRent =
     (property.purpose || "").toLowerCase().includes("rent") ||
@@ -144,22 +128,26 @@ export default function StickyContactCard({
           <div className="space-y-2.5">
             <input
               type="text"
-              placeholder="Rahul Gupta"
-              defaultValue={user?.fullName || ""}
-              className="w-full h-9 px-3 text-xs rounded-xl border border-gray-300 focus:border-[#9A720C] focus:ring-1 focus:ring-[#9A720C] outline-none"
+              placeholder="Full Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full h-9 px-3 text-xs rounded-xl border border-gray-300 focus:border-[#9A720C] focus:ring-1 focus:ring-[#9A720C] outline-none text-gray-800"
             />
 
             <input
               type="tel"
               placeholder="Mobile Number"
-              defaultValue={user?.phone || ""}
-              className="w-full h-9 px-3 text-xs rounded-xl border border-gray-300 focus:border-[#9A720C] focus:ring-1 focus:ring-[#9A720C] outline-none"
+              maxLength={10}
+              value={phone}
+              onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+              className="w-full h-9 px-3 text-xs rounded-xl border border-gray-300 focus:border-[#9A720C] focus:ring-1 focus:ring-[#9A720C] outline-none text-gray-800"
             />
 
             <textarea
               rows={2}
-              defaultValue="I am interested in this property. Please contact me."
-              className="w-full p-2.5 text-xs rounded-xl border border-gray-300 focus:border-[#9A720C] focus:ring-1 focus:ring-[#9A720C] outline-none resize-none"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="w-full p-2.5 text-xs rounded-xl border border-gray-300 focus:border-[#9A720C] focus:ring-1 focus:ring-[#9A720C] outline-none resize-none font-sans text-gray-800"
             />
 
             <button
@@ -184,42 +172,44 @@ export default function StickyContactCard({
                 onClick={onWhatsapp}
                 className="h-8 rounded-xl border border-[#9A720C] text-[#9A720C] hover:bg-[#FFF9EC] text-xs font-semibold flex items-center justify-center gap-1 transition-colors cursor-pointer"
               >
-                <MessageCircle size={13} /> Email
+                <MessageCircle size={13} /> Contact
               </button>
             </div>
-
-            <p className="text-[10px] text-gray-400 text-center pt-1 font-medium">
-              Zero brokerage. Direct owner contact.
-            </p>
           </div>
         </div>
       </div>
 
-      {/* EMI Calculator Card - ONLY for Buy / Sale properties */}
-      {/* {!isRent && (
-        <div className="bg-[#FFFDF6] border border-[#F4E3B5] rounded-2xl p-4 space-y-3 shadow-2xs">
-          <div>
-            <h4 className="text-xs font-bold text-gray-900">EMI Calculator</h4>
-            <p className="text-[10px] text-gray-500 font-semibold mt-0.5">
-              At 8.5% for 20 years
-            </p>
-          </div>
-
-          <div className="flex items-baseline justify-between">
-            <span className="text-[11px] font-medium text-gray-600">Monthly EMI</span>
-            <span className="text-lg font-bold text-[#9A720C]">
-              {calculateEMI(property.price)}
+      {/* Owner Quick Controls (if property owner) */}
+      {canManage && (
+        <div className="p-4 rounded-2xl border border-amber-200/80 bg-gradient-to-br from-amber-50/70 to-orange-50/40 space-y-3 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-amber-900 uppercase tracking-wider">
+              Owner Management
+            </span>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
+              Listing Owner
             </span>
           </div>
 
-          <button
-            type="button"
-            className="w-full h-8 rounded-xl border border-[#9A720C] text-[#9A720C] hover:bg-[#FFF9EC] text-xs font-bold transition-colors cursor-pointer"
-          >
-            Check Loan Eligibility
-          </button>
+          <div className="grid grid-cols-2 gap-2 pt-1">
+            <button
+              type="button"
+              onClick={onEdit}
+              className="h-9 rounded-xl bg-white border border-amber-200 text-amber-900 hover:bg-amber-50 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-3xs"
+            >
+              <Pencil size={14} /> Edit Listing
+            </button>
+
+            <button
+              type="button"
+              onClick={onViewEnquiries}
+              className="h-9 rounded-xl bg-white border border-amber-200 text-amber-900 hover:bg-amber-50 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-3xs"
+            >
+              <Eye size={14} /> View Enquiries
+            </button>
+          </div>
         </div>
-      )} */}
+      )}
     </div>
   );
 }
