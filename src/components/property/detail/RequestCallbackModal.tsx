@@ -107,7 +107,7 @@ export default function RequestCallbackModal({
         setLoading(true);
 
         await api.post(
-          "/callback-request",
+          "/enquiries",
           {
 
             propertyId,

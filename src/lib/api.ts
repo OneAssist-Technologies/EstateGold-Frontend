@@ -7,11 +7,6 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    // Prevent double /api/api prefix if the request URL already starts with /api/
-    if (config.url && config.url.startsWith("/api/")) {
-      config.url = config.url.substring(4);
-    }
-
     if (typeof window !== "undefined") {
       const token = localStorage.getItem("token");
       if (token) {

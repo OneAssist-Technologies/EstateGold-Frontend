@@ -129,7 +129,7 @@ export default function RegisterForm() {
       setLoading(true);
       setErrors({});
 
-      const response = await api.post("/register", {
+      const response = await api.post("/auth/register", {
         fullName: form.fullName.trim(),
         email: form.email.trim().toLowerCase(),
         phone: form.phone.trim().replace(/[\s\-\(\)]/g, ""),

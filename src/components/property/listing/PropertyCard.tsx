@@ -89,7 +89,7 @@ export default function PropertyCard({ property }: Props) {
     let active = true;
     const fetchHighlights = async () => {
       try {
-        const res = await api.get(`/api/ai/property-highlights/${property._id}`);
+        const res = await api.get(`/ai/property-highlights/${property._id}`);
         if (res.data && res.data.success && active) {
           setHighlights(res.data.tags || []);
         }

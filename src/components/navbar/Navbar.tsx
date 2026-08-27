@@ -73,7 +73,7 @@ function NavbarContent() {
 
     const checkPublished = async () => {
       try {
-        const res = await api.get("/my-published-count");
+        const res = await api.get("/users/me/published-count");
         setHasPublishedProperties(res.data.hasPublishedProperties);
       } catch (err) {
         setHasPublishedProperties(false);

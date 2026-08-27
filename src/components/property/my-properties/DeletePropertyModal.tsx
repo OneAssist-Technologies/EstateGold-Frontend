@@ -48,7 +48,7 @@ export default function DeletePropertyModal({
       setLoading(true);
       setError("");
 
-      await api.patch(`/my-properties/${property._id}/request-delete`, {
+      await api.patch(`/properties/${property._id}/request-delete`, {
         reason: reason.trim(),
       });
 

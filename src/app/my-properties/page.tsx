@@ -110,7 +110,7 @@ rejected:0
     try {
       if (showLoading) setLoading(true);
 
-      const response = await api.get("/my-properties", {
+      const response = await api.get("/properties/mine", {
         params: {
           page,
           limit,

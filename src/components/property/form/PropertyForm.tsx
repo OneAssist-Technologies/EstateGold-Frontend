@@ -427,12 +427,12 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
     try {
       const { photos, ...serializableData } = currentData;
       if (activeId) {
-        await api.put(`/properties/draft/${activeId}`, {
+        await api.put(`/properties/drafts/${activeId}`, {
           ...serializableData,
           currentStep,
         });
       } else {
-        const res = await api.post("/properties/draft", {
+        const res = await api.post("/properties/drafts", {
           ...serializableData,
           currentStep,
         });
@@ -504,7 +504,7 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
 
     try {
       if (draftId) {
-        await api.delete(`/properties/draft/${draftId}`);
+        await api.delete(`/properties/drafts/${draftId}`);
       }
     } catch (err) {
       console.error("Failed to delete draft on server:", err);
@@ -816,7 +816,7 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
           },
         });
       } else {
-        response = await api.post("/createproperty", payload, {
+        response = await api.post("/properties", payload, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -832,7 +832,7 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
           localStorage.removeItem("property_form_draft");
           if (draftId) {
             try {
-              await api.delete(`/properties/draft/${draftId}`);
+              await api.delete(`/properties/drafts/${draftId}`);
             } catch (err) {
               console.error("Failed to delete draft from server on final submit:", err);
             }

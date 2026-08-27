@@ -41,7 +41,7 @@ export default function Footer() {
 
       try {
         // 2. Fetch active cities
-        const locationsRes = await api.get("/admin/locations?status=active");
+        const locationsRes = await api.get("/locations?status=active");
         if (locationsRes.data && locationsRes.data.locations && locationsRes.data.locations.length > 0) {
           const activeCities = Array.from(
             new Set(

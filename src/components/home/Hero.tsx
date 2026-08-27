@@ -19,7 +19,7 @@ export default function Hero() {
     async function fetchPopularLocations() {
       try {
         setLoadingLocations(true);
-        const res = await api.get("/admin/locations?status=active");
+        const res = await api.get("/locations?status=active");
         if (res.data && res.data.locations && res.data.locations.length > 0) {
           // Extract city names from admin configured active serviceable locations
           const activeCities = Array.from(
@@ -59,7 +59,7 @@ export default function Hero() {
 
     try {
       setSearching(true);
-      const res = await api.post("/api/ai/parse-search", { query: q.trim() });
+      const res = await api.post("/ai/parse-search", { query: q.trim() });
       if (res.data && res.data.success) {
         const params = new URLSearchParams();
 

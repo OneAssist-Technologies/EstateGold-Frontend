@@ -70,7 +70,7 @@ export const deleteProperty = async (
 };
 
 export const requestDelete = async (id: string, reason: string) => {
-  const response = await api.patch(`/my-properties/${id}/request-delete`, { reason });
+  const response = await api.patch(`/properties/${id}/request-delete`, { reason });
   return response.data;
 };
 
