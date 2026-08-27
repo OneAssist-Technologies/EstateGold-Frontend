@@ -201,7 +201,7 @@ export default function LocationStep({ formData, setFormData, errors }: Props) {
     async function fetchActiveLocations() {
       try {
         setLoadingLocations(true);
-        const res = await api.get("/admin/locations?status=active");
+        const res = await api.get("/locations?status=active");
         if (res.data && res.data.locations) {
           setActiveLocations(res.data.locations);
         }
@@ -341,7 +341,7 @@ export default function LocationStep({ formData, setFormData, errors }: Props) {
   const handleSendLocationRequest = async () => {
     try {
       setSubmittingRequest(true);
-      await api.post("/admin/locations/request-service", {
+      await api.post("/locations/request-service", {
         city: formData.city || formData.locality || "Requested Area",
         state: selectedState || "Tamil Nadu",
         locality: formData.locality,

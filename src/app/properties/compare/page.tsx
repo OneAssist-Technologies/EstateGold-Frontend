@@ -224,7 +224,7 @@ function ComparisonContent() {
       if (activeProps.length < 2) return;
       try {
         setAiLoading(true);
-        const res = await api.post("/api/ai/compare-properties", { ids: idsParam });
+        const res = await api.post("/ai/compare-properties", { ids: idsParam });
         if (res.data && res.data.success) {
           setAiInsights(res.data);
         }

@@ -93,7 +93,7 @@ function ListingContent() {
     async function syncParsedSearch() {
       if (search && search.trim() !== "" && !city && !propertyType && !bedrooms && !purpose) {
         try {
-          const res = await api.post("/api/ai/parse-search", { query: search.trim() });
+          const res = await api.post("/ai/parse-search", { query: search.trim() });
           if (res.data && res.data.success) {
             if (res.data.city) setCity(res.data.city);
             if (res.data.propertyType) setPropertyType(res.data.propertyType);
@@ -185,7 +185,7 @@ function ListingContent() {
     }
 
     try {
-      const res = await api.post("/api/ai/parse-search", { query: val.trim() });
+      const res = await api.post("/ai/parse-search", { query: val.trim() });
       if (res.data && res.data.success) {
         if (res.data.city) setCity(res.data.city);
         if (res.data.propertyType) setPropertyType(res.data.propertyType);

@@ -55,7 +55,7 @@ export default function PropertyEnquiriesModal({
     try {
       setLoading(true);
       const isAll = propertyId === "all";
-      const url = isAll ? "/my-enquiries" : `/properties/${propertyId}/enquiries`;
+      const url = isAll ? "/enquiries/mine" : `/enquiries/property/${propertyId}`;
       const response = await api.get(url);
       if (response.data.success) {
         setEnquiries(response.data.data);

@@ -46,7 +46,7 @@ export default function PendingIssuesStep({ formData, setFormData, errors }: Pro
     uploadData.append("document", file);
 
     try {
-      const res = await api.post("/upload-document", uploadData, {
+      const res = await api.post("/uploads/documents", uploadData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

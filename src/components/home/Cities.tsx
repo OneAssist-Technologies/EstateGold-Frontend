@@ -23,7 +23,7 @@ export default function Cities() {
   useEffect(() => {
     async function fetchCities() {
       try {
-        const res = await api.get("/admin/locations?status=active");
+        const res = await api.get("/locations?status=active");
         if (res.data && res.data.locations && res.data.locations.length > 0) {
           const activeCities = Array.from(
             new Set(

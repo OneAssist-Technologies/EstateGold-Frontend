@@ -168,7 +168,7 @@ export default function AdminSettingsPage() {
     try {
       setSaving(true);
       setMessage(null);
-      const res = await api.put("/profile", { fullName, phone, profileImage });
+      const res = await api.put("/users/me", { fullName, phone, profileImage });
       if (res.data.success) {
         await refreshUser();
         setMessage({ type: "success", text: "Admin Profile updated successfully!" });
@@ -190,7 +190,7 @@ export default function AdminSettingsPage() {
       const formData = new FormData();
       formData.append("photo", file);
 
-      const res = await api.post("/upload-profile-image", formData, {
+      const res = await api.post("/users/me/avatar", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -313,7 +313,7 @@ export default function AdminSettingsPage() {
     try {
       setSaving(true);
       setMessage(null);
-      const res = await api.put("/change-password", { currentPassword, newPassword });
+      const res = await api.put("/users/me/password", { currentPassword, newPassword });
       if (res.data.success) {
         setCurrentPassword("");
         setNewPassword("");

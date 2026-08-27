@@ -17,6 +17,6 @@ export interface GetLocalityInsightsParams {
 export const getLocalityInsights = async (
   params: GetLocalityInsightsParams
 ): Promise<MarketInsight> => {
-  const response = await api.post("/market-insight/locality-insights", params);
+  const response = await api.post("/market-insights/locality", params);
   return response.data;
 };

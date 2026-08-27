@@ -115,7 +115,7 @@ export default function PropertyDetailsPage() {
 
   const fetchSimilar = async () => {
     try {
-      const response = await api.get(`/properties/similar/${id}`);
+      const response = await api.get(`/properties/${id}/similar`);
       setSimilarProperties(response.data.data);
     } catch (err) {
       console.error("Failed to fetch similar properties:", err);

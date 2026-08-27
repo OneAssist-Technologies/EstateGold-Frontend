@@ -33,7 +33,7 @@ export default function LoginForm() {
 
     try {
       setLoading(true);
-      const response = await api.post("/login", {
+      const response = await api.post("/auth/login", {
         email,
         password,
       });
