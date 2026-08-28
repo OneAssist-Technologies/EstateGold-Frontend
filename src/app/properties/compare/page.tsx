@@ -968,119 +968,310 @@ function ComparisonContent() {
           })}
         </div>
 
-        {/* AI Smart Insights Section */}
+        {/* Eyva's Recommendation Section */}
         {activeProperties.length >= 2 && (
-          <div className="mt-8 bg-gradient-to-r from-[#FFFDF6] to-[#FFF9EC] border border-[#E8DCC1] rounded-3xl p-6 sm:p-8 shadow-md text-left">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-xl bg-[#FFF9EC] border border-[#F4E3B5] text-[#9A720C] flex items-center justify-center">
-                <Sparkles size={16} />
+          <div className="mt-10 bg-gradient-to-br from-[#FFFDF6] via-white to-[#FFF9EC] border border-[#E8DCC1] rounded-3xl p-5 sm:p-8 shadow-md text-left space-y-7">
+            {/* 1. EYVA HEADER */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#E8DCC1]/60 pb-5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-[#FFF9EC] border border-[#F4E3B5] text-[#9A720C] flex items-center justify-center shrink-0 shadow-2xs">
+                  <Sparkles size={20} />
+                </div>
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900 leading-tight">
+                    Eyva’s Recommendation
+                  </h2>
+                  <p className="text-xs text-gray-500 font-medium mt-0.5">
+                    Personalized insights from Eyva
+                  </p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-xl font-bold text-gray-900 leading-tight">
-                  AI Smart Insights
-                </h2>
-                <p className="text-xs text-gray-400 font-semibold mt-0.5">
-                  Powered by gpt-4o-mini
-                </p>
+
+              <div className="text-[11px] text-[#9A720C] font-bold bg-[#FFF9EC] border border-[#F4E3B5] px-3 py-1.5 rounded-full w-fit shrink-0">
+                Personalized Advisor
               </div>
             </div>
 
             {aiLoading ? (
-              <div className="py-6 flex items-center justify-center gap-2 text-xs font-semibold text-gray-400">
-                <Loader2 size={16} className="animate-spin text-[#9A720C]" />
-                Analyzing property attributes and pricing indices...
+              <div className="py-12 flex flex-col items-center justify-center gap-3 text-xs font-semibold text-gray-500">
+                <Loader2 size={24} className="animate-spin text-[#9A720C]" />
+                <p>Analyzing property attributes, locality rates, and facilities...</p>
               </div>
             ) : aiInsights ? (
-              <div className="space-y-6">
-                <div>
-                  <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5">
-                    Comparison Summary
-                  </h4>
-                  <p className="text-sm text-gray-700 leading-relaxed font-semibold">
-                    {aiInsights.summary}
-                  </p>
-                </div>
+              (() => {
+                // Find recommended property dynamically
+                const prices = activeProperties.map((p) => p.price || Infinity);
+                const minPrice = Math.min(...prices);
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2">
-                  {activeProperties.map((p) => {
-                    const prosCons = aiInsights.prosCons?.[p._id] || { pros: [], cons: [] };
-                    return (
-                      <div key={p._id} className="bg-white border border-[#ECE7DB] rounded-2xl p-5 shadow-2xs flex flex-col justify-between">
-                        <div className="space-y-4">
-                          <div className="border-b border-[#F5F2EC] pb-3">
-                            <span className="inline-block px-2.5 py-0.5 bg-[#FFF9EC] border border-[#F4E3B5] text-[9px] font-bold text-[#9A720C] rounded-full uppercase mb-1">
-                              {p.propertyType}
-                            </span>
-                            <h4 className="font-bold text-gray-900 text-xs sm:text-sm line-clamp-2 leading-tight">
-                              {p.bedrooms ? `${p.bedrooms} BHK ` : ""}{p.propertyType} in {p.locality || p.city}
-                            </h4>
+                const areas = activeProperties.map((p) => p.area || p.plotArea || 0);
+                const maxArea = Math.max(...areas);
+
+                const recommendedProp = activeProperties.reduce((best, p) => {
+                  const bestScore = matchScores[best._id]?.score || 0;
+                  const pScore = matchScores[p._id]?.score || 0;
+                  if (pScore > bestScore) return p;
+                  if (pScore === bestScore) {
+                    const bestArea = best.area || best.plotArea || 1;
+                    const pArea = p.area || p.plotArea || 1;
+                    const bestRate = (best.price || Infinity) / bestArea;
+                    const pRate = (p.price || Infinity) / pArea;
+                    return pRate < bestRate ? p : best;
+                  }
+                  return best;
+                }, activeProperties[0]);
+
+                const recTitle = `${recommendedProp.bedrooms ? `${recommendedProp.bedrooms} BHK ` : ""}${recommendedProp.propertyType} in ${recommendedProp.locality || recommendedProp.city}`;
+                const recPrice = `₹${recommendedProp.price?.toLocaleString("en-IN")}`;
+                const recAreaVal = recommendedProp.area || recommendedProp.plotArea;
+                const recArea = recAreaVal ? `${recAreaVal.toLocaleString("en-IN")} sq ft` : "N/A";
+
+                const recPros = aiInsights.prosCons?.[recommendedProp._id]?.pros || [];
+
+                return (
+                  <div className="space-y-8">
+                    {/* 2. EYVA RECOMMENDATION CARD */}
+                    <div className="bg-gradient-to-r from-[#FFFDF5] via-[#FFF9EC] to-white border-2 border-[#9A720C]/30 rounded-2xl p-5 sm:p-6 shadow-sm relative overflow-hidden">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-[#9A720C]/5 rounded-full blur-2xl pointer-events-none" />
+
+                      <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 relative z-10">
+                        <div className="space-y-3 flex-1">
+                          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#9A720C] text-white text-[10px] sm:text-xs font-bold tracking-wider rounded-full uppercase shadow-2xs">
+                            <Sparkles size={13} />
+                            EYVA RECOMMENDS
                           </div>
 
-                          {/* Pros */}
                           <div>
-                            <h5 className="text-[10px] font-black text-green-700 uppercase tracking-wider mb-2">
-                              Pros
-                            </h5>
-                            <ul className="space-y-1.5">
-                              {prosCons.pros && prosCons.pros.length > 0 ? (
-                                prosCons.pros.map((pro: string, idx: number) => (
-                                  <li key={idx} className="text-xs text-gray-650 flex items-start gap-1.5 leading-snug">
-                                    <span className="text-green-500 font-bold shrink-0">✓</span>
-                                    <span>{pro}</span>
-                                  </li>
-                                ))
-                              ) : (
-                                <li className="text-xs text-gray-450 italic">No specific pros listed.</li>
-                              )}
-                            </ul>
+                            <h3 className="text-lg sm:text-xl font-bold text-gray-900 leading-snug">
+                              {recTitle}
+                            </h3>
+                            <div className="text-base sm:text-lg font-bold text-[#9A720C] mt-1">
+                              {recPrice} <span className="text-gray-400 font-normal text-sm">· {recArea}</span>
+                            </div>
                           </div>
 
-                          {/* Cons */}
-                          <div>
-                            <h5 className="text-[10px] font-black text-amber-800 uppercase tracking-wider mb-2">
-                              Cons & Limitations
-                            </h5>
-                            <ul className="space-y-1.5">
-                              {prosCons.cons && prosCons.cons.length > 0 ? (
-                                prosCons.cons.map((con: string, idx: number) => (
-                                  <li key={idx} className="text-xs text-gray-650 flex items-start gap-1.5 leading-snug">
-                                    <span className="text-amber-500 font-bold shrink-0">✕</span>
-                                    <span>{con}</span>
-                                  </li>
-                                ))
-                              ) : (
-                                <li className="text-xs text-gray-450 italic">No major limitations noted.</li>
-                              )}
-                            </ul>
-                          </div>
+                          <p className="text-xs sm:text-sm text-gray-700 leading-relaxed font-semibold bg-white/80 p-3 rounded-xl border border-[#E8DCC1]/60">
+                            {aiInsights.summary || "Best overall value among the compared properties."}
+                          </p>
+                        </div>
+
+                        {/* 3. WHY THIS PROPERTY? */}
+                        <div className="w-full md:w-72 bg-white border border-[#E8DCC1] rounded-xl p-4 shrink-0 shadow-2xs space-y-2.5">
+                          <h4 className="text-xs font-black text-gray-900 uppercase tracking-wider flex items-center gap-1.5">
+                            <span className="text-[#9A720C]">Why This Property?</span>
+                          </h4>
+
+                          <ul className="space-y-2">
+                            {recommendedProp.price === minPrice && (
+                              <li className="text-xs text-gray-700 font-medium flex items-start gap-1.5 leading-snug">
+                                <span className="text-emerald-600 font-bold shrink-0">✓</span>
+                                <span>Lowest price among options compared</span>
+                              </li>
+                            )}
+                            {recAreaVal === maxArea && (
+                              <li className="text-xs text-gray-700 font-medium flex items-start gap-1.5 leading-snug">
+                                <span className="text-emerald-600 font-bold shrink-0">✓</span>
+                                <span>Largest available space ({recArea})</span>
+                              </li>
+                            )}
+                            {recPros.slice(0, 3).map((pro: string, idx: number) => (
+                              <li key={idx} className="text-xs text-gray-700 font-medium flex items-start gap-1.5 leading-snug">
+                                <span className="text-emerald-600 font-bold shrink-0">✓</span>
+                                <span>{pro}</span>
+                              </li>
+                            ))}
+                            {recPros.length === 0 && recommendedProp.price !== minPrice && recAreaVal !== maxArea && (
+                              <li className="text-xs text-gray-700 font-medium flex items-start gap-1.5 leading-snug">
+                                <span className="text-emerald-600 font-bold shrink-0">✓</span>
+                                <span>Balanced price and facility package</span>
+                              </li>
+                            )}
+                          </ul>
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
+                    </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-[#E8DCC1]/60 pt-6 mt-4">
-                  <div>
-                    <h4 className="text-xs font-black text-[#9A720C] uppercase tracking-widest mb-2">
-                      Value Assessment
-                    </h4>
-                    <p className="text-xs text-gray-600 leading-relaxed font-semibold">
-                      {aiInsights.valueAnalysis}
-                    </p>
+                    {/* 4. EYVA'S COMPARISON MATRIX TABLE */}
+                    <div className="space-y-3">
+                      <h4 className="text-xs font-black text-gray-500 uppercase tracking-widest">
+                        EYVA’S COMPARISON
+                      </h4>
+
+                      <div className="bg-white border border-[#ECE7DB] rounded-2xl overflow-hidden shadow-2xs">
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-left text-xs">
+                            <thead>
+                              <tr className="bg-[#FAF8F5] border-b border-[#ECE7DB]">
+                                <th className="p-3.5 font-bold text-gray-600 w-36 sm:w-44">Attribute</th>
+                                {activeProperties.map((p) => {
+                                  const isRec = p._id === recommendedProp._id;
+                                  return (
+                                    <th key={p._id} className={`p-3.5 font-bold min-w-[160px] ${isRec ? "bg-[#FFF9EC]/80 text-[#9A720C]" : "text-gray-800"}`}>
+                                      <div className="flex items-center gap-1.5">
+                                        <span className="line-clamp-1">{p.bedrooms ? `${p.bedrooms} BHK ` : ""}{p.propertyType}</span>
+                                        {isRec && (
+                                          <span className="text-[9px] bg-[#9A720C] text-white px-1.5 py-0.5 rounded font-bold uppercase shrink-0">Top Pick</span>
+                                        )}
+                                      </div>
+                                    </th>
+                                  );
+                                })}
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-[#F5F2EC] text-gray-700 font-medium">
+                              {/* Row: Price */}
+                              <tr>
+                                <td className="p-3.5 font-bold text-gray-500 bg-[#FAF8F5]/50">Price</td>
+                                {activeProperties.map((p) => {
+                                  const isCheapest = p.price === minPrice;
+                                  return (
+                                    <td key={p._id} className="p-3.5 font-bold text-gray-900">
+                                      <span>₹{p.price?.toLocaleString("en-IN")}</span>
+                                      {isCheapest && (
+                                        <span className="ml-2 text-[9px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded">
+                                          Best Price
+                                        </span>
+                                      )}
+                                    </td>
+                                  );
+                                })}
+                              </tr>
+
+                              {/* Row: Area */}
+                              <tr>
+                                <td className="p-3.5 font-bold text-gray-500 bg-[#FAF8F5]/50">Area</td>
+                                {activeProperties.map((p) => {
+                                  const areaVal = p.area || p.plotArea || 0;
+                                  const isLargest = areaVal === maxArea && maxArea > 0;
+                                  return (
+                                    <td key={p._id} className="p-3.5">
+                                      <span>{areaVal ? `${areaVal.toLocaleString("en-IN")} sq ft` : "N/A"}</span>
+                                      {isLargest && (
+                                        <span className="ml-2 text-[9px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-1.5 py-0.5 rounded">
+                                          Largest Space
+                                        </span>
+                                      )}
+                                    </td>
+                                  );
+                                })}
+                              </tr>
+
+                              {/* Row: Property Type */}
+                              <tr>
+                                <td className="p-3.5 font-bold text-gray-500 bg-[#FAF8F5]/50">Type</td>
+                                {activeProperties.map((p) => (
+                                  <td key={p._id} className="p-3.5">
+                                    {p.propertyType}
+                                  </td>
+                                ))}
+                              </tr>
+
+                              {/* Row: Facilities / Amenities */}
+                              <tr>
+                                <td className="p-3.5 font-bold text-gray-500 bg-[#FAF8F5]/50">Facilities</td>
+                                {activeProperties.map((p) => {
+                                  const count = p.amenities?.length || 0;
+                                  return (
+                                    <td key={p._id} className="p-3.5">
+                                      {count > 0 ? `${count} Amenities Listed` : "Standard Facilities"}
+                                    </td>
+                                  );
+                                })}
+                              </tr>
+
+                              {/* Row: Locality */}
+                              <tr>
+                                <td className="p-3.5 font-bold text-gray-500 bg-[#FAF8F5]/50">Locality</td>
+                                {activeProperties.map((p) => (
+                                  <td key={p._id} className="p-3.5">
+                                    {p.locality || p.city}
+                                  </td>
+                                ))}
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 5. EYVA'S VERDICT & VALUE ASSESSMENT */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
+                      {/* Value Assessment */}
+                      <div className="bg-white border border-[#ECE7DB] rounded-2xl p-5 shadow-2xs space-y-2">
+                        <h4 className="text-xs font-black text-[#9A720C] uppercase tracking-widest flex items-center gap-1.5">
+                          VALUE ASSESSMENT
+                        </h4>
+                        <p className="text-xs sm:text-sm text-gray-600 leading-relaxed font-semibold">
+                          {aiInsights.valueAnalysis || "Both properties offer distinct trade-offs between pricing, space, and community amenities."}
+                        </p>
+                      </div>
+
+                      {/* Eyva's Verdict */}
+                      <div className="bg-gradient-to-br from-[#FFFDF6] to-white border border-[#E8DCC1] rounded-2xl p-5 shadow-2xs space-y-2">
+                        <h4 className="text-xs font-black text-[#9A720C] uppercase tracking-widest flex items-center gap-1.5">
+                          EYVA’S VERDICT
+                        </h4>
+                        <p className="text-xs sm:text-sm text-gray-800 leading-relaxed font-semibold">
+                          {aiInsights.recommendation || "Evaluate space requirements against your target budget to make the optimal decision."}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* 6. CONSIDERATIONS (THINGS TO CONSIDER) */}
+                    <div className="space-y-3 pt-2">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-xs font-black text-gray-500 uppercase tracking-widest">
+                          Things to Consider
+                        </h4>
+                        <span className="text-[10px] text-gray-400 font-semibold">Limitations & Highlights per Property</span>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                        {activeProperties.map((p) => {
+                          const prosCons = aiInsights.prosCons?.[p._id] || { pros: [], cons: [] };
+                          return (
+                            <div key={p._id} className="bg-white border border-[#ECE7DB] rounded-2xl p-4 shadow-2xs space-y-3">
+                              <div className="border-b border-[#F5F2EC] pb-2 flex items-center justify-between gap-2">
+                                <h5 className="font-bold text-gray-900 text-xs truncate">
+                                  {p.bedrooms ? `${p.bedrooms} BHK ` : ""}{p.propertyType}
+                                </h5>
+                                <span className="text-[9px] font-bold text-gray-400 shrink-0">
+                                  {p.locality || p.city}
+                                </span>
+                              </div>
+
+                              {/* Limitations / Cons */}
+                              <div className="space-y-1.5">
+                                {prosCons.cons && prosCons.cons.length > 0 ? (
+                                  prosCons.cons.map((con: string, idx: number) => (
+                                    <div key={idx} className="text-xs text-gray-600 flex items-start gap-1.5 leading-snug">
+                                      <span className="text-amber-500 font-bold shrink-0">⚠️</span>
+                                      <span>{con}</span>
+                                    </div>
+                                  ))
+                                ) : (
+                                  <div className="text-xs text-gray-400 italic flex items-center gap-1.5">
+                                    <span className="text-emerald-500 font-bold shrink-0">✓</span>
+                                    <span>No major limitations noted.</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="text-xs font-black text-[#9A720C] uppercase tracking-widest mb-2">
-                      AI Verdict & Recommendation
-                    </h4>
-                    <p className="text-xs text-gray-600 leading-relaxed font-semibold">
-                      {aiInsights.recommendation}
-                    </p>
-                  </div>
-                </div>
-              </div>
+                );
+              })()
             ) : (
-              <div className="py-4 text-center text-xs text-gray-400 italic">
-                AI insights are temporarily unavailable.
+              <div className="py-8 text-center bg-white border border-[#ECE7DB] rounded-2xl p-6 space-y-2">
+                <div className="w-10 h-10 rounded-full bg-[#FFF9EC] border border-[#F4E3B5] text-[#9A720C] flex items-center justify-center mx-auto">
+                  <Sparkles size={20} />
+                </div>
+                <h3 className="text-sm font-bold text-gray-900">Eyva’s insights are currently unavailable.</h3>
+                <p className="text-xs text-gray-500 max-w-sm mx-auto">
+                  Compare the property details above to make your decision.
+                </p>
               </div>
             )}
           </div>

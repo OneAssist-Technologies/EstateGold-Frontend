@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { Property } from "@/src/types/property";
-import { BedDouble, Maximize } from "lucide-react";
 
 interface Props {
   properties: Property[];
@@ -37,15 +36,15 @@ export default function SimilarProperties({ properties }: Props) {
 
   if (validProperties.length === 0) return null;
 
-  const city = validProperties[0]?.city || "City";
+  const city = validProperties[0]?.city || "Mumbai";
 
   return (
-    <div className="py-4 space-y-3 border-t border-[#ECE7DB] mt-4">
-      <h2 className="text-base font-bold text-[#161616]">
+    <div className="py-6 space-y-5 border-t border-[#ECE7DB] mt-6">
+      <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#161616]">
         Similar Properties in {city}
       </h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {validProperties.slice(0, 4).map((item) => {
           const mainPhoto =
             item.photos && item.photos.length > 0
@@ -58,62 +57,65 @@ export default function SimilarProperties({ properties }: Props) {
           const isCommercial = item.propertyType === "Commercial Space";
 
           let title = "";
-
           if (isPlot) {
             title = `${item.propertyType} — ${item.locality || item.city || "Local"}`;
           } else if (isCommercial) {
             title = `${(item as any).commercialType || item.propertyType} — ${item.locality || item.city || "Local"}`;
           } else {
-            title = `${item.bedrooms ? `${item.bedrooms} BHK ` : ""}${item.propertyType} — ${item.locality || item.city || "Local"}`;
+            const bhkStr = item.bedrooms ? `${item.bedrooms} BHK` : "";
+            const typeStr = item.propertyType || "Apartment";
+            const mainTypeBhk = `${typeStr} ${bhkStr}`.trim();
+            const locStr = item.locality || item.city || "";
+            title = locStr ? `${mainTypeBhk} — ${locStr}` : mainTypeBhk;
           }
+
+          // Format sub-text e.g. "4 BHK · 5,500 sq ft"
+          const detailParts: string[] = [];
+          if (!isPlot && !isCommercial && item.bedrooms) {
+            detailParts.push(`${item.bedrooms} BHK`);
+          }
+          const areaVal = isPlot ? item.plotArea : item.area;
+          if (areaVal) {
+            detailParts.push(`${areaVal.toLocaleString("en-IN")} sq ft`);
+          }
+          const detailsStr = detailParts.join(" · ");
 
           return (
             <div
               key={item._id}
               onClick={() => router.push(`/property-detail/${item._id}`)}
-              className="bg-white rounded-xl border border-[#ECE7DB] overflow-hidden hover:shadow-xs transition-all cursor-pointer group"
+              className="bg-white rounded-[20px] border border-gray-200/80 shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-lg transition-all duration-300 cursor-pointer group flex flex-col w-full max-w-[300px] overflow-hidden"
             >
-              <div className="relative h-40 w-full overflow-hidden">
+              {/* Photo Header */}
+              <div className="relative h-44 sm:h-48 w-full overflow-hidden bg-gray-100">
                 <img
                   src={mainPhoto}
-                  alt={item.propertyType}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  alt={item.propertyType || "Property"}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
-
-                <div className="absolute bottom-2 left-2 bg-[#9A720C]/90 backdrop-blur-xs text-white text-xs font-bold px-2.5 py-0.5 rounded-md">
-                  {formatPrice(item.price)}
-                </div>
               </div>
 
-              <div className="p-3 space-y-1">
-                <h4 className="text-xs font-bold text-gray-900 truncate">
+              {/* Card Body */}
+              <div className="p-4 flex flex-col space-y-1 bg-white">
+                {/* Price in Gold */}
+                <div className="text-[#C89B1C] text-lg sm:text-xl font-bold tracking-tight">
+                  {formatPrice(item.price)}
+                </div>
+
+                {/* Title */}
+                <h4
+                  className="text-base font-semibold text-gray-900 truncate"
+                  title={title}
+                >
                   {title}
                 </h4>
-                <div className="flex items-center gap-3.5 text-[10px] text-gray-500 font-semibold mt-1">
-                  {isPlot ? (
-                    <span className="flex items-center gap-1">
-                      <Maximize size={12} className="text-[#C89B1C]" />
-                      {item.plotArea ? `${item.plotArea.toLocaleString()} sq ft` : "Plot Area"}
-                    </span>
-                  ) : isCommercial ? (
-                    <span className="flex items-center gap-1">
-                      <Maximize size={12} className="text-[#C89B1C]" />
-                      {item.area ? `${item.area.toLocaleString()} sq ft` : "Built Area"}
-                    </span>
-                  ) : (
-                    <>
-                      <span className="flex items-center gap-1">
-                        <BedDouble size={12} className="text-[#C89B1C]" />
-                        {item.bedrooms || 0} Beds
-                      </span>
-                      <span className="text-gray-300">•</span>
-                      <span className="flex items-center gap-1">
-                        <Maximize size={12} className="text-[#C89B1C]" />
-                        {item.area ? `${item.area.toLocaleString()} sq ft` : "N/A"}
-                      </span>
-                    </>
-                  )}
-                </div>
+
+                {/* Subtitle / Spec details */}
+                {detailsStr && (
+                  <p className="text-sm text-gray-500 font-normal truncate">
+                    {detailsStr}
+                  </p>
+                )}
               </div>
             </div>
           );
