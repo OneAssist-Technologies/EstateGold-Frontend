@@ -3,6 +3,7 @@
 import React from "react";
 import { CheckCircle2, AlertTriangle, FileText, MapPin, Landmark, DollarSign, User, ShieldCheck, Pencil } from "lucide-react";
 import { PropertyFormData } from "../../../types/property";
+import EyvaPropertyTips from "./EyvaPropertyTips";
 
 interface Props {
   formData: PropertyFormData;
@@ -184,7 +185,7 @@ export default function ReviewSubmitStep({ formData, onSubmit, onSaveDraft, load
           <div className="text-sm">
             {formData.amenities && formData.amenities.length > 0 ? (
               <div className="flex flex-wrap gap-2 pt-1">
-                {formData.amenities.map((amenity) => (
+                {formData.amenities.map((amenity: string) => (
                   <span
                     key={amenity}
                     className="text-xs bg-[#FFF9EC] border border-[#E5D8B3] text-gray-700 px-3 py-1 rounded-full font-semibold"
@@ -225,7 +226,7 @@ export default function ReviewSubmitStep({ formData, onSubmit, onSaveDraft, load
                     .map(([key, val]) => (
                       <div key={key} className="flex justify-between bg-gray-50/50 p-1.5 rounded-lg border border-gray-100">
                         <span className="capitalize text-gray-500 font-medium">{key.replace(/([A-Z])/g, ' $1').trim()}:</span>
-                        <span>{val}/5</span>
+                        <span>{String(val)}/5</span>
                       </div>
                     ))}
                 </div>
@@ -406,6 +407,9 @@ export default function ReviewSubmitStep({ formData, onSubmit, onSaveDraft, load
           </div>
         </div>
       </div>
+
+      {/* ✨ Eyva's Property Tips Section */}
+      <EyvaPropertyTips formData={formData} onEditStep={onEditStep} />
 
       {/* Verification Notice */}
       <div className="bg-[#FFFDF9]/60 border border-[#E5D8B3] rounded-2xl p-4 sm:p-5 flex gap-3.5 items-start">

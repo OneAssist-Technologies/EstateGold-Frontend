@@ -55,14 +55,18 @@ export default function PropertyInfo({ property }: Props) {
 
   const perSqFt = calculatePerSqFt(property.price, property.area);
 
+  const isRent = (property.purpose || "").toLowerCase().includes("rent") || (property.purpose || "").toLowerCase().includes("lease");
+
   const getStatusText = (status?: string) => {
     switch ((status || "on_sale").toLowerCase()) {
       case "hold":
         return "On Hold";
       case "sold":
-        return "Sold";
+        return isRent ? "Rented" : "Sold";
+      case "rented":
+        return "Rented";
       default:
-        return "On Sale";
+        return isRent ? "Available for Rent" : "On Sale";
     }
   };
 
@@ -90,10 +94,12 @@ export default function PropertyInfo({ property }: Props) {
             <span
               className={
                 property.availabilityStatus === "hold"
-                  ? "text-amber-700 font-bold bg-amber-50 px-2 py-0.5 rounded border border-amber-200"
+                  ? "text-amber-700 font-bold bg-amber-50 px-2 py-0.5 rounded border border-amber-200 uppercase tracking-wider text-[10px]"
                   : property.availabilityStatus === "sold"
-                  ? "text-gray-700 font-bold bg-gray-100 px-2 py-0.5 rounded border border-gray-200"
-                  : "text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200"
+                  ? "text-red-700 font-bold bg-red-50 px-2 py-0.5 rounded border border-red-200 uppercase tracking-wider text-[10px]"
+                  : property.availabilityStatus === "rented"
+                  ? "text-blue-700 font-bold bg-blue-50 px-2 py-0.5 rounded border border-blue-200 uppercase tracking-wider text-[10px]"
+                  : "text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 uppercase tracking-wider text-[10px]"
               }
             >
               {getStatusText(property.availabilityStatus)}

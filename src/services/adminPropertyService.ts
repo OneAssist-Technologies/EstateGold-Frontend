@@ -81,7 +81,7 @@ export const rejectDeleteRequest = async (id: string) => {
 
 export const updatePropertyAvailabilityStatus = async (
   id: string,
-  availabilityStatus: "on_sale" | "hold" | "sold"
+  availabilityStatus: "on_sale" | "hold" | "sold" | "rented"
 ) => {
   const response = await api.patch(
     `/admin/properties/${id}/availability-status`,

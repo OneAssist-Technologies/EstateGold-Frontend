@@ -18,4 +18,7 @@ export const aiApi = {
 
   eyva: (data: Record<string, unknown>) =>
     api.post("/ai/eyva", data),
+
+  getPropertyTips: (data: Record<string, unknown>) =>
+    api.post("/ai/property-tips", data),
 };

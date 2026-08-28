@@ -1,7 +1,9 @@
 "use client";
 
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import toast from "react-hot-toast";
 
 import {
   BedDouble,
@@ -13,16 +15,21 @@ import {
   Trash2,
   Building,
   MessageSquare,
+  ChevronDown,
+  Tag,
+  Check,
 } from "lucide-react";
 
 import { Property } from "@/src/types/property";
+import { propertyApi } from "@/src/services/property.service";
 
 interface Props {
   property: Property;
   onView: (id: string) => void;
   onEdit: (property: Property) => void;
   onDelete: (property: Property) => void;
-  onStatusChange: () => void;
+  onStatusChange?: () => void;
+  onAvailabilityStatusChange?: (id: string, newStatus: string) => void;
   onViewEnquiries: (id: string) => void;
 }
 
@@ -50,8 +57,17 @@ export default function PropertyRow({
   onEdit,
   onDelete,
   onStatusChange,
+  onAvailabilityStatusChange,
   onViewEnquiries,
 }: Props) {
+  const [currentAvailStatus, setCurrentAvailStatus] = useState<string>(
+    property.availabilityStatus || "on_sale"
+  );
+  const [showStatusMenu, setShowStatusMenu] = useState(false);
+  const [updatingStatus, setUpdatingStatus] = useState(false);
+
+  const isRent = (property.purpose || "").toLowerCase().includes("rent") || (property.purpose || "").toLowerCase().includes("lease");
+
   const mainPhoto =
     property.photos && property.photos.length > 0
       ? property.photos[0].startsWith("http")
@@ -74,7 +90,7 @@ export default function PropertyRow({
     displayTitle = `${property.bedrooms ? `${property.bedrooms} BHK ` : ""}${property.propertyType} in ${property.locality || "Local"}`;
   }
 
-  // Determine availability status label
+  // Determine availability status badge properties
   let statusLabel = isActive ? "Active" : "Inactive";
   let statusColor = isActive ? "bg-green-50 border-green-200 text-green-700" : "bg-gray-50 border-gray-200 text-gray-500";
   let dotColor = isActive ? "bg-green-500" : "bg-gray-400";
@@ -91,23 +107,57 @@ export default function PropertyRow({
     statusLabel = "Rejected";
     statusColor = "bg-red-50 border-red-200 text-red-700";
     dotColor = "bg-red-500";
-  } else if (property.availabilityStatus === "on_sale") {
-    statusLabel = "On Sale";
+  } else if (currentAvailStatus === "on_sale") {
+    statusLabel = isRent ? "Available for Rent" : "On Sale";
     statusColor = "bg-emerald-50 border-emerald-200 text-emerald-700";
     dotColor = "bg-emerald-500";
-  } else if (property.availabilityStatus === "hold") {
+  } else if (currentAvailStatus === "hold") {
     statusLabel = "On Hold";
     statusColor = "bg-amber-50 border-amber-200 text-amber-700";
     dotColor = "bg-amber-500";
-  } else if (property.availabilityStatus === "sold") {
+  } else if (currentAvailStatus === "sold") {
     statusLabel = "Sold";
     statusColor = "bg-red-50 border-red-200 text-red-700";
     dotColor = "bg-red-500";
-  } else if ((property as any).availabilityStatus === "rented") {
+  } else if (currentAvailStatus === "rented") {
     statusLabel = "Rented";
     statusColor = "bg-blue-50 border-blue-200 text-blue-700";
     dotColor = "bg-blue-500";
   }
+
+  // Handle owner status update
+  const handleSelectStatus = async (newStatus: string) => {
+    if (newStatus === currentAvailStatus) {
+      setShowStatusMenu(false);
+      return;
+    }
+
+    try {
+      setUpdatingStatus(true);
+      setCurrentAvailStatus(newStatus);
+      setShowStatusMenu(false);
+
+      await propertyApi.updateStatus(property._id, { availabilityStatus: newStatus });
+
+      let label = "On Sale";
+      if (newStatus === "hold") label = "On Hold";
+      if (newStatus === "sold") label = isRent ? "Rented" : "Sold";
+      if (newStatus === "rented") label = "Rented";
+      if (newStatus === "on_sale") label = isRent ? "Available for Rent" : "On Sale";
+
+      toast.success(`Property status updated to ${label}.`);
+
+      if (onAvailabilityStatusChange) {
+        onAvailabilityStatusChange(property._id, newStatus);
+      }
+    } catch (err: any) {
+      console.error("Status update error:", err);
+      setCurrentAvailStatus(property.availabilityStatus || "on_sale");
+      toast.error(err?.response?.data?.message || "Failed to update property status.");
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
 
   // Construct specs details list
   const specs: { icon: any; text: string }[] = [];
@@ -122,8 +172,6 @@ export default function PropertyRow({
     if (property.floor !== undefined) specs.push({ icon: <Building size={14} className="text-[#C89B1C]" />, text: `${property.floor}th Floor` });
     specs.push({ icon: <Building size={14} className="text-[#C89B1C]" />, text: "Commercial" });
   } else {
-    // Residential
-    
     if (property.bedrooms) specs.push({ icon: <BedDouble size={14} className="text-[#C89B1C]" />, text: `${property.bedrooms} BHK` });
     if (property.bathrooms) specs.push({ icon: <Bath size={14} className="text-[#C89B1C]" />, text: `${property.bathrooms} Bath` });
     if (property.area) specs.push({ icon: <Scan size={14} className="text-[#C89B1C]" />, text: `${property.area.toLocaleString()} sq ft` });
@@ -132,21 +180,11 @@ export default function PropertyRow({
 
   return (
     <motion.div
-      initial={{
-        opacity: 0,
-        y: 15,
-      }}
-      animate={{
-        opacity: 1,
-        y: 0,
-      }}
-      whileHover={{
-        y: -2,
-      }}
-      transition={{
-        duration: 0.3,
-      }}
-      className="bg-white rounded-2xl border border-[#ECE7DB] overflow-hidden shadow-2xs hover:shadow-xs transition-all duration-300"
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -2 }}
+      transition={{ duration: 0.3 }}
+      className="bg-white rounded-2xl border border-[#ECE7DB] overflow-hidden shadow-2xs hover:shadow-xs transition-all duration-300 relative"
     >
       <div className="grid grid-cols-1 md:grid-cols-12 items-stretch">
         {/* IMAGE */}
@@ -237,17 +275,81 @@ export default function PropertyRow({
 
             {/* Right Action buttons */}
             <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-start sm:justify-end shrink-0">
-              {/* Dynamic Status Toggle button pill */}
-              <button
-                onClick={onStatusChange}
-                className={`h-8 px-3 rounded-lg border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${isActive
-                    ? "border-green-200 text-green-700 bg-green-50/50 hover:bg-green-50"
-                    : "border-gray-200 text-gray-500 bg-gray-50 hover:bg-gray-100"
-                  }`}
-              >
-                <span className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-green-500" : "bg-gray-400"}`} />
-                {isActive ? "Active" : "Inactive"}
-              </button>
+              {/* Owner Status Management: Change Status Control */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowStatusMenu(!showStatusMenu)}
+                  disabled={updatingStatus}
+                  className="h-8 px-3 rounded-lg border border-[#E5D8B3] bg-[#FFF9EC] hover:bg-[#FFF2D3] text-[#9A720C] text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs active:scale-97"
+                >
+                  <Tag size={13} className="text-[#C89B1C]" />
+                  <span>Change Status</span>
+                  <ChevronDown size={13} className={`transition-transform duration-200 ${showStatusMenu ? "rotate-180" : ""}`} />
+                </button>
+
+                {showStatusMenu && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-40"
+                      onClick={() => setShowStatusMenu(false)}
+                    />
+                    <div className="absolute right-0 bottom-full mb-1.5 z-50 bg-white rounded-2xl border border-[#ECE7DB] shadow-xl p-2 min-w-[210px] space-y-1 animate-in fade-in zoom-in-95 duration-150">
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-2.5 py-1 border-b border-gray-100 mb-1">
+                        Select Availability Status
+                      </p>
+
+                      <button
+                        type="button"
+                        onClick={() => handleSelectStatus("on_sale")}
+                        className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-between cursor-pointer ${
+                          currentAvailStatus === "on_sale"
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                            : "hover:bg-gray-50 text-gray-700"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                          <span>{isRent ? "Available for Rent" : "On Sale"}</span>
+                        </div>
+                        {currentAvailStatus === "on_sale" && <Check size={14} className="text-emerald-600 shrink-0" />}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleSelectStatus("hold")}
+                        className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-between cursor-pointer ${
+                          currentAvailStatus === "hold"
+                            ? "bg-amber-50 text-amber-700 border border-amber-200"
+                            : "hover:bg-gray-50 text-gray-700"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
+                          <span>On Hold</span>
+                        </div>
+                        {currentAvailStatus === "hold" && <Check size={14} className="text-amber-600 shrink-0" />}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleSelectStatus(isRent ? "rented" : "sold")}
+                        className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-between cursor-pointer ${
+                          currentAvailStatus === "sold" || currentAvailStatus === "rented"
+                            ? "bg-red-50 text-red-700 border border-red-200"
+                            : "hover:bg-gray-50 text-gray-700"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" />
+                          <span>{isRent ? "Rented" : "Sold"}</span>
+                        </div>
+                        {(currentAvailStatus === "sold" || currentAvailStatus === "rented") && <Check size={14} className="text-red-600 shrink-0" />}
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
 
               <button
                 onClick={() => onView(property._id)}

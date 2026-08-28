@@ -164,7 +164,7 @@ export default function PropertyManagement() {
     setModalReasonInput("Property details require verification.");
   };
 
-  const handleAvailabilityStatusChange = async (id: string, newStatus: "on_sale" | "hold" | "sold") => {
+  const handleAvailabilityStatusChange = async (id: string, newStatus: "on_sale" | "hold" | "sold" | "rented") => {
     try {
       setLoading(true);
       await updatePropertyAvailabilityStatus(id, newStatus);
@@ -265,7 +265,6 @@ export default function PropertyManagement() {
           onReject={handleQuickReject}
           onApproveDelete={handleApproveDelete}
           onRejectDeleteRequest={handleRejectDeleteRequest}
-          onAvailabilityStatusChange={handleAvailabilityStatusChange}
           onDeleteRequest={handleDeleteRequest}
         />
       </motion.div>
