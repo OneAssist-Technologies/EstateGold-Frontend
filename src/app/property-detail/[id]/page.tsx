@@ -233,18 +233,55 @@ export default function PropertyDetailsPage() {
   };
 
   const handleCall = () => {
-    if (property.ownerPhone) {
-      window.location.href = `tel:${property.ownerPhone}`;
+    const rawPhone =
+      property.ownerPhone ||
+      (property.createdBy as any)?.phone ||
+      (property as any).phone;
+
+    if (rawPhone) {
+      const cleanPhone = String(rawPhone).replace(/[^\d+]/g, "");
+      window.location.href = `tel:${cleanPhone}`;
     } else {
-      alert("Contact number requested! Our team will get back to you.");
+      window.location.href = `tel:+919876543210`;
     }
   };
 
-  const handleWhatsapp = () => {
-    if (property.ownerPhone) {
-      window.open(`https://wa.me/${property.ownerPhone}`, "_blank");
+  const handleWhatsapp = (customMsg?: string) => {
+    const rawPhone =
+      property.ownerPhone ||
+      (property.createdBy as any)?.phone ||
+      (property as any).phone ||
+      "";
+
+    let cleanPhone = String(rawPhone).replace(/\D/g, "");
+    if (cleanPhone.length === 10) {
+      cleanPhone = `91${cleanPhone}`;
+    }
+
+    const title =
+      property.bedrooms && property.propertyType
+        ? `${property.bedrooms} BHK ${property.propertyType}`
+        : property.propertyType || "Property";
+
+    const defaultMsg = `Hi, I am interested in your property "${title}" located in ${
+      property.locality || property.city || "your listing"
+    } listed on Property Listing app. Please share more details.`;
+
+    const textToSend =
+      typeof customMsg === "string" && customMsg.trim().length > 0
+        ? customMsg
+        : defaultMsg;
+
+    if (cleanPhone) {
+      window.open(
+        `https://wa.me/${cleanPhone}?text=${encodeURIComponent(textToSend)}`,
+        "_blank"
+      );
     } else {
-      alert("Connecting via email...");
+      window.open(
+        `https://wa.me/?text=${encodeURIComponent(textToSend)}`,
+        "_blank"
+      );
     }
   };
 

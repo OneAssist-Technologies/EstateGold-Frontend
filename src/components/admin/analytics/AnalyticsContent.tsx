@@ -178,6 +178,108 @@ export default function AnalyticsContent() {
     URL.revokeObjectURL(url);
   };
 
+  const exportSingleCardCsv = (filename: string, headers: string[], rows: (string | number)[][]) => {
+    const escapeCsv = (val: any) => {
+      if (val === null || val === undefined) return '""';
+      const s = String(val).replace(/"/g, '""');
+      return `"${s}"`;
+    };
+
+    const csvLines: string[] = [];
+    csvLines.push(headers.map(escapeCsv).join(","));
+    rows.forEach((row) => {
+      csvLines.push(row.map(escapeCsv).join(","));
+    });
+
+    const csvContent = "\uFEFF" + csvLines.join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const downloadAnchor = document.createElement("a");
+    downloadAnchor.href = url;
+    downloadAnchor.setAttribute("download", `${filename}_${range}.csv`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    document.body.removeChild(downloadAnchor);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportTrend = () => {
+    const headers = ["Date", "Properties Added", "Properties Sold", "Properties Rented", "Properties Removed"];
+    const rows = listingTrends.map((item: any) => [
+      item.date || "",
+      item.added || 0,
+      item.sold || 0,
+      item.rented || 0,
+      item.removed || 0,
+    ]);
+    exportSingleCardCsv("Property_Listings_Trend", headers, rows);
+  };
+
+  const handleExportByType = () => {
+    const headers = ["Property Type", "Count", "Percentage"];
+    const rows = propertiesByType.map((item: any) => [
+      item.name || "",
+      item.value || 0,
+      `${item.percentage || 0}%`,
+    ]);
+    exportSingleCardCsv("Properties_By_Type", headers, rows);
+  };
+
+  const handleExportServiceArea = () => {
+    const headers = ["Service Area", "Total Properties", "Active", "Sold", "Available"];
+    const rows = serviceAreaStats.map((item: any) => [
+      item.serviceArea || "",
+      item.totalProperties || 0,
+      item.active || 0,
+      item.sold || 0,
+      item.available || 0,
+    ]);
+    exportSingleCardCsv("Properties_By_Service_Area", headers, rows);
+  };
+
+  const handleExportUsersByRole = () => {
+    const headers = ["Role", "User Count", "Percentage"];
+    const rows = usersByRole.map((item: any) => [
+      item.role || "",
+      item.count || 0,
+      `${item.percentage || 0}%`,
+    ]);
+    exportSingleCardCsv("Users_By_Role", headers, rows);
+  };
+
+  const handleExportBuyVsRent = () => {
+    const headers = ["Purpose", "Property Count", "Percentage"];
+    const rows = buyVsRent.map((item: any) => [
+      item.name || "",
+      item.count || 0,
+      `${item.percentage || 0}%`,
+    ]);
+    exportSingleCardCsv("Buy_vs_Rent", headers, rows);
+  };
+
+  const handleExportRecentActivity = () => {
+    const headers = ["Activity Title", "Description", "Type", "Timestamp"];
+    const rows = recentActivities.map((item: any) => [
+      item.title || "",
+      item.description || "",
+      item.type || "",
+      item.timestamp ? new Date(item.timestamp).toLocaleString() : "",
+    ]);
+    exportSingleCardCsv("Recent_Activity", headers, rows);
+  };
+
+  const handleExportMonthlyOverview = () => {
+    const headers = ["Month", "Properties Added", "Properties Sold", "Properties Rented"];
+    const rows = monthlyOverview.map((item: any) => [
+      item.month || "",
+      item.added || 0,
+      item.sold || 0,
+      item.rented || 0,
+    ]);
+    exportSingleCardCsv("Monthly_Overview", headers, rows);
+  };
+
   const kpis = data?.kpis;
   const listingTrends = data?.listingTrends || [];
   const totalAdded = listingTrends.reduce((sum: number, item: any) => sum + (item.added || 0), 0);
@@ -445,20 +547,32 @@ export default function AnalyticsContent() {
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-base font-bold text-[#161616]">Property Listings Trend</h3>
 
-            {/* Time range filter */}
-            <select
-              value={range}
-              onChange={(e) => setRange(e.target.value)}
-              className="text-xs bg-[#FAFAF8] border border-[#E8E1D4] rounded-lg px-2.5 py-1 text-gray-700 outline-none focus:border-[#C89B1C] cursor-pointer font-medium"
-            >
-              <option value="today">Today</option>
-              <option value="7days">7 Days</option>
-              <option value="30days">Last 30 Days</option>
-              <option value="thisMonth">This Month</option>
-              <option value="lastMonth">Last Month</option>
-              <option value="6months">6 Months</option>
-              <option value="1year">1 Year</option>
-            </select>
+            <div className="flex items-center gap-2">
+              {/* Time range filter */}
+              <select
+                value={range}
+                onChange={(e) => setRange(e.target.value)}
+                className="text-xs bg-[#FAFAF8] border border-[#E8E1D4] rounded-lg px-2.5 py-1 text-gray-700 outline-none focus:border-[#C89B1C] cursor-pointer font-medium"
+              >
+                <option value="today">Today</option>
+                <option value="7days">7 Days</option>
+                <option value="30days">Last 30 Days</option>
+                <option value="thisMonth">This Month</option>
+                <option value="lastMonth">Last Month</option>
+                <option value="6months">6 Months</option>
+                <option value="1year">1 Year</option>
+              </select>
+
+              <button
+                type="button"
+                onClick={handleExportTrend}
+                title="Export Card CSV"
+                className="p-1 px-2 rounded-lg border border-[#E8E1D4] hover:border-[#C89B1C] bg-[#FAFAF8] hover:bg-[#FFF9EC] text-[#8C6605] text-[11px] font-semibold flex items-center gap-1 transition-all cursor-pointer"
+              >
+                <Download size={12} className="text-[#C89B1C]" />
+                <span className="hidden sm:inline">Export</span>
+              </button>
+            </div>
           </div>
 
           <div className="flex-1 flex flex-col justify-between space-y-4">
@@ -732,7 +846,18 @@ export default function AnalyticsContent() {
 
         {/* 3. Properties by Type (Donut Chart - 3 Cols on desktop) */}
         <div className="col-span-12 md:col-span-6 lg:col-span-3 bg-white rounded-2xl border border-[#ECE7DB] p-5 shadow-2xs flex flex-col justify-between">
-          <h3 className="text-base font-bold text-[#161616] mb-2">Properties by Type</h3>
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-base font-bold text-[#161616]">Properties by Type</h3>
+            <button
+              type="button"
+              onClick={handleExportByType}
+              title="Export Card CSV"
+              className="p-1 px-2 rounded-lg border border-[#E8E1D4] hover:border-[#C89B1C] bg-[#FAFAF8] hover:bg-[#FFF9EC] text-[#8C6605] text-[11px] font-semibold flex items-center gap-1 transition-all cursor-pointer"
+            >
+              <Download size={12} className="text-[#C89B1C]" />
+              <span className="hidden sm:inline">Export</span>
+            </button>
+          </div>
 
           <div className="relative h-[180px] w-full flex items-center justify-center">
             {loading ? (
@@ -790,6 +915,15 @@ export default function AnalyticsContent() {
         <div className="col-span-12 md:col-span-6 lg:col-span-4 bg-white rounded-2xl border border-[#ECE7DB] p-5 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-base font-bold text-[#161616]">Properties by Service Area</h3>
+            <button
+              type="button"
+              onClick={handleExportServiceArea}
+              title="Export Card CSV"
+              className="p-1 px-2 rounded-lg border border-[#E8E1D4] hover:border-[#C89B1C] bg-[#FAFAF8] hover:bg-[#FFF9EC] text-[#8C6605] text-[11px] font-semibold flex items-center gap-1 transition-all cursor-pointer"
+            >
+              <Download size={12} className="text-[#C89B1C]" />
+              <span className="hidden sm:inline">Export</span>
+            </button>
           </div>
 
           <div className="overflow-x-auto flex-1">
@@ -840,7 +974,18 @@ export default function AnalyticsContent() {
       <div className="grid grid-cols-12 gap-6">
         {/* 5. Users by Role (Donut Chart - 4 Cols) */}
         <div className="col-span-12 md:col-span-6 lg:col-span-4 bg-white rounded-2xl border border-[#ECE7DB] p-5 shadow-2xs flex flex-col justify-between">
-          <h3 className="text-base font-bold text-[#161616] mb-2">Users by Role</h3>
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-base font-bold text-[#161616]">Users by Role</h3>
+            <button
+              type="button"
+              onClick={handleExportUsersByRole}
+              title="Export Card CSV"
+              className="p-1 px-2 rounded-lg border border-[#E8E1D4] hover:border-[#C89B1C] bg-[#FAFAF8] hover:bg-[#FFF9EC] text-[#8C6605] text-[11px] font-semibold flex items-center gap-1 transition-all cursor-pointer"
+            >
+              <Download size={12} className="text-[#C89B1C]" />
+              <span className="hidden sm:inline">Export</span>
+            </button>
+          </div>
 
           <div className="relative h-[180px] w-full flex items-center justify-center">
             {loading ? (
@@ -896,7 +1041,18 @@ export default function AnalyticsContent() {
 
         {/* 6. Buy vs Rent (Donut Chart - 4 Cols) */}
         <div className="col-span-12 md:col-span-6 lg:col-span-4 bg-white rounded-2xl border border-[#ECE7DB] p-5 shadow-2xs flex flex-col justify-between">
-          <h3 className="text-base font-bold text-[#161616] mb-2">Buy vs Rent</h3>
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-base font-bold text-[#161616]">Buy vs Rent</h3>
+            <button
+              type="button"
+              onClick={handleExportBuyVsRent}
+              title="Export Card CSV"
+              className="p-1 px-2 rounded-lg border border-[#E8E1D4] hover:border-[#C89B1C] bg-[#FAFAF8] hover:bg-[#FFF9EC] text-[#8C6605] text-[11px] font-semibold flex items-center gap-1 transition-all cursor-pointer"
+            >
+              <Download size={12} className="text-[#C89B1C]" />
+              <span className="hidden sm:inline">Export</span>
+            </button>
+          </div>
 
           <div className="relative h-[180px] w-full flex items-center justify-center">
             {loading ? (
@@ -954,9 +1110,20 @@ export default function AnalyticsContent() {
         <div className="col-span-12 lg:col-span-4 bg-white rounded-2xl border border-[#ECE7DB] p-5 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-base font-bold text-[#161616]">Recent Activity</h3>
-            <span className="text-xs font-semibold text-[#9A720C] hover:underline cursor-pointer">
-              View All
-            </span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleExportRecentActivity}
+                title="Export Card CSV"
+                className="p-1 px-2 rounded-lg border border-[#E8E1D4] hover:border-[#C89B1C] bg-[#FAFAF8] hover:bg-[#FFF9EC] text-[#8C6605] text-[11px] font-semibold flex items-center gap-1 transition-all cursor-pointer"
+              >
+                <Download size={12} className="text-[#C89B1C]" />
+                <span className="hidden sm:inline">Export</span>
+              </button>
+              <span className="text-xs font-semibold text-[#9A720C] hover:underline cursor-pointer">
+                View All
+              </span>
+            </div>
           </div>
 
           <div className="space-y-4 flex-1">
@@ -998,7 +1165,18 @@ export default function AnalyticsContent() {
       {/* Row 4: 8. Monthly Overview (Last 6 Months) (Grouped Bar Chart - Full Width) */}
       <div className="bg-white rounded-2xl border border-[#ECE7DB] p-6 shadow-2xs space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-          <h3 className="text-base font-bold text-[#161616]">Monthly Overview (Last 6 Months)</h3>
+          <div className="flex items-center gap-3">
+            <h3 className="text-base font-bold text-[#161616]">Monthly Overview (Last 6 Months)</h3>
+            <button
+              type="button"
+              onClick={handleExportMonthlyOverview}
+              title="Export Card CSV"
+              className="p-1 px-2 rounded-lg border border-[#E8E1D4] hover:border-[#C89B1C] bg-[#FAFAF8] hover:bg-[#FFF9EC] text-[#8C6605] text-[11px] font-semibold flex items-center gap-1 transition-all cursor-pointer"
+            >
+              <Download size={12} className="text-[#C89B1C]" />
+              <span className="hidden sm:inline">Export</span>
+            </button>
+          </div>
 
           <div className="flex items-center gap-4 flex-wrap text-xs font-medium text-gray-600">
             <div className="flex items-center gap-1.5">
