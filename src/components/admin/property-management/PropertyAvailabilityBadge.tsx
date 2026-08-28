@@ -26,6 +26,11 @@ export default function PropertyAvailabilityBadge({ availabilityStatus, classNam
       icon: <CheckCircle2 size={13} />,
       badgeClass: "bg-gray-100 text-gray-700 border border-gray-200",
     },
+    rented: {
+      label: "Rented",
+      icon: <CheckCircle2 size={13} />,
+      badgeClass: "bg-blue-50 text-blue-700 border border-blue-200/80",
+    },
   };
 
   const item = config[statusKey] || config.on_sale;

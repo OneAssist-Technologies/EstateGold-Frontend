@@ -196,8 +196,14 @@ export default function PropertyCard({ property }: Props) {
           )}
 
           {property.availabilityStatus === "sold" && (
-            <span className="bg-gray-800 text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-2xs flex items-center gap-1">
+            <span className="bg-red-800 text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-2xs flex items-center gap-1">
               <Check size={11} /> Sold
+            </span>
+          )}
+
+          {property.availabilityStatus === "rented" && (
+            <span className="bg-blue-800 text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-2xs flex items-center gap-1">
+              <Check size={11} /> Rented
             </span>
           )}
 

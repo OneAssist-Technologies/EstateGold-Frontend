@@ -239,7 +239,7 @@ export interface Property {
   neighbourhood?: Neighbourhood | any;
 
   status: string;
-  availabilityStatus?: "on_sale" | "hold" | "sold";
+  availabilityStatus?: "on_sale" | "hold" | "sold" | "rented";
   role?: string;
   ownerNegotiable?: boolean;
   ownerReadyToMeet?: boolean;

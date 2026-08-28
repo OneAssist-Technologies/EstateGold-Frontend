@@ -130,6 +130,20 @@ rejected:0
     }
   };
 
+  const handleAvailabilityStatusChange = (id: string, newStatus: string) => {
+    setProperties((prev) =>
+      prev.map((item) =>
+        item._id === id
+          ? {
+              ...item,
+              availabilityStatus: newStatus as any,
+            }
+          : item
+      )
+    );
+    fetchProperties(false);
+  };
+
   const handleStatusChange = async (property: Property) => {
     try {
       const isActive = ["approved", "active", "published"].includes(property.status);
@@ -394,6 +408,7 @@ return (
                     onEdit={handleEdit}
                     onDelete={handleDelete}
                     onViewEnquiries={(id) => setEnquiriesPropertyId(id)}
+                    onAvailabilityStatusChange={handleAvailabilityStatusChange}
                     onStatusChange={() =>
                       handleStatusChange(
                         property
