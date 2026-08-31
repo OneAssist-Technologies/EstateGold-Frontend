@@ -98,6 +98,7 @@ export interface PropertyFormData {
     issues: PendingIssue[];
   };
   documents?: DocumentItem[];
+  agreementDetails?: AgreementDetails;
   carpetArea?: number;
   totalFloors?: number;
   plotArea?: number;
@@ -281,6 +282,7 @@ export interface Property {
   documents?: DocumentItem[];
   documentsAvailable?: boolean;
   uploadedDocumentTypes?: string[];
+  agreementDetails?: AgreementDetails;
 }
 
 export interface MarketInsight {
@@ -323,4 +325,21 @@ export interface DocumentItem {
   reviewer?: any;
   remarks?: string;
   expiryDate?: string;
+}
+
+export interface AgreementDetails {
+  agreementType?: string;
+  amount?: number;
+  advanceAmount?: number;
+  securityDeposit?: number;
+  duration?: string;
+  startDate?: string;
+  noticePeriod?: string;
+  lockInPeriod?: string;
+  rentEscalation?: string;
+  maintenanceResponsibility?: string;
+  utilitiesResponsibility?: string;
+  parkingDetails?: string;
+  furnishingCondition?: string;
+  additionalTerms?: string;
 }

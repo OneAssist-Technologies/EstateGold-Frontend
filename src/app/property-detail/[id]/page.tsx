@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
 
 import { motion } from "framer-motion";
-import { Lock, UserPlus, LogIn, ShieldCheck } from "lucide-react";
+import { Lock, UserPlus, LogIn, ShieldCheck, FileText } from "lucide-react";
 import { useAuth } from "@/src/hooks/useAuth";;
 
 import Navbar from "@/src/components/navbar/Navbar";
@@ -30,6 +31,7 @@ import StickyContactCard from "../../../components/property/detail/StickyContact
 
 import LoginRequiredModal from "../../../components/property/detail/LoginRequiredModal";
 import RequestCallbackModal from "../../../components/property/detail/RequestCallbackModal";
+import AgreementDetailsModal from "../../../components/property/detail/AgreementDetailsModal";
 import { calculatePropertyMatchScore } from "../../../utils/matchScore";
 
 const getChecklistDocuments = (propertyType: string) => {
@@ -83,6 +85,9 @@ export default function PropertyDetailsPage() {
   const [loginOpen, setLoginOpen] = useState(false);
   const [callbackOpen, setCallbackOpen] = useState(false);
   const [showChecklist, setShowChecklist] = useState(false);
+  const [showAgreementModal, setShowAgreementModal] = useState(false);
+  const [isAgreementAccepted, setIsAgreementAccepted] = useState(false);
+  const [pendingContactAction, setPendingContactAction] = useState<(() => void) | null>(null);
 
   const [matchScoreData, setMatchScoreData] = useState<any>(null);
 
@@ -212,6 +217,25 @@ export default function PropertyDetailsPage() {
     setLoginOpen(true);
   };
 
+  const executeWithAgreementCheck = (action: () => void) => {
+    if (isGuest) {
+      handleLoginRequired();
+      return;
+    }
+
+    const isRentOrLease =
+      (property?.purpose || "").toLowerCase() === "rent" ||
+      (property?.purpose || "").toLowerCase() === "lease";
+    const hasAgreement = Boolean(property?.agreementDetails);
+
+    if (isRentOrLease && hasAgreement && !isAgreementAccepted) {
+      setPendingContactAction(() => action);
+      setShowAgreementModal(true);
+    } else {
+      action();
+    }
+  };
+
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
@@ -232,11 +256,15 @@ export default function PropertyDetailsPage() {
     alert("Saved to your wishlist!");
   };
 
+  const isAgentPublished =
+    property.createdBy &&
+    typeof property.createdBy === "object" &&
+    (property.createdBy as any).role === "agent";
+
   const handleCall = () => {
-    const rawPhone =
-      property.ownerPhone ||
-      (property.createdBy as any)?.phone ||
-      (property as any).phone;
+    const rawPhone = isAgentPublished
+      ? (property.createdBy as any)?.phone || property.ownerPhone
+      : property.ownerPhone || (property.createdBy as any)?.phone;
 
     if (rawPhone) {
       const cleanPhone = String(rawPhone).replace(/[^\d+]/g, "");
@@ -247,11 +275,9 @@ export default function PropertyDetailsPage() {
   };
 
   const handleWhatsapp = (customMsg?: string) => {
-    const rawPhone =
-      property.ownerPhone ||
-      (property.createdBy as any)?.phone ||
-      (property as any).phone ||
-      "";
+    const rawPhone = isAgentPublished
+      ? (property.createdBy as any)?.phone || property.ownerPhone
+      : property.ownerPhone || (property.createdBy as any)?.phone || "";
 
     let cleanPhone = String(rawPhone).replace(/\D/g, "");
     if (cleanPhone.length === 10) {
@@ -339,6 +365,20 @@ export default function PropertyDetailsPage() {
             />
 
             <PropertyInfo property={property} />
+
+            {/* View Agreement & Tenancy Terms Button for Rent & Lease Properties */}
+            {((property.purpose || "").toLowerCase() === "rent" || (property.purpose || "").toLowerCase() === "lease") && property.agreementDetails && (
+              <div className="mt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowAgreementModal(true)}
+                  className="w-full sm:w-auto px-6 py-3 bg-white border border-[#D8B56A] hover:bg-[#FFFDF6] text-[#9A720C] hover:border-[#C89B1C] text-xs sm:text-sm font-bold rounded-2xl shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <FileText size={18} className="text-[#C89B1C]" />
+                  <span>View Agreement & Tenancy Terms</span>
+                </button>
+              </div>
+            )}
 
             {/* Match Compatibility Section */}
             {matchScoreData && (
@@ -565,9 +605,9 @@ export default function PropertyDetailsPage() {
                 property={property}
                 user={user}
                 onLogin={handleLoginRequired}
-                onRequestCallback={() => setCallbackOpen(true)}
-                onCall={handleCall}
-                onWhatsapp={handleWhatsapp}
+                onRequestCallback={() => executeWithAgreementCheck(() => setCallbackOpen(true))}
+                onCall={() => executeWithAgreementCheck(handleCall)}
+                onWhatsapp={(msg) => executeWithAgreementCheck(() => handleWhatsapp(msg))}
                 onEdit={handleEdit}
                 onViewEnquiries={handleEnquiries}
                 onToggleStatus={handleToggleStatus}
@@ -598,6 +638,25 @@ export default function PropertyDetailsPage() {
         userName={user?.fullName}
         userPhone={user?.phone}
         onClose={() => setCallbackOpen(false)}
+      />
+
+      <AgreementDetailsModal
+        open={showAgreementModal}
+        onClose={() => {
+          setShowAgreementModal(false);
+          setPendingContactAction(null);
+        }}
+        onAgree={() => {
+          setIsAgreementAccepted(true);
+          toast.success("Agreement terms accepted.");
+          if (pendingContactAction) {
+            pendingContactAction();
+            setPendingContactAction(null);
+          }
+        }}
+        agreementDetails={property.agreementDetails}
+        purpose={property.purpose}
+        propertyTitle={property.bedrooms ? `${property.bedrooms} BHK ${property.propertyType}` : property.propertyType}
       />
     </div>
   );

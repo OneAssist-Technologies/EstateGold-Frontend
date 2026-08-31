@@ -21,8 +21,9 @@ import { useAuth } from "@/src/hooks/useAuth";;
 import { Property } from "@/src/types/property";
 
 import {
-Search,
-Plus
+  Search,
+  Plus,
+  Upload,
 } from "lucide-react";
 
 import { motion } from "framer-motion";
@@ -288,13 +289,27 @@ return (
             </p>
           </div>
 
-          <button
-            onClick={() => router.push("/post-property")}
-            className="h-10 px-4 rounded-xl bg-[#C89B1C] hover:bg-[#B88D18] text-white text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
-          >
-            <Plus size={14} />
-            Add Property
-          </button>
+          <div className="flex items-center gap-2.5 flex-wrap">
+            {user?.role === "agent" && (
+              <button
+                type="button"
+                onClick={() => router.push("/my-properties/bulk-upload")}
+                className="h-10 px-4 rounded-xl bg-white border border-[#C89B1C] hover:bg-[#FFF9EC] text-[#9A720C] text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs"
+              >
+                <Upload size={14} />
+                Bulk Upload Properties
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={() => router.push("/post-property")}
+              className="h-10 px-4 rounded-xl bg-[#C89B1C] hover:bg-[#B88D18] text-white text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs"
+            >
+              <Plus size={14} />
+              Add Property
+            </button>
+          </div>
         </motion.div>
 
         {/* Dashboard */}
