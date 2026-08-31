@@ -710,6 +710,31 @@ export function validatePropertyStep(
       });
       break;
 
+    case "agreement":
+      const isRentOrLease = formData.purpose === "Rent" || formData.purpose === "Lease";
+      if (isRentOrLease) {
+        const agreement = formData.agreementDetails || {};
+        if (!agreement.agreementType || !agreement.agreementType.trim()) {
+          errors.agreementType = "Agreement Type is required.";
+        }
+        if (!agreement.amount || Number(agreement.amount) <= 0) {
+          errors.amount = "Rent / Lease Amount must be greater than 0.";
+        }
+        if (agreement.securityDeposit === undefined || agreement.securityDeposit === null || Number(agreement.securityDeposit) < 0) {
+          errors.securityDeposit = "Security Deposit amount is required.";
+        }
+        if (!agreement.duration || !agreement.duration.trim()) {
+          errors.duration = "Agreement Duration is required.";
+        }
+        if (!agreement.startDate) {
+          errors.startDate = "Agreement Start Date is required.";
+        }
+        if (!agreement.noticePeriod || !agreement.noticePeriod.trim()) {
+          errors.noticePeriod = "Notice Period is required.";
+        }
+      }
+      break;
+
     case "price":
       if (!formData.price || Number(formData.price) <= 0) {
         errors.price = "Listing Price must be greater than 0.";

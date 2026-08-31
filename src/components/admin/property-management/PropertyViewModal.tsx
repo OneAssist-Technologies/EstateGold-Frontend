@@ -327,12 +327,76 @@ export default function PropertyViewModal({
                       ))
                     ) : (
                       property.uploadedDocumentTypes?.map((docType, idx) => (
-                        <div key={idx} className="p-2.5 bg-white rounded-xl border border-emerald-200/60 text-xs font-semibold text-gray-700">
-                          📄 {docType}
+                        <div key={idx} className="p-2.5 bg-white rounded-xl border border-emerald-200/60 text-xs font-semibold text-gray-700 flex items-center gap-1.5">
+                          <FileCheck size={14} className="text-emerald-600 shrink-0" />
+                          <span>{docType}</span>
                         </div>
                       ))
                     )}
                   </div>
+                </div>
+              )}
+
+              {/* Read-Only Agreement Details Section for Admin */}
+              {((property.purpose || "").toLowerCase() === "rent" || (property.purpose || "").toLowerCase() === "lease") && (property as any).agreementDetails && (
+                <div className="p-5 rounded-2xl border border-[#E8DCC1] bg-[#FFFDF6] space-y-3">
+                  <h3 className="font-bold text-base text-gray-900 flex items-center justify-between border-b border-[#ECE7DB] pb-2">
+                    <span className="flex items-center gap-2">
+                      <FileCheck size={18} className="text-[#9A720C]" />
+                      Owner Agreement Terms ({property.purpose})
+                    </span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider bg-[#FFF9EC] text-[#9A720C] px-2.5 py-0.5 rounded-full border border-[#E8DCC1]">
+                      Read Only
+                    </span>
+                  </h3>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+                    {(property as any).agreementDetails.agreementType && (
+                      <div className="p-3 bg-white rounded-xl border border-[#ECE7DB]">
+                        <span className="block text-[10px] font-bold text-gray-400 uppercase">Type</span>
+                        <span className="font-bold text-gray-900">{(property as any).agreementDetails.agreementType}</span>
+                      </div>
+                    )}
+                    {(property as any).agreementDetails.amount !== undefined && (
+                      <div className="p-3 bg-white rounded-xl border border-[#ECE7DB]">
+                        <span className="block text-[10px] font-bold text-gray-400 uppercase">
+                          {(property.purpose || "").toLowerCase() === "lease" ? "Lease Consideration" : "Monthly Rent"}
+                        </span>
+                        <span className="font-bold text-[#9A720C]">₹{(property as any).agreementDetails.amount.toLocaleString("en-IN")}</span>
+                      </div>
+                    )}
+                    {(property as any).agreementDetails.securityDeposit !== undefined && (
+                      <div className="p-3 bg-white rounded-xl border border-[#ECE7DB]">
+                        <span className="block text-[10px] font-bold text-gray-400 uppercase">Security Deposit</span>
+                        <span className="font-bold text-gray-900">₹{(property as any).agreementDetails.securityDeposit.toLocaleString("en-IN")}</span>
+                      </div>
+                    )}
+                    {(property as any).agreementDetails.advanceAmount !== undefined && (property as any).agreementDetails.advanceAmount > 0 && (
+                      <div className="p-3 bg-white rounded-xl border border-[#ECE7DB]">
+                        <span className="block text-[10px] font-bold text-gray-400 uppercase">Advance Amount</span>
+                        <span className="font-bold text-gray-900">₹{(property as any).agreementDetails.advanceAmount.toLocaleString("en-IN")}</span>
+                      </div>
+                    )}
+                    {(property as any).agreementDetails.duration && (
+                      <div className="p-3 bg-white rounded-xl border border-[#ECE7DB]">
+                        <span className="block text-[10px] font-bold text-gray-400 uppercase">Duration</span>
+                        <span className="font-bold text-gray-900">{(property as any).agreementDetails.duration}</span>
+                      </div>
+                    )}
+                    {(property as any).agreementDetails.noticePeriod && (
+                      <div className="p-3 bg-white rounded-xl border border-[#ECE7DB]">
+                        <span className="block text-[10px] font-bold text-gray-400 uppercase">Notice Period</span>
+                        <span className="font-bold text-gray-900">{(property as any).agreementDetails.noticePeriod}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {(property as any).agreementDetails.additionalTerms && (
+                    <div className="p-3 bg-white rounded-xl border border-[#ECE7DB] text-xs">
+                      <span className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Additional Terms</span>
+                      <p className="font-medium text-gray-800">{(property as any).agreementDetails.additionalTerms}</p>
+                    </div>
+                  )}
                 </div>
               )}
 

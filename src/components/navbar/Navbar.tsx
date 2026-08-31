@@ -9,6 +9,7 @@ import {
   ChevronDown,
   Menu,
   X,
+  Upload,
 } from "lucide-react";
 
 import {
@@ -232,9 +233,19 @@ if (loading) {
  
             {isAuthenticated && (
               <>
+                {role === "agent" && (
+                  <Link
+                    href="/my-properties/bulk-upload"
+                    className="hidden md:inline-flex border border-[#B88A1A] bg-white text-[#9A720C] hover:bg-[#FFF9EC] px-3.5 py-2 rounded-xl text-sm font-bold transition-all shadow-2xs whitespace-nowrap items-center gap-1.5"
+                  >
+                    <Upload size={15} />
+                    Bulk Listing
+                  </Link>
+                )}
+
                 <Link
                   href="/post-property"
-                  className="hidden sm:inline-flex border border-[#B88A1A] text-[#9A720C] hover:bg-[#FFF9EC] px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-2xs whitespace-nowrap"
+                  className="hidden sm:inline-flex border border-[#B88A1A] bg-gradient-to-r from-[#B88A1A] via-[#D4B04C] to-[#8C6605] text-white hover:opacity-95 px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-2xs whitespace-nowrap"
                 >
                   + List Property
                 </Link>
@@ -284,6 +295,17 @@ if (loading) {
                           <Building2 size={18} className="text-gray-700" />
                           <span>My Properties</span>
                         </Link>
+
+                        {role === "agent" && (
+                          <Link
+                            href="/my-properties/bulk-upload"
+                            className="flex items-center gap-3 px-5 py-3 text-sm font-medium text-gray-800 hover:bg-[#FAF6EE] hover:text-[#9A720C] transition-colors"
+                            onClick={() => setOpen(false)}
+                          >
+                            <Upload size={18} className="text-[#9A720C]" />
+                            <span>Bulk Upload Properties</span>
+                          </Link>
+                        )}
  
                         <div className="border-t border-[#ECE7DB] my-1" />
  
@@ -416,9 +438,19 @@ if (loading) {
             </div>
           ) : (
             <div className="flex flex-col gap-2">
+              {role === "agent" && (
+                <Link
+                  href="/my-properties/bulk-upload"
+                  className="w-full h-11 rounded-xl border border-[#B88A1A] text-[#9A720C] flex items-center justify-center text-sm font-bold hover:bg-[#FFF9EC] transition gap-1.5"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Upload size={16} /> Bulk Upload Properties
+                </Link>
+              )}
+
               <Link
                 href="/post-property"
-                className="w-full h-11 rounded-xl border border-[#B88A1A] text-[#9A720C] flex items-center justify-center text-sm font-bold hover:bg-[#FFF9EC] transition"
+                className="w-full h-11 rounded-xl bg-gradient-to-r from-[#B88A1A] via-[#D4B04C] to-[#8C6605] text-white flex items-center justify-center text-sm font-bold hover:opacity-95 transition"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 + List Property

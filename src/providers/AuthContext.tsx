@@ -102,6 +102,17 @@ export function AuthProvider({
   const logout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
+    if (typeof window !== "undefined") {
+      try {
+        Object.keys(localStorage).forEach((key) => {
+          if (key.includes("listPropertyDraft") || key.includes("property_form_draft")) {
+            localStorage.removeItem(key);
+          }
+        });
+      } catch (err) {
+        console.error("Failed to clear draft keys on logout:", err);
+      }
+    }
     setUser(null);
     if (typeof window !== "undefined") {
       window.location.href = "/login";

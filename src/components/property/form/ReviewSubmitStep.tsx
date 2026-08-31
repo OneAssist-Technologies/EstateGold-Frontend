@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import { useState } from "react";
 import { CheckCircle2, AlertTriangle, FileText, MapPin, Landmark, DollarSign, User, ShieldCheck, Pencil } from "lucide-react";
 import { PropertyFormData } from "../../../types/property";
 import EyvaPropertyTips from "./EyvaPropertyTips";
+import AgreementDetailsModal from "../detail/AgreementDetailsModal";
 
 interface Props {
   formData: PropertyFormData;
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export default function ReviewSubmitStep({ formData, onSubmit, onSaveDraft, loading, onEditStep }: Props) {
+  const [showAgreementModal, setShowAgreementModal] = useState(false);
   // Format price helper
   const formatPrice = (price?: number) => {
     if (price === undefined || price === null || isNaN(price)) return "₹0";
@@ -406,6 +408,62 @@ export default function ReviewSubmitStep({ formData, onSubmit, onSaveDraft, load
             </div>
           </div>
         </div>
+
+        {/* Agreement Details Card */}
+        {(formData.purpose === "Rent" || formData.purpose === "Lease") && formData.agreementDetails && (
+          <div className="bg-white border border-[#E5D8B3] rounded-2xl p-4 sm:p-5 space-y-4 shadow-2xs">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-2">
+              <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wider flex items-center gap-2">
+                <FileText size={16} className="text-[#C89B1C]" /> Agreement Details
+              </h3>
+              {onEditStep && (
+                <button
+                  type="button"
+                  onClick={() => onEditStep("agreement")}
+                  className="text-[10px] sm:text-xs bg-[#FFF9EC] text-[#9A720C] border border-[#E5D8B3] hover:bg-[#FFF2D3] px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg font-bold flex items-center gap-1 transition-all cursor-pointer"
+                >
+                  <Pencil size={10} /> Edit
+                </button>
+              )}
+            </div>
+            <div className="space-y-2 text-xs sm:text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-400 font-medium">Agreement Type:</span>
+                <span className="font-bold text-gray-800">{formData.agreementDetails.agreementType || "N/A"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400 font-medium">
+                  {formData.purpose === "Lease" ? "Lease Amount:" : "Monthly Rent:"}
+                </span>
+                <span className="font-bold text-[#C89B1C]">
+                  {formData.agreementDetails.amount ? `₹${formData.agreementDetails.amount.toLocaleString("en-IN")}` : "N/A"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400 font-medium">Security Deposit:</span>
+                <span className="font-bold text-gray-800">
+                  {formData.agreementDetails.securityDeposit ? `₹${formData.agreementDetails.securityDeposit.toLocaleString("en-IN")}` : "N/A"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400 font-medium">Duration:</span>
+                <span className="font-bold text-gray-800">{formData.agreementDetails.duration || "N/A"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400 font-medium">Notice Period:</span>
+                <span className="font-bold text-gray-800">{formData.agreementDetails.noticePeriod || "N/A"}</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowAgreementModal(true)}
+              className="w-full mt-2 py-2 px-3 bg-[#FFFDF6] border border-[#E8DCC1] hover:bg-[#FFF9EC] text-[#9A720C] text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+            >
+              <FileText size={14} /> View Agreement Details
+            </button>
+          </div>
+        )}
       </div>
 
       {/* ✨ Eyva's Property Tips Section */}
@@ -434,6 +492,14 @@ export default function ReviewSubmitStep({ formData, onSubmit, onSaveDraft, load
           </button>
         </div>
       )}
+
+      {/* Agreement Details Modal Preview */}
+      <AgreementDetailsModal
+        open={showAgreementModal}
+        onClose={() => setShowAgreementModal(false)}
+        agreementDetails={formData.agreementDetails}
+        purpose={formData.purpose}
+      />
     </div>
   );
 }

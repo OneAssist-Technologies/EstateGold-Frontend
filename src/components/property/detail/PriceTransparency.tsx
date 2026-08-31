@@ -1,6 +1,6 @@
 "use client";
 
-import { HelpCircle } from "lucide-react";
+import { HelpCircle, FileText } from "lucide-react";
 import { Property } from "@/src/types/property";
 
 interface Props {
@@ -197,7 +197,7 @@ export default function PriceTransparency({ property }: Props) {
         <div className="border border-[#ECE7DB] bg-[#FAF8F5]/30 rounded-2xl p-5 flex flex-col justify-between space-y-4">
           <div>
             <h4 className="text-sm font-bold text-gray-900 flex items-center gap-1.5 border-b border-gray-100 pb-2">
-              📄 Govt. & Transaction Charges
+              <FileText size={16} className="text-[#C89B1C]" /> Govt. & Transaction Charges
             </h4>
             <div className="mt-4 space-y-3">
               <div className="flex justify-between items-center text-xs">
