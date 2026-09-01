@@ -28,85 +28,85 @@ import {
 
 import { motion } from "framer-motion";
 export default function MyPropertiesPage() {
-const { user, isAuthenticated, loading: authLoading } = useAuth();
-const router = useRouter();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
+  const router = useRouter();
 
-useEffect(() => {
-  if (!authLoading && !isAuthenticated) {
-    router.push("/login");
-  }
-}, [authLoading, isAuthenticated, router]);
-const [properties,setProperties]=
-useState<Property[]>([]);
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.push("/login");
+    }
+  }, [authLoading, isAuthenticated, router]);
+  const [properties, setProperties] =
+    useState<Property[]>([]);
 
-const [loading,setLoading]=
-useState(true);
+  const [loading, setLoading] =
+    useState(true);
 
-const [page,setPage]=
-useState(1);
+  const [page, setPage] =
+    useState(1);
 
-const [limit,setLimit]=
-useState(10);
+  const [limit, setLimit] =
+    useState(10);
 
-const [totalPages,setTotalPages]=
-useState(1);
+  const [totalPages, setTotalPages] =
+    useState(1);
 
-const [totalProperties,setTotalProperties]=
-useState(0);
+  const [totalProperties, setTotalProperties] =
+    useState(0);
 
-const [search,setSearch]=
-useState("");
-const [status, setStatus] =
-useState<PropertyStatus>("all");
+  const [search, setSearch] =
+    useState("");
+  const [status, setStatus] =
+    useState<PropertyStatus>("all");
 
-const [selectedProperty,setSelectedProperty]=
-useState<Property|null>(null);
+  const [selectedProperty, setSelectedProperty] =
+    useState<Property | null>(null);
 
-const [deleteProperty,setDeleteProperty]=
-useState<Property|null>(null);
+  const [deleteProperty, setDeleteProperty] =
+    useState<Property | null>(null);
 
-const [openDelete,setOpenDelete]=
-useState(false);
+  const [openDelete, setOpenDelete] =
+    useState(false);
 
-const [enquiriesPropertyId, setEnquiriesPropertyId] = useState<string | null>(null);
+  const [enquiriesPropertyId, setEnquiriesPropertyId] = useState<string | null>(null);
 
-const [counts,setCounts]=
-useState({
+  const [counts, setCounts] =
+    useState({
 
-all:0,
+      all: 0,
 
-active:0,
+      active: 0,
 
-pending:0,
+      pending: 0,
 
-inactive:0,
+      inactive: 0,
 
-rejected:0
+      rejected: 0
 
-});
-// const totalViews=
+    });
+  // const totalViews=
 
-// properties.reduce(
+  // properties.reduce(
 
-// (sum,item)=>
+  // (sum,item)=>
 
-// sum+(item.views||0),
+  // sum+(item.views||0),
 
-// 0
+  // 0
 
-// );
+  // );
 
-// const totalEnquiries=
+  // const totalEnquiries=
 
-// properties.reduce(
+  // properties.reduce(
 
-// (sum,item)=>
+  // (sum,item)=>
 
-// sum+(item.enquiries||0),
+  // sum+(item.enquiries||0),
 
-// 0
+  // 0
 
-// );
+  // );
   const fetchProperties = async (showLoading = true) => {
     try {
       if (showLoading) setLoading(true);
@@ -136,9 +136,9 @@ rejected:0
       prev.map((item) =>
         item._id === id
           ? {
-              ...item,
-              availabilityStatus: newStatus as any,
-            }
+            ...item,
+            availabilityStatus: newStatus as any,
+          }
           : item
       )
     );
@@ -155,9 +155,9 @@ rejected:0
         prev.map((item) =>
           item._id === property._id
             ? {
-                ...item,
-                status: newStatus,
-              }
+              ...item,
+              status: newStatus,
+            }
             : item
         )
       );
@@ -182,77 +182,77 @@ rejected:0
       fetchProperties(false);
     }
   };
-const handleView=(
+  const handleView = (
 
-id:string
+    id: string
 
-)=>{
+  ) => {
 
-router.push(
+    router.push(
 
-`/property-detail/${id}`
+      `/property-detail/${id}`
 
-);
+    );
 
-}
-const handleEdit=(
+  }
+  const handleEdit = (
 
-property:Property
+    property: Property
 
-)=>{
+  ) => {
 
-router.push(
+    router.push(
 
-`/my-properties/edit/${property._id}`
+      `/my-properties/edit/${property._id}`
 
-);
+    );
 
-}
-const handleDelete=(
+  }
+  const handleDelete = (
 
-property:Property
+    property: Property
 
-)=>{
+  ) => {
 
-setDeleteProperty(
+    setDeleteProperty(
 
-property
+      property
 
-);
+    );
 
-setOpenDelete(
+    setOpenDelete(
 
-true
+      true
 
-);
+    );
 
-}
-useEffect(() => {
-  const timer = setTimeout(() => {
-    fetchProperties();
-  }, 400);
+  }
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchProperties();
+    }, 400);
 
-  return () => clearTimeout(timer);
-}, [page, limit, search, status]);
-const fade={
+    return () => clearTimeout(timer);
+  }, [page, limit, search, status]);
+  const fade = {
 
-initial:{
+    initial: {
 
-opacity:0,
+      opacity: 0,
 
-y:20
+      y: 20
 
-},
+    },
 
-animate:{
+    animate: {
 
-opacity:1,
+      opacity: 1,
 
-y:0
+      y: 0
 
-}
+    }
 
-};
+  };
 
   const totalViews = properties.reduce(
     (sum, item) => sum + (item.views || 0),
@@ -264,225 +264,225 @@ y:0
     0
   );
 
-return (
-  <>
-    <Navbar />
+  return (
+    <>
+      <Navbar />
 
-    <div className="min-h-screen bg-[#FAFAFA]">
+      <div className="min-h-screen bg-[#FAFAFA]">
 
-      <div className="max-w-[1500px] mx-auto px-4 sm:px-8 py-6 sm:py-10">
+        <div className="max-w-[1500px] mx-auto px-4 sm:px-8 py-6 sm:py-10">
 
-        {/* Header */}
+          {/* Header */}
 
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35 }}
-          className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6"
-        >
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              {user?.fullName ? `${user.fullName}'s Listed Properties` : "My Properties"}
-            </h1>
-            <p className="text-xs text-gray-500 mt-1">
-              Showing property listings owned by {user?.fullName || "your account"} ({user?.email || "Authenticated"})
-            </p>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35 }}
+            className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6"
+          >
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                {user?.fullName ? `${user.fullName}'s Listed Properties` : "My Properties"}
+              </h1>
+              <p className="text-xs text-gray-500 mt-1">
+                Showing property listings owned by {user?.fullName || "your account"} ({user?.email || "Authenticated"})
+              </p>
+            </div>
 
-          <div className="flex items-center gap-2.5 flex-wrap">
-            {user?.role === "agent" && (
+            <div className="flex items-center gap-2.5 flex-wrap">
+              {user?.role === "agent" && (
+                <button
+                  type="button"
+                  onClick={() => router.push("/my-properties/bulk-upload")}
+                  className="h-10 px-4 rounded-xl bg-white border border-[#C89B1C] hover:bg-[#FFF9EC] text-[#9A720C] text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs"
+                >
+                  <Upload size={14} />
+                  Bulk Upload Properties
+                </button>
+              )}
+
               <button
                 type="button"
-                onClick={() => router.push("/my-properties/bulk-upload")}
-                className="h-10 px-4 rounded-xl bg-white border border-[#C89B1C] hover:bg-[#FFF9EC] text-[#9A720C] text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs"
+                onClick={() => router.push("/post-property")}
+                className="h-10 px-4 rounded-xl bg-[#C89B1C] hover:bg-[#B88D18] text-white text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs"
               >
-                <Upload size={14} />
-                Bulk Upload Properties
+                <Plus size={14} />
+                Add Property
               </button>
-            )}
+            </div>
+          </motion.div>
 
-            <button
-              type="button"
-              onClick={() => router.push("/post-property")}
-              className="h-10 px-4 rounded-xl bg-[#C89B1C] hover:bg-[#B88D18] text-white text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs"
-            >
-              <Plus size={14} />
-              Add Property
-            </button>
-          </div>
-        </motion.div>
+          {/* Dashboard */}
 
-        {/* Dashboard */}
-
-      <DashboardCards
-        total={counts.all}
-        active={counts.active}
-        views={totalViews}
-        enquiries={totalEnquiries}
-        onEnquiriesClick={() => setEnquiriesPropertyId("all")}
-      />
-
-        {/* Status */}
-
-        <StatusTabs
-          activeTab={status}
-          setActiveTab={(value) => {
-            setStatus(value);
-            setPage(1);
-          }}
-          counts={counts}
-        />
-
-        {/* Search */}
-
-        <div
-          className="bg-white border border-[#E8DCC1] rounded-2xl px-6 h-16 flex items-center mt-8 mb-8"
-        >
-
-          <Search
-            size={22}
-            className="text-gray-400"
+          <DashboardCards
+            total={counts.all}
+            active={counts.active}
+            views={totalViews}
+            enquiries={totalEnquiries}
+            onEnquiriesClick={() => setEnquiriesPropertyId("all")}
           />
 
-        <input
-  value={search}
-  onChange={(e) => {
-    setSearch(e.target.value);
-    setPage(1);
-  }}
-  placeholder="Search by city, locality, property type..."
-  className="flex-1 ml-4 outline-none text-lg"
-/>
+          {/* Status */}
 
-        </div>
+          <StatusTabs
+            activeTab={status}
+            setActiveTab={(value) => {
+              setStatus(value);
+              setPage(1);
+            }}
+            counts={counts}
+          />
 
-        {/* Loading */}
-
-        {loading ? (
-
-          <div className="flex justify-center py-32">
-
-            <div
-              className="h-14 w-14 rounded-full border-4 border-[#E8DCC1] border-t-[#C89B1C] animate-spin"
-            />
-
-          </div>
-
-        ) : properties.length === 0 ? (
+          {/* Search */}
 
           <div
-            className="bg-white rounded-3xl border border-dashed border-[#E8DCC1] py-28 text-center"
+            className="bg-white border border-[#E8DCC1] rounded-2xl px-6 h-16 flex items-center mt-8 mb-8"
           >
 
-            <img
-              src="/images/no-properties.svg"
-              className="w-52 mx-auto"
+            <Search
+              size={22}
+              className="text-gray-400"
             />
 
-            <h2 className="text-3xl font-semibold mt-8">
-
-              No Properties Found
-
-            </h2>
-
-            <p className="text-gray-500 mt-4">
-
-              No property matches your search.
-
-            </p>
-
-            <button
-              onClick={() => {
-
-                setSearch("");
-
-                setStatus("all");
-
+            <input
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
               }}
-              className="mt-8 px-7 h-12 rounded-xl bg-[#C89B1C] text-white"
-            >
-              Clear Filters
-            </button>
+              placeholder="Search by city, locality, property type..."
+              className="flex-1 ml-4 outline-none text-lg"
+            />
 
           </div>
 
-        ) : (
+          {/* Loading */}
 
-          <>
-            {/* Property List */}
+          {loading ? (
 
-            <div className="space-y-7">
+            <div className="flex justify-center py-32">
 
-              {properties.map(
-                (property) => (
-
-                  <PropertyRow
-                    key={property._id}
-                    property={property}
-                    onView={handleView}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                    onViewEnquiries={(id) => setEnquiriesPropertyId(id)}
-                    onAvailabilityStatusChange={handleAvailabilityStatusChange}
-                    onStatusChange={() =>
-                      handleStatusChange(
-                        property
-                      )
-                    }
-                  />
-
-                )
-              )}
+              <div
+                className="h-14 w-14 rounded-full border-4 border-[#E8DCC1] border-t-[#C89B1C] animate-spin"
+              />
 
             </div>
 
-            {/* Pagination */}
+          ) : properties.length === 0 ? (
 
-            {totalPages > 1 && (
+            <div
+              className="bg-white rounded-3xl border border-dashed border-[#E8DCC1] py-28 text-center"
+            >
 
-              <div className="mt-12">
+              <img
+                src="/images/no-properties.svg"
+                className="w-52 mx-auto"
+              />
 
-                <Pagination
-                  currentPage={page}
-                  totalPages={totalPages}
-                  setCurrentPage={setPage}
-                />
+              <h2 className="text-3xl font-semibold mt-8">
+
+                No Properties Found
+
+              </h2>
+
+              <p className="text-gray-500 mt-4">
+
+                No property matches your search.
+
+              </p>
+
+              <button
+                onClick={() => {
+
+                  setSearch("");
+
+                  setStatus("all");
+
+                }}
+                className="mt-8 px-7 h-12 rounded-xl bg-[#C89B1C] text-white"
+              >
+                Clear Filters
+              </button>
+
+            </div>
+
+          ) : (
+
+            <>
+              {/* Property List */}
+
+              <div className="space-y-7">
+
+                {properties.map(
+                  (property) => (
+
+                    <PropertyRow
+                      key={property._id}
+                      property={property}
+                      onView={handleView}
+                      onEdit={handleEdit}
+                      onDelete={handleDelete}
+                      onViewEnquiries={(id) => setEnquiriesPropertyId(id)}
+                      onAvailabilityStatusChange={handleAvailabilityStatusChange}
+                      onStatusChange={() =>
+                        handleStatusChange(
+                          property
+                        )
+                      }
+                    />
+
+                  )
+                )}
 
               </div>
 
-            )}
+              {/* Pagination */}
 
-          </>
+              {totalPages > 1 && (
 
-        )}
+                <div className="mt-12">
+
+                  <Pagination
+                    currentPage={page}
+                    totalPages={totalPages}
+                    setCurrentPage={setPage}
+                  />
+
+                </div>
+
+              )}
+
+            </>
+
+          )}
+
+        </div>
+
+
+
+        <DeletePropertyModal
+          open={openDelete}
+          property={deleteProperty}
+          onClose={() => {
+            setOpenDelete(false);
+            setDeleteProperty(null);
+          }}
+          onDeleted={() => {
+            setOpenDelete(false);
+            fetchProperties();
+          }}
+        />
+
+        <PropertyEnquiriesModal
+          open={Boolean(enquiriesPropertyId)}
+          propertyId={enquiriesPropertyId}
+          onClose={() => setEnquiriesPropertyId(null)}
+        />
 
       </div>
 
+      <Footer />
 
-
-<DeletePropertyModal
-  open={openDelete}
-  property={deleteProperty}
-  onClose={() => {
-    setOpenDelete(false);
-    setDeleteProperty(null);
-  }}
-  onDeleted={() => {
-    setOpenDelete(false);
-    fetchProperties();
-  }}
-/>
-
-<PropertyEnquiriesModal
-  open={Boolean(enquiriesPropertyId)}
-  propertyId={enquiriesPropertyId}
-  onClose={() => setEnquiriesPropertyId(null)}
-/>
-
-    </div>
-
-    <Footer />
-
-  </>
-);
+    </>
+  );
 }

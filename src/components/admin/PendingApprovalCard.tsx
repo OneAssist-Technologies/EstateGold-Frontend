@@ -9,6 +9,7 @@ import {
   Eye,
   MapPin,
   Clock,
+  Building2,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -34,6 +35,17 @@ function formatRelativeTime(dateStr?: string) {
   if (diffDays === 1) return "Yesterday";
   return `${diffDays} Days Ago`;
 }
+
+export const getPhotoUrl = (raw?: string) => {
+  if (!raw || typeof raw !== "string" || raw.trim() === "") {
+    return "";
+  }
+  if (raw.startsWith("http://") || raw.startsWith("https://")) {
+    return raw;
+  }
+  const clean = raw.replace(/^\/+/, "").replace(/^uploads\/properties\//, "").replace(/^uploads\//, "");
+  return `http://localhost:5000/uploads/properties/${clean}`;
+};
 
 export default function PendingApprovalCard({
   pendingProperties = [],
@@ -137,10 +149,9 @@ export default function PendingApprovalCard({
             </div>
           ) : (
             pendingProperties.map((item) => {
-              const imageSrc =
-                item.photos && item.photos.length > 0
-                  ? item.photos[0]
-                  : "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=600";
+              const rawPhoto = item.photos && item.photos.length > 0 ? item.photos[0] : "";
+              const publishedPhoto = getPhotoUrl(rawPhoto);
+
               const title = item.bedrooms
                 ? `${item.bedrooms} BHK ${item.propertyType}`
                 : item.propertyType || "Property";
@@ -152,13 +163,20 @@ export default function PendingApprovalCard({
                   key={item._id}
                   className="flex flex-col md:flex-row md:items-center justify-between px-4 sm:px-8 py-5 sm:py-6 border-b border-[#F3F0E8] hover:bg-[#FCFBF8] transition gap-4"
                 >
-                  {/* Property */}
+                  {/* Property Image / Placeholder */}
                   <div className="flex flex-col xs:flex-row items-stretch xs:items-center gap-4 xs:gap-5">
-                    <img
-                      src={imageSrc}
-                      alt={title}
-                      className="h-32 xs:h-20 w-full xs:w-28 rounded-xl xs:rounded-2xl object-cover shrink-0 bg-gray-100"
-                    />
+                    {publishedPhoto ? (
+                      <img
+                        src={publishedPhoto}
+                        alt={title}
+                        className="h-32 xs:h-20 w-full xs:w-28 rounded-xl xs:rounded-2xl object-cover shrink-0 bg-gray-100 border border-gray-200"
+                      />
+                    ) : (
+                      <div className="h-32 xs:h-20 w-full xs:w-28 rounded-xl xs:rounded-2xl bg-[#FFFDF6] border border-[#E8DCC1] flex flex-col items-center justify-center text-[#9A720C] shrink-0 p-2 text-center">
+                        <Building2 size={24} />
+                        <span className="text-[10px] font-bold text-gray-500 mt-1">No Image</span>
+                      </div>
+                    )}
 
                     <div>
                       <h3

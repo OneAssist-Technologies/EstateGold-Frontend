@@ -45,8 +45,8 @@ export default function Logo({
       {showText && (
         <span
           className={`${textSizeClass} font-bold  tracking-tight leading-none ${lightText
-              ? "bg-gradient-to-r from-[#F4E3B5] via-[#E5C365] to-[#C89B1C] bg-clip-text text-transparent"
-              : "bg-gradient-to-r from-[#A87B15] via-[#D4B04C] to-[#8C6605] bg-clip-text text-transparent"
+            ? "bg-gradient-to-r from-[#F4E3B5] via-[#E5C365] to-[#C89B1C] bg-clip-text text-transparent"
+            : "bg-gradient-to-r from-[#A87B15] via-[#D4B04C] to-[#8C6605] bg-clip-text text-transparent"
             }`}
         >
           EstateGold

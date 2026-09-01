@@ -10,6 +10,8 @@ import {
   Heart,
   Share2,
   Sparkles,
+  Briefcase,
+  User,
 } from "lucide-react";
 
 import { Property } from "../../../types/property";
@@ -237,38 +239,95 @@ export default function PropertyListCard({
 
             </div>
 
-            <div className="flex flex-wrap gap-4 sm:gap-8 mt-5 sm:mt-7 text-xs sm:text-sm">
+            <div className="flex flex-wrap gap-4 sm:gap-6 mt-5 sm:mt-7 text-xs sm:text-sm">
+              {(() => {
+                const pType = (property.propertyType || "").toLowerCase();
+                const isPlotOrLand = /plot|land|agricultural/i.test(pType);
+                const isCommercial = /office|commercial|shop|retail|industrial|warehouse|hotel/i.test(pType);
+                const isPGHostel = /pg|hostel/i.test(pType);
 
-              <div className="flex items-center gap-2">
+                if (isPlotOrLand) {
+                  return (
+                    <>
+                      {(property.facing || (property as any).plotFacing) && (
+                        <div className="flex items-center gap-2">
+                          <MapPin size={18} />
+                          <span>{property.facing || (property as any).plotFacing} Facing</span>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2">
+                        <Scan size={18} />
+                        <span>{(property.area || (property as any).plotArea || 0).toLocaleString()} sq.ft</span>
+                      </div>
+                    </>
+                  );
+                }
 
-                <BedDouble size={18} />
+                if (isCommercial) {
+                  return (
+                    <>
+                      {property.bathrooms && property.bathrooms > 0 ? (
+                        <div className="flex items-center gap-2">
+                          <Bath size={18} />
+                          <span>{property.bathrooms} Washroom{property.bathrooms > 1 ? "s" : ""}</span>
+                        </div>
+                      ) : null}
+                      {(property as any).workstations && (property as any).workstations > 0 ? (
+                        <div className="flex items-center gap-2">
+                          <Briefcase size={18} />
+                          <span>{(property as any).workstations} Workstations</span>
+                        </div>
+                      ) : null}
+                      <div className="flex items-center gap-2">
+                        <Scan size={18} />
+                        <span>{(property.area || 0).toLocaleString()} sq.ft</span>
+                      </div>
+                    </>
+                  );
+                }
 
-                <span>
-                  {property.bedrooms} Beds
-                </span>
+                if (isPGHostel) {
+                  return (
+                    <>
+                      {(property as any).roomSharingType && (
+                        <div className="flex items-center gap-2">
+                          <User size={18} />
+                          <span>{(property as any).roomSharingType}</span>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2">
+                        <BedDouble size={18} />
+                        <span>{(property as any).availableBeds || property.bedrooms || 1} Beds</span>
+                      </div>
+                      {property.area && property.area > 0 && (
+                        <div className="flex items-center gap-2">
+                          <Scan size={18} />
+                          <span>{property.area.toLocaleString()} sq.ft</span>
+                        </div>
+                      )}
+                    </>
+                  );
+                }
 
-              </div>
+                return (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <BedDouble size={18} />
+                      <span>{property.bedrooms || 0} Beds</span>
+                    </div>
 
-              <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2">
+                      <Bath size={18} />
+                      <span>{property.bathrooms || 0} Baths</span>
+                    </div>
 
-                <Bath size={18} />
-
-                <span>
-                  {property.bathrooms} Baths
-                </span>
-
-              </div>
-
-              <div className="flex items-center gap-2">
-
-                <Scan size={18} />
-
-                <span>
-                  {property.area} sq.ft
-                </span>
-
-              </div>
-
+                    <div className="flex items-center gap-2">
+                      <Scan size={18} />
+                      <span>{(property.area || 0).toLocaleString()} sq.ft</span>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
 
             <p className="text-gray-600 mt-6 line-clamp-2">

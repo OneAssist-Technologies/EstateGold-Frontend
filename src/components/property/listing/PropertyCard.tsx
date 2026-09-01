@@ -265,21 +265,108 @@ export default function PropertyCard({ property }: Props) {
 
         {/* Specs Row */}
         <div className="border-t border-[#F2EFE9] pt-3 flex items-center justify-between text-xs text-gray-600 font-medium">
-          <div className="flex items-center gap-3">
-            <span>{property.bedrooms || 0} Beds</span>
-            <span>•</span>
-            <span>{property.bathrooms || 0} Baths</span>
-            <span>•</span>
-            <span>{(property.area || 0).toLocaleString()} sq ft</span>
-          </div>
+          {(() => {
+            const pType = (property.propertyType || "").toLowerCase();
+            const isPlotOrLand = /plot|land|agricultural/i.test(pType);
+            const isCommercial = /office|commercial|shop|retail|industrial|warehouse|hotel/i.test(pType);
+            const isPGHostel = /pg|hostel/i.test(pType);
 
-          <span className="px-2.5 py-0.5 rounded-full bg-[#FAFAF8] border border-[#E8E1D4] text-[10px] font-semibold text-gray-500">
-            {property.furnishing === "Fully Furnished"
-              ? "Fully"
-              : property.furnishing === "Semi Furnished"
-                ? "Semi"
-                : property.furnishing || "Unfurnished"}
-          </span>
+            if (isPlotOrLand) {
+              const plotItems = [];
+              if (property.facing || (property as any).plotFacing) {
+                plotItems.push(`${property.facing || (property as any).plotFacing} Facing`);
+              }
+              if ((property as any).cornerPlot) {
+                plotItems.push("Corner Plot");
+              }
+              const areaVal = (property.area || (property as any).plotArea || 0).toLocaleString();
+              plotItems.push(`${areaVal} sq ft`);
+
+              return (
+                <div className="flex items-center gap-2 flex-wrap">
+                  {plotItems.map((item, idx) => (
+                    <span key={idx} className="flex items-center gap-1.5">
+                      {idx > 0 && <span className="text-gray-300">•</span>}
+                      <span>{item}</span>
+                    </span>
+                  ))}
+                </div>
+              );
+            }
+
+            if (isCommercial) {
+              const commItems = [];
+              if ((property as any).workstations && (property as any).workstations > 0) {
+                commItems.push(`${(property as any).workstations} Workstations`);
+              } else if ((property as any).cabins && (property as any).cabins > 0) {
+                commItems.push(`${(property as any).cabins} Cabins`);
+              }
+              if (property.bathrooms && property.bathrooms > 0) {
+                commItems.push(`${property.bathrooms} Washroom${property.bathrooms > 1 ? "s" : ""}`);
+              }
+              if ((property as any).floor !== undefined && (property as any).floor > 0) {
+                commItems.push(`Floor ${(property as any).floor}`);
+              }
+              commItems.push(`${(property.area || 0).toLocaleString()} sq ft`);
+
+              return (
+                <div className="flex items-center gap-2 flex-wrap">
+                  {commItems.map((item, idx) => (
+                    <span key={idx} className="flex items-center gap-1.5">
+                      {idx > 0 && <span className="text-gray-300">•</span>}
+                      <span>{item}</span>
+                    </span>
+                  ))}
+                </div>
+              );
+            }
+
+            if (isPGHostel) {
+              const pgItems = [];
+              if ((property as any).roomSharingType) {
+                pgItems.push(`${(property as any).roomSharingType}`);
+              }
+              if ((property as any).availableBeds) {
+                pgItems.push(`${(property as any).availableBeds} Beds Avail.`);
+              } else if (property.bedrooms) {
+                pgItems.push(`${property.bedrooms} Beds`);
+              }
+              if (property.area && property.area > 0) {
+                pgItems.push(`${property.area.toLocaleString()} sq ft`);
+              }
+
+              return (
+                <div className="flex items-center gap-2 flex-wrap">
+                  {pgItems.map((item, idx) => (
+                    <span key={idx} className="flex items-center gap-1.5">
+                      {idx > 0 && <span className="text-gray-300">•</span>}
+                      <span>{item}</span>
+                    </span>
+                  ))}
+                </div>
+              );
+            }
+
+            return (
+              <div className="flex items-center gap-2 flex-wrap">
+                <span>{property.bedrooms || 0} Beds</span>
+                <span className="text-gray-300">•</span>
+                <span>{property.bathrooms || 0} Baths</span>
+                <span className="text-gray-300">•</span>
+                <span>{(property.area || 0).toLocaleString()} sq ft</span>
+              </div>
+            );
+          })()}
+
+          {!/plot|land|agricultural/i.test(property.propertyType || "") && (
+            <span className="px-2.5 py-0.5 rounded-full bg-[#FAFAF8] border border-[#E8E1D4] text-[10px] font-semibold text-gray-500 shrink-0">
+              {property.furnishing === "Fully Furnished"
+                ? "Fully"
+                : property.furnishing === "Semi Furnished"
+                  ? "Semi"
+                  : property.furnishing || "Unfurnished"}
+            </span>
+          )}
         </div>
 
         {/* Compare Checkbox Row */}

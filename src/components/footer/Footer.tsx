@@ -65,12 +65,12 @@ export default function Footer() {
   const postPropertyHref = isAuthenticated ? "/post-property" : "/login";
 
   return (
-    <footer className="bg-[#14110F] text-white">
-      <div className="max-w-7xl mx-auto px-6 py-10 md:py-20">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10 md:gap-12">
-          <div className="col-span-2 md:col-span-1">
+    <footer className="bg-[#14110F] text-white w-full max-w-full overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12 md:py-20 w-full box-border">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-8 sm:gap-y-10 gap-x-4 sm:gap-x-6 md:gap-12 w-full">
+          <div className="col-span-1">
             <Logo lightText />
-            <p className="mt-4 text-xs md:text-sm text-gray-400 leading-normal md:leading-8">
+            <p className="mt-4 text-xs md:text-sm text-gray-400 leading-relaxed md:leading-8 break-words">
               Indias trusted real estate platform.
               Buy, sell and rent properties without
               brokerage.
@@ -84,13 +84,13 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="font-semibold text-base md:text-xl mb-4 md:mb-6">
+            <h4 className="font-semibold text-base md:text-xl mb-3 sm:mb-4 md:mb-6">
               Quick Links
             </h4>
-            <div className="flex flex-col gap-2.5 md:gap-4 text-xs md:text-sm text-gray-400">
+            <div className="flex flex-col gap-2 md:gap-4 text-xs md:text-sm text-gray-400">
               <Link href="/property-listing" className="hover:text-[#C89B1C] transition-colors">Browse Properties</Link>
               <Link href="/property-listing?purpose=Rent" className="hover:text-[#C89B1C] transition-colors">Rent Property</Link>
-              <Link href="/property-listing?type=NewProjects" className="hover:text-[#C89B1C] transition-colors">New Projects</Link>
+              <Link href="/new-projects" className="hover:text-[#C89B1C] transition-colors">New Projects</Link>
               <Link href="/property-listing?type=Commercial" className="hover:text-[#C89B1C] transition-colors">Commercial</Link>
               <Link href={postPropertyHref} className="hover:text-[#C89B1C] transition-colors">
                 Post Property Free
@@ -99,15 +99,15 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="font-semibold text-base md:text-xl mb-4 md:mb-6">
+            <h4 className="font-semibold text-base md:text-xl mb-3 sm:mb-4 md:mb-6">
               Top Cities
             </h4>
-            <div className="flex flex-col gap-2.5 md:gap-4 text-xs md:text-sm text-gray-400">
+            <div className="flex flex-col gap-2 md:gap-4 text-xs md:text-sm text-gray-400">
               {topCities.map((city) => (
                 <Link
                   key={city}
                   href={`/property-listing?city=${encodeURIComponent(city)}`}
-                  className="hover:text-[#C89B1C] transition-colors capitalize"
+                  className="hover:text-[#C89B1C] transition-colors capitalize break-words"
                 >
                   {city}
                 </Link>
@@ -115,25 +115,25 @@ export default function Footer() {
             </div>
           </div>
 
-          <div className="col-span-2 md:col-span-1">
-            <h4 className="font-semibold text-base md:text-xl mb-4 md:mb-6">
+          <div>
+            <h4 className="font-semibold text-base md:text-xl mb-3 sm:mb-4 md:mb-6">
               Contact Us
             </h4>
-            <div className="flex flex-col gap-2.5 md:gap-4 text-xs md:text-sm text-gray-400">
-              <p className="leading-normal md:leading-relaxed">
+            <div className="flex flex-col gap-2 md:gap-4 text-xs md:text-sm text-gray-400">
+              <p className="leading-normal md:leading-relaxed break-words">
                 {supportAddress}
               </p>
-              <p className="hover:text-[#C89B1C] transition-colors">
+              <p className="hover:text-[#C89B1C] transition-colors break-all">
                 <a href={`tel:${supportPhone}`}>{supportPhone}</a>
               </p>
-              <p className="hover:text-[#C89B1C] transition-colors">
+              <p className="hover:text-[#C89B1C] transition-colors break-all">
                 <a href={`mailto:${supportEmail}`}>{supportEmail}</a>
               </p>
             </div>
           </div>
         </div>
 
-        <div className="border-t border-white/10 mt-10 md:mt-16 pt-6 md:pt-8 text-center text-xs text-gray-500">
+        <div className="border-t border-white/10 mt-8 sm:mt-12 md:mt-16 pt-6 md:pt-8 text-center text-xs text-gray-500 w-full break-words">
           © 2026 EstateGold. All Rights Reserved.
         </div>
       </div>
