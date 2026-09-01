@@ -8,6 +8,7 @@ import {
   Flag,
   BadgeCheck,
   Hash,
+  Sparkles,
 } from "lucide-react";
 
 import { Property } from "@/src/types/property";
@@ -57,6 +58,10 @@ export default function PropertyInfo({ property }: Props) {
 
   const isRent = (property.purpose || "").toLowerCase().includes("rent") || (property.purpose || "").toLowerCase().includes("lease");
 
+  const isUnderConstruction = /under construction|new launch|near completion/i.test((property as any).constructionStatus || "");
+  const isNewAge = /0-1|0|1|under 1|new/i.test((property as any).propertyAge || "");
+  const isNewProject = isUnderConstruction || isNewAge;
+
   const getStatusText = (status?: string) => {
     switch ((status || "on_sale").toLowerCase()) {
       case "hold":
@@ -105,6 +110,15 @@ export default function PropertyInfo({ property }: Props) {
               {getStatusText(property.availabilityStatus)}
             </span>
           </div>
+
+          {isNewProject && (
+            <>
+              <span className="text-gray-300">•</span>
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#9A720C] bg-[#FFF9EC] border border-[#F4E3B5] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                <Sparkles size={11} /> NEW PROJECT
+              </span>
+            </>
+          )}
         </div>
       </div>
 

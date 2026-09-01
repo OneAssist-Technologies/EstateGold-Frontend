@@ -41,7 +41,7 @@ export default function LoginForm() {
       login(response.data.user, response.data.token);
 
       if (response.data.user.role === "admin") {
-        window.location.href = "/admin/properties";
+        window.location.href = "/admin";
       } else {
         window.location.href = "/";
       }

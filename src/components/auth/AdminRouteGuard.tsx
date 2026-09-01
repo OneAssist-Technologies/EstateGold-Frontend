@@ -21,7 +21,7 @@ export default function AdminRouteGuard({ children }: { children: React.ReactNod
     } else {
       // If logged-in user is an admin and tries to access any non-admin route (e.g. /, /property-listing, /post-property, etc.)
       if (user && user.role === "admin") {
-        router.replace("/admin/properties");
+        router.replace("/admin");
       }
     }
   }, [user, loading, pathname, router]);

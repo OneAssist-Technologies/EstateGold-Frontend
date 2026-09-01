@@ -25,12 +25,12 @@ import Logo from "../common/Logo";
 import api from "../../lib/api";
 
 function NavbarContent() {
- const {
-  user,
-  loading,
-  isAuthenticated,
-  logout,
-} = useAuth();
+  const {
+    user,
+    loading,
+    isAuthenticated,
+    logout,
+  } = useAuth();
 
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -62,7 +62,7 @@ function NavbarContent() {
   const typeParam = searchParams ? searchParams.get("type") : null;
 
   const isRentActive = isPropertyListingPage && purposeParam?.toLowerCase() === "rent";
-  const isNewProjectsActive = isPropertyListingPage && typeParam?.toLowerCase() === "newprojects";
+  const isNewProjectsActive = pathname === "/new-projects" || (isPropertyListingPage && typeParam?.toLowerCase() === "newprojects");
   const isCommercialActive = isPropertyListingPage && typeParam?.toLowerCase() === "commercial";
   const isBuyActive = isPropertyListingPage && !isRentActive && !isNewProjectsActive && !isCommercialActive;
 
@@ -122,9 +122,9 @@ function NavbarContent() {
     };
   }, [mobileMenuOpen]);
 
-if (loading) {
-  return null;
-}
+  if (loading) {
+    return null;
+  }
   return (
     <header className="sticky top-0 z-50 bg-white border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -139,36 +139,32 @@ if (loading) {
           <nav className="hidden md:flex items-center gap-8 font-semibold text-sm text-gray-800">
             <Link
               href="/property-listing"
-              className={`transition-colors ${
-                isBuyActive ? "text-[#9A720C] font-bold" : "hover:text-[#9A720C]"
-              }`}
+              className={`transition-colors ${isBuyActive ? "text-[#9A720C] font-bold" : "hover:text-[#9A720C]"
+                }`}
             >
               Properties
             </Link>
 
             <Link
               href="/property-listing?purpose=Rent"
-              className={`transition-colors ${
-                isRentActive ? "text-[#9A720C] font-bold" : "hover:text-[#9A720C]"
-              }`}
+              className={`transition-colors ${isRentActive ? "text-[#9A720C] font-bold" : "hover:text-[#9A720C]"
+                }`}
             >
               Rent
             </Link>
 
             <Link
-              href="/property-listing?type=NewProjects"
-              className={`transition-colors ${
-                isNewProjectsActive ? "text-[#9A720C] font-bold" : "hover:text-[#9A720C]"
-              }`}
+              href="/new-projects"
+              className={`transition-colors ${isNewProjectsActive ? "text-[#9A720C] font-bold" : "hover:text-[#9A720C]"
+                }`}
             >
               New Projects
             </Link>
 
             <Link
               href="/property-listing?type=Commercial"
-              className={`transition-colors ${
-                isCommercialActive ? "text-[#9A720C] font-bold" : "hover:text-[#9A720C]"
-              }`}
+              className={`transition-colors ${isCommercialActive ? "text-[#9A720C] font-bold" : "hover:text-[#9A720C]"
+                }`}
             >
               Commercial
             </Link>
@@ -176,9 +172,8 @@ if (loading) {
             {isAuthenticated && (
               <Link
                 href="/my-properties"
-                className={`transition-colors flex items-center gap-1.5 ${
-                  isMyPropertiesPage ? "text-[#9A720C] font-bold" : "hover:text-[#9A720C]"
-                }`}
+                className={`transition-colors flex items-center gap-1.5 ${isMyPropertiesPage ? "text-[#9A720C] font-bold" : "hover:text-[#9A720C]"
+                  }`}
               >
                 <Building2 size={16} className={isMyPropertiesPage ? "text-[#9A720C]" : "text-gray-600"} />
                 <span>My Properties</span>
@@ -187,9 +182,8 @@ if (loading) {
 
             <Link
               href="/eyva"
-              className={`transition-all flex flex-col items-center justify-center min-w-[60px] ${
-                pathname === "/eyva" ? "scale-105 font-bold" : ""
-              }`}
+              className={`transition-all flex flex-col items-center justify-center min-w-[60px] ${pathname === "/eyva" ? "scale-105 font-bold" : ""
+                }`}
             >
               <img
                 src="/eyva 1.png"
@@ -221,7 +215,7 @@ if (loading) {
                 >
                   Sign In
                 </Link>
- 
+
                 <Link
                   href="/register"
                   className="hidden sm:inline-flex bg-gradient-to-r from-[#B88A1A] via-[#D4B04C] to-[#8C6605] text-white px-4 py-2.5 rounded-xl text-sm font-bold hover:opacity-95 transition-all shadow-2xs"
@@ -230,7 +224,7 @@ if (loading) {
                 </Link>
               </>
             )}
- 
+
             {isAuthenticated && (
               <>
                 {role === "agent" && (
@@ -249,7 +243,7 @@ if (loading) {
                 >
                   + List Property
                 </Link>
- 
+
                 <div ref={dropdownRef} className="relative">
                   <button
                     onClick={() => setOpen(!open)}
@@ -263,7 +257,7 @@ if (loading) {
                     </span>
                     <ChevronDown size={14} className="text-gray-500" />
                   </button>
- 
+
                   {open && (
                     <div className="absolute right-0 top-14 bg-white shadow-2xl rounded-2xl border border-[#ECE7DB] min-w-[240px] overflow-hidden z-50 animate-in fade-in duration-200">
                       {/* Top Header Card */}
@@ -275,7 +269,7 @@ if (loading) {
                           {role === "agent" ? "Agent / Broker" : role === "seller" ? "Owner / Seller" : role === "admin" ? "Administrator" : "Member"}
                         </p>
                       </div>
- 
+
                       {/* Dropdown Items */}
                       <div className="py-1">
                         <Link
@@ -286,7 +280,7 @@ if (loading) {
                           <User size={18} className="text-gray-700" />
                           <span>My Profile</span>
                         </Link>
- 
+
                         <Link
                           href="/my-properties"
                           className="flex items-center gap-3 px-5 py-3 text-sm font-medium text-gray-800 hover:bg-[#FAF6EE] hover:text-[#9A720C] transition-colors"
@@ -306,9 +300,9 @@ if (loading) {
                             <span>Bulk Upload Properties</span>
                           </Link>
                         )}
- 
+
                         <div className="border-t border-[#ECE7DB] my-1" />
- 
+
                         <button
                           onClick={logout}
                           className="w-full flex items-center gap-3 px-5 py-3 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors text-left cursor-pointer"
@@ -332,23 +326,21 @@ if (loading) {
               {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
           </div>
- 
+
         </div>
       </div>
 
       {/* Mobile Menu Backdrop */}
-      <div 
-        className={`fixed inset-0 bg-black/45 backdrop-blur-xs z-40 transition-opacity duration-300 md:hidden ${
-          mobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-        }`}
+      <div
+        className={`fixed inset-0 bg-black/45 backdrop-blur-xs z-40 transition-opacity duration-300 md:hidden ${mobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          }`}
         onClick={() => setMobileMenuOpen(false)}
       />
 
       {/* Mobile Menu Drawer (Left to Right) */}
       <div
-        className={`fixed inset-y-0 left-0 w-[280px] bg-white z-50 shadow-2xl flex flex-col p-5 transition-transform duration-300 ease-in-out md:hidden ${
-          mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed inset-y-0 left-0 w-[280px] bg-white z-50 shadow-2xl flex flex-col p-5 transition-transform duration-300 ease-in-out md:hidden ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         {/* Drawer Header with Logo & Close Button */}
         <div className="flex items-center justify-between pb-4 border-b border-[#ECE7DB]">
@@ -379,7 +371,7 @@ if (loading) {
             Rent
           </Link>
           <Link
-            href="/property-listing?type=NewProjects"
+            href="/new-projects"
             className={`block py-2 text-sm font-semibold ${isNewProjectsActive ? "text-[#9A720C] font-bold" : "text-gray-800"}`}
             onClick={() => setMobileMenuOpen(false)}
           >
@@ -392,7 +384,7 @@ if (loading) {
           >
             Commercial
           </Link>
-          
+
           {isAuthenticated && (
             <Link
               href="/my-properties"

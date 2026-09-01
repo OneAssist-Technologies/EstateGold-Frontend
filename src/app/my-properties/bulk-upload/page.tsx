@@ -308,7 +308,7 @@ export default function BulkUploadPage() {
 
       <div className="min-h-screen bg-[#FAFAFA] font-sans">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-8 py-8 sm:py-12">
-          
+
           {/* Header Title */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
             <div>
@@ -347,11 +347,10 @@ export default function BulkUploadPage() {
               {/* Step 1 Circle */}
               <div className="relative z-10 flex flex-col items-center gap-1.5">
                 <div
-                  className={`h-10 w-10 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
-                    step >= 1
+                  className={`h-10 w-10 rounded-full flex items-center justify-center text-xs font-bold transition-all ${step >= 1
                       ? "bg-[#9A720C] text-white shadow-xs"
                       : "bg-gray-100 border border-gray-300 text-gray-500"
-                  }`}
+                    }`}
                 >
                   1
                 </div>
@@ -363,11 +362,10 @@ export default function BulkUploadPage() {
               {/* Step 2 Circle */}
               <div className="relative z-10 flex flex-col items-center gap-1.5">
                 <div
-                  className={`h-10 w-10 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
-                    step >= 2
+                  className={`h-10 w-10 rounded-full flex items-center justify-center text-xs font-bold transition-all ${step >= 2
                       ? "bg-[#9A720C] text-white shadow-xs"
                       : "bg-gray-100 border border-gray-300 text-gray-500"
-                  }`}
+                    }`}
                 >
                   2
                 </div>
@@ -379,11 +377,10 @@ export default function BulkUploadPage() {
               {/* Step 3 Circle */}
               <div className="relative z-10 flex flex-col items-center gap-1.5">
                 <div
-                  className={`h-10 w-10 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
-                    step === 3
+                  className={`h-10 w-10 rounded-full flex items-center justify-center text-xs font-bold transition-all ${step === 3
                       ? "bg-emerald-600 text-white shadow-xs"
                       : "bg-gray-100 border border-gray-300 text-gray-500"
-                  }`}
+                    }`}
                 >
                   3
                 </div>
@@ -607,6 +604,11 @@ export default function BulkUploadPage() {
                   <div className="bg-white/80 border border-[#ECE2C8] p-4 rounded-xl space-y-1 col-span-1 md:col-span-2">
                     <strong className="font-bold text-gray-900 block">7. Mandatory Property Owner Details</strong>
                     <p className="text-gray-600">Every property row must include <em>Owner Name, 10-digit Owner Phone, Owner Email, and Owner Address</em>. (Note: Buyers will contact you as the publishing Agent directly, but legal owner details are required for property publishing verification).</p>
+                  </div>
+
+                  <div className="bg-white/80 border border-[#ECE2C8] p-4 rounded-xl space-y-1 col-span-1 md:col-span-2">
+                    <strong className="font-bold text-gray-900 block">8. Mandatory Property Document Availability</strong>
+                    <p className="text-gray-600">Every property row must include valid <em>Property Verification Document URLs</em> (such as Sale Deed URL, Title Deed URL, Tax Receipt URL, or Encumbrance Certificate URL). Properties missing verification document availability will fail property validation.</p>
                   </div>
                 </div>
               </div>
