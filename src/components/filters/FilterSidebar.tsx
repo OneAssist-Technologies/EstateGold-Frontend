@@ -49,12 +49,14 @@ export default function FilterSidebar({
 
   const budgetOptions = [
     { label: "Any Budget", min: "", max: "" },
+    { label: "Under ₹5,000 / mo", min: "", max: "5000" },
+    { label: "₹5,000 – ₹10,000 / mo", min: "5000", max: "10000" },
+    { label: "₹10,000 – ₹20,000 / mo", min: "10000", max: "20000" },
     { label: "Under ₹20L", min: "", max: "2000000" },
     { label: "₹20L–₹50L", min: "2000000", max: "5000000" },
     { label: "Under ₹50L", min: "", max: "5000000" },
     { label: "₹50L–₹1Cr", min: "5000000", max: "10000000" },
-    { label: "₹1Cr–₹2Cr", min: "10000000", max: "20000000" },
-    { label: "₹2Cr+", min: "20000000", max: "" },
+    { label: "₹1Cr+", min: "10000000", max: "" },
   ];
 
   const propertyTypes = [
@@ -64,6 +66,7 @@ export default function FilterSidebar({
     "Plot / Land",
     "Commercial Space",
     "Builder Floor",
+    "PG / Hostel",
   ];
 
   const bedroomOptions = [

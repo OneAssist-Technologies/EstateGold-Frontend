@@ -62,9 +62,10 @@ function NavbarContent() {
   const typeParam = searchParams ? searchParams.get("type") : null;
 
   const isRentActive = isPropertyListingPage && purposeParam?.toLowerCase() === "rent";
+  const isPgActive = isPropertyListingPage && (purposeParam?.toLowerCase() === "pg_co_living" || purposeParam?.toLowerCase() === "pg / co-living" || purposeParam?.toLowerCase() === "pg");
   const isNewProjectsActive = pathname === "/new-projects" || (isPropertyListingPage && typeParam?.toLowerCase() === "newprojects");
   const isCommercialActive = isPropertyListingPage && typeParam?.toLowerCase() === "commercial";
-  const isBuyActive = isPropertyListingPage && !isRentActive && !isNewProjectsActive && !isCommercialActive;
+  const isBuyActive = isPropertyListingPage && !isRentActive && !isPgActive && !isNewProjectsActive && !isCommercialActive;
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -143,14 +144,6 @@ function NavbarContent() {
                 }`}
             >
               Properties
-            </Link>
-
-            <Link
-              href="/property-listing?purpose=Rent"
-              className={`transition-colors ${isRentActive ? "text-[#9A720C] font-bold" : "hover:text-[#9A720C]"
-                }`}
-            >
-              Rent
             </Link>
 
             <Link
@@ -362,13 +355,6 @@ function NavbarContent() {
             onClick={() => setMobileMenuOpen(false)}
           >
             Properties
-          </Link>
-          <Link
-            href="/property-listing?purpose=Rent"
-            className={`block py-2 text-sm font-semibold ${isRentActive ? "text-[#9A720C] font-bold" : "text-gray-800"}`}
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            Rent
           </Link>
           <Link
             href="/new-projects"

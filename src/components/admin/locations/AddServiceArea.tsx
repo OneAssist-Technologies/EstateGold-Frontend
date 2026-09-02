@@ -67,6 +67,7 @@ export default function AddServiceArea() {
     "Buy",
     "Rent",
     "Lease",
+    "PG / Co-Living",
   ]);
 
   // Section 4: Additional Settings
@@ -493,7 +494,7 @@ export default function AddServiceArea() {
                 Allow For <span className="text-red-500">*</span>
               </label>
               <div className="flex items-center gap-4 flex-wrap">
-                {["Buy", "Rent", "Lease"].map((service) => {
+                {["Buy", "Rent", "Lease", "PG / Co-Living"].map((service) => {
                   const isChecked = allowedServices.includes(service);
                   return (
                     <label

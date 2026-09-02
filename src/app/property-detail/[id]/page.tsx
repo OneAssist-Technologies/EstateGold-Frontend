@@ -26,6 +26,7 @@ import Neighbourhood from "../../../components/property/detail/Neighbourhood";
 import LocalityRatings from "../../../components/property/detail/LocalityRatings";
 import OwnerCard from "../../../components/property/detail/OwnerCard";
 import SimilarProperties from "../../../components/property/detail/SimilarProperties";
+import PgDetailsSection from "../../../components/property/detail/PgDetailsSection";
 
 import StickyContactCard from "../../../components/property/detail/StickyContactCard";
 
@@ -455,6 +456,7 @@ export default function PropertyDetailsPage() {
               <div className="relative">
                 {/* Blurred Content */}
                 <div className="blur-[6px] pointer-events-none select-none space-y-2 opacity-50">
+                  <PgDetailsSection property={property} onEnquireRoom={() => setCallbackOpen(true)} />
                   <PropertyDescription property={property} />
                   {/* <PriceTransparency property={property} /> */}
                   <Amenities amenities={property.amenities} />
@@ -500,6 +502,7 @@ export default function PropertyDetailsPage() {
               </div>
             ) : (
               <>
+                <PgDetailsSection property={property} onEnquireRoom={() => setCallbackOpen(true)} />
                 <PropertyDescription property={property} />
                 {/* <PriceTransparency property={property} /> */}
                 <Amenities amenities={property.amenities} />

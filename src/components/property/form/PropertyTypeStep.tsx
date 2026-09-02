@@ -27,20 +27,38 @@ const mainPropertyTypes = [
   "Builder / New Project",
 ];
 
+const pgPropertyTypes = [
+  "Villa",
+  "Independent House",
+  "Builder Floor",
+  "PG / Hostel",
+];
+
 export default function PropertyTypeStep({
   value,
   purpose,
   onPurposeChange,
   onTypeChange,
 }: Props) {
-  const isPlotActive = ["Plot / Land", "Residential Plot", "Agricultural Land"].includes(value);
-  const isCommercialActive = [
+  const isPg = purpose === "PG / Co-Living" || purpose === "PG_CO_LIVING" || purpose === "PG";
+  const displayedPropertyTypes = isPg ? pgPropertyTypes : mainPropertyTypes;
+
+  const isPlotActive = !isPg && ["Plot / Land", "Residential Plot", "Agricultural Land"].includes(value);
+  const isCommercialActive = !isPg && [
     "Commercial Space",
     "Office Space",
     "Shop / Retail",
     "Warehouse",
     "Industrial Property"
   ].includes(value);
+
+  const handlePurposeSelect = (selectedPurpose: string) => {
+    onPurposeChange(selectedPurpose);
+    const selectedIsPg = selectedPurpose === "PG / Co-Living" || selectedPurpose === "PG_CO_LIVING" || selectedPurpose === "PG";
+    if (selectedIsPg && !pgPropertyTypes.includes(value)) {
+      onTypeChange("PG / Hostel");
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -60,25 +78,26 @@ export default function PropertyTypeStep({
           Purpose
         </h3>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
             "Sale",
             "Rent",
             "Lease",
+            "PG / Co-Living",
           ].map((item) => (
             <button
               key={item}
               type="button"
-              onClick={() => onPurposeChange(item)}
+              onClick={() => handlePurposeSelect(item)}
               className={`
                 h-12
                 rounded-xl
                 border
                 font-bold
-                text-sm
+                text-xs sm:text-sm
                 transition-all
                 cursor-pointer
-                ${purpose === item
+                ${(purpose === item || (item === "PG / Co-Living" && (purpose === "PG_CO_LIVING" || purpose === "PG / Co-Living")))
                   ? `
                     border-[#C89B1C]
                     bg-[#FFF9EC]
@@ -105,8 +124,8 @@ export default function PropertyTypeStep({
           Property Type
         </h3>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-          {mainPropertyTypes.map((item) => {
+        <div className={`grid grid-cols-2 ${isPg ? "sm:grid-cols-4" : "sm:grid-cols-3"} gap-4`}>
+          {displayedPropertyTypes.map((item) => {
             const isSelected =
               item === "Plot / Land"
                 ? isPlotActive

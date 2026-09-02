@@ -81,7 +81,7 @@ function ListingContent() {
 
     if (urlType !== null) {
       if (urlType === "NewProjects") setPropertyType("Apartment / Flat");
-      else if (urlType === "Commercial") setPropertyType("Commercial Space");
+      else if (urlType.toLowerCase() === "commercial" || urlType.toLowerCase() === "commercial space") setPropertyType("Commercial");
       else setPropertyType(urlType);
     } else {
       setPropertyType("");
