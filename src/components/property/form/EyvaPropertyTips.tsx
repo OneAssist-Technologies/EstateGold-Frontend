@@ -34,64 +34,67 @@ const runClientSideRules = (p: PropertyFormData): EyvaTipsResponse => {
 
   const isResidential = ["Apartment / Flat", "Independent House", "Villa", "Builder Floor"].includes(p.propertyType);
   const isPlot = ["Plot / Land", "Residential Plot", "Agricultural Land"].includes(p.propertyType);
+  const isPg = p.purpose === "PG / Co-Living" || p.purpose === "PG_CO_LIVING";
 
-  // 1. Documents Evaluation (Essential & Optional Documents)
-  const uploadedDocs = p.documents || [];
-  const uploadedDocTypes = (Array.isArray(uploadedDocs) ? uploadedDocs : [])
-    .map((d: any) => (typeof d === "string" ? d : d?.documentType))
-    .filter(Boolean);
+  // 1. Documents Evaluation (Essential & Optional Documents) - Omitted for PG / Co-Living
+  if (!isPg) {
+    const uploadedDocs = p.documents || [];
+    const uploadedDocTypes = (Array.isArray(uploadedDocs) ? uploadedDocs : [])
+      .map((d: any) => (typeof d === "string" ? d : d?.documentType))
+      .filter(Boolean);
 
-  const missingReqDocs: string[] = [];
-  const missingOptDocs: string[] = [];
+    const missingReqDocs: string[] = [];
+    const missingOptDocs: string[] = [];
 
-  if (!uploadedDocTypes.includes("sale_deed") && !uploadedDocTypes.includes("parent_deeds")) {
-    missingReqDocs.push("Sale / Title Deed");
-  }
-  if (!uploadedDocTypes.includes("encumbrance_certificate")) {
-    missingReqDocs.push("Encumbrance Certificate (EC)");
-  }
-  if (!uploadedDocTypes.includes("owner_kyc")) {
-    missingReqDocs.push("Owner KYC Proof");
-  }
-  if (isPlot && !uploadedDocTypes.includes("patta_records")) {
-    missingReqDocs.push("Patta / Revenue Records");
-  }
+    if (!uploadedDocTypes.includes("sale_deed") && !uploadedDocTypes.includes("parent_deeds")) {
+      missingReqDocs.push("Sale / Title Deed");
+    }
+    if (!uploadedDocTypes.includes("encumbrance_certificate")) {
+      missingReqDocs.push("Encumbrance Certificate (EC)");
+    }
+    if (!uploadedDocTypes.includes("owner_kyc")) {
+      missingReqDocs.push("Owner KYC Proof");
+    }
+    if (isPlot && !uploadedDocTypes.includes("patta_records")) {
+      missingReqDocs.push("Patta / Revenue Records");
+    }
 
-  if (!uploadedDocTypes.includes("tax_receipt")) {
-    missingOptDocs.push("Property Tax Receipt");
-  }
-  if (isResidential && !uploadedDocTypes.includes("building_plan") && !uploadedDocTypes.includes("approved_layout")) {
-    missingOptDocs.push("Approved Building Plan");
-  }
-  if (isResidential && !uploadedDocTypes.includes("completion_occupancy")) {
-    missingOptDocs.push("Completion / Occupancy Certificate");
-  }
-  if (isPlot && !uploadedDocTypes.includes("zoning_documents") && !uploadedDocTypes.includes("layout_approval")) {
-    missingOptDocs.push("Land-use / Zoning Approval");
-  }
+    if (!uploadedDocTypes.includes("tax_receipt")) {
+      missingOptDocs.push("Property Tax Receipt");
+    }
+    if (isResidential && !uploadedDocTypes.includes("building_plan") && !uploadedDocTypes.includes("approved_layout")) {
+      missingOptDocs.push("Approved Building Plan");
+    }
+    if (isResidential && !uploadedDocTypes.includes("completion_occupancy")) {
+      missingOptDocs.push("Completion / Occupancy Certificate");
+    }
+    if (isPlot && !uploadedDocTypes.includes("zoning_documents") && !uploadedDocTypes.includes("layout_approval")) {
+      missingOptDocs.push("Land-use / Zoning Approval");
+    }
 
-  if (missingReqDocs.length > 0) {
-    recommendations.push({
-      id: "documents_required",
-      category: "documents",
-      icon: "documents",
-      title: "Upload Verification Documents",
-      description: `Essential ownership documents (${missingReqDocs.join(", ")}) are missing. Uploading these accelerates listing verification and buyer confidence.`,
-      priority: "high",
-      actionLabel: "Upload Documents",
-      stepId: "documents",
-    });
-  } else if (missingOptDocs.length > 0) {
-    recommendations.push({
-      id: "documents_optional",
-      category: "documents",
-      icon: "documents",
-      title: "Add Optional Property Documents",
-      description: `Adding optional documents like ${missingOptDocs.slice(0, 2).join(" or ")} enhances listing transparency and search authority.`,
-      priority: "medium",
-      actionLabel: "Add Documents",
-      stepId: "documents",
-    });
+    if (missingReqDocs.length > 0) {
+      recommendations.push({
+        id: "documents_required",
+        category: "documents",
+        icon: "documents",
+        title: "Upload Verification Documents",
+        description: `Essential ownership documents (${missingReqDocs.join(", ")}) are missing. Uploading these accelerates listing verification and buyer confidence.`,
+        priority: "high",
+        actionLabel: "Upload Documents",
+        stepId: "documents",
+      });
+    } else if (missingOptDocs.length > 0) {
+      recommendations.push({
+        id: "documents_optional",
+        category: "documents",
+        icon: "documents",
+        title: "Add Optional Property Documents",
+        description: `Adding optional documents like ${missingOptDocs.slice(0, 2).join(" or ")} enhances listing transparency and search authority.`,
+        priority: "medium",
+        actionLabel: "Add Documents",
+        stepId: "documents",
+      });
+    }
   }
 
   // 2. Missing Property Details Evaluation

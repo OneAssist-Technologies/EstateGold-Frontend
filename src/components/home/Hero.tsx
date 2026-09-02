@@ -10,7 +10,7 @@ import api from "../../lib/api";
 
 export default function Hero() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"Buy" | "Rent" | "Commercial">("Buy");
+  const [activeTab, setActiveTab] = useState<"Buy" | "Rent" | "Commercial" | "PG / Co-Living">("Buy");
   const [searchQuery, setSearchQuery] = useState("");
   const [popularLocations, setPopularLocations] = useState<string[]>([]);
   const [loadingLocations, setLoadingLocations] = useState(true);
@@ -51,6 +51,7 @@ export default function Hero() {
     if (!q || !q.trim()) {
       const params = new URLSearchParams();
       if (activeTab === "Rent") params.set("purpose", "Rent");
+      else if (activeTab === "PG / Co-Living") params.set("purpose", "PG_CO_LIVING");
       else if (activeTab === "Commercial") params.set("type", "Commercial");
       else params.set("purpose", "Buy");
       router.push(`/property-listing?${params.toString()}`);
@@ -66,6 +67,7 @@ export default function Hero() {
         let hasStructured = false;
         if (res.data.purpose) { params.set("purpose", res.data.purpose); hasStructured = true; }
         else if (activeTab === "Rent") params.set("purpose", "Rent");
+        else if (activeTab === "PG / Co-Living") params.set("purpose", "PG_CO_LIVING");
         else if (activeTab === "Commercial") params.set("type", "Commercial");
         else params.set("purpose", "Buy");
 
@@ -183,12 +185,12 @@ export default function Hero() {
         {/* Seamless Single-Panel Glassmorphic Search Box */}
         <div className="bg-black/30 backdrop-blur-xl border border-white/25 shadow-2xl rounded-2xl xs:rounded-3xl mt-5 md:mt-10 max-w-4xl overflow-hidden transition-all duration-300">
           {/* Tabs */}
-          <div className="flex border-b border-white/15 px-4 xs:px-6">
-            {(["Buy", "Rent", "Commercial"] as const).map((tab) => (
+          <div className="flex border-b border-white/15 px-4 xs:px-6 overflow-x-auto no-scrollbar">
+            {(["Buy", "Rent", "PG / Co-Living", "Commercial"] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`py-3 px-4 xs:py-4 xs:px-8 font-bold text-sm xs:text-base flex-1 text-center xs:flex-none transition-all cursor-pointer relative ${activeTab === tab
+                className={`py-3 px-3 xs:py-4 xs:px-6 font-bold text-xs xs:text-sm sm:text-base flex-1 text-center xs:flex-none transition-all cursor-pointer relative whitespace-nowrap ${activeTab === tab
                     ? "text-[#F5C438]"
                     : "text-white/80 hover:text-white"
                   }`}

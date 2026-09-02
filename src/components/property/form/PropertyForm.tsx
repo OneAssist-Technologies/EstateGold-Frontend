@@ -5,6 +5,7 @@ import {
   useState,
   useEffect,
 } from "react";
+import { createPortal } from "react-dom";
 import { useAuth } from "@/src/hooks/useAuth";;
 import {
   AnimatePresence,
@@ -24,6 +25,11 @@ import AgentPendingVerification from "@/src/components/auth/AgentPendingVerifica
 import PendingIssuesStep from "./PendingIssuesStep";
 import DocumentsStep from "./DocumentsStep";
 import AgreementDetailsStep from "./AgreementDetailsStep";
+import PgDetailsStep from "./PgDetailsStep";
+import PgRoomConfigStep from "./PgRoomConfigStep";
+import PgPricingChargesStep from "./PgPricingChargesStep";
+import PgFacilitiesStep from "./PgFacilitiesStep";
+import PgRulesStep from "./PgRulesStep";
 import ReviewSubmitStep from "./ReviewSubmitStep";
 
 import api from "@/src/lib/api";
@@ -52,6 +58,21 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
   const [published, setPublished] = useState(false);
   const [showAgentModal, setShowAgentModal] = useState(true);
   const [stepErrors, setStepErrors] = useState<Record<string, string>>({});
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (user?.role === "agent" && showAgentModal && !editId) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [user?.role, showAgentModal, editId]);
 
   const [formData, setFormData] = useState<PropertyFormData>({
     purpose: "",
@@ -122,6 +143,7 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
   const role = user?.role || "seller";
 
   const stepsList = useMemo(() => {
+    const isPg = formData.purpose === "PG / Co-Living" || formData.purpose === "PG_CO_LIVING";
     const isRentOrLease = (formData.purpose || "").toLowerCase() === "rent" || (formData.purpose || "").toLowerCase() === "lease" || formData.purpose === "Rent" || formData.purpose === "Lease";
 
     const list = [];
@@ -129,16 +151,28 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
     if (role === "agent" || role === "seller" || role === "buyer") {
       list.push({ id: "owner", name: "Owner Details" });
     }
-    list.push({ id: "location", name: "Location" });
-    list.push({ id: "details", name: "Property Details" });
-    list.push({ id: "amenities", name: "Amenities" });
+    list.push({ id: "location", name: "Basic Location" });
+
+    if (isPg) {
+      list.push({ id: "pg_details", name: "PG Details" });
+      list.push({ id: "pg_rooms", name: "Room Config" });
+      list.push({ id: "pg_pricing", name: "Pricing & Charges" });
+      list.push({ id: "pg_facilities", name: "Facilities" });
+      list.push({ id: "pg_rules", name: "Rules & Restrictions" });
+    } else {
+      list.push({ id: "details", name: "Property Details" });
+      list.push({ id: "amenities", name: "Amenities" });
+    }
+
     list.push({ id: "neighbourhood", name: "Neighbourhood" });
     list.push({ id: "issues", name: "Pending Issues" });
-    list.push({ id: "documents", name: "Documents" });
+    if (!isPg) {
+      list.push({ id: "documents", name: "Documents" });
+    }
     if (isRentOrLease) {
       list.push({ id: "agreement", name: "Agreement Details" });
     }
-    list.push({ id: "price", name: "Price & Media" });
+    list.push({ id: "price", name: "Photos & Media" });
     list.push({ id: "review", name: "Review & Submit" });
     return list;
   }, [role, formData.purpose]);
@@ -819,6 +853,9 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
       if (formData.agreementDetails) {
         payload.append("agreementDetails", JSON.stringify(formData.agreementDetails));
       }
+      if (formData.pgDetails) {
+        payload.append("pgDetails", JSON.stringify(formData.pgDetails));
+      }
       if (formData.ownershipType) {
         payload.append("ownershipType", formData.ownershipType);
       }
@@ -969,9 +1006,32 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
   }
 
   const handleEditStep = (stepId: string) => {
-    const index = stepsList.findIndex((s) => s.id === stepId);
+    const isPg = formData.purpose === "PG / Co-Living" || formData.purpose === "PG_CO_LIVING";
+
+    let targetId = stepId;
+
+    if (isPg) {
+      if (stepId === "details") targetId = "pg_details";
+      else if (stepId === "amenities") targetId = "pg_facilities";
+      else if (stepId === "price_charges") targetId = "pg_pricing";
+    }
+
+    let index = stepsList.findIndex((s) => s.id === targetId);
+
+    // Fallback search if targetId wasn't found directly
+    if (index === -1) {
+      if (targetId === "pg_details" || targetId === "details") {
+        index = stepsList.findIndex((s) => s.id === "details" || s.id === "pg_details");
+      } else if (targetId === "pg_facilities" || targetId === "amenities") {
+        index = stepsList.findIndex((s) => s.id === "amenities" || s.id === "pg_facilities");
+      } else if (targetId === "pg_pricing" || targetId === "price") {
+        index = stepsList.findIndex((s) => s.id === "price" || s.id === "pg_pricing");
+      }
+    }
+
     if (index !== -1) {
       setStep(index + 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
@@ -992,6 +1052,16 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
         return <LocationStep formData={formData} setFormData={setFormData} errors={stepErrors} />;
       case "details":
         return <PropertyDetailsStep formData={formData} setFormData={setFormData} errors={stepErrors} />;
+      case "pg_details":
+        return <PgDetailsStep formData={formData} setFormData={setFormData} errors={stepErrors} />;
+      case "pg_rooms":
+        return <PgRoomConfigStep formData={formData} setFormData={setFormData} errors={stepErrors} />;
+      case "pg_pricing":
+        return <PgPricingChargesStep formData={formData} setFormData={setFormData} errors={stepErrors} />;
+      case "pg_facilities":
+        return <PgFacilitiesStep formData={formData} setFormData={setFormData} errors={stepErrors} />;
+      case "pg_rules":
+        return <PgRulesStep formData={formData} setFormData={setFormData} errors={stepErrors} />;
       case "amenities":
         return <AmenitiesStep formData={formData} setFormData={setFormData} />;
       case "neighbourhood":
@@ -1024,16 +1094,16 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
       <Navbar />
 
       {/* AGENT PROPERTY TYPE SELECTION MODAL */}
-      {role === "agent" && showAgentModal && !editId && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+      {role === "agent" && showAgentModal && !editId && mounted && createPortal(
+        <div className="fixed inset-0 w-screen h-screen z-[9999] bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="relative bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-[#E5D7B3]"
+            className="relative bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-[#E5D7B3] my-auto max-h-[90vh] overflow-y-auto"
           >
             <button
               onClick={() => setShowAgentModal(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
             >
               <X size={20} />
             </button>
@@ -1103,7 +1173,8 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
               </button>
             </div>
           </motion.div>
-        </div>
+        </div>,
+        document.body
       )}
 
       <section className="min-h-screen bg-[#FAF8F3] py-6 sm:py-12">

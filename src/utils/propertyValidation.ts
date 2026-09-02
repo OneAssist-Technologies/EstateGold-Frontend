@@ -125,6 +125,37 @@ export function validatePropertyStep(
       }
       break;
 
+    case "pg_details":
+      if (!formData.pgDetails?.pgName || !formData.pgDetails.pgName.trim()) {
+        errors.pgName = "PG / Co-Living Name is required.";
+      }
+      if (!formData.pgDetails?.suitableFor) {
+        errors.suitableFor = "Please select who this accommodation is suitable for.";
+      }
+      break;
+
+    case "pg_rooms":
+      const rooms = formData.pgDetails?.rooms || [];
+      if (rooms.length === 0) {
+        errors.rooms = "Please add at least one room configuration.";
+      } else {
+        rooms.forEach((r, idx) => {
+          if (!r.roomType) {
+            errors[`room_${idx}`] = `Room #${idx + 1}: Sharing type is required.`;
+          }
+          if (!r.totalBeds || r.totalBeds <= 0) {
+            errors[`room_${idx}`] = `Room #${idx + 1}: Total beds must be greater than 0.`;
+          }
+          if (r.occupiedBeds > r.totalBeds) {
+            errors[`room_${idx}`] = `Room #${idx + 1}: Available beds cannot be negative / Occupied cannot exceed total.`;
+          }
+          if (!r.pricePerPerson || r.pricePerPerson <= 0) {
+            errors[`room_${idx}`] = `Room #${idx + 1}: Price per person must be greater than ₹0.`;
+          }
+        });
+      }
+      break;
+
     case "details":
       const data = formData as any;
       

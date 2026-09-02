@@ -90,6 +90,7 @@ export default function Footer() {
             <div className="flex flex-col gap-2 md:gap-4 text-xs md:text-sm text-gray-400">
               <Link href="/property-listing" className="hover:text-[#C89B1C] transition-colors">Browse Properties</Link>
               <Link href="/property-listing?purpose=Rent" className="hover:text-[#C89B1C] transition-colors">Rent Property</Link>
+              <Link href="/property-listing?purpose=PG_CO_LIVING" className="hover:text-[#C89B1C] transition-colors">PG / Co-Living</Link>
               <Link href="/new-projects" className="hover:text-[#C89B1C] transition-colors">New Projects</Link>
               <Link href="/property-listing?type=Commercial" className="hover:text-[#C89B1C] transition-colors">Commercial</Link>
               <Link href={postPropertyHref} className="hover:text-[#C89B1C] transition-colors">

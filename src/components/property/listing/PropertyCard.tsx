@@ -124,10 +124,40 @@ export default function PropertyCard({ property }: Props) {
 
   const photoUrl = getPhotoUrl(property.photos?.[0]);
 
-  const displayTitle =
-    property.bedrooms && property.propertyType
-      ? `${property.bedrooms} BHK ${property.propertyType}${property.locality ? " in " + property.locality : ""
-      }`
+  const purpLower = (property.purpose || "").toLowerCase();
+  const isPgPurpose =
+    purpLower === "pg / co-living" ||
+    purpLower === "pg_co_living" ||
+    purpLower === "pg" ||
+    purpLower === "pg_coliving" ||
+    purpLower === "co-living";
+
+  const hasPgRooms = Array.isArray(property.pgDetails?.rooms) && property.pgDetails.rooms.length > 0;
+  const isPg =
+    isPgPurpose ||
+    (Boolean(property.pgDetails?.pgName || hasPgRooms) &&
+      purpLower !== "sale" &&
+      purpLower !== "buy" &&
+      purpLower !== "sell" &&
+      purpLower !== "for sale" &&
+      purpLower !== "rent" &&
+      purpLower !== "lease");
+
+  const totalAvailableBeds = (property.pgDetails?.rooms || []).reduce(
+    (sum, r) => sum + (r.availableBeds || 0),
+    (property as any).availableBeds || 0
+  );
+
+  const pgMinPrice = (property.pgDetails?.rooms || []).reduce(
+    (min, r) => (r.pricePerPerson > 0 && r.pricePerPerson < min ? r.pricePerPerson : min),
+    999999
+  );
+  const pgDisplayPrice = pgMinPrice === 999999 ? property.price || 0 : pgMinPrice;
+
+  const displayTitle = isPg
+    ? property.pgDetails?.pgName || `${property.propertyType} PG in ${property.locality || property.city}`
+    : property.bedrooms && property.propertyType
+      ? `${property.bedrooms} BHK ${property.propertyType}${property.locality ? " in " + property.locality : ""}`
       : property.propertyType || "Luxury Property";
 
   const isSale =
@@ -135,6 +165,10 @@ export default function PropertyCard({ property }: Props) {
     (property.purpose || "").toLowerCase() === "buy" ||
     (property.purpose || "").toLowerCase() === "sell" ||
     (property.purpose || "").toLowerCase() === "for sale";
+
+  const isLease =
+    (property.purpose || "").toLowerCase() === "lease" ||
+    (property.purpose || "").toLowerCase() === "for lease";
 
   const isVideo = (url: string) => {
     if (!url) return false;
@@ -185,9 +219,29 @@ export default function PropertyCard({ property }: Props) {
 
         {/* Top Badges */}
         <div className="absolute top-3 left-3 flex items-center gap-2 flex-wrap">
-          <span className="bg-[#9A720C] text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs">
-            {isSale ? "For Sale" : "For Rent"}
-          </span>
+          {isPg ? (
+            <span className="bg-[#C89B1C] text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs">
+              PG / Co-Living
+            </span>
+          ) : isSale ? (
+            <span className="bg-[#9A720C] text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs">
+              For Sale
+            </span>
+          ) : isLease ? (
+            <span className="bg-[#9A720C] text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs">
+              For Lease
+            </span>
+          ) : (
+            <span className="bg-[#9A720C] text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs">
+              For Rent
+            </span>
+          )}
+
+          {isPg && property.pgDetails?.suitableFor && (
+            <span className="bg-[#FFF9EC] text-[#C89B1C] border border-[#F3E5C8] text-[11px] font-bold px-2.5 py-1 rounded-full shadow-2xs">
+              For {property.pgDetails.suitableFor}
+            </span>
+          )}
 
           {property.availabilityStatus === "hold" && (
             <span className="bg-amber-600 text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-2xs flex items-center gap-1">
@@ -222,8 +276,9 @@ export default function PropertyCard({ property }: Props) {
         </button>
 
         {/* Price Overlay on Bottom-Left */}
-        <div className="absolute bottom-3 left-3.5 text-white text-2xl sm:text-3xl font-bold tracking-tight drop-shadow-md">
-          {formatPrice(property.price)}
+        <div className="absolute bottom-3 left-3.5 text-white text-xl sm:text-2xl font-bold tracking-tight drop-shadow-md flex items-baseline gap-1">
+          {isPg ? `₹${pgDisplayPrice.toLocaleString("en-IN")}` : formatPrice(property.price)}
+          {isPg && <span className="text-[11px] font-normal text-gray-200">/ person / mo</span>}
         </div>
 
         {/* Posted By (Owner/Agent) Badge at Bottom Right of Image */}
