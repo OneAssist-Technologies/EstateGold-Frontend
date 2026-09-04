@@ -81,8 +81,55 @@ export default function BulkUploadPage() {
   const [excelFile, setExcelFile] = useState<File | null>(null);
   const [zipFile, setZipFile] = useState<File | null>(null);
 
+  const [isExcelDragging, setIsExcelDragging] = useState(false);
+  const [isZipDragging, setIsZipDragging] = useState(false);
+
   const excelInputRef = useRef<HTMLInputElement | null>(null);
   const zipInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Drag & drop event handlers for Excel
+  const handleExcelDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsExcelDragging(true);
+  };
+
+  const handleExcelDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsExcelDragging(false);
+  };
+
+  const handleExcelDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsExcelDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleExcelSelect(e.dataTransfer.files[0]);
+    }
+  };
+
+  // Drag & drop event handlers for ZIP
+  const handleZipDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsZipDragging(true);
+  };
+
+  const handleZipDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsZipDragging(false);
+  };
+
+  const handleZipDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsZipDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleZipSelect(e.dataTransfer.files[0]);
+    }
+  };
 
   // Publisher details (Agent info)
   const [publisher, setPublisher] = useState<PublisherDetails>({
@@ -104,7 +151,7 @@ export default function BulkUploadPage() {
         ownerPhone: user.phone || "",
         ownerEmail: user.email || "",
         ownerAddress: (user as any).officeAddress || (user as any).address || "",
-        city: (user as any).city || "Coimbatore",
+        city: (user as any).city || "",
         licenseNumber: (user as any).licenseNumber || (user as any).reraId || "",
       });
     }
@@ -438,10 +485,19 @@ export default function BulkUploadPage() {
                     ) : (
                       <div
                         onClick={() => excelInputRef.current?.click()}
-                        className="border-2 border-dashed border-[#E5D8B3] hover:border-[#C89B1C] bg-[#FAF8F5] hover:bg-[#FFFDF8] rounded-2xl p-6 text-center cursor-pointer transition-all space-y-2 group"
+                        onDragOver={handleExcelDragOver}
+                        onDragLeave={handleExcelDragLeave}
+                        onDrop={handleExcelDrop}
+                        className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all space-y-2 group ${
+                          isExcelDragging
+                            ? "border-[#9A720C] bg-[#FFF9EC] scale-[1.02] shadow-md"
+                            : "border-[#E5D8B3] hover:border-[#C89B1C] bg-[#FAF8F5] hover:bg-[#FFFDF8]"
+                        }`}
                       >
-                        <Upload className="mx-auto text-[#C89B1C] group-hover:scale-110 transition-transform" size={28} />
-                        <p className="text-xs sm:text-sm font-bold text-gray-800">Click to upload Excel File (.xlsx)</p>
+                        <Upload className={`mx-auto text-[#C89B1C] transition-transform ${isExcelDragging ? "scale-125" : "group-hover:scale-110"}`} size={28} />
+                        <p className="text-xs sm:text-sm font-bold text-gray-800">
+                          {isExcelDragging ? "Drop Excel File Here" : "Drag & drop or Click to upload Excel File (.xlsx)"}
+                        </p>
                         <p className="text-[10px] text-gray-400">Supported format: .xlsx</p>
                       </div>
                     )}
@@ -497,10 +553,19 @@ export default function BulkUploadPage() {
                     ) : (
                       <div
                         onClick={() => zipInputRef.current?.click()}
-                        className="border-2 border-dashed border-[#E5D8B3] hover:border-[#C89B1C] bg-[#FAF8F5] hover:bg-[#FFFDF8] rounded-2xl p-6 text-center cursor-pointer transition-all space-y-2 group"
+                        onDragOver={handleZipDragOver}
+                        onDragLeave={handleZipDragLeave}
+                        onDrop={handleZipDrop}
+                        className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all space-y-2 group ${
+                          isZipDragging
+                            ? "border-[#9A720C] bg-[#FFF9EC] scale-[1.02] shadow-md"
+                            : "border-[#E5D8B3] hover:border-[#C89B1C] bg-[#FAF8F5] hover:bg-[#FFFDF8]"
+                        }`}
                       >
-                        <FolderArchive className="mx-auto text-[#C89B1C] group-hover:scale-110 transition-transform" size={28} />
-                        <p className="text-xs sm:text-sm font-bold text-gray-800">Click to upload Images ZIP (.zip)</p>
+                        <FolderArchive className={`mx-auto text-[#C89B1C] transition-transform ${isZipDragging ? "scale-125" : "group-hover:scale-110"}`} size={28} />
+                        <p className="text-xs sm:text-sm font-bold text-gray-800">
+                          {isZipDragging ? "Drop Images ZIP Here" : "Drag & drop or Click to upload Images ZIP (.zip)"}
+                        </p>
                         <p className="text-[10px] text-gray-400">Contains Property 1, Property 2 folders</p>
                       </div>
                     )}

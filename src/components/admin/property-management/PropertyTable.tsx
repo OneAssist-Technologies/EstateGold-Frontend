@@ -131,10 +131,10 @@ export default function PropertyTable({
                 <div className="text-xs text-gray-500 font-semibold">
                   {property.createdAt
                     ? new Date(property.createdAt).toLocaleDateString("en-IN", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                      })
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })
                     : "N/A"}
                 </div>
 
@@ -255,10 +255,10 @@ export default function PropertyTable({
                 <span className="text-[10px] text-gray-400 font-semibold">
                   {property.createdAt
                     ? new Date(property.createdAt).toLocaleDateString("en-IN", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                      })
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })
                     : "N/A"}
                 </span>
               </div>

@@ -81,6 +81,8 @@ export default function PricePhotosStep({
     return `₹${val.toLocaleString()}`;
   };
 
+  const [isDragging, setIsDragging] = useState(false);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = Array.from(e.target.files || []);
     if (selected.length === 0) return;
@@ -89,6 +91,31 @@ export default function PricePhotosStep({
       ...prev,
       photos: [...(prev.photos || []), ...selected],
     }));
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const selected = Array.from(e.dataTransfer.files);
+      setFormData((prev) => ({
+        ...prev,
+        photos: [...(prev.photos || []), ...selected],
+      }));
+    }
   };
 
   const handleRemoveFile = (index: number) => {
@@ -358,6 +385,9 @@ export default function PricePhotosStep({
           </label>
 
           <label
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
             className={`
               h-40
               sm:h-48
@@ -370,15 +400,20 @@ export default function PricePhotosStep({
               items-center
               justify-center
               cursor-pointer
-              hover:bg-[#FFFDF8]
-              transition-colors
+              transition-all
               group
               p-4
               sm:p-0
-              ${errors?.photos ? "border-red-500 bg-red-50/5 hover:bg-red-50/10" : "border-[#E5D8B3]"}
+              ${
+                isDragging
+                  ? "border-[#9A720C] bg-[#FFF9EC] scale-[1.01] shadow-md"
+                  : errors?.photos
+                  ? "border-red-500 bg-red-50/5 hover:bg-red-50/10"
+                  : "border-[#E5D8B3] hover:bg-[#FFFDF8] hover:border-[#C89B1C]"
+              }
             `}
           >
-            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#FFF9EA] flex items-center justify-center border border-[#F3E5C8] group-hover:scale-105 transition-transform">
+            <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#FFF9EA] flex items-center justify-center border border-[#F3E5C8] transition-transform ${isDragging ? "scale-125" : "group-hover:scale-105"}`}>
               <Upload
                 size={24}
                 className="text-[#C89B1C]"
@@ -386,7 +421,7 @@ export default function PricePhotosStep({
             </div>
 
             <p className="mt-3 text-base sm:text-xl font-bold text-[#161616]">
-              Click to upload photos or videos
+              {isDragging ? "Drop Media Files Here" : "Drag & drop or Click to upload photos or videos"}
             </p>
 
             <p className="mt-1 text-[10px] sm:text-xs text-gray-500 text-center">

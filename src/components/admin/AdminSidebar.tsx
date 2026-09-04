@@ -96,6 +96,9 @@ export default function AdminSidebar() {
     }
 
     async function fetchCounts() {
+      // Guard: Only fetch unread notification counts if user is logged in as an admin
+      if (!user || user.role !== "admin") return;
+
       try {
         const lastVisitedProperties = localStorage.getItem("admin_last_visited_properties") || "";
         const lastVisitedUsers = localStorage.getItem("admin_last_visited_users") || "";
@@ -119,7 +122,7 @@ export default function AdminSidebar() {
           });
         }
       } catch (err) {
-        console.error("Failed to fetch notification counts:", err);
+        // Silent catch for background notification polling errors (e.g. server restart, temporary network drop)
       }
     }
 
@@ -128,7 +131,7 @@ export default function AdminSidebar() {
     // Check periodically for new arrivals (every 15s)
     const interval = setInterval(fetchCounts, 15000);
     return () => clearInterval(interval);
-  }, [pathname]);
+  }, [pathname, user]);
 
   const userInitial = user?.fullName ? user.fullName[0].toUpperCase() : "A";
   const userName = user?.fullName || "Admin User";

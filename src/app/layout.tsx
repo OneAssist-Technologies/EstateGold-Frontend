@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "../providers/AuthContext";
 import AdminRouteGuard from "../components/auth/AdminRouteGuard";
+import EyvaChatbot from "../components/common/EyvaChatbot";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -37,9 +38,10 @@ export default function RootLayout({
         <AuthProvider>
           <AdminRouteGuard>
             {children}
+            <EyvaChatbot />
           </AdminRouteGuard>
         </AuthProvider>
       </body>
     </html>
   );
-}
+}
