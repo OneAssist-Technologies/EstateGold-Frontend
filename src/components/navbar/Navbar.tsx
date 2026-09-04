@@ -173,10 +173,15 @@ function NavbarContent() {
               </Link>
             )}
 
-            <Link
-              href="/eyva"
-              className={`transition-all flex flex-col items-center justify-center min-w-[60px] ${pathname === "/eyva" ? "scale-105 font-bold" : ""
-                }`}
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                if (typeof window !== "undefined") {
+                  window.dispatchEvent(new CustomEvent("open_eyva_chat"));
+                }
+              }}
+              className="transition-all flex flex-col items-center justify-center min-w-[60px] cursor-pointer hover:scale-105"
+              aria-label="Ask Eyva Chatbot"
             >
               <img
                 src="/eyva 1.png"
@@ -187,7 +192,7 @@ function NavbarContent() {
                 <span className="text-[#B88A1A]">Ask </span>
                 <span className="text-[#1F2937]">Eyva</span>
               </span>
-            </Link>
+            </button>
           </nav>
 
           {/* Right Section */}
@@ -382,17 +387,22 @@ function NavbarContent() {
             </Link>
           )}
 
-          <Link
-            href="/eyva"
-            className="flex items-center gap-2 py-2"
-            onClick={() => setMobileMenuOpen(false)}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              setMobileMenuOpen(false);
+              if (typeof window !== "undefined") {
+                window.dispatchEvent(new CustomEvent("open_eyva_chat"));
+              }
+            }}
+            className="flex items-center gap-2 py-2 cursor-pointer w-full text-left"
           >
             <img src="/eyva 1.png" alt="Ask Eyva" className="h-8 w-8 object-contain" />
             <span className="text-sm font-bold">
               <span className="text-[#B88A1A]">Ask </span>
               <span className="text-[#1F2937]">Eyva Chatbot</span>
             </span>
-          </Link>
+          </button>
         </div>
 
         {/* Bottom Section (Auth/CTA) */}
