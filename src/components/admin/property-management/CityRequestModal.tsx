@@ -37,7 +37,7 @@ const ALL_PROPERTY_TYPES = [
   "PG / Co-Living",
 ];
 
-const ALL_SERVICES = ["Buy", "Sell", "Rent", "Lease"];
+const ALL_SERVICES = ["Buy", "Sell", "Rent", "Lease", "PG / Co-Living"];
 
 export default function CityRequestModal({
   open,

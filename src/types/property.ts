@@ -98,6 +98,7 @@ export interface PropertyFormData {
     issues: PendingIssue[];
   };
   documents?: DocumentItem[];
+  agreementDetails?: AgreementDetails;
   carpetArea?: number;
   totalFloors?: number;
   plotArea?: number;
@@ -199,6 +200,7 @@ export interface PropertyFormData {
   possessionDate?: string;
   paymentPlan?: string;
   constructionStatus?: string;
+  pgDetails?: PgDetails;
 }
 export interface Property {
   _id: string;
@@ -239,7 +241,7 @@ export interface Property {
   neighbourhood?: Neighbourhood | any;
 
   status: string;
-  availabilityStatus?: "on_sale" | "hold" | "sold";
+  availabilityStatus?: "on_sale" | "hold" | "sold" | "rented";
   role?: string;
   ownerNegotiable?: boolean;
   ownerReadyToMeet?: boolean;
@@ -281,6 +283,8 @@ export interface Property {
   documents?: DocumentItem[];
   documentsAvailable?: boolean;
   uploadedDocumentTypes?: string[];
+  agreementDetails?: AgreementDetails;
+  pgDetails?: PgDetails;
 }
 
 export interface MarketInsight {
@@ -323,4 +327,82 @@ export interface DocumentItem {
   reviewer?: any;
   remarks?: string;
   expiryDate?: string;
+}
+
+export interface AgreementDetails {
+  agreementType?: string;
+  amount?: number;
+  advanceAmount?: number;
+  securityDeposit?: number;
+  duration?: string;
+  startDate?: string;
+  noticePeriod?: string;
+  lockInPeriod?: string;
+  rentEscalation?: string;
+  maintenanceResponsibility?: string;
+  utilitiesResponsibility?: string;
+  parkingDetails?: string;
+  furnishingCondition?: string;
+  additionalTerms?: string;
+}
+
+export interface PgRoom {
+  roomId?: string;
+  _id?: string;
+  roomType: string;
+  sharingType?: string;
+  roomCount?: number;
+  totalBeds: number;
+  occupiedBeds: number;
+  reservedBeds?: number;
+  availableBeds: number;
+  pricePerPerson: number;
+  securityDeposit?: number;
+  bathroomType: string;
+  ac: boolean;
+  furnishing?: string;
+  description?: string;
+  images?: string[];
+  photos?: any[];
+  status?: "AVAILABLE" | "PARTIALLY_AVAILABLE" | "FULL" | "BLOCKED" | string;
+}
+
+export interface PgRules {
+  visitorPolicy?: string;
+  curfew?: string;
+  smokingAllowed?: boolean;
+  alcoholAllowed?: boolean;
+  petsAllowed?: boolean;
+  cookingAllowed?: boolean;
+  noticePeriod?: string;
+  lockInPeriod?: string;
+  guestPolicy?: string;
+  otherRules?: string;
+}
+
+export interface PgCharges {
+  securityDeposit?: number;
+  maintenanceCharges?: number;
+  electricityCharges?: string;
+  wifiCharges?: string;
+  foodCharges?: number;
+  otherCharges?: string;
+  noticePeriod?: string;
+}
+
+export interface PgDetails {
+  pgName?: string;
+  publisherType?: string;
+  accommodationType?: string;
+  suitableFor?: string;
+  occupantType?: string;
+  moveInAvailability?: string;
+  moveInDate?: string;
+  foodAvailability?: string;
+  mealsIncluded?: string[];
+  furnishing?: string;
+  rooms?: PgRoom[];
+  facilities?: string[];
+  rules?: PgRules;
+  charges?: PgCharges;
 }

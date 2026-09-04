@@ -3,13 +3,12 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useState, Suspense, useRef } from "react";
-import { useSearchParams } from "next/navigation";
-import { User, Briefcase, X } from "lucide-react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Sparkles, Building2, User, Briefcase, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 import api from "../../lib/api";
-
 import { Property } from "../../types/property";
-import { motion, AnimatePresence } from "framer-motion";
 import FilterSidebar from "../../components/filters/FilterSidebar";
 import SearchHeader from "../../components/search/SearchHeader";
 import SortBar from "../../components/property/listing/SortBar";
@@ -18,48 +17,37 @@ import PropertyList from "../../components/property/listing/PropertyList";
 import Pagination from "../../components/property/listing/Pagination";
 import Navbar from "@/src/components/navbar/Navbar";
 import Footer from "@/src/components/footer/Footer";
-import { useRouter } from "next/navigation";
 import { useCompareSession } from "../../hooks/useCompareSession";
-import { removePropertyFromCompare, clearCompareSession } from "../../services/compareService";;
+import { removePropertyFromCompare, clearCompareSession } from "../../services/compareService";
 
-function ListingContent() {
+function NewProjectsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const session = useCompareSession();
   const fetchIdRef = useRef(0);
 
   const [properties, setProperties] = useState<Property[]>([]);
-  const [suggestedProperties, setSuggestedProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
-  const [roleFilter, setRoleFilter] = useState<string>("");
 
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(12);
-
   const [totalPages, setTotalPages] = useState(1);
   const [totalProperties, setTotalProperties] = useState(0);
 
   const [search, setSearch] = useState("");
-  const [purpose, setPurpose] = useState(""); // Default empty for All Properties
-
+  const [purpose, setPurpose] = useState("");
   const [city, setCity] = useState("");
   const [propertyType, setPropertyType] = useState("");
   const [bedrooms, setBedrooms] = useState("");
   const [furnishing, setFurnishing] = useState("");
-
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
-
+  const [constructionStatus, setConstructionStatus] = useState("");
   const [sort, setSort] = useState("latest");
   const [view, setView] = useState<"grid" | "list">("grid");
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
-  // AI search additional states
-  const [showNearby, setShowNearby] = useState(false);
-  const [isNearbyResults, setIsNearbyResults] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState("Loading verified properties...");
-
-  // Sync state from URL search params on load or navigation
+  // Sync state from URL search params on load
   useEffect(() => {
     if (!searchParams) return;
     const urlPurpose = searchParams.get("purpose");
@@ -69,147 +57,28 @@ function ListingContent() {
     const urlBedrooms = searchParams.get("bedrooms");
     const urlMinPrice = searchParams.get("minPrice");
     const urlMaxPrice = searchParams.get("maxPrice");
-    const urlNearby = searchParams.get("nearby");
+    const urlConstructionStatus = searchParams.get("constructionStatus");
 
-    setPurpose(urlPurpose !== null ? urlPurpose : "");
-    setCity(urlCity !== null ? urlCity : "");
-    setSearch(urlSearch !== null ? urlSearch : "");
-    setBedrooms(urlBedrooms !== null ? urlBedrooms : "");
-    setMinPrice(urlMinPrice !== null ? urlMinPrice : "");
-    setMaxPrice(urlMaxPrice !== null ? urlMaxPrice : "");
-    setShowNearby(urlNearby === "true");
+    if (urlPurpose !== null) setPurpose(urlPurpose);
+    if (urlCity !== null) setCity(urlCity);
+    if (urlSearch !== null) setSearch(urlSearch);
+    if (urlBedrooms !== null) setBedrooms(urlBedrooms);
+    if (urlMinPrice !== null) setMinPrice(urlMinPrice);
+    if (urlMaxPrice !== null) setMaxPrice(urlMaxPrice);
+    if (urlConstructionStatus !== null) setConstructionStatus(urlConstructionStatus);
 
     if (urlType !== null) {
-      if (urlType === "NewProjects") setPropertyType("Apartment / Flat");
-      else if (urlType.toLowerCase() === "commercial" || urlType.toLowerCase() === "commercial space") setPropertyType("Commercial");
+      if (urlType === "NewProjects") setPropertyType("");
       else setPropertyType(urlType);
-    } else {
-      setPropertyType("");
     }
   }, [searchParams]);
 
-  // Synchronize URL search parameter on initial load to highlight sidebar filters
-  useEffect(() => {
-    async function syncParsedSearch() {
-      if (search && search.trim() !== "" && !city && !propertyType && !bedrooms && !purpose) {
-        try {
-          const res = await api.post("/ai/parse-search", { query: search.trim() });
-          if (res.data && res.data.success) {
-            if (res.data.city) setCity(res.data.city);
-            if (res.data.propertyType) setPropertyType(res.data.propertyType);
-            if (res.data.bedrooms) setBedrooms(res.data.bedrooms);
-            if (res.data.purpose) setPurpose(res.data.purpose);
-            if (res.data.minPrice) setMinPrice(res.data.minPrice);
-            if (res.data.maxPrice) setMaxPrice(res.data.maxPrice);
-          }
-        } catch (err) {
-          console.error("Failed to parse initial search param:", err);
-        }
-      }
-    }
-    syncParsedSearch();
-  }, [search]);
-
-  // Sync state changes back to the URL search params (Stable & Loop-Free)
-  useEffect(() => {
-    // If the URL has query parameters, but our states are all empty,
-    // it means the component just mounted and has not hydrated/synced the URL params into the state yet.
-    // We should skip syncing back in this case to prevent wiping out the URL query params.
-    const urlHasParams = typeof window !== "undefined" && window.location.search && window.location.search.length > 1;
-    const statesAreEmpty = !search && !purpose && !city && !propertyType && !bedrooms && !furnishing && !minPrice && !maxPrice;
-    if (urlHasParams && statesAreEmpty) {
-      return;
-    }
-
-    const params = new URLSearchParams();
-    if (search) params.set("search", search);
-    if (purpose) params.set("purpose", purpose);
-    if (city) params.set("city", city);
-    if (propertyType) params.set("propertyType", propertyType);
-    if (bedrooms) params.set("bedrooms", bedrooms);
-    if (furnishing) params.set("furnishing", furnishing);
-    if (minPrice) params.set("minPrice", minPrice);
-    if (maxPrice) params.set("maxPrice", maxPrice);
-    if (roleFilter) params.set("role", roleFilter);
-    if (page > 1) params.set("page", String(page));
-    if (sort !== "latest") params.set("sort", sort);
-    if (showNearby) params.set("nearby", "true");
-
-    const newUrl = `/property-listing?${params.toString()}`;
-    const currentParams = new URLSearchParams(window.location.search);
-    if (params.toString() !== currentParams.toString()) {
-      router.push(newUrl);
-    }
-  }, [
-    search,
-    purpose,
-    city,
-    propertyType,
-    bedrooms,
-    furnishing,
-    minPrice,
-    maxPrice,
-    roleFilter,
-    page,
-    sort,
-    showNearby
-  ]);
-
-  // Reset showNearby state when search or other filters change
-  useEffect(() => {
-    setShowNearby(false);
-  }, [
-    search,
-    purpose,
-    city,
-    propertyType,
-    bedrooms,
-    furnishing,
-    minPrice,
-    maxPrice,
-    roleFilter,
-  ]);
-
-  const handleSearchSubmit = async (val: string) => {
-    setSearch(val);
-    setPage(1);
-
-    if (!val || val.trim() === "") {
-      setCity("");
-      setPropertyType("");
-      setBedrooms("");
-      setPurpose("");
-      setMinPrice("");
-      setMaxPrice("");
-      return;
-    }
-
-    try {
-      const res = await api.post("/ai/parse-search", { query: val.trim() });
-      if (res.data && res.data.success) {
-        if (res.data.city) setCity(res.data.city);
-        if (res.data.propertyType) setPropertyType(res.data.propertyType);
-        if (res.data.bedrooms) setBedrooms(res.data.bedrooms);
-        if (res.data.purpose) setPurpose(res.data.purpose);
-        if (res.data.minPrice) setMinPrice(res.data.minPrice);
-        if (res.data.maxPrice) setMaxPrice(res.data.maxPrice);
-      }
-    } catch (err) {
-      console.error("Failed to parse search query:", err);
-    }
-  };
-
-  const fetchProperties = async () => {
+  const fetchNewProjects = async () => {
     const currentFetchId = ++fetchIdRef.current;
     try {
       setLoading(true);
-      if (search && search.trim() !== "") {
-        setLoadingMessage("Analyzing your search query...");
-      } else {
-        setLoadingMessage("Loading verified properties...");
-      }
-
-      console.log("API CALL PARAMS:", {
+      let response;
+      const queryParams = {
         page,
         limit,
         search,
@@ -220,73 +89,29 @@ function ListingContent() {
         furnishing,
         minPrice,
         maxPrice,
+        constructionStatus,
         sort,
-        role: roleFilter,
-        nearby: showNearby,
-      });
+      };
 
-      if (typeof window !== "undefined") {
-        const prefObject = {
-          purpose: purpose || undefined,
-          city: city || undefined,
-          propertyType: propertyType || undefined,
-          bedrooms: bedrooms ? Number(bedrooms) : undefined,
-          maxPrice: maxPrice ? Number(maxPrice) : undefined,
-          minPrice: minPrice ? Number(minPrice) : undefined,
-          furnishing: furnishing || undefined,
-          nearby: showNearby ? ["school", "hospital", "metro"] : undefined
-        };
-        localStorage.setItem("estategold_user_preferences", JSON.stringify(prefObject));
-        window.dispatchEvent(new Event("estategold_user_preferences_changed"));
+      try {
+        response = await api.get("/new-projects", { params: queryParams });
+      } catch (firstErr: any) {
+        if (firstErr?.response?.status === 404) {
+          response = await api.get("/properties/new-projects", { params: queryParams });
+        } else {
+          throw firstErr;
+        }
       }
-
-      const response = await api.get("/properties", {
-        params: {
-          page,
-          limit,
-          search,
-          purpose,
-          city,
-          propertyType,
-          bedrooms,
-          furnishing,
-          minPrice,
-          maxPrice,
-          sort,
-          role: roleFilter,
-          nearby: showNearby ? "true" : "false",
-        },
-      });
 
       if (currentFetchId !== fetchIdRef.current) return;
 
       const items = response.data.data || [];
-      setIsNearbyResults(!!response.data.isNearbyResults);
-
-      if (items.length > 0) {
-        setProperties(items);
-        setSuggestedProperties([]);
-      } else {
-        setProperties([]);
-        if (!showNearby) {
-          try {
-            const fallbackRes = await api.get("/properties", {
-              params: { limit: 4, sort: "latest" }
-            });
-            if (currentFetchId !== fetchIdRef.current) return;
-            setSuggestedProperties(fallbackRes.data.data || []);
-          } catch (fallbackErr) {
-            console.error("Failed to load suggested properties:", fallbackErr);
-          }
-        } else {
-          setSuggestedProperties([]);
-        }
-      }
+      setProperties(items);
       setTotalPages(response.data.pagination?.totalPages || 1);
       setTotalProperties(response.data.pagination?.totalProperties || 0);
     } catch (error) {
       if (currentFetchId === fetchIdRef.current) {
-        console.error("Failed to fetch properties:", error);
+        console.error("Failed to fetch new projects:", error);
       }
     } finally {
       if (currentFetchId === fetchIdRef.current) {
@@ -296,7 +121,7 @@ function ListingContent() {
   };
 
   useEffect(() => {
-    fetchProperties();
+    fetchNewProjects();
   }, [
     page,
     limit,
@@ -308,9 +133,8 @@ function ListingContent() {
     furnishing,
     minPrice,
     maxPrice,
+    constructionStatus,
     sort,
-    roleFilter,
-    showNearby,
   ]);
 
   const handleClearFilters = () => {
@@ -322,17 +146,47 @@ function ListingContent() {
     setFurnishing("");
     setMinPrice("");
     setMaxPrice("");
+    setConstructionStatus("");
     setSort("latest");
-    setRoleFilter("");
     setPage(1);
-    setShowNearby(false);
   };
 
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans text-gray-900">
       <Navbar />
 
-      {/* Top Search & Filter Bar */}
+      {/* Top Light Banner Header */}
+      <section className="bg-gradient-to-r from-[#FAF8F5] via-[#FFFDF8] to-[#FAF8F5] text-[#161616] py-10 sm:py-12 px-4 sm:px-6 lg:px-8 border-b border-[#ECE7DB]">
+        <div className="max-w-[1500px] mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FFF9EC] border border-[#F4E3B5] text-[#9A720C] text-xs font-bold uppercase tracking-wider shadow-3xs">
+              <Sparkles size={14} /> New Construction & Launches
+            </div>
+            <h1 className="text-2xl sm:text-4xl font-extrabold text-[#161616] tracking-tight">
+              New Projects & Developments
+            </h1>
+            <p className="text-xs sm:text-sm text-gray-600 max-w-2xl leading-relaxed font-medium">
+              Discover newly launched, under-construction, and brand new properties directly from top builders, sellers, and verified developers.
+            </p>
+          </div>
+
+          <div className="bg-white border border-[#E8DCC1] rounded-2xl p-4 sm:p-5 flex items-center gap-4 shrink-0 shadow-2xs">
+            <div className="w-12 h-12 rounded-xl bg-[#FFF9EC] border border-[#F4E3B5] text-[#9A720C] flex items-center justify-center font-bold text-xl shrink-0">
+              <Building2 size={24} />
+            </div>
+            <div>
+              <div className="text-xl sm:text-2xl font-black text-[#9A720C]">
+                {totalProperties}
+              </div>
+              <div className="text-xs text-gray-500 font-bold uppercase tracking-wide">
+                Eligible New Projects
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Search Header */}
       <SearchHeader
         purpose={purpose}
         setPurpose={(val) => {
@@ -340,65 +194,15 @@ function ListingContent() {
           setPage(1);
         }}
         search={search}
-        setSearch={handleSearchSubmit}
+        setSearch={(val) => {
+          setSearch(val);
+          setPage(1);
+        }}
       />
 
-      {/* Main Two-Column Layout */}
+      {/* Main Content Layout */}
       <main className="flex-1 max-w-[1500px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-6">
-        {/* Role Filter Cards */}
-        <div className="grid grid-cols-2 gap-4 mb-6 max-w-md">
-          {/* Owner Card */}
-          <button
-            onClick={() => {
-              setRoleFilter(roleFilter === "seller" ? "" : "seller");
-              setPage(1);
-            }}
-            className={`flex items-center gap-3.5 p-3 rounded-2xl border transition-all cursor-pointer text-left ${roleFilter === "seller"
-              ? "bg-[#FFF9EC] border-[#D4B04C] shadow-2xs"
-              : "bg-white border-gray-200 hover:border-[#D4B04C] hover:bg-[#FAF8F5]"
-              }`}
-          >
-            <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${roleFilter === "seller" ? "bg-[#D4B04C] text-white" : "bg-[#FFF9EC] text-[#D4B04C]"
-              }`}>
-              <User size={16} />
-            </div>
-            <div>
-              <span className={`block text-[10px] font-bold ${roleFilter === "seller" ? "text-[#9A720C]" : "text-gray-400"}`}>
-                Properties by
-              </span>
-              <span className="block text-xs font-black text-gray-900 leading-tight">
-                Owner / Seller
-              </span>
-            </div>
-          </button>
-
-          {/* Agent Card */}
-          <button
-            onClick={() => {
-              setRoleFilter(roleFilter === "agent" ? "" : "agent");
-              setPage(1);
-            }}
-            className={`flex items-center gap-3.5 p-3 rounded-2xl border transition-all cursor-pointer text-left ${roleFilter === "agent"
-              ? "bg-blue-50 border-blue-400 shadow-2xs"
-              : "bg-white border-gray-200 hover:border-blue-400 hover:bg-gray-50/50"
-              }`}
-          >
-            <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${roleFilter === "agent" ? "bg-blue-600 text-white" : "bg-blue-50 text-blue-600"
-              }`}>
-              <Briefcase size={16} />
-            </div>
-            <div>
-              <span className={`block text-[10px] font-bold ${roleFilter === "agent" ? "text-blue-700" : "text-gray-400"}`}>
-                Properties by
-              </span>
-              <span className="block text-xs font-black text-gray-900 leading-tight">
-                Certified Agent
-              </span>
-            </div>
-          </button>
-        </div>
-
-        {/* Mobile Filter Button Trigger */}
+        {/* Mobile Filter Button */}
         <div className="lg:hidden flex items-center justify-between bg-white border border-[#ECE7DB] p-4 rounded-2xl mb-4 shadow-3xs">
           <button
             onClick={() => setShowMobileFilters(true)}
@@ -406,11 +210,11 @@ function ListingContent() {
           >
             <span>Filters ⚙️</span>
           </button>
-          <span className="text-xs text-gray-500 font-bold">{totalProperties} Properties Found</span>
+          <span className="text-xs text-gray-500 font-bold">{totalProperties} New Projects Found</span>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
-          {/* Left Sidebar Filter */}
+          {/* Sidebar Filters */}
           <aside className="hidden lg:block lg:col-span-3 space-y-6">
             <FilterSidebar
               city={city}
@@ -447,7 +251,7 @@ function ListingContent() {
             />
           </aside>
 
-          {/* Right Property Grid Section */}
+          {/* Right Main Grid */}
           <section className="lg:col-span-9 space-y-4">
             <SortBar
               total={totalProperties}
@@ -459,69 +263,33 @@ function ListingContent() {
                 setPage(1);
               }}
               search={search}
-              isNearby={isNearbyResults}
             />
-
-            {isNearbyResults && (
-              <div className="bg-[#FFF9EC] border border-[#F4E3B5] text-[#9A720C] px-4 py-3.5 rounded-2xl text-xs font-bold flex items-center gap-2 mb-4 animate-[fadeIn_0.3s_ease_out]">
-                <span>📍</span>
-                <span>Showing Nearby / Similar Properties matching your criteria</span>
-              </div>
-            )}
 
             {loading ? (
               <div className="flex flex-col items-center justify-center h-[400px] bg-white rounded-2xl border border-[#ECE7DB]">
                 <div className="h-10 w-10 rounded-full border-3 border-[#E8DCC1] border-t-[#9A720C] animate-spin" />
                 <p className="mt-4 text-xs font-semibold text-gray-500">
-                  {loadingMessage}
+                  Loading verified new projects...
                 </p>
               </div>
             ) : properties.length === 0 ? (
-              <div className="space-y-8 text-left animate-[fadeIn_0.5s_ease_out]">
-                <div className="flex flex-col items-center justify-center p-12 bg-[#FAFAF8] rounded-2xl border border-dashed border-[#ECE7DB] text-center">
-                  <div className="h-14 w-14 rounded-2xl bg-[#FFF9EC] border border-[#F4E3B5] text-[#9A720C] flex items-center justify-center font-bold text-xl mb-4 shadow-2xs">
-                    📍
-                  </div>
-                  <h3 className="text-lg font-bold text-gray-900">
-                    No properties found
-                  </h3>
-                  <p className="text-xs text-gray-500 max-w-md mt-2 leading-relaxed font-semibold">
-                    {!showNearby
-                      ? "We couldn't find properties matching your search. Try looking for nearby properties."
-                      : "We couldn't find any nearby properties matching your criteria."}
-                  </p>
-                  <div className="flex items-center gap-3 justify-center mt-5">
-                    {!showNearby && (
-                      <button
-                        type="button"
-                        onClick={() => setShowNearby(true)}
-                        className="px-5 py-2.5 rounded-xl bg-[#9A720C] text-white text-xs font-bold hover:bg-[#856108] transition-all shadow-xs cursor-pointer"
-                      >
-                        View Nearby Properties
-                      </button>
-                    )}
-                    <button
-                      type="button"
-                      onClick={handleClearFilters}
-                      className="px-5 py-2.5 rounded-xl bg-white border border-[#E5E0D4] text-gray-700 hover:bg-[#FAFAF8] text-xs font-bold transition-all cursor-pointer"
-                    >
-                      Clear All Filters
-                    </button>
-                  </div>
+              <div className="flex flex-col items-center justify-center p-12 bg-[#FAFAF8] rounded-2xl border border-dashed border-[#ECE7DB] text-center">
+                <div className="h-14 w-14 rounded-2xl bg-[#FFF9EC] border border-[#F4E3B5] text-[#9A720C] flex items-center justify-center font-bold text-xl mb-4 shadow-2xs">
+                  🏗️
                 </div>
-
-                {!showNearby && !search && suggestedProperties.length > 0 && (
-                  <div className="space-y-4 pt-6 border-t border-[#ECE7DB]/60">
-                    <h3 className="text-lg font-bold text-gray-900 text-left">
-                      Explore Other Available Properties
-                    </h3>
-                    {view === "grid" ? (
-                      <PropertyGrid properties={suggestedProperties} />
-                    ) : (
-                      <PropertyList properties={suggestedProperties} />
-                    )}
-                  </div>
-                )}
+                <h3 className="text-lg font-bold text-gray-900">
+                  No New Projects Found
+                </h3>
+                <p className="text-xs text-gray-500 max-w-md mt-2 leading-relaxed font-semibold">
+                  We couldn't find any newly launched or under-construction properties matching your current filter criteria.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleClearFilters}
+                  className="mt-5 px-5 py-2.5 rounded-xl bg-[#9A720C] text-white text-xs font-bold hover:bg-[#856108] transition-all cursor-pointer shadow-xs"
+                >
+                  Clear All Filters
+                </button>
               </div>
             ) : (
               <AnimatePresence mode="wait">
@@ -611,7 +379,8 @@ function ListingContent() {
           </div>
         </div>
       )}
-      {/* Mobile Filters Drawer Overlay */}
+
+      {/* Mobile Filters Overlay */}
       <AnimatePresence>
         {showMobileFilters && (
           <>
@@ -682,7 +451,7 @@ function ListingContent() {
   );
 }
 
-export default function PropertyListingPage() {
+export default function NewProjectsPage() {
   return (
     <Suspense
       fallback={
@@ -695,7 +464,7 @@ export default function PropertyListingPage() {
         </div>
       }
     >
-      <ListingContent />
+      <NewProjectsContent />
     </Suspense>
   );
 }

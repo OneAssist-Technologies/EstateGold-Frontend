@@ -125,6 +125,37 @@ export function validatePropertyStep(
       }
       break;
 
+    case "pg_details":
+      if (!formData.pgDetails?.pgName || !formData.pgDetails.pgName.trim()) {
+        errors.pgName = "PG / Co-Living Name is required.";
+      }
+      if (!formData.pgDetails?.suitableFor) {
+        errors.suitableFor = "Please select who this accommodation is suitable for.";
+      }
+      break;
+
+    case "pg_rooms":
+      const rooms = formData.pgDetails?.rooms || [];
+      if (rooms.length === 0) {
+        errors.rooms = "Please add at least one room configuration.";
+      } else {
+        rooms.forEach((r, idx) => {
+          if (!r.roomType) {
+            errors[`room_${idx}`] = `Room #${idx + 1}: Sharing type is required.`;
+          }
+          if (!r.totalBeds || r.totalBeds <= 0) {
+            errors[`room_${idx}`] = `Room #${idx + 1}: Total beds must be greater than 0.`;
+          }
+          if (r.occupiedBeds > r.totalBeds) {
+            errors[`room_${idx}`] = `Room #${idx + 1}: Available beds cannot be negative / Occupied cannot exceed total.`;
+          }
+          if (!r.pricePerPerson || r.pricePerPerson <= 0) {
+            errors[`room_${idx}`] = `Room #${idx + 1}: Price per person must be greater than ₹0.`;
+          }
+        });
+      }
+      break;
+
     case "details":
       const data = formData as any;
       
@@ -708,6 +739,31 @@ export function validatePropertyStep(
           errors[docType] = `${docType.replace(/_/g, " ").toUpperCase()} is required.`;
         }
       });
+      break;
+
+    case "agreement":
+      const isRentOrLease = formData.purpose === "Rent" || formData.purpose === "Lease";
+      if (isRentOrLease) {
+        const agreement = formData.agreementDetails || {};
+        if (!agreement.agreementType || !agreement.agreementType.trim()) {
+          errors.agreementType = "Agreement Type is required.";
+        }
+        if (!agreement.amount || Number(agreement.amount) <= 0) {
+          errors.amount = "Rent / Lease Amount must be greater than 0.";
+        }
+        if (agreement.securityDeposit === undefined || agreement.securityDeposit === null || Number(agreement.securityDeposit) < 0) {
+          errors.securityDeposit = "Security Deposit amount is required.";
+        }
+        if (!agreement.duration || !agreement.duration.trim()) {
+          errors.duration = "Agreement Duration is required.";
+        }
+        if (!agreement.startDate) {
+          errors.startDate = "Agreement Start Date is required.";
+        }
+        if (!agreement.noticePeriod || !agreement.noticePeriod.trim()) {
+          errors.noticePeriod = "Notice Period is required.";
+        }
+      }
       break;
 
     case "price":

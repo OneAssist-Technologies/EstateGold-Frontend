@@ -5,6 +5,7 @@ import {
   useState,
   useEffect,
 } from "react";
+import { createPortal } from "react-dom";
 import { useAuth } from "@/src/hooks/useAuth";;
 import {
   AnimatePresence,
@@ -23,6 +24,12 @@ import NeighbourhoodStep from "./NeighbourhoodStep";
 import AgentPendingVerification from "@/src/components/auth/AgentPendingVerification";
 import PendingIssuesStep from "./PendingIssuesStep";
 import DocumentsStep from "./DocumentsStep";
+import AgreementDetailsStep from "./AgreementDetailsStep";
+import PgDetailsStep from "./PgDetailsStep";
+import PgRoomConfigStep from "./PgRoomConfigStep";
+import PgPricingChargesStep from "./PgPricingChargesStep";
+import PgFacilitiesStep from "./PgFacilitiesStep";
+import PgRulesStep from "./PgRulesStep";
 import ReviewSubmitStep from "./ReviewSubmitStep";
 
 import api from "@/src/lib/api";
@@ -51,6 +58,21 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
   const [published, setPublished] = useState(false);
   const [showAgentModal, setShowAgentModal] = useState(true);
   const [stepErrors, setStepErrors] = useState<Record<string, string>>({});
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (user?.role === "agent" && showAgentModal && !editId) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [user?.role, showAgentModal, editId]);
 
   const [formData, setFormData] = useState<PropertyFormData>({
     purpose: "",
@@ -121,21 +143,39 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
   const role = user?.role || "seller";
 
   const stepsList = useMemo(() => {
+    const isPg = formData.purpose === "PG / Co-Living" || formData.purpose === "PG_CO_LIVING";
+    const isRentOrLease = (formData.purpose || "").toLowerCase() === "rent" || (formData.purpose || "").toLowerCase() === "lease" || formData.purpose === "Rent" || formData.purpose === "Lease";
+
     const list = [];
     list.push({ id: "type", name: "Property Type" });
     if (role === "agent" || role === "seller" || role === "buyer") {
       list.push({ id: "owner", name: "Owner Details" });
     }
-    list.push({ id: "location", name: "Location" });
-    list.push({ id: "details", name: "Property Details" });
-    list.push({ id: "amenities", name: "Amenities" });
+    list.push({ id: "location", name: "Basic Location" });
+
+    if (isPg) {
+      list.push({ id: "pg_details", name: "PG Details" });
+      list.push({ id: "pg_rooms", name: "Room Config" });
+      list.push({ id: "pg_pricing", name: "Pricing & Charges" });
+      list.push({ id: "pg_facilities", name: "Facilities" });
+      list.push({ id: "pg_rules", name: "Rules & Restrictions" });
+    } else {
+      list.push({ id: "details", name: "Property Details" });
+      list.push({ id: "amenities", name: "Amenities" });
+    }
+
     list.push({ id: "neighbourhood", name: "Neighbourhood" });
     list.push({ id: "issues", name: "Pending Issues" });
-    list.push({ id: "documents", name: "Documents" });
-    list.push({ id: "price", name: "Price & Media" });
+    if (!isPg) {
+      list.push({ id: "documents", name: "Documents" });
+    }
+    if (isRentOrLease) {
+      list.push({ id: "agreement", name: "Agreement Details" });
+    }
+    list.push({ id: "price", name: "Photos & Media" });
     list.push({ id: "review", name: "Review & Submit" });
     return list;
-  }, [role]);
+  }, [role, formData.purpose]);
 
   const totalSteps = stepsList.length;
   const currentStepId = stepsList[step - 1]?.id;
@@ -347,6 +387,7 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
           paymentPlan: property.paymentPlan,
           pendingIssues: property.pendingIssues || { hasPendingIssues: "no", issues: [] },
           documents: property.documents || [],
+          agreementDetails: property.agreementDetails || {},
           ownershipType: property.ownershipType || "",
           numberOfOwners: property.numberOfOwners || 1,
           pan: property.pan || "",
@@ -400,22 +441,28 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
     fetchInsight();
   }, [formData.city, formData.locality, formData.propertyType, formData.bedrooms, formData.area, formData.carpetArea, formData.plotArea]);
 
-  const LOCAL_STORAGE_KEY = "estateGold:listPropertyDraft";
+  const currentUserId = user?._id || (user as any)?.id || null;
+
+  const getLocalStorageKey = (userId?: string | null) => {
+    return userId ? `estateGold:listPropertyDraft:${userId}` : "estateGold:listPropertyDraft:guest";
+  };
 
   const saveDraftLocallyAndCloud = async (currentData: PropertyFormData, currentStep: number, idToUse?: string | null) => {
     const activeId = idToUse !== undefined ? idToUse : draftId;
+    const storageKey = getLocalStorageKey(currentUserId);
 
     // 1. Save Locally
     try {
       const { photos, ...serializableData } = currentData;
       const localPayload = {
         version: 1,
+        userId: currentUserId,
         draftId: activeId,
         currentStep,
         formData: serializableData,
         updatedAt: Date.now(),
       };
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(localPayload));
+      localStorage.setItem(storageKey, JSON.stringify(localPayload));
     } catch (err) {
       console.error("Local draft saving failed:", err);
     }
@@ -442,12 +489,13 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
           // Re-save local storage with new draftId
           const localPayload = {
             version: 1,
+            userId: currentUserId,
             draftId: newId,
             currentStep,
             formData: serializableData,
             updatedAt: Date.now(),
           };
-          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(localPayload));
+          localStorage.setItem(storageKey, JSON.stringify(localPayload));
         }
       }
       setSyncStatus("synced");
@@ -467,16 +515,22 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [formData, step, mode, user, draftId]);
+  }, [formData, step, mode, user, draftId, currentUserId]);
 
-  // Load draft on mount
+  // Load draft on mount for the specific logged-in user
   useEffect(() => {
-    if (mode === "edit") return;
+    if (mode === "edit" || loading) return;
 
-    const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+    const storageKey = getLocalStorageKey(currentUserId);
+    const saved = localStorage.getItem(storageKey);
+
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
+        // CRITICAL CHECK: Verify user ID match to prevent cross-account draft leakage
+        if (parsed && parsed.userId && currentUserId && String(parsed.userId) !== String(currentUserId)) {
+          return;
+        }
         if (parsed && parsed.formData) {
           if (parsed.draftId) {
             setDraftId(parsed.draftId);
@@ -495,7 +549,7 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
         console.error("Failed to restore draft:", err);
       }
     }
-  }, [mode]);
+  }, [mode, loading, currentUserId]);
 
   const handleDiscardDraft = async () => {
     if (!window.confirm("Are you sure you want to discard this property listing draft? All entered progress will be lost.")) {
@@ -510,7 +564,9 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
       console.error("Failed to delete draft on server:", err);
     }
 
-    localStorage.removeItem(LOCAL_STORAGE_KEY);
+    localStorage.removeItem(getLocalStorageKey(currentUserId));
+    localStorage.removeItem("estateGold:listPropertyDraft");
+    localStorage.removeItem("estateGold:listPropertyDraft:guest");
     localStorage.removeItem("property_form_draft");
     setDraftId(null);
     setSyncStatus(null);
@@ -794,6 +850,12 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
       if (formData.documents) {
         payload.append("documents", JSON.stringify(formData.documents));
       }
+      if (formData.agreementDetails) {
+        payload.append("agreementDetails", JSON.stringify(formData.agreementDetails));
+      }
+      if (formData.pgDetails) {
+        payload.append("pgDetails", JSON.stringify(formData.pgDetails));
+      }
       if (formData.ownershipType) {
         payload.append("ownershipType", formData.ownershipType);
       }
@@ -828,7 +890,9 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
           toast.success("Property updated successfully");
           router.push("/my-properties");
         } else {
-          localStorage.removeItem(LOCAL_STORAGE_KEY);
+          localStorage.removeItem(getLocalStorageKey(currentUserId));
+          localStorage.removeItem("estateGold:listPropertyDraft");
+          localStorage.removeItem("estateGold:listPropertyDraft:guest");
           localStorage.removeItem("property_form_draft");
           if (draftId) {
             try {
@@ -854,7 +918,16 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
   const handleSaveDraft = () => {
     try {
       const { photos, ...serializableData } = formData;
-      localStorage.setItem("property_form_draft", JSON.stringify(serializableData));
+      const storageKey = getLocalStorageKey(currentUserId);
+      const localPayload = {
+        version: 1,
+        userId: currentUserId,
+        draftId,
+        currentStep: step,
+        formData: serializableData,
+        updatedAt: Date.now(),
+      };
+      localStorage.setItem(storageKey, JSON.stringify(localPayload));
       toast.success("Draft saved successfully! Your progress is stored on this page.");
     } catch (err) {
       console.error("Failed to save draft:", err);
@@ -910,17 +983,17 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
               The listing is submitted for admin review. Owner will be notified once approved.
             </p>
 
-            <div className="mt-6 sm:mt-10 flex flex-col xs:flex-row justify-center items-center gap-3 w-full max-w-xs sm:max-w-none mx-auto sm:w-auto">
+            <div className="mt-6 sm:mt-10 flex flex-row items-center justify-center gap-3 sm:gap-4 w-full max-w-sm sm:max-w-md mx-auto">
               <button
                 onClick={() => router.push("/property-listing")}
-                className="bg-[#C89B1C] text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl sm:rounded-2xl font-semibold hover:bg-[#B58A16] text-sm sm:text-base w-full sm:w-auto cursor-pointer"
+                className="flex-1 sm:flex-initial bg-[#C89B1C] text-white px-5 sm:px-8 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl font-semibold hover:bg-[#B58A16] text-xs sm:text-sm shadow-sm transition-all duration-200 cursor-pointer text-center"
               >
                 View Listings
               </button>
 
               <button
                 onClick={() => window.location.reload()}
-                className="border border-[#D8B56A] px-6 py-3 sm:px-8 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-[#161616] hover:bg-[#FFF8E8] hover:border-[#C89B1C] hover:shadow-[0_4px_20px_rgba(200,155,28,0.15)] transition-all duration-300 text-sm sm:text-base w-full sm:w-auto cursor-pointer"
+                className="flex-1 sm:flex-initial border border-[#D8B56A] px-5 sm:px-8 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl font-semibold text-[#161616] hover:bg-[#FFF8E8] hover:border-[#C89B1C] hover:shadow-[0_4px_20px_rgba(200,155,28,0.15)] transition-all duration-200 text-xs sm:text-sm cursor-pointer text-center"
               >
                 List Another
               </button>
@@ -933,9 +1006,32 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
   }
 
   const handleEditStep = (stepId: string) => {
-    const index = stepsList.findIndex((s) => s.id === stepId);
+    const isPg = formData.purpose === "PG / Co-Living" || formData.purpose === "PG_CO_LIVING";
+
+    let targetId = stepId;
+
+    if (isPg) {
+      if (stepId === "details") targetId = "pg_details";
+      else if (stepId === "amenities") targetId = "pg_facilities";
+      else if (stepId === "price_charges") targetId = "pg_pricing";
+    }
+
+    let index = stepsList.findIndex((s) => s.id === targetId);
+
+    // Fallback search if targetId wasn't found directly
+    if (index === -1) {
+      if (targetId === "pg_details" || targetId === "details") {
+        index = stepsList.findIndex((s) => s.id === "details" || s.id === "pg_details");
+      } else if (targetId === "pg_facilities" || targetId === "amenities") {
+        index = stepsList.findIndex((s) => s.id === "amenities" || s.id === "pg_facilities");
+      } else if (targetId === "pg_pricing" || targetId === "price") {
+        index = stepsList.findIndex((s) => s.id === "price" || s.id === "pg_pricing");
+      }
+    }
+
     if (index !== -1) {
       setStep(index + 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
@@ -956,6 +1052,16 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
         return <LocationStep formData={formData} setFormData={setFormData} errors={stepErrors} />;
       case "details":
         return <PropertyDetailsStep formData={formData} setFormData={setFormData} errors={stepErrors} />;
+      case "pg_details":
+        return <PgDetailsStep formData={formData} setFormData={setFormData} errors={stepErrors} />;
+      case "pg_rooms":
+        return <PgRoomConfigStep formData={formData} setFormData={setFormData} errors={stepErrors} />;
+      case "pg_pricing":
+        return <PgPricingChargesStep formData={formData} setFormData={setFormData} errors={stepErrors} />;
+      case "pg_facilities":
+        return <PgFacilitiesStep formData={formData} setFormData={setFormData} errors={stepErrors} />;
+      case "pg_rules":
+        return <PgRulesStep formData={formData} setFormData={setFormData} errors={stepErrors} />;
       case "amenities":
         return <AmenitiesStep formData={formData} setFormData={setFormData} />;
       case "neighbourhood":
@@ -966,6 +1072,8 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
         return <PendingIssuesStep formData={formData} setFormData={setFormData} errors={stepErrors} />;
       case "documents":
         return <DocumentsStep formData={formData} setFormData={setFormData} errors={stepErrors} />;
+      case "agreement":
+        return <AgreementDetailsStep formData={formData} setFormData={setFormData} errors={stepErrors} />;
       case "review":
         return (
           <ReviewSubmitStep
@@ -986,16 +1094,16 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
       <Navbar />
 
       {/* AGENT PROPERTY TYPE SELECTION MODAL */}
-      {role === "agent" && showAgentModal && !editId && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+      {role === "agent" && showAgentModal && !editId && mounted && createPortal(
+        <div className="fixed inset-0 w-screen h-screen z-[9999] bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="relative bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-[#E5D7B3]"
+            className="relative bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-[#E5D7B3] my-auto max-h-[90vh] overflow-y-auto"
           >
             <button
               onClick={() => setShowAgentModal(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
             >
               <X size={20} />
             </button>
@@ -1065,7 +1173,8 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
               </button>
             </div>
           </motion.div>
-        </div>
+        </div>,
+        document.body
       )}
 
       <section className="min-h-screen bg-[#FAF8F3] py-6 sm:py-12">
@@ -1155,7 +1264,7 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
                   </span>
                 )}
 
-                {mode !== "edit" && (draftId || (typeof window !== 'undefined' && localStorage.getItem(LOCAL_STORAGE_KEY))) && (
+                {mode !== "edit" && (draftId || (typeof window !== 'undefined' && localStorage.getItem(getLocalStorageKey(currentUserId)))) && (
                   <button
                     type="button"
                     onClick={handleDiscardDraft}

@@ -10,7 +10,7 @@ import api from "../../lib/api";
 
 export default function Hero() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"Buy" | "Rent" | "Commercial">("Buy");
+  const [activeTab, setActiveTab] = useState<"Buy" | "Rent" | "Commercial" | "PG / Co-Living">("Buy");
   const [searchQuery, setSearchQuery] = useState("");
   const [popularLocations, setPopularLocations] = useState<string[]>([]);
   const [loadingLocations, setLoadingLocations] = useState(true);
@@ -51,6 +51,7 @@ export default function Hero() {
     if (!q || !q.trim()) {
       const params = new URLSearchParams();
       if (activeTab === "Rent") params.set("purpose", "Rent");
+      else if (activeTab === "PG / Co-Living") params.set("purpose", "PG_CO_LIVING");
       else if (activeTab === "Commercial") params.set("type", "Commercial");
       else params.set("purpose", "Buy");
       router.push(`/property-listing?${params.toString()}`);
@@ -66,6 +67,7 @@ export default function Hero() {
         let hasStructured = false;
         if (res.data.purpose) { params.set("purpose", res.data.purpose); hasStructured = true; }
         else if (activeTab === "Rent") params.set("purpose", "Rent");
+        else if (activeTab === "PG / Co-Living") params.set("purpose", "PG_CO_LIVING");
         else if (activeTab === "Commercial") params.set("type", "Commercial");
         else params.set("purpose", "Buy");
 
@@ -152,9 +154,15 @@ export default function Hero() {
             <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-[#1a1715] border-r border-b border-[#C89B1C] rotate-45" />
           </div>
 
-          <Link
-            href="/eyva"
-            className="group flex flex-col items-center sm:items-start cursor-pointer ml-0 sm:ml-[72px]"
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              if (typeof window !== "undefined") {
+                window.dispatchEvent(new CustomEvent("open_eyva_chat"));
+              }
+            }}
+            className="group flex flex-col items-center sm:items-start cursor-pointer ml-0 sm:ml-[72px] text-left border-none bg-transparent"
+            aria-label="Ask Eyva Chatbot"
           >
             {/* Golden Circle Wrapper */}
             <div className="relative h-24 w-24 rounded-full border-[4px] border-[#C89B1C] bg-[#1a1715]/85 flex items-center justify-center shadow-2xl transition-all duration-300 group-hover:scale-105 group-hover:border-[#F5C438] group-hover:shadow-[#C89B1C]/30">
@@ -176,19 +184,19 @@ export default function Hero() {
             <span className="mt-3 text-white font-bold text-sm sm:text-base tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] flex items-center gap-1 group-hover:text-[#F5C438] transition-colors w-24 justify-center">
               Ask Eyva <span className="text-[#C89B1C] group-hover:text-[#F5C438] animate-pulse">✨</span>
             </span>
-          </Link>
+          </button>
         </div>
 
 
         {/* Seamless Single-Panel Glassmorphic Search Box */}
         <div className="bg-black/30 backdrop-blur-xl border border-white/25 shadow-2xl rounded-2xl xs:rounded-3xl mt-5 md:mt-10 max-w-4xl overflow-hidden transition-all duration-300">
           {/* Tabs */}
-          <div className="flex border-b border-white/15 px-4 xs:px-6">
-            {(["Buy", "Rent", "Commercial"] as const).map((tab) => (
+          <div className="flex border-b border-white/15 px-4 xs:px-6 overflow-x-auto no-scrollbar">
+            {(["Buy", "Rent", "PG / Co-Living", "Commercial"] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`py-3 px-4 xs:py-4 xs:px-8 font-bold text-sm xs:text-base flex-1 text-center xs:flex-none transition-all cursor-pointer relative ${activeTab === tab
+                className={`py-3 px-3 xs:py-4 xs:px-6 font-bold text-xs xs:text-sm sm:text-base flex-1 text-center xs:flex-none transition-all cursor-pointer relative whitespace-nowrap ${activeTab === tab
                     ? "text-[#F5C438]"
                     : "text-white/80 hover:text-white"
                   }`}

@@ -55,7 +55,7 @@ export default function SearchHeader({
         </div>
 
         {/* Purpose Filter Pills */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 flex-wrap">
           <button
             type="button"
             onClick={() => setPurpose("")}
@@ -90,6 +90,30 @@ export default function SearchHeader({
             }`}
           >
             For Rent
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setPurpose("Lease")}
+            className={`px-5 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${
+              purpose === "Lease"
+                ? "bg-[#9A720C] text-white shadow-xs"
+                : "bg-white border border-[#E5E0D4] text-gray-700 hover:bg-[#FAFAF8]"
+            }`}
+          >
+            For Lease
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setPurpose("PG_CO_LIVING")}
+            className={`px-5 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${
+              purpose === "PG_CO_LIVING" || purpose === "PG / Co-Living" || purpose === "PG"
+                ? "bg-[#9A720C] text-white shadow-xs"
+                : "bg-white border border-[#E5E0D4] text-gray-700 hover:bg-[#FAFAF8]"
+            }`}
+          >
+            PG / Co-Living
           </button>
         </div>
       </div>

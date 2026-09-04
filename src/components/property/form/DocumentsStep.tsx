@@ -178,10 +178,9 @@ export default function DocumentsStep({ formData, setFormData, errors }: Props) 
     }
   }, [propertyType]);
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, docType: string) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const [draggedDocType, setDraggedDocType] = useState<string | null>(null);
 
+  const processDocumentFile = async (file: File, docType: string) => {
     // Strict file type validation (Only allow documents or images, no plain text)
     const allowedTypes = [
       "application/pdf",
@@ -197,7 +196,6 @@ export default function DocumentsStep({ formData, setFormData, errors }: Props) 
 
     if (!allowedTypes.includes(fileType) && !allowedExtensions.includes(fileExtension || "")) {
       setErrorMsg("Strict validation: Only document files (PDF, DOC, DOCX) or images (JPG, JPEG, PNG, WEBP) are allowed.");
-      e.target.value = "";
       return;
     }
 
@@ -243,6 +241,33 @@ export default function DocumentsStep({ formData, setFormData, errors }: Props) 
     }
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, docType: string) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    processDocumentFile(file, docType);
+  };
+
+  const handleDocDragOver = (e: React.DragEvent<HTMLDivElement>, docType: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDraggedDocType(docType);
+  };
+
+  const handleDocDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDraggedDocType(null);
+  };
+
+  const handleDocDrop = (e: React.DragEvent<HTMLDivElement>, docType: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDraggedDocType(null);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      processDocumentFile(e.dataTransfer.files[0], docType);
+    }
+  };
+
   const handleRemoveDoc = (docType: string) => {
     setFormData((prev) => ({
       ...prev,
@@ -270,7 +295,7 @@ export default function DocumentsStep({ formData, setFormData, errors }: Props) 
           Document Collection
         </h2>
         <p className="text-xs text-gray-400 mt-1 font-medium">
-          Upload required ownership and legal verification certificates for review
+          Upload required ownership and legal verification certificates for review (Drag & Drop supported)
         </p>
       </div>
 
@@ -286,13 +311,21 @@ export default function DocumentsStep({ formData, setFormData, errors }: Props) 
           const uploadedList = getUploadedDocs(req.documentType);
           const hasUploaded = uploadedList.length > 0;
           const isUploading = uploadingDocType === req.documentType;
+          const isRowDragging = draggedDocType === req.documentType;
 
           const docError = errors?.[req.documentType];
           return (
             <div
               key={req.documentType}
+              onDragOver={(e) => handleDocDragOver(e, req.documentType)}
+              onDragLeave={handleDocDragLeave}
+              onDrop={(e) => handleDocDrop(e, req.documentType)}
               className={`bg-white border rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-2xs transition-all duration-300 hover:shadow-xs ${
-                docError ? "border-red-500 bg-red-50/5" : "border-[#E5D8B3]"
+                isRowDragging
+                  ? "border-[#9A720C] bg-[#FFF9EC] scale-[1.01] shadow-md"
+                  : docError
+                  ? "border-red-500 bg-red-50/5"
+                  : "border-[#E5D8B3]"
               }`}
             >
               <div>
@@ -334,7 +367,9 @@ export default function DocumentsStep({ formData, setFormData, errors }: Props) 
                     ))}
                   </div>
                 ) : (
-                  <p className="text-xs text-gray-400 mt-1">No file uploaded yet</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    {isRowDragging ? "Drop Document File Here" : "No file uploaded yet — Drag & drop or click Upload"}
+                  </p>
                 )}
               </div>
 

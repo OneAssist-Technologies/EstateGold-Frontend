@@ -1,8 +1,10 @@
 "use client";
 
-import React from "react";
+import { useState } from "react";
 import { CheckCircle2, AlertTriangle, FileText, MapPin, Landmark, DollarSign, User, ShieldCheck, Pencil } from "lucide-react";
 import { PropertyFormData } from "../../../types/property";
+import EyvaPropertyTips from "./EyvaPropertyTips";
+import AgreementDetailsModal from "../detail/AgreementDetailsModal";
 
 interface Props {
   formData: PropertyFormData;
@@ -13,6 +15,9 @@ interface Props {
 }
 
 export default function ReviewSubmitStep({ formData, onSubmit, onSaveDraft, loading, onEditStep }: Props) {
+  const [showAgreementModal, setShowAgreementModal] = useState(false);
+  const isPg = formData.purpose === "PG / Co-Living" || formData.purpose === "PG_CO_LIVING";
+
   // Format price helper
   const formatPrice = (price?: number) => {
     if (price === undefined || price === null || isNaN(price)) return "₹0";
@@ -95,86 +100,174 @@ export default function ReviewSubmitStep({ formData, onSubmit, onSaveDraft, load
         <div className="bg-white border border-[#E5D8B3] rounded-2xl p-4 sm:p-5 space-y-4 shadow-2xs">
           <div className="flex items-center justify-between border-b border-gray-100 pb-2">
             <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wider flex items-center gap-2">
-              <FileText size={16} className="text-[#C89B1C]" /> Property Details
+              <FileText size={16} className="text-[#C89B1C]" /> {isPg ? "PG & Co-Living Details" : "Property Details"}
             </h3>
             {onEditStep && (
               <button
                 type="button"
-                onClick={() => onEditStep("details")}
+                onClick={() => onEditStep(isPg ? "pg_details" : "details")}
                 className="text-[10px] sm:text-xs bg-[#FFF9EC] text-[#9A720C] border border-[#E5D8B3] hover:bg-[#FFF2D3] px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg font-bold flex items-center gap-1 transition-all cursor-pointer"
               >
                 <Pencil size={10} /> Edit
               </button>
             )}
           </div>
-          <div className="space-y-2 text-xs sm:text-sm">
-            {formData.bedrooms > 0 && (
+          {isPg ? (
+            <div className="space-y-2 text-xs sm:text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-400 font-medium">Bedrooms:</span>
-                <span className="font-bold text-gray-800">{formData.bedrooms} BHK</span>
+                <span className="text-gray-400 font-medium">PG / Hostel Name:</span>
+                <span className="font-bold text-gray-800">{formData.pgDetails?.pgName || "Not Specified"}</span>
               </div>
-            )}
-            {formData.bathrooms > 0 && (
               <div className="flex justify-between">
-                <span className="text-gray-400 font-medium">Bathrooms:</span>
-                <span className="font-bold text-gray-800">{formData.bathrooms} Bath</span>
+                <span className="text-gray-400 font-medium">Publisher Role:</span>
+                <span className="font-bold text-gray-800">{formData.pgDetails?.publisherType || "PG Owner"}</span>
               </div>
-            )}
-            {formData.area > 0 && (
               <div className="flex justify-between">
-                <span className="text-gray-400 font-medium">Built-up Area:</span>
-                <span className="font-bold text-gray-800">{formData.area.toLocaleString()} sq ft</span>
+                <span className="text-gray-400 font-medium">Accommodation Type:</span>
+                <span className="font-bold text-gray-800">{formData.pgDetails?.accommodationType || "PG / Co-Living"}</span>
               </div>
-            )}
-            {formData.carpetArea !== undefined && formData.carpetArea > 0 && (
               <div className="flex justify-between">
-                <span className="text-gray-400 font-medium">Carpet Area:</span>
-                <span className="font-bold text-gray-800">{formData.carpetArea.toLocaleString()} sq ft</span>
+                <span className="text-gray-400 font-medium">Suitable For:</span>
+                <span className="font-bold text-gray-800">{formData.pgDetails?.suitableFor || "Anyone"}</span>
               </div>
-            )}
-            {formData.plotArea !== undefined && formData.plotArea > 0 && (
               <div className="flex justify-between">
-                <span className="text-gray-400 font-medium">Plot Area:</span>
-                <span className="font-bold text-gray-800">{formData.plotArea.toLocaleString()} sq ft</span>
+                <span className="text-gray-400 font-medium">Occupant Type:</span>
+                <span className="font-bold text-gray-800">{formData.pgDetails?.occupantType || "Students & Professionals"}</span>
               </div>
-            )}
-            {formData.floor !== undefined && formData.floor > 0 && (
               <div className="flex justify-between">
-                <span className="text-gray-400 font-medium">Floor:</span>
-                <span className="font-bold text-gray-800">
-                  {formData.floor} of {formData.totalFloors || "N/A"}
-                </span>
+                <span className="text-gray-400 font-medium">Food Availability:</span>
+                <span className="font-bold text-gray-800">{formData.pgDetails?.foodAvailability || "Available"}</span>
               </div>
-            )}
-            {formData.facing && (
-              <div className="flex justify-between">
-                <span className="text-gray-400 font-medium">Facing Direction:</span>
-                <span className="font-bold text-gray-800">{formData.facing}</span>
-              </div>
-            )}
-            {formData.furnishing && (
+              {(formData.pgDetails?.mealsIncluded || []).length > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-gray-400 font-medium">Meals Included:</span>
+                  <span className="font-bold text-gray-800">{(formData.pgDetails?.mealsIncluded || []).join(", ")}</span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-gray-400 font-medium">Furnishing:</span>
-                <span className="font-bold text-gray-800">{formData.furnishing}</span>
+                <span className="font-bold text-gray-800">{formData.pgDetails?.furnishing || "Fully Furnished"}</span>
               </div>
-            )}
-            <div className="flex justify-between">
-              <span className="text-gray-400 font-medium">Parking:</span>
-              <span className="font-bold text-gray-800">{formData.parking ? "Available" : "Not Available"}</span>
+              <div className="flex justify-between">
+                <span className="text-gray-400 font-medium">Move-in Status:</span>
+                <span className="font-bold text-gray-800">
+                  {formData.pgDetails?.moveInAvailability || "Available Now"}
+                  {formData.pgDetails?.moveInDate ? ` (${formData.pgDetails.moveInDate})` : ""}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400 font-medium">Parking:</span>
+                <span className="font-bold text-gray-800">{formData.parking ? "Available" : "Not Available"}</span>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="space-y-2 text-xs sm:text-sm">
+              {formData.bedrooms > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-gray-400 font-medium">Bedrooms:</span>
+                  <span className="font-bold text-gray-800">{formData.bedrooms} BHK</span>
+                </div>
+              )}
+              {formData.bathrooms > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-gray-400 font-medium">Bathrooms:</span>
+                  <span className="font-bold text-gray-800">{formData.bathrooms} Bath</span>
+                </div>
+              )}
+              {formData.area > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-gray-400 font-medium">Built-up Area:</span>
+                  <span className="font-bold text-gray-800">{formData.area.toLocaleString()} sq ft</span>
+                </div>
+              )}
+              {formData.carpetArea !== undefined && formData.carpetArea > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-gray-400 font-medium">Carpet Area:</span>
+                  <span className="font-bold text-gray-800">{formData.carpetArea.toLocaleString()} sq ft</span>
+                </div>
+              )}
+              {formData.plotArea !== undefined && formData.plotArea > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-gray-400 font-medium">Plot Area:</span>
+                  <span className="font-bold text-gray-800">{formData.plotArea.toLocaleString()} sq ft</span>
+                </div>
+              )}
+              {formData.floor !== undefined && formData.floor > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-gray-400 font-medium">Floor:</span>
+                  <span className="font-bold text-gray-800">
+                    {formData.floor} of {formData.totalFloors || "N/A"}
+                  </span>
+                </div>
+              )}
+              {formData.facing && (
+                <div className="flex justify-between">
+                  <span className="text-gray-400 font-medium">Facing Direction:</span>
+                  <span className="font-bold text-gray-800">{formData.facing}</span>
+                </div>
+              )}
+              {formData.furnishing && (
+                <div className="flex justify-between">
+                  <span className="text-gray-400 font-medium">Furnishing:</span>
+                  <span className="font-bold text-gray-800">{formData.furnishing}</span>
+                </div>
+              )}
+              <div className="flex justify-between">
+                <span className="text-gray-400 font-medium">Parking:</span>
+                <span className="font-bold text-gray-800">{formData.parking ? "Available" : "Not Available"}</span>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Amenities Card */}
+        {/* PG Room Configurations Card (If PG) */}
+        {isPg && (
+          <div className="bg-white border border-[#E5D8B3] rounded-2xl p-4 sm:p-5 space-y-4 shadow-2xs">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-2">
+              <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wider flex items-center gap-2">
+                <FileText size={16} className="text-[#C89B1C]" /> Room Configurations ({(formData.pgDetails?.rooms || []).length})
+              </h3>
+              {onEditStep && (
+                <button
+                  type="button"
+                  onClick={() => onEditStep("pg_rooms")}
+                  className="text-[10px] sm:text-xs bg-[#FFF9EC] text-[#9A720C] border border-[#E5D8B3] hover:bg-[#FFF2D3] px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg font-bold flex items-center gap-1 transition-all cursor-pointer"
+                >
+                  <Pencil size={10} /> Edit
+                </button>
+              )}
+            </div>
+            <div className="space-y-3">
+              {(formData.pgDetails?.rooms || []).length > 0 ? (
+                (formData.pgDetails?.rooms || []).map((room, idx) => (
+                  <div key={idx} className="bg-[#FAF8F5] border border-[#E5D8B3] p-3 rounded-xl flex items-center justify-between">
+                    <div>
+                      <p className="font-bold text-gray-800 text-xs sm:text-sm">{room.sharingType || "Room"} ({room.roomCount || 1} Rooms)</p>
+                      <p className="text-[11px] text-gray-500">{room.totalBeds || 1} Beds/Room • {room.ac ? "AC" : "Non-AC"} • {room.bathroomType || "Attached Bath"}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-[#C89B1C] text-xs sm:text-sm">{formatPrice(room.pricePerPerson)}<span className="text-[10px] text-gray-400 font-normal">/person</span></p>
+                      <span className="text-[10px] font-bold text-green-700 bg-green-100 px-2 py-0.5 rounded-full">{room.status || "Available"}</span>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <span className="text-gray-400 italic text-xs">No room configurations added</span>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Amenities / Facilities Card */}
         <div className="bg-white border border-[#E5D8B3] rounded-2xl p-4 sm:p-5 space-y-4 shadow-2xs">
           <div className="flex items-center justify-between border-b border-gray-100 pb-2">
             <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wider flex items-center gap-2">
-              <CheckCircle2 size={16} className="text-[#C89B1C]" /> Declared Amenities
+              <CheckCircle2 size={16} className="text-[#C89B1C]" /> {isPg ? "PG Facilities" : "Declared Amenities"}
             </h3>
             {onEditStep && (
               <button
                 type="button"
-                onClick={() => onEditStep("amenities")}
+                onClick={() => onEditStep(isPg ? "pg_facilities" : "amenities")}
                 className="text-[10px] sm:text-xs bg-[#FFF9EC] text-[#9A720C] border border-[#E5D8B3] hover:bg-[#FFF2D3] px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg font-bold flex items-center gap-1 transition-all cursor-pointer"
               >
                 <Pencil size={10} /> Edit
@@ -182,19 +275,19 @@ export default function ReviewSubmitStep({ formData, onSubmit, onSaveDraft, load
             )}
           </div>
           <div className="text-sm">
-            {formData.amenities && formData.amenities.length > 0 ? (
+            {(isPg ? (formData.pgDetails?.facilities || formData.amenities) : formData.amenities)?.length > 0 ? (
               <div className="flex flex-wrap gap-2 pt-1">
-                {formData.amenities.map((amenity) => (
+                {(isPg ? (formData.pgDetails?.facilities || formData.amenities) : formData.amenities).map((facility: string) => (
                   <span
-                    key={amenity}
+                    key={facility}
                     className="text-xs bg-[#FFF9EC] border border-[#E5D8B3] text-gray-700 px-3 py-1 rounded-full font-semibold"
                   >
-                    {amenity}
+                    {facility}
                   </span>
                 ))}
               </div>
             ) : (
-              <span className="text-gray-400 italic">No amenities declared</span>
+              <span className="text-gray-400 italic">No {isPg ? "facilities" : "amenities"} declared</span>
             )}
           </div>
         </div>
@@ -225,7 +318,7 @@ export default function ReviewSubmitStep({ formData, onSubmit, onSaveDraft, load
                     .map(([key, val]) => (
                       <div key={key} className="flex justify-between bg-gray-50/50 p-1.5 rounded-lg border border-gray-100">
                         <span className="capitalize text-gray-500 font-medium">{key.replace(/([A-Z])/g, ' $1').trim()}:</span>
-                        <span>{val}/5</span>
+                        <span>{String(val)}/5</span>
                       </div>
                     ))}
                 </div>
@@ -250,67 +343,151 @@ export default function ReviewSubmitStep({ formData, onSubmit, onSaveDraft, load
         <div className="bg-white border border-[#E5D8B3] rounded-2xl p-4 sm:p-5 space-y-4 shadow-2xs">
           <div className="flex items-center justify-between border-b border-gray-100 pb-2">
             <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wider flex items-center gap-2">
-              <DollarSign size={16} className="text-[#C89B1C]" /> Expected Price & Deposit
+              <DollarSign size={16} className="text-[#C89B1C]" /> {isPg ? "Rent & Charges" : "Expected Price & Deposit"}
             </h3>
             {onEditStep && (
               <button
                 type="button"
-                onClick={() => onEditStep("price")}
+                onClick={() => onEditStep(isPg ? "pg_pricing" : "price")}
                 className="text-[10px] sm:text-xs bg-[#FFF9EC] text-[#9A720C] border border-[#E5D8B3] hover:bg-[#FFF2D3] px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg font-bold flex items-center gap-1 transition-all cursor-pointer"
               >
                 <Pencil size={10} /> Edit
               </button>
             )}
           </div>
-          <div className="space-y-2 text-xs sm:text-sm">
-            <div className="flex justify-between">
-              <span className="text-gray-400 font-medium">Expected Price / Rent:</span>
-              <span className="font-bold text-[#C89B1C] text-sm sm:text-base">{formatPrice(formData.price)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-400 font-medium">Price Negotiable:</span>
-              <span className="font-bold text-gray-800">{formData.ownerNegotiable ? "Yes" : "No"}</span>
-            </div>
-            {formData.maintenance !== undefined && formData.maintenance > 0 && (
+          {isPg ? (
+            <div className="space-y-2 text-xs sm:text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-400 font-medium">Maintenance:</span>
-                <span className="font-bold text-gray-800">{formatPrice(formData.maintenance)}</span>
+                <span className="text-gray-400 font-medium">Starting Room Rent:</span>
+                <span className="font-bold text-[#C89B1C] text-sm sm:text-base">
+                  {formatPrice(
+                    (formData.pgDetails?.rooms || []).reduce(
+                      (min, r) => (r.pricePerPerson > 0 && r.pricePerPerson < min ? r.pricePerPerson : min),
+                      999999
+                    ) === 999999
+                      ? formData.price
+                      : (formData.pgDetails?.rooms || []).reduce(
+                          (min, r) => (r.pricePerPerson > 0 && r.pricePerPerson < min ? r.pricePerPerson : min),
+                          999999
+                        )
+                  )} / person / mo
+                </span>
               </div>
-            )}
-            {formData.deposit !== undefined && formData.deposit > 0 && (
               <div className="flex justify-between">
-                <span className="text-gray-400 font-medium">Deposit / Advance:</span>
-                <span className="font-bold text-gray-800">{formatPrice(formData.deposit)}</span>
+                <span className="text-gray-400 font-medium">Security Deposit:</span>
+                <span className="font-bold text-gray-800">
+                  {formData.pgDetails?.charges?.securityDeposit ? formatPrice(formData.pgDetails.charges.securityDeposit) : "Not Specified"}
+                </span>
               </div>
-            )}
-          </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400 font-medium">Maintenance Charges:</span>
+                <span className="font-bold text-gray-800">
+                  {formData.pgDetails?.charges?.maintenanceCharges ? formatPrice(formData.pgDetails.charges.maintenanceCharges) : "Included"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400 font-medium">Food Charges:</span>
+                <span className="font-bold text-gray-800">
+                  {formData.pgDetails?.charges?.foodCharges ? formatPrice(formData.pgDetails.charges.foodCharges) : "Included / N/A"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400 font-medium">Notice Period:</span>
+                <span className="font-bold text-gray-800">{formData.pgDetails?.charges?.noticePeriod || "30 Days"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400 font-medium">Rent Negotiable:</span>
+                <span className="font-bold text-gray-800">{formData.ownerNegotiable ? "Yes" : "No"}</span>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-2 text-xs sm:text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-400 font-medium">Expected Price / Rent:</span>
+                <span className="font-bold text-[#C89B1C] text-sm sm:text-base">{formatPrice(formData.price)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400 font-medium">Price Negotiable:</span>
+                <span className="font-bold text-gray-800">{formData.ownerNegotiable ? "Yes" : "No"}</span>
+              </div>
+              {formData.maintenance !== undefined && formData.maintenance > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-gray-400 font-medium">Maintenance:</span>
+                  <span className="font-bold text-gray-800">{formatPrice(formData.maintenance)}</span>
+                </div>
+              )}
+              {formData.deposit !== undefined && formData.deposit > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-gray-400 font-medium">Deposit / Advance:</span>
+                  <span className="font-bold text-gray-800">{formatPrice(formData.deposit)}</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* Media & Photos Card */}
+        {/* Media & Photos Card with Thumbnail Gallery */}
         <div className="bg-white border border-[#E5D8B3] rounded-2xl p-4 sm:p-5 space-y-4 shadow-2xs">
           <div className="flex items-center justify-between border-b border-gray-100 pb-2">
             <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wider flex items-center gap-2">
-              <FileText size={16} className="text-[#C89B1C]" /> Media & Photos
+              <FileText size={16} className="text-[#C89B1C]" /> Photos & Media Gallery
             </h3>
             {onEditStep && (
               <button
                 type="button"
-                onClick={() => onEditStep("price")}
+                onClick={() => onEditStep(isPg ? "price" : "price")}
                 className="text-[10px] sm:text-xs bg-[#FFF9EC] text-[#9A720C] border border-[#E5D8B3] hover:bg-[#FFF2D3] px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg font-bold flex items-center gap-1 transition-all cursor-pointer"
               >
                 <Pencil size={10} /> Edit
               </button>
             )}
           </div>
-          <div className="space-y-2 text-xs sm:text-sm">
+
+          <div className="space-y-3 text-xs sm:text-sm">
             <div className="flex justify-between">
-              <span className="text-gray-400 font-medium">Uploaded Files (Local):</span>
-              <span className="font-bold text-gray-800">{formData.photos?.length || 0} Files</span>
+              <span className="text-gray-400 font-medium">Total Uploaded Photos:</span>
+              <span className="font-bold text-gray-800">
+                {(formData.photos?.length || 0) +
+                  (formData.existingPhotos?.length || 0) +
+                  (formData.pgDetails?.rooms || []).reduce((sum, r) => sum + (r.photos?.length || 0), 0)}{" "}
+                Files
+              </span>
             </div>
-            {formData.existingPhotos && formData.existingPhotos.length > 0 && (
-              <div className="flex justify-between">
-                <span className="text-gray-400 font-medium">Existing Photos (Saved):</span>
-                <span className="font-bold text-gray-800">{formData.existingPhotos.length} Files</span>
+
+            {/* Thumbnail Preview Grid */}
+            {((formData.photos && formData.photos.length > 0) ||
+              (formData.existingPhotos && formData.existingPhotos.length > 0) ||
+              (formData.pgDetails?.rooms || []).some((r) => r.photos && r.photos.length > 0)) ? (
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 pt-2">
+                {[
+                  ...(formData.photos || []),
+                  ...(formData.existingPhotos || []),
+                  ...(formData.pgDetails?.rooms || []).flatMap((r) => r.photos || []),
+                ].map((file: any, index: number) => {
+                  let src = "";
+                  if (typeof file === "string") {
+                    if (file.startsWith("http://") || file.startsWith("https://") || file.startsWith("blob:")) {
+                      src = file;
+                    } else {
+                      const clean = file.replace(/^\/+/, "").replace(/^uploads\/properties\//, "").replace(/^uploads\//, "");
+                      src = `http://localhost:5000/uploads/properties/${clean}`;
+                    }
+                  } else if (file && typeof window !== "undefined" && file instanceof File) {
+                    src = URL.createObjectURL(file);
+                  }
+
+                  if (!src) return null;
+
+                  return (
+                    <div key={index} className="relative h-20 w-full rounded-xl overflow-hidden border border-[#E5D8B3] bg-gray-100 shadow-2xs">
+                      <img src={src} alt={`Preview ${index + 1}`} className="w-full h-full object-cover" />
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="p-3 bg-amber-50/50 border border-amber-200/60 rounded-xl text-amber-800 text-xs italic">
+                No photos uploaded yet. Click "Edit" to add property or room photos.
               </div>
             )}
           </div>
@@ -366,12 +543,12 @@ export default function ReviewSubmitStep({ formData, onSubmit, onSaveDraft, load
         <div className="bg-white border border-[#E5D8B3] rounded-2xl p-4 sm:p-5 space-y-4 shadow-2xs">
           <div className="flex items-center justify-between border-b border-gray-100 pb-2">
             <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wider flex items-center gap-2">
-              <Landmark size={16} className="text-[#C89B1C]" /> Compliance & Documents
+              <Landmark size={16} className="text-[#C89B1C]" /> {isPg ? "Compliance & Issues" : "Compliance & Documents"}
             </h3>
             {onEditStep && (
               <button
                 type="button"
-                onClick={() => onEditStep("documents")}
+                onClick={() => onEditStep(isPg ? "issues" : "documents")}
                 className="text-[10px] sm:text-xs bg-[#FFF9EC] text-[#9A720C] border border-[#E5D8B3] hover:bg-[#FFF2D3] px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg font-bold flex items-center gap-1 transition-all cursor-pointer"
               >
                 <Pencil size={10} /> Edit
@@ -397,15 +574,76 @@ export default function ReviewSubmitStep({ formData, onSubmit, onSaveDraft, load
                 </span>
               </div>
             )}
-            <div className="flex justify-between">
-              <span className="text-gray-400 font-medium">Documents Uploaded:</span>
-              <span className="font-bold text-[#C89B1C] bg-[#FFF9EC] border border-[#E5D8B3] text-xs px-2.5 py-0.5 rounded-full">
-                {getUploadedCount()} Files
-              </span>
-            </div>
+            {!isPg && (
+              <div className="flex justify-between">
+                <span className="text-gray-400 font-medium">Documents Uploaded:</span>
+                <span className="font-bold text-[#C89B1C] bg-[#FFF9EC] border border-[#E5D8B3] text-xs px-2.5 py-0.5 rounded-full">
+                  {getUploadedCount()} Files
+                </span>
+              </div>
+            )}
           </div>
         </div>
+
+        {/* Agreement Details Card */}
+        {(formData.purpose === "Rent" || formData.purpose === "Lease") && formData.agreementDetails && (
+          <div className="bg-white border border-[#E5D8B3] rounded-2xl p-4 sm:p-5 space-y-4 shadow-2xs">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-2">
+              <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wider flex items-center gap-2">
+                <FileText size={16} className="text-[#C89B1C]" /> Agreement Details
+              </h3>
+              {onEditStep && (
+                <button
+                  type="button"
+                  onClick={() => onEditStep("agreement")}
+                  className="text-[10px] sm:text-xs bg-[#FFF9EC] text-[#9A720C] border border-[#E5D8B3] hover:bg-[#FFF2D3] px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg font-bold flex items-center gap-1 transition-all cursor-pointer"
+                >
+                  <Pencil size={10} /> Edit
+                </button>
+              )}
+            </div>
+            <div className="space-y-2 text-xs sm:text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-400 font-medium">Agreement Type:</span>
+                <span className="font-bold text-gray-800">{formData.agreementDetails.agreementType || "N/A"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400 font-medium">
+                  {formData.purpose === "Lease" ? "Lease Amount:" : "Monthly Rent:"}
+                </span>
+                <span className="font-bold text-[#C89B1C]">
+                  {formData.agreementDetails.amount ? `₹${formData.agreementDetails.amount.toLocaleString("en-IN")}` : "N/A"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400 font-medium">Security Deposit:</span>
+                <span className="font-bold text-gray-800">
+                  {formData.agreementDetails.securityDeposit ? `₹${formData.agreementDetails.securityDeposit.toLocaleString("en-IN")}` : "N/A"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400 font-medium">Duration:</span>
+                <span className="font-bold text-gray-800">{formData.agreementDetails.duration || "N/A"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400 font-medium">Notice Period:</span>
+                <span className="font-bold text-gray-800">{formData.agreementDetails.noticePeriod || "N/A"}</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowAgreementModal(true)}
+              className="w-full mt-2 py-2 px-3 bg-[#FFFDF6] border border-[#E8DCC1] hover:bg-[#FFF9EC] text-[#9A720C] text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+            >
+              <FileText size={14} /> View Agreement Details
+            </button>
+          </div>
+        )}
       </div>
+
+      {/* ✨ Eyva's Property Tips Section */}
+      <EyvaPropertyTips formData={formData} onEditStep={onEditStep} />
 
       {/* Verification Notice */}
       <div className="bg-[#FFFDF9]/60 border border-[#E5D8B3] rounded-2xl p-4 sm:p-5 flex gap-3.5 items-start">
@@ -430,6 +668,14 @@ export default function ReviewSubmitStep({ formData, onSubmit, onSaveDraft, load
           </button>
         </div>
       )}
+
+      {/* Agreement Details Modal Preview */}
+      <AgreementDetailsModal
+        open={showAgreementModal}
+        onClose={() => setShowAgreementModal(false)}
+        agreementDetails={formData.agreementDetails}
+        purpose={formData.purpose}
+      />
     </div>
   );
 }

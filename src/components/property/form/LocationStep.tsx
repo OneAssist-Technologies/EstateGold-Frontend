@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { createPortal } from "react-dom";
 import {
   MapPin,
   Building,
@@ -169,6 +170,11 @@ function isServiceAllowed(allowedServices?: string[], targetPurpose?: string) {
       return true;
     if (target === "rent" && allowed === "rent") return true;
     if (target === "lease" && allowed === "lease") return true;
+    if (
+      (target === "pg_co_living" || target === "pg / co-living" || target === "pg") &&
+      (allowed === "pg_co_living" || allowed === "pg / co-living" || allowed === "pg" || allowed === "pg/co-living")
+    )
+      return true;
 
     return false;
   });
@@ -186,6 +192,21 @@ export default function LocationStep({ formData, setFormData, errors }: Props) {
   const [requestNotes, setRequestNotes] = useState<string>("");
   const [submittingRequest, setSubmittingRequest] = useState<boolean>(false);
   const [requestSuccess, setRequestSuccess] = useState<boolean>(false);
+  const [mounted, setMounted] = useState<boolean>(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (showMapModal || showUnserviceableModal) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [showMapModal, showUnserviceableModal]);
 
   // Available states based on selected region
   const availableStates = useMemo(() => {
@@ -713,20 +734,20 @@ export default function LocationStep({ formData, setFormData, errors }: Props) {
       </div>
 
       {/* INTERACTIVE PICK LOCATION ON MAP MODAL */}
-      <AnimatePresence>
-        {showMapModal && (
+      {showMapModal && mounted && createPortal(
+        <AnimatePresence>
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4"
+            className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
-              className="bg-white rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh] border border-[#ECE7DB]"
+              className="bg-white rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh] border border-[#ECE7DB] my-auto"
             >
               {/* Modal Header */}
               <div className="p-4 px-6 border-b border-gray-100 flex items-center justify-between bg-[#FAFAF8]">
@@ -775,24 +796,25 @@ export default function LocationStep({ formData, setFormData, errors }: Props) {
               </div>
             </motion.div>
           </motion.div>
-        )}
-      </AnimatePresence>
+        </AnimatePresence>,
+        document.body
+      )}
 
       {/* UNSERVICEABLE LOCATION ADMIN REQUEST POPUP MODAL */}
-      <AnimatePresence>
-        {showUnserviceableModal && (
+      {showUnserviceableModal && mounted && createPortal(
+        <AnimatePresence>
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/65 backdrop-blur-xs flex items-center justify-center p-4"
+            className="fixed inset-0 z-[9999] bg-black/65 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
-              className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl flex flex-col border border-red-100"
+              className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl flex flex-col border border-red-100 my-auto max-h-[90vh]"
             >
               {/* Modal Header */}
               <div className="p-6 text-center bg-[#FFF8F8] border-b border-red-100 relative">
@@ -858,7 +880,7 @@ export default function LocationStep({ formData, setFormData, errors }: Props) {
                       <button
                         type="button"
                         onClick={() => setShowUnserviceableModal(false)}
-                        className="flex-1 h-11 rounded-xl border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-semibold transition-colors"
+                        className="flex-1 h-11 rounded-xl border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-semibold transition-colors cursor-pointer"
                       >
                         Select Another Area
                       </button>
@@ -883,7 +905,7 @@ export default function LocationStep({ formData, setFormData, errors }: Props) {
                     <button
                       type="button"
                       onClick={() => setShowUnserviceableModal(false)}
-                      className="w-full h-11 rounded-xl bg-gray-900 hover:bg-black text-white text-xs font-bold transition-colors shadow-md"
+                      className="w-full h-11 rounded-xl bg-gray-900 hover:bg-black text-white text-xs font-bold transition-colors shadow-md cursor-pointer"
                     >
                       Close
                     </button>
@@ -892,8 +914,9 @@ export default function LocationStep({ formData, setFormData, errors }: Props) {
               </div>
             </motion.div>
           </motion.div>
-        )}
-      </AnimatePresence>
+        </AnimatePresence>,
+        document.body
+      )}
     </div>
   );
 }

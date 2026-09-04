@@ -6,6 +6,7 @@ import { Eye, CheckCircle2, XCircle, MapPin, User, Phone, Calendar, Trash2 } fro
 import { AdminProperty } from "@/src/types/adminProperty";
 
 import PropertyStatusBadge from "./PropertyStatusBadge";
+import PropertyAvailabilityBadge from "./PropertyAvailabilityBadge";
 import { useRouter } from "next/navigation";
 
 interface Props {
@@ -16,7 +17,6 @@ interface Props {
   onReject?: (id: string) => void;
   onApproveDelete?: (id: string, reason: string) => void;
   onRejectDeleteRequest?: (id: string) => void;
-  onAvailabilityStatusChange?: (id: string, newStatus: "on_sale" | "hold" | "sold") => void;
   onDeleteRequest?: (id: string) => void;
 }
 
@@ -28,7 +28,6 @@ export default function PropertyTable({
   onReject,
   onApproveDelete,
   onRejectDeleteRequest,
-  onAvailabilityStatusChange,
   onDeleteRequest,
 }: Props) {
   const router = useRouter();
@@ -122,23 +121,8 @@ export default function PropertyTable({
                   <PropertyStatusBadge status={property.status} />
 
                   {property.status === "approved" && (
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[10px] font-semibold text-gray-400">Available:</span>
-                      <select
-                        value={property.availabilityStatus || "on_sale"}
-                        onChange={(e) =>
-                          onAvailabilityStatusChange &&
-                          onAvailabilityStatusChange(
-                            property._id,
-                            e.target.value as "on_sale" | "hold" | "sold"
-                          )
-                        }
-                        className="text-[11px] font-bold bg-[#FAF9F6] border border-[#ECE7DB] rounded px-1.5 py-0.5 outline-none cursor-pointer text-gray-800"
-                      >
-                        <option value="on_sale">On Sale</option>
-                        <option value="hold">On Hold</option>
-                        <option value="sold">Sold</option>
-                      </select>
+                    <div className="pt-0.5">
+                      <PropertyAvailabilityBadge availabilityStatus={property.availabilityStatus} />
                     </div>
                   )}
                 </div>
@@ -147,10 +131,10 @@ export default function PropertyTable({
                 <div className="text-xs text-gray-500 font-semibold">
                   {property.createdAt
                     ? new Date(property.createdAt).toLocaleDateString("en-IN", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                      })
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })
                     : "N/A"}
                 </div>
 
@@ -271,10 +255,10 @@ export default function PropertyTable({
                 <span className="text-[10px] text-gray-400 font-semibold">
                   {property.createdAt
                     ? new Date(property.createdAt).toLocaleDateString("en-IN", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                      })
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })
                     : "N/A"}
                 </span>
               </div>
@@ -285,23 +269,8 @@ export default function PropertyTable({
               <PropertyStatusBadge status={property.status} />
 
               {property.status === "approved" && (
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] font-semibold text-gray-400">Available:</span>
-                  <select
-                    value={property.availabilityStatus || "on_sale"}
-                    onChange={(e) =>
-                      onAvailabilityStatusChange &&
-                      onAvailabilityStatusChange(
-                        property._id,
-                        e.target.value as "on_sale" | "hold" | "sold"
-                      )
-                    }
-                    className="text-[11px] font-bold bg-white border border-[#ECE7DB] rounded px-1.5 py-0.5 outline-none cursor-pointer text-gray-800"
-                  >
-                    <option value="on_sale">On Sale</option>
-                    <option value="hold">On Hold</option>
-                    <option value="sold">Sold</option>
-                  </select>
+                <div>
+                  <PropertyAvailabilityBadge availabilityStatus={property.availabilityStatus} />
                 </div>
               )}
             </div>

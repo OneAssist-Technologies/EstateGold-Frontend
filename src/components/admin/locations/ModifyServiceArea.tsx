@@ -66,6 +66,7 @@ export default function ModifyServiceArea({ locationId }: ModifyServiceAreaProps
     "Buy",
     "Rent",
     "Lease",
+    "PG / Co-Living",
   ]);
 
   // Section 4: Additional Settings
@@ -513,7 +514,7 @@ export default function ModifyServiceArea({ locationId }: ModifyServiceAreaProps
                 Allow For <span className="text-red-500">*</span>
               </label>
               <div className="flex items-center gap-4 flex-wrap">
-                {["Buy", "Rent", "Lease"].map((service) => {
+                {["Buy", "Rent", "Lease", "PG / Co-Living"].map((service) => {
                   const isChecked = allowedServices.includes(service);
                   return (
                     <label

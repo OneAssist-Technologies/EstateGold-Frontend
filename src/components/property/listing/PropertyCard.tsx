@@ -124,10 +124,40 @@ export default function PropertyCard({ property }: Props) {
 
   const photoUrl = getPhotoUrl(property.photos?.[0]);
 
-  const displayTitle =
-    property.bedrooms && property.propertyType
-      ? `${property.bedrooms} BHK ${property.propertyType}${property.locality ? " in " + property.locality : ""
-      }`
+  const purpLower = (property.purpose || "").toLowerCase();
+  const isPgPurpose =
+    purpLower === "pg / co-living" ||
+    purpLower === "pg_co_living" ||
+    purpLower === "pg" ||
+    purpLower === "pg_coliving" ||
+    purpLower === "co-living";
+
+  const hasPgRooms = Array.isArray(property.pgDetails?.rooms) && property.pgDetails.rooms.length > 0;
+  const isPg =
+    isPgPurpose ||
+    (Boolean(property.pgDetails?.pgName || hasPgRooms) &&
+      purpLower !== "sale" &&
+      purpLower !== "buy" &&
+      purpLower !== "sell" &&
+      purpLower !== "for sale" &&
+      purpLower !== "rent" &&
+      purpLower !== "lease");
+
+  const totalAvailableBeds = (property.pgDetails?.rooms || []).reduce(
+    (sum, r) => sum + (r.availableBeds || 0),
+    (property as any).availableBeds || 0
+  );
+
+  const pgMinPrice = (property.pgDetails?.rooms || []).reduce(
+    (min, r) => (r.pricePerPerson > 0 && r.pricePerPerson < min ? r.pricePerPerson : min),
+    999999
+  );
+  const pgDisplayPrice = pgMinPrice === 999999 ? property.price || 0 : pgMinPrice;
+
+  const displayTitle = isPg
+    ? property.pgDetails?.pgName || `${property.propertyType} PG in ${property.locality || property.city}`
+    : property.bedrooms && property.propertyType
+      ? `${property.bedrooms} BHK ${property.propertyType}${property.locality ? " in " + property.locality : ""}`
       : property.propertyType || "Luxury Property";
 
   const isSale =
@@ -135,6 +165,10 @@ export default function PropertyCard({ property }: Props) {
     (property.purpose || "").toLowerCase() === "buy" ||
     (property.purpose || "").toLowerCase() === "sell" ||
     (property.purpose || "").toLowerCase() === "for sale";
+
+  const isLease =
+    (property.purpose || "").toLowerCase() === "lease" ||
+    (property.purpose || "").toLowerCase() === "for lease";
 
   const isVideo = (url: string) => {
     if (!url) return false;
@@ -185,9 +219,29 @@ export default function PropertyCard({ property }: Props) {
 
         {/* Top Badges */}
         <div className="absolute top-3 left-3 flex items-center gap-2 flex-wrap">
-          <span className="bg-[#9A720C] text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs">
-            {isSale ? "For Sale" : "For Rent"}
-          </span>
+          {isPg ? (
+            <span className="bg-[#C89B1C] text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs">
+              PG / Co-Living
+            </span>
+          ) : isSale ? (
+            <span className="bg-[#9A720C] text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs">
+              For Sale
+            </span>
+          ) : isLease ? (
+            <span className="bg-[#9A720C] text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs">
+              For Lease
+            </span>
+          ) : (
+            <span className="bg-[#9A720C] text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs">
+              For Rent
+            </span>
+          )}
+
+          {isPg && property.pgDetails?.suitableFor && (
+            <span className="bg-[#FFF9EC] text-[#C89B1C] border border-[#F3E5C8] text-[11px] font-bold px-2.5 py-1 rounded-full shadow-2xs">
+              For {property.pgDetails.suitableFor}
+            </span>
+          )}
 
           {property.availabilityStatus === "hold" && (
             <span className="bg-amber-600 text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-2xs flex items-center gap-1">
@@ -196,8 +250,14 @@ export default function PropertyCard({ property }: Props) {
           )}
 
           {property.availabilityStatus === "sold" && (
-            <span className="bg-gray-800 text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-2xs flex items-center gap-1">
+            <span className="bg-red-800 text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-2xs flex items-center gap-1">
               <Check size={11} /> Sold
+            </span>
+          )}
+
+          {property.availabilityStatus === "rented" && (
+            <span className="bg-blue-800 text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-2xs flex items-center gap-1">
+              <Check size={11} /> Rented
             </span>
           )}
 
@@ -216,8 +276,9 @@ export default function PropertyCard({ property }: Props) {
         </button>
 
         {/* Price Overlay on Bottom-Left */}
-        <div className="absolute bottom-3 left-3.5 text-white text-2xl sm:text-3xl font-bold tracking-tight drop-shadow-md">
-          {formatPrice(property.price)}
+        <div className="absolute bottom-3 left-3.5 text-white text-xl sm:text-2xl font-bold tracking-tight drop-shadow-md flex items-baseline gap-1">
+          {isPg ? `₹${pgDisplayPrice.toLocaleString("en-IN")}` : formatPrice(property.price)}
+          {isPg && <span className="text-[11px] font-normal text-gray-200">/ person / mo</span>}
         </div>
 
         {/* Posted By (Owner/Agent) Badge at Bottom Right of Image */}
@@ -259,21 +320,108 @@ export default function PropertyCard({ property }: Props) {
 
         {/* Specs Row */}
         <div className="border-t border-[#F2EFE9] pt-3 flex items-center justify-between text-xs text-gray-600 font-medium">
-          <div className="flex items-center gap-3">
-            <span>{property.bedrooms || 0} Beds</span>
-            <span>•</span>
-            <span>{property.bathrooms || 0} Baths</span>
-            <span>•</span>
-            <span>{(property.area || 0).toLocaleString()} sq ft</span>
-          </div>
+          {(() => {
+            const pType = (property.propertyType || "").toLowerCase();
+            const isPlotOrLand = /plot|land|agricultural/i.test(pType);
+            const isCommercial = /office|commercial|shop|retail|industrial|warehouse|hotel/i.test(pType);
+            const isPGHostel = /pg|hostel/i.test(pType);
 
-          <span className="px-2.5 py-0.5 rounded-full bg-[#FAFAF8] border border-[#E8E1D4] text-[10px] font-semibold text-gray-500">
-            {property.furnishing === "Fully Furnished"
-              ? "Fully"
-              : property.furnishing === "Semi Furnished"
-                ? "Semi"
-                : property.furnishing || "Unfurnished"}
-          </span>
+            if (isPlotOrLand) {
+              const plotItems = [];
+              if (property.facing || (property as any).plotFacing) {
+                plotItems.push(`${property.facing || (property as any).plotFacing} Facing`);
+              }
+              if ((property as any).cornerPlot) {
+                plotItems.push("Corner Plot");
+              }
+              const areaVal = (property.area || (property as any).plotArea || 0).toLocaleString();
+              plotItems.push(`${areaVal} sq ft`);
+
+              return (
+                <div className="flex items-center gap-2 flex-wrap">
+                  {plotItems.map((item, idx) => (
+                    <span key={idx} className="flex items-center gap-1.5">
+                      {idx > 0 && <span className="text-gray-300">•</span>}
+                      <span>{item}</span>
+                    </span>
+                  ))}
+                </div>
+              );
+            }
+
+            if (isCommercial) {
+              const commItems = [];
+              if ((property as any).workstations && (property as any).workstations > 0) {
+                commItems.push(`${(property as any).workstations} Workstations`);
+              } else if ((property as any).cabins && (property as any).cabins > 0) {
+                commItems.push(`${(property as any).cabins} Cabins`);
+              }
+              if (property.bathrooms && property.bathrooms > 0) {
+                commItems.push(`${property.bathrooms} Washroom${property.bathrooms > 1 ? "s" : ""}`);
+              }
+              if ((property as any).floor !== undefined && (property as any).floor > 0) {
+                commItems.push(`Floor ${(property as any).floor}`);
+              }
+              commItems.push(`${(property.area || 0).toLocaleString()} sq ft`);
+
+              return (
+                <div className="flex items-center gap-2 flex-wrap">
+                  {commItems.map((item, idx) => (
+                    <span key={idx} className="flex items-center gap-1.5">
+                      {idx > 0 && <span className="text-gray-300">•</span>}
+                      <span>{item}</span>
+                    </span>
+                  ))}
+                </div>
+              );
+            }
+
+            if (isPGHostel) {
+              const pgItems = [];
+              if ((property as any).roomSharingType) {
+                pgItems.push(`${(property as any).roomSharingType}`);
+              }
+              if ((property as any).availableBeds) {
+                pgItems.push(`${(property as any).availableBeds} Beds Avail.`);
+              } else if (property.bedrooms) {
+                pgItems.push(`${property.bedrooms} Beds`);
+              }
+              if (property.area && property.area > 0) {
+                pgItems.push(`${property.area.toLocaleString()} sq ft`);
+              }
+
+              return (
+                <div className="flex items-center gap-2 flex-wrap">
+                  {pgItems.map((item, idx) => (
+                    <span key={idx} className="flex items-center gap-1.5">
+                      {idx > 0 && <span className="text-gray-300">•</span>}
+                      <span>{item}</span>
+                    </span>
+                  ))}
+                </div>
+              );
+            }
+
+            return (
+              <div className="flex items-center gap-2 flex-wrap">
+                <span>{property.bedrooms || 0} Beds</span>
+                <span className="text-gray-300">•</span>
+                <span>{property.bathrooms || 0} Baths</span>
+                <span className="text-gray-300">•</span>
+                <span>{(property.area || 0).toLocaleString()} sq ft</span>
+              </div>
+            );
+          })()}
+
+          {!/plot|land|agricultural/i.test(property.propertyType || "") && (
+            <span className="px-2.5 py-0.5 rounded-full bg-[#FAFAF8] border border-[#E8E1D4] text-[10px] font-semibold text-gray-500 shrink-0">
+              {property.furnishing === "Fully Furnished"
+                ? "Fully"
+                : property.furnishing === "Semi Furnished"
+                  ? "Semi"
+                  : property.furnishing || "Unfurnished"}
+            </span>
+          )}
         </div>
 
         {/* Compare Checkbox Row */}
