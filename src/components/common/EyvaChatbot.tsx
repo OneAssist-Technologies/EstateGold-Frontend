@@ -173,7 +173,7 @@ function EyvaChatbotContent() {
             ) : (
               <div className="relative flex items-center justify-center">
                 <img
-                  src="/eyva 1.png"
+                  src="/eyva-logo.png"
                   alt="Eyva AI"
                   className="w-9 h-9 object-contain drop-shadow-md"
                 />
@@ -195,7 +195,7 @@ function EyvaChatbotContent() {
             <div className="flex items-center gap-3">
               <div className="relative w-10 h-10 rounded-full bg-white/10 p-0.5 border border-[#C89B1C] flex items-center justify-center shadow-inner">
                 <img
-                  src="/eyva 1.png"
+                  src="/eyva-logo.png"
                   alt="Eyva Logo"
                   className="w-7 h-7 object-contain"
                 />

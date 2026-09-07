@@ -174,7 +174,7 @@ export default function Hero() {
               
               {/* Eyva Logo Image */}
               <img
-                src="/eyva 1.png"
+                src="/eyva-logo.png"
                 alt="Ask Eyva"
                 className="h-16 w-16 object-contain relative z-10"
               />

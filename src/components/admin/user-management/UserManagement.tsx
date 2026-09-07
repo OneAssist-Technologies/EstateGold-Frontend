@@ -44,6 +44,12 @@ export default function UserManagement() {
   const [total, setTotal] = useState<number>(0);
   const [limit, setLimit] = useState<number>(10);
 
+  const [reasonModalOpen, setReasonModalOpen] = useState<boolean>(false);
+  const [targetUser, setTargetUser] = useState<AdminUser | null>(null);
+  const [reasonType, setReasonType] = useState<"suspend" | "delete">("suspend");
+  const [actionReason, setActionReason] = useState<string>("");
+  const [reasonError, setReasonError] = useState<string>("");
+
   const [stats, setStats] = useState<UserStats>({
     totalBuyers: 0,
     totalSellers: 0,
@@ -117,12 +123,6 @@ export default function UserManagement() {
   useEffect(() => {
     loadUserData();
   }, [activeTab, search, page]);
-
-  const [reasonModalOpen, setReasonModalOpen] = useState<boolean>(false);
-  const [reasonType, setReasonType] = useState<"suspend" | "delete">("suspend");
-  const [targetUser, setTargetUser] = useState<AdminUser | null>(null);
-  const [actionReason, setActionReason] = useState<string>("");
-  const [reasonError, setReasonError] = useState<string>("");
 
   const openReasonModal = (user: AdminUser, type: "suspend" | "delete") => {
     setTargetUser(user);

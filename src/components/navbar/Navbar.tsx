@@ -184,7 +184,7 @@ function NavbarContent() {
               aria-label="Ask Eyva Chatbot"
             >
               <img
-                src="/eyva 1.png"
+                src="/eyva-logo.png"
                 alt="Ask Eyva"
                 className="h-14 w-14 object-contain"
               />
@@ -397,7 +397,7 @@ function NavbarContent() {
             }}
             className="flex items-center gap-2 py-2 cursor-pointer w-full text-left"
           >
-            <img src="/eyva 1.png" alt="Ask Eyva" className="h-8 w-8 object-contain" />
+            <img src="/eyva-logo.png" alt="Ask Eyva" className="h-8 w-8 object-contain" />
             <span className="text-sm font-bold">
               <span className="text-[#B88A1A]">Ask </span>
               <span className="text-[#1F2937]">Eyva Chatbot</span>
