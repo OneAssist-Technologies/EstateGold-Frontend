@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, FileText, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { AgreementDetails } from "@/src/types/property";
@@ -23,12 +24,22 @@ export default function AgreementDetailsModal({
   propertyTitle,
 }: Props) {
   const [isAgreed, setIsAgreed] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  // Reset agreement checkbox state whenever modal is opened
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   useEffect(() => {
     if (open) {
       setIsAgreed(false);
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
     }
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [open]);
 
   // Listen for Escape key press to close modal
@@ -42,7 +53,9 @@ export default function AgreementDetailsModal({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [open, onClose]);
 
-  if (!open || !agreementDetails) return null;
+  const handleClose = () => {
+    onClose();
+  };
 
   const isLease = (purpose || "").toLowerCase() === "lease";
   const purposeTitle = isLease ? "LEASE" : "RENT";
@@ -68,19 +81,19 @@ export default function AgreementDetailsModal({
   };
 
   const fields = [
-    { label: "Agreement Type", value: agreementDetails.agreementType },
-    { label: isLease ? "Lease Amount" : "Monthly Rent", value: formatCurrency(agreementDetails.amount) },
-    { label: "Security Deposit", value: formatCurrency(agreementDetails.securityDeposit) },
-    { label: "Advance / Token Amount", value: formatCurrency(agreementDetails.advanceAmount) },
-    { label: "Agreement Duration", value: agreementDetails.duration },
-    { label: "Available / Start Date", value: formatDate(agreementDetails.startDate) },
-    { label: "Notice Period", value: agreementDetails.noticePeriod },
-    { label: "Lock-in Period", value: agreementDetails.lockInPeriod },
-    { label: "Rent Escalation", value: agreementDetails.rentEscalation },
-    { label: "Maintenance Responsibility", value: agreementDetails.maintenanceResponsibility },
-    { label: "Utilities Responsibility", value: agreementDetails.utilitiesResponsibility },
-    { label: "Parking Details", value: agreementDetails.parkingDetails },
-    { label: "Furnishing Condition", value: agreementDetails.furnishingCondition },
+    { label: "Agreement Type", value: agreementDetails?.agreementType },
+    { label: isLease ? "Lease Amount" : "Monthly Rent", value: formatCurrency(agreementDetails?.amount) },
+    { label: "Security Deposit", value: formatCurrency(agreementDetails?.securityDeposit) },
+    { label: "Advance / Token Amount", value: formatCurrency(agreementDetails?.advanceAmount) },
+    { label: "Agreement Duration", value: agreementDetails?.duration },
+    { label: "Available / Start Date", value: formatDate(agreementDetails?.startDate) },
+    { label: "Notice Period", value: agreementDetails?.noticePeriod },
+    { label: "Lock-in Period", value: agreementDetails?.lockInPeriod },
+    { label: "Rent Escalation", value: agreementDetails?.rentEscalation },
+    { label: "Maintenance Responsibility", value: agreementDetails?.maintenanceResponsibility },
+    { label: "Utilities Responsibility", value: agreementDetails?.utilitiesResponsibility },
+    { label: "Parking Details", value: agreementDetails?.parkingDetails },
+    { label: "Furnishing Condition", value: agreementDetails?.furnishingCondition },
   ].filter((f) => f.value !== undefined && f.value !== null && f.value !== "");
 
   const handleAgreeAndContinue = () => {
@@ -91,18 +104,24 @@ export default function AgreementDetailsModal({
     onClose();
   };
 
-  return (
+  if (!open || !agreementDetails || !mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-xs overflow-y-auto">
+      <div
+        className="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-6 bg-black/65 backdrop-blur-xs overflow-y-auto"
+        onClick={handleClose}
+      >
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 15 }}
           transition={{ duration: 0.2, ease: "easeOut" }}
-          className="relative bg-white rounded-2xl sm:rounded-3xl max-w-2xl w-full border border-[#E5D7B3] shadow-2xl overflow-hidden my-auto max-h-[92vh] sm:max-h-[90vh] flex flex-col font-sans text-left"
+          className="relative bg-white rounded-2xl sm:rounded-3xl max-w-2xl w-full border border-[#E5D7B3] shadow-2xl overflow-hidden my-auto max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3.5rem)] flex flex-col font-sans text-left"
           role="dialog"
           aria-modal="true"
           aria-labelledby="agreement-modal-title"
+          onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
           <div className="bg-gradient-to-r from-[#FFFDF6] via-[#FFF9EC] to-[#FAF3E0] p-4 sm:p-6 border-b border-[#ECE7DB] flex items-start justify-between relative shrink-0">
@@ -227,6 +246,7 @@ export default function AgreementDetailsModal({
 
         </motion.div>
       </div>
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

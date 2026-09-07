@@ -66,18 +66,25 @@ export default function DashboardCards({
             scale: card.onClick ? 1.01 : 1,
           }}
           onClick={card.onClick}
-          className={`bg-white rounded-2xl p-4 sm:p-6 border shadow-2xs hover:shadow-xs transition-all duration-300 flex flex-col justify-center text-center sm:text-left ${
+          className={`bg-white rounded-2xl p-4 sm:p-6 border shadow-2xs hover:shadow-xs transition-all duration-300 flex flex-col justify-between text-left ${
             card.onClick
               ? "cursor-pointer border-[#E8DCC1] hover:border-[#B88A1A] hover:bg-[#FFFDF8]"
               : "border-[#ECE7DB]"
           }`}
         >
-          <span className={`text-2xl sm:text-4xl font-bold  ${card.colorClass}`}>
+          <span className={`text-2xl sm:text-4xl font-bold ${card.colorClass}`}>
             {card.value}
           </span>
-          <span className="text-[10px] sm:text-xs font-semibold text-gray-500 mt-1 sm:mt-1.5 tracking-wide">
-            {card.title}
-          </span>
+          <div className="flex items-center justify-between mt-1 sm:mt-2.5">
+            <span className="text-[10px] sm:text-xs font-semibold text-gray-500 tracking-wide">
+              {card.title}
+            </span>
+            {card.onClick && (
+              <span className="text-[10px] sm:text-xs font-bold text-[#B88A1A] hover:text-[#8C6605] underline hover:no-underline transition-all cursor-pointer flex items-center gap-0.5">
+                Click here &rarr;
+              </span>
+            )}
+          </div>
         </motion.div>
       ))}
     </div>

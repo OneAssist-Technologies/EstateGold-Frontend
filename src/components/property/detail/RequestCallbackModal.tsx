@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   X,
@@ -34,6 +35,11 @@ export default function RequestCallbackModal({
 }: Props) {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const [form, setForm] = useState({
     name: userName,
@@ -45,6 +51,7 @@ export default function RequestCallbackModal({
 
   useEffect(() => {
     if (open) {
+      document.body.style.overflow = "hidden";
       const todayStr = new Date().toISOString().split("T")[0];
       setForm({
         name: userName || "",
@@ -54,7 +61,12 @@ export default function RequestCallbackModal({
         message: "I am interested in this property. Please contact me.",
       });
       setSubmitted(false);
+    } else {
+      document.body.style.overflow = "";
     }
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [open, userName, userPhone]);
 
   const handleChange = (
@@ -125,18 +137,24 @@ export default function RequestCallbackModal({
     }
   };
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-[999] p-4 sm:p-6 overflow-y-auto">
+        <div
+          className="fixed inset-0 bg-black/65 backdrop-blur-xs flex items-center justify-center z-[99999] p-3 sm:p-6 overflow-y-auto"
+          onClick={handleClose}
+        >
           <motion.div
             initial={{ scale: 0.95, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 20 }}
-            className="w-full max-w-xl bg-white rounded-3xl overflow-hidden shadow-2xl my-auto border border-gray-100"
+            className="w-full max-w-xl max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3.5rem)] flex flex-col bg-white rounded-3xl overflow-hidden shadow-2xl my-auto border border-gray-100"
+            onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-[#B88A1A] via-[#D4B04C] to-[#8C6605] text-white p-6 sm:p-7 relative">
+            <div className="bg-gradient-to-r from-[#B88A1A] via-[#D4B04C] to-[#8C6605] text-white p-6 sm:p-7 relative shrink-0">
               <button
                 type="button"
                 onClick={handleClose}
@@ -181,7 +199,7 @@ export default function RequestCallbackModal({
                 </button>
               </div>
             ) : (
-              <div className="p-6 sm:p-7 space-y-4 max-h-[75vh] overflow-y-auto">
+              <div className="p-6 sm:p-7 space-y-4 flex-1 overflow-y-auto">
                 {/* Name & Phone */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
@@ -299,6 +317,7 @@ export default function RequestCallbackModal({
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
