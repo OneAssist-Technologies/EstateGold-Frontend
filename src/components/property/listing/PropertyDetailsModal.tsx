@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { X, MapPin } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Property } from "@/src/types/property";
@@ -15,12 +16,23 @@ export default function PropertyDetailsModal({
   onClose,
   property,
 }: Props) {
+  useEffect(() => {
+    if (open && property) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open, property]);
+
   if (!property) return null;
 
   return (
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
           <motion.div
             initial={{
               opacity: 0,

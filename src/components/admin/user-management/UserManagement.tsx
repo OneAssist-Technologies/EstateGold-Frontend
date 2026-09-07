@@ -52,6 +52,17 @@ export default function UserManagement() {
     verifiedUsers: 0,
   });
 
+  useEffect(() => {
+    if (viewModalOpen || reasonModalOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [viewModalOpen, reasonModalOpen]);
+
   const todayDate = useMemo(() => {
     return new Date().toLocaleDateString("en-IN", {
       weekday: "long",
@@ -595,7 +606,7 @@ export default function UserManagement() {
       {/* User Details Modal */}
       <AnimatePresence>
         {viewModalOpen && selectedUser && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -726,7 +737,7 @@ export default function UserManagement() {
       {/* Reason Modal for Suspend & Delete */}
       <AnimatePresence>
         {reasonModalOpen && targetUser && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}

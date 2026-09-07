@@ -55,7 +55,15 @@ export default function PropertyViewModal({
 
   useEffect(() => {
     setSelectedPhotoIndex(0);
-  }, [property]);
+    if (open && property) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open, property]);
 
   if (!property) return null;
 
@@ -85,7 +93,7 @@ export default function PropertyViewModal({
   return (
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
           {/* Single Uniform Backdrop Overlay */}
           <motion.div
             initial={{ opacity: 0 }}

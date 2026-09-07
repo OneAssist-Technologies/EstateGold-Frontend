@@ -14,6 +14,15 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: "/emi calculator",
+        destination: "/emi-calculator",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

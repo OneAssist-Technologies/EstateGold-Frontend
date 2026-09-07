@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Phone,
   Pencil,
@@ -9,6 +10,8 @@ import {
 } from "lucide-react";
 import { User } from "@/src/providers/AuthContext";
 import { Property } from "@/src/types/property";
+import { calculateHomeLoanEMI, formatIndianCurrency } from "@/src/utils/emiCalculator";
+import LoanEnquiryModal from "@/src/components/loan/LoanEnquiryModal";
 
 function WhatsappIcon({ className = "w-3.5 h-3.5" }: { className?: string }) {
   return (
@@ -49,6 +52,8 @@ function formatPrice(price?: number): string {
   }
 }
 
+
+
 export default function StickyContactCard({
   property,
   user,
@@ -59,6 +64,8 @@ export default function StickyContactCard({
   onEdit,
   onViewEnquiries,
 }: Props) {
+  const router = useRouter();
+  const [loanEnquiryModalOpen, setLoanEnquiryModalOpen] = useState(false);
   const isGuest = !user;
   const isOwner = user?._id === property.createdBy;
   const canManage =
@@ -187,9 +194,80 @@ export default function StickyContactCard({
                 <WhatsappIcon className="w-3.5 h-3.5 fill-[#9A720C]" /> Contact
               </button>
             </div>
+
+            <p className="text-[10px] text-gray-400 text-center pt-1 font-medium">
+              Zero brokerage. Direct owner contact.
+            </p>
           </div>
         </div>
       </div>
+
+      {/* EMI Calculator Card - for Buy / Sale properties */}
+      {!isRent && (
+        <div className="bg-[#FFFDF6] border border-[#F4E3B5] rounded-2xl p-4 space-y-3 shadow-2xs">
+          <div>
+            <h4 className="text-xs font-bold text-gray-900">EMI Calculator</h4>
+            <p className="text-[10px] text-gray-500 font-semibold mt-0.5">
+              At 8.5% for 20 years
+            </p>
+          </div>
+
+          <div className="flex items-baseline justify-between">
+            <span className="text-[11px] font-medium text-gray-600">Monthly EMI</span>
+            <span className="text-lg font-bold font-serif text-[#9A720C]">
+              {formatIndianCurrency(
+                calculateHomeLoanEMI(
+                  property.price && property.price > 0 ? property.price * 0.8 : 5000000,
+                  8.5,
+                  20
+                ).emi
+              )}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 pt-1">
+            <button
+              type="button"
+              onClick={() => setLoanEnquiryModalOpen(true)}
+              className="h-8 rounded-xl bg-gradient-to-r from-[#B88A1A] via-[#D4B04C] to-[#8C6605] hover:opacity-95 text-white text-[11px] font-bold transition-all cursor-pointer flex items-center justify-center shadow-2xs"
+            >
+              Loan Enquiry
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                if (property.price && property.price > 0) {
+                  router.push(`/emi-calculator?price=${property.price}`);
+                } else {
+                  router.push(`/emi-calculator`);
+                }
+              }}
+              className="h-8 rounded-xl border border-[#9A720C] text-[#9A720C] hover:bg-[#FFF9EC] text-[11px] font-bold transition-colors cursor-pointer flex items-center justify-center"
+            >
+              EMI Calculator
+            </button>
+          </div>
+        </div>
+      )}
+
+      <LoanEnquiryModal
+        open={loanEnquiryModalOpen}
+        onClose={() => setLoanEnquiryModalOpen(false)}
+        property={property}
+        loanAmount={property.price && property.price > 0 ? property.price * 0.8 : 5000000}
+        interestRate={8.5}
+        tenureYears={20}
+        calculatedEmi={
+          calculateHomeLoanEMI(
+            property.price && property.price > 0 ? property.price * 0.8 : 5000000,
+            8.5,
+            20
+          ).emi
+        }
+        initialUserName={user?.fullName || ""}
+        initialUserPhone={user?.phone || ""}
+      />
 
       {/* Owner Quick Controls (if property owner) */}
       {canManage && (
