@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X, CheckCircle2, AlertCircle, Building2, User, MapPin, FileText, Loader2, Sparkles } from "lucide-react";
 import api from "@/src/lib/api";
 import { Property } from "@/src/types/property";
@@ -67,6 +68,23 @@ export default function LoanEnquiryModal({
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [apiError, setApiError] = useState("");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
 
   // Sync initial user details when modal opens
   useEffect(() => {
@@ -82,7 +100,7 @@ export default function LoanEnquiryModal({
     }
   }, [open, initialUserName, initialUserPhone]);
 
-  if (!open) return null;
+  if (!open || !mounted) return null;
 
   // Real-time Field Validation
   const validateForm = () => {
@@ -218,11 +236,17 @@ export default function LoanEnquiryModal({
     onClose();
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs overflow-y-auto">
-      <div className="relative w-full max-w-3xl bg-white border border-[#ECE7DB] rounded-[28px] shadow-2xl overflow-hidden my-6">
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-6 bg-black/65 backdrop-blur-xs overflow-y-auto"
+      onClick={handleResetAndClose}
+    >
+      <div
+        className="relative w-full max-w-3xl max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3.5rem)] flex flex-col bg-white border border-[#ECE7DB] rounded-[28px] shadow-2xl overflow-hidden my-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
-        <div className="bg-gradient-to-r from-[#1C1A14] via-[#2D281E] to-[#12110D] text-white p-5 sm:p-6 flex items-center justify-between">
+        <div className="bg-gradient-to-r from-[#1C1A14] via-[#2D281E] to-[#12110D] text-white p-5 sm:p-6 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-xl bg-[#9A720C]/20 border border-[#9A720C]/40 flex items-center justify-center text-[#D4B04C]">
               <Sparkles size={20} />
@@ -248,7 +272,7 @@ export default function LoanEnquiryModal({
 
         {/* Success View */}
         {submitted ? (
-          <div className="p-8 sm:p-12 flex flex-col items-center text-center space-y-5">
+          <div className="p-8 sm:p-12 flex flex-col items-center text-center space-y-5 overflow-y-auto flex-1">
             <div className="h-16 w-16 rounded-full bg-green-50 border border-green-200 flex items-center justify-center text-green-600 shadow-sm">
               <CheckCircle2 size={32} />
             </div>
@@ -281,7 +305,7 @@ export default function LoanEnquiryModal({
           </div>
         ) : (
           /* Form Content */
-          <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-6 max-h-[80vh] overflow-y-auto">
+          <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-6 flex-1 overflow-y-auto">
             {/* Property Context Banner (if available) */}
             {(property || loanAmount) && (
               <div className="p-4 bg-[#FFFDF6] border border-[#E8DCC1] rounded-2xl flex flex-wrap items-center justify-between gap-3 text-xs">
@@ -683,6 +707,7 @@ export default function LoanEnquiryModal({
           </form>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

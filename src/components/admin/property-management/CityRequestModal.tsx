@@ -62,6 +62,17 @@ export default function CityRequestModal({
   const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
+    if (open && request) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open, request]);
+
+  useEffect(() => {
     if (request) {
       setRadiusKm(request.radiusKm || 15);
       if (request.propertyTypes && request.propertyTypes.length > 0) {
@@ -162,7 +173,7 @@ export default function CityRequestModal({
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
