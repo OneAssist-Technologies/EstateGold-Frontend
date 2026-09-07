@@ -9,6 +9,7 @@ const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
+  preload: false,
   adjustFontFallback: false,
 });
 
@@ -33,7 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en" data-scroll-behavior="smooth">
       <body
-        className={`${inter.variable} antialiased bg-[#F8F6F2] text-[#161616]`}
+        className={`${inter.className} ${inter.variable} antialiased bg-[#F8F6F2] text-[#161616]`}
       >
         <AuthProvider>
           <AdminRouteGuard>
