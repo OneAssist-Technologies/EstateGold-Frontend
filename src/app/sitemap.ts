@@ -2,8 +2,8 @@ import { MetadataRoute } from "next";
 import { NEXT_PUBLIC_SITE_URL, NEXT_PUBLIC_API_URL } from "../config/env";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = NEXT_PUBLIC_SITE_URL || "https://estategold.com";
-  const apiUrl = NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  const baseUrl = (NEXT_PUBLIC_SITE_URL || "https://estategold.com").replace(/\/+$/, "");
+  const apiUrl = (NEXT_PUBLIC_API_URL || "http://localhost:5000/api").replace(/\/+$/, "");
 
   // Define verified public static routes
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -14,16 +14,34 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1.0,
     },
     {
-      url: `${baseUrl}/buy`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 0.8,
-    },
-    {
       url: `${baseUrl}/property-listing`,
       lastModified: new Date(),
       changeFrequency: "daily",
-      priority: 0.8,
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/buy`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/new-projects`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.85,
+    },
+    {
+      url: `${baseUrl}/emi-calculator`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/properties/compare`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.6,
     },
   ];
 
@@ -49,7 +67,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             url: `${baseUrl}/property-detail/${p._id}`,
             lastModified: p.updatedAt ? new Date(p.updatedAt) : new Date(p.createdAt || Date.now()),
             changeFrequency: "weekly",
-            priority: 0.6,
+            priority: 0.8,
           }));
       }
     } else {
@@ -63,3 +81,4 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [...staticRoutes, ...dynamicRoutes];
 }
+

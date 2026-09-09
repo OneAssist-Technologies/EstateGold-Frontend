@@ -35,10 +35,16 @@ import {
 } from "lucide-react";
 
 import { useAuth } from "@/src/hooks/useAuth";
-import { User } from "@/src/providers/AuthContext";;
+import { User } from "@/src/providers/AuthContext";
 import Navbar from "@/src/components/navbar/Navbar";
 import Footer from "@/src/components/footer/Footer";
 import api from "@/src/lib/api";
+import {
+  isPushNotificationSupported,
+  getNotificationPermission,
+  subscribeToPush,
+  unsubscribeFromPush,
+} from "@/src/utils/pushNotification";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -84,8 +90,68 @@ export default function ProfilePage() {
     savedSearchAlerts: true,
   });
 
+  // Device Push Notification State
+  const [isPushSupported, setIsPushSupported] = useState(false);
+  const [pushPermission, setPushPermission] = useState<NotificationPermission | "unsupported">("default");
+  const [pushActive, setPushActive] = useState(false);
+  const [pushLoading, setPushLoading] = useState(false);
+
   // Photo Upload ref
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const supported = isPushNotificationSupported();
+      setIsPushSupported(supported);
+      if (supported) {
+        const perm = getNotificationPermission();
+        setPushPermission(perm);
+        setPushActive(perm === "granted");
+      }
+    }
+  }, []);
+
+  const handleTogglePush = async () => {
+    if (!isPushSupported) {
+      setMessage({ type: "error", text: "Push notifications are not supported on this browser/device." });
+      return;
+    }
+
+    setPushLoading(true);
+    setMessage(null);
+    try {
+      if (pushActive) {
+        const res = await unsubscribeFromPush();
+        if (res.success) {
+          setPushActive(false);
+          setMessage({ type: "success", text: "Push notifications disabled for this device." });
+        } else {
+          setMessage({ type: "error", text: res.message || "Failed to disable push notifications." });
+        }
+      } else {
+        const res = await subscribeToPush();
+        setPushPermission(res.permission);
+        if (res.success) {
+          setPushActive(true);
+          setMessage({ type: "success", text: "Push notifications enabled for this device!" });
+        } else {
+          setPushActive(false);
+          if (res.permission === "denied") {
+            setMessage({
+              type: "error",
+              text: "Push notifications are blocked in browser settings. Please allow notifications for EstateGold to enable.",
+            });
+          } else {
+            setMessage({ type: "error", text: res.message || "Failed to enable push notifications." });
+          }
+        }
+      }
+    } catch (err: any) {
+      setMessage({ type: "error", text: err.message || "Error toggling push notifications." });
+    } finally {
+      setPushLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -911,6 +977,71 @@ export default function ProfilePage() {
                       </button>
                     </div>
                   ))}
+                </div>
+
+                {/* Device Level Browser Push Notifications */}
+                <div className="border border-[#E8DCC1] rounded-2xl p-4 sm:p-5 bg-[#FFFDF8] space-y-4 shadow-2xs">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-[#FFF5DC] border border-[#E8DCC1] text-[#9A720C] flex items-center justify-center shrink-0 shadow-2xs">
+                        <Bell size={18} />
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-xs font-bold text-gray-900">
+                            Device & Browser Push Notifications
+                          </h4>
+                          {isPushSupported ? (
+                            pushPermission === "granted" && pushActive ? (
+                              <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold border border-emerald-300">
+                                Active on this device
+                              </span>
+                            ) : pushPermission === "denied" ? (
+                              <span className="px-2 py-0.5 rounded-full bg-red-100 text-red-800 text-[10px] font-bold border border-red-300">
+                                Blocked in browser
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold border border-amber-300">
+                                Permission not granted
+                              </span>
+                            )
+                          ) : (
+                            <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 text-[10px] font-bold border border-gray-300">
+                              Unsupported Browser
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[11px] text-gray-600 leading-relaxed">
+                          Receive real-time pop-up notifications directly in your desktop or mobile notification center for callback requests, property approvals, and price drops — even when EstateGold is in a background tab.
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleTogglePush}
+                      disabled={pushLoading || !isPushSupported}
+                      className={`relative w-11 h-6 rounded-full transition-colors cursor-pointer shrink-0 disabled:opacity-50 ${
+                        pushActive ? "bg-[#9A720C]" : "bg-gray-200"
+                      }`}
+                      title={pushActive ? "Disable Push Notifications" : "Enable Push Notifications"}
+                    >
+                      <span
+                        className={`absolute top-1 left-1 bg-white w-4 h-4 rounded-full transition-transform ${
+                          pushActive ? "translate-x-5" : "translate-x-0"
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {pushPermission === "denied" && (
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-[11px] text-red-700 flex items-start gap-2">
+                      <AlertCircle size={14} className="shrink-0 mt-0.5 text-red-600" />
+                      <span>
+                        Notifications are blocked by your browser settings. To enable them, click the padlock / site settings icon in your browser URL bar and change Notification permission to <strong>Allow</strong>.
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="pt-2">

@@ -23,6 +23,8 @@ import { useAuth } from "../../hooks/useAuth";;
 
 import Logo from "../common/Logo";
 import api from "../../lib/api";
+import NotificationCenter from "../notifications/NotificationCenter";
+import PushPermissionPrompt from "../notifications/PushPermissionPrompt";
 
 function NavbarContent() {
   const {
@@ -127,7 +129,9 @@ function NavbarContent() {
     return null;
   }
   return (
-    <header className="sticky top-0 z-50 bg-white border-b">
+    <>
+      <PushPermissionPrompt />
+      <header className="sticky top-0 z-50 bg-white border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="h-20 flex items-center justify-between">
 
@@ -241,6 +245,9 @@ function NavbarContent() {
                 >
                   + List Property
                 </Link>
+
+                {/* Smart Notification Bell Center */}
+                <NotificationCenter />
 
                 <div ref={dropdownRef} className="relative">
                   <button
@@ -448,6 +455,8 @@ function NavbarContent() {
         </div>
       </div>
     </header>
+    <PushPermissionPrompt />
+    </>
   );
 }
 
