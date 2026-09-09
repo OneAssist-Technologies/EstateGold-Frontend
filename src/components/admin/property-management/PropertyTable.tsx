@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Eye, CheckCircle2, XCircle, MapPin, User, Phone, Calendar, Trash2 } from "lucide-react";
+import { Eye, CheckCircle2, XCircle, MapPin, User, Phone, Calendar, Trash2, AlertTriangle } from "lucide-react";
 
 import { AdminProperty } from "@/src/types/adminProperty";
 
@@ -123,6 +123,22 @@ export default function PropertyTable({
                   {property.status === "approved" && (
                     <div className="pt-0.5">
                       <PropertyAvailabilityBadge availabilityStatus={property.availabilityStatus} />
+                    </div>
+                  )}
+
+                  {property.duplicateDetected && (
+                    <div className="pt-0.5">
+                      <span
+                        title={`Duplicate property flagged (${property.duplicateConfidence || 100}% match)`}
+                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                          (property.duplicateConfidence || 0) >= 80
+                            ? "bg-red-50 text-red-700 border border-red-200"
+                            : "bg-amber-50 text-amber-800 border border-amber-200"
+                        }`}
+                      >
+                        <AlertTriangle size={11} className={(property.duplicateConfidence || 0) >= 80 ? "text-red-600" : "text-amber-600"} />
+                        Duplicate ({property.duplicateConfidence || 100}%)
+                      </span>
                     </div>
                   )}
                 </div>
@@ -266,7 +282,23 @@ export default function PropertyTable({
 
             {/* Badges/Status & Availability Select */}
             <div className="flex flex-wrap items-center justify-between gap-2.5 bg-[#FAF9F6] p-3 rounded-xl border border-[#ECE7DB]">
-              <PropertyStatusBadge status={property.status} />
+              <div className="flex flex-wrap items-center gap-2">
+                <PropertyStatusBadge status={property.status} />
+
+                {property.duplicateDetected && (
+                  <span
+                    title={`Duplicate property flagged (${property.duplicateConfidence || 100}% match)`}
+                    className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                      (property.duplicateConfidence || 0) >= 80
+                        ? "bg-red-50 text-red-700 border border-red-200"
+                        : "bg-amber-50 text-amber-800 border border-amber-200"
+                    }`}
+                  >
+                    <AlertTriangle size={11} className={(property.duplicateConfidence || 0) >= 80 ? "text-red-600" : "text-amber-600"} />
+                    Duplicate ({property.duplicateConfidence || 100}%)
+                  </span>
+                )}
+              </div>
 
               {property.status === "approved" && (
                 <div>

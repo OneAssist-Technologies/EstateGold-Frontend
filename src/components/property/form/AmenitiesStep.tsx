@@ -121,18 +121,28 @@ export default function AmenitiesStep({ formData, setFormData }: Props) {
   const propertyType = formData.propertyType || "Apartment / Flat";
   const amenitiesList = amenitiesConfig[propertyType] || amenitiesConfig["Apartment / Flat"];
 
+  const isAmenitySelected = (amenity: string) => {
+    const cleanAmenity = amenity.trim().toLowerCase();
+    return (formData.amenities || []).some(
+      (a) => typeof a === "string" && a.trim().toLowerCase() === cleanAmenity
+    );
+  };
+
   const toggleAmenity = (amenity: string) => {
-    const exists = formData.amenities.includes(amenity);
+    const exists = isAmenitySelected(amenity);
 
     if (exists) {
+      const cleanAmenity = amenity.trim().toLowerCase();
       setFormData((prev) => ({
         ...prev,
-        amenities: prev.amenities.filter((item) => item !== amenity),
+        amenities: (prev.amenities || []).filter(
+          (item) => typeof item === "string" && item.trim().toLowerCase() !== cleanAmenity
+        ),
       }));
     } else {
       setFormData((prev) => ({
         ...prev,
-        amenities: [...prev.amenities, amenity],
+        amenities: [...(prev.amenities || []), amenity],
       }));
     }
   };
@@ -151,7 +161,7 @@ export default function AmenitiesStep({ formData, setFormData }: Props) {
       {/* Amenities Grid */}
       <div className="grid md:grid-cols-3 gap-4 mt-10">
         {amenitiesList.map((amenity) => {
-          const selected = formData.amenities.includes(amenity);
+          const selected = isAmenitySelected(amenity);
 
           return (
             <button

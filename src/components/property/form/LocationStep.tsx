@@ -406,11 +406,29 @@ export default function LocationStep({ formData, setFormData, errors }: Props) {
       }));
       setFlyToTrigger((prev) => prev + 1);
 
-      if (result.state && !selectedState) {
-        setSelectedState(result.state);
+      if (result.state) {
+        // Try matching against current available states first
+        const directMatch = availableStates.find(
+          (s) => s.toLowerCase() === result.state?.toLowerCase()
+        );
+        if (directMatch) {
+          setSelectedState(directMatch);
+        } else {
+          // Look across all regions in case the user's location is in a different region/state
+          for (const [region, states] of Object.entries(STATES_BY_REGION)) {
+            const match = states.find(
+              (s) => s.toLowerCase() === result.state?.toLowerCase()
+            );
+            if (match) {
+              setSelectedRegion(region);
+              setSelectedState(match);
+              break;
+            }
+          }
+        }
       }
     },
-    [selectedState, setFormData]
+    [availableStates, setFormData]
   );
 
   // Handle map marker drag selection
@@ -589,7 +607,7 @@ export default function LocationStep({ formData, setFormData, errors }: Props) {
               />
 
               <input
-                value={formData.city}
+                value={formData.city || ""}
                 onChange={(e) =>
                   setFormData((prev) => ({
                     ...prev,
@@ -617,7 +635,7 @@ export default function LocationStep({ formData, setFormData, errors }: Props) {
               />
 
               <input
-                value={formData.locality}
+                value={formData.locality || ""}
                 onChange={(e) =>
                   setFormData((prev) => ({
                     ...prev,
@@ -645,7 +663,7 @@ export default function LocationStep({ formData, setFormData, errors }: Props) {
               />
 
               <input
-                value={formData.society}
+                value={formData.society || ""}
                 onChange={(e) =>
                   setFormData((prev) => ({
                     ...prev,
@@ -669,7 +687,7 @@ export default function LocationStep({ formData, setFormData, errors }: Props) {
               />
 
               <textarea
-                value={formData.address}
+                value={formData.address || ""}
                 onChange={(e) =>
                   setFormData((prev) => ({
                     ...prev,

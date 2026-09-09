@@ -108,7 +108,7 @@ export default function OwnerDetailsStep({
               <div className="relative font-sans">
                 <Building2 size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
-                  value={formData.ownerName}
+                  value={formData.ownerName || ""}
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
@@ -162,7 +162,7 @@ export default function OwnerDetailsStep({
                 <input
                   type="tel"
                   maxLength={10}
-                  value={formData.ownerPhone}
+                  value={formData.ownerPhone || ""}
                   onChange={(e) => {
                     const val = e.target.value.replace(/\D/g, "").slice(0, 10);
                     setFormData((prev) => ({
@@ -187,7 +187,7 @@ export default function OwnerDetailsStep({
               <div className="relative font-sans">
                 <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
-                  value={formData.ownerEmail}
+                  value={formData.ownerEmail || ""}
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
@@ -241,7 +241,7 @@ export default function OwnerDetailsStep({
               <div className="relative font-sans">
                 <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
-                  value={formData.ownerName}
+                  value={formData.ownerName || ""}
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
@@ -321,7 +321,7 @@ export default function OwnerDetailsStep({
                 <input
                   type="tel"
                   maxLength={10}
-                  value={formData.ownerPhone}
+                  value={formData.ownerPhone || ""}
                   onChange={(e) => {
                     const val = e.target.value.replace(/\D/g, "").slice(0, 10);
                     setFormData((prev) => ({
@@ -346,7 +346,7 @@ export default function OwnerDetailsStep({
               <div className="relative font-sans">
                 <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
-                  value={formData.ownerEmail}
+                  value={formData.ownerEmail || ""}
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
@@ -401,7 +401,7 @@ export default function OwnerDetailsStep({
               <div className="relative font-sans">
                 <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
-                  value={formData.ownerName}
+                  value={formData.ownerName || ""}
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
@@ -458,7 +458,7 @@ export default function OwnerDetailsStep({
                 <input
                   type="tel"
                   maxLength={10}
-                  value={formData.ownerPhone}
+                  value={formData.ownerPhone || ""}
                   onChange={(e) => {
                     const val = e.target.value.replace(/\D/g, "").slice(0, 10);
                     setFormData((prev) => ({
@@ -503,7 +503,7 @@ export default function OwnerDetailsStep({
               <div className="relative font-sans">
                 <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
-                  value={formData.ownerEmail}
+                  value={formData.ownerEmail || ""}
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,

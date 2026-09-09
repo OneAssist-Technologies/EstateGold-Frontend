@@ -262,7 +262,7 @@ export default function UserManagement() {
           </span>
         );
     }
-  };
+  };``
 
   return (
     <div className="space-y-6">
