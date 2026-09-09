@@ -27,13 +27,11 @@ import DocumentsStep from "./DocumentsStep";
 import AgreementDetailsStep from "./AgreementDetailsStep";
 import PgDetailsStep from "./PgDetailsStep";
 import PgRoomConfigStep from "./PgRoomConfigStep";
-import PgPricingChargesStep from "./PgPricingChargesStep";
-import PgFacilitiesStep from "./PgFacilitiesStep";
-import PgRulesStep from "./PgRulesStep";
 import ReviewSubmitStep from "./ReviewSubmitStep";
+import DuplicatePropertyModal from "./DuplicatePropertyModal";
 
 import api from "@/src/lib/api";
-import { PropertyFormData } from "@/src/types/property";
+import { PropertyFormData, DuplicatePropertyAnalysis } from "@/src/types/property";
 import { getLocalityInsights } from "@/src/services/marketInsightService";
 import Navbar from "@/src/components/navbar/Navbar";
 import Footer from "@/src/components/footer/Footer";
@@ -47,7 +45,7 @@ interface PropertyFormProps {
 
 export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
   const editId = mode === "edit" ? propertyId : null;
-  const [loadingEdit, setLoadingEdit] = useState(false);
+  const [loadingEdit, setLoadingEdit] = useState(Boolean(editId));
 
   const [step, setStep] = useState(1);
   const [draftId, setDraftId] = useState<string | null>(null);
@@ -59,6 +57,8 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
   const [showAgentModal, setShowAgentModal] = useState(true);
   const [stepErrors, setStepErrors] = useState<Record<string, string>>({});
   const [mounted, setMounted] = useState(false);
+  const [duplicateAnalysis, setDuplicateAnalysis] = useState<DuplicatePropertyAnalysis | null>(null);
+  const [showDuplicateModal, setShowDuplicateModal] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -96,6 +96,10 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
     locality: "",
     society: "",
     address: "",
+    flatNumber: "",
+    villaNumber: "",
+    houseNumber: "",
+    unitNumber: "",
 
     bedrooms: 0,
     bathrooms: 0,
@@ -114,11 +118,12 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
     availableFrom: "",
 
     photos: [],
+    existingPhotos: [],
     neighbourhood: {
       nearbyPlaces: {
         school: { enabled: false, name: "", distance: "" },
         college: { enabled: false, name: "", distance: "" },
-        hospital: { enabled: false, name: "", distance: "" },
+        hospital: { enabled: false, name: "" },
         metro: { enabled: false, name: "", distance: "" },
         busStand: { enabled: false, name: "", distance: "" },
         airport: { enabled: false, name: "", distance: "" },
@@ -248,6 +253,8 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
   useEffect(() => {
     if (!editId) return;
 
+    let isMounted = true;
+
     const fetchEditProperty = async () => {
       try {
         setLoadingEdit(true);
@@ -260,13 +267,17 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
           return;
         }
 
-        const currentUserId = user?._id;
-        const ownerId = property.ownerId || property.createdBy?._id || property.createdBy;
-        if (ownerId && currentUserId && ownerId.toString() !== currentUserId.toString() && user?.role !== "admin") {
-          toast.error("You are not authorized to edit this property");
-          router.push("/my-properties");
-          return;
+        if (user) {
+          const currentUserId = user._id || (user as any).id;
+          const ownerId = property.ownerId || property.createdBy?._id || property.createdBy;
+          if (ownerId && currentUserId && ownerId.toString() !== currentUserId.toString() && user.role !== "admin") {
+            toast.error("You are not authorized to edit this property");
+            router.push("/my-properties");
+            return;
+          }
         }
+
+        if (!isMounted) return;
 
         setFormData({
           purpose: property.purpose || "",
@@ -281,110 +292,163 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
           alternatePhone: property.alternatePhone || "",
           listingType: property.listingType || "my_own",
           ownerAddress: property.ownerAddress || "",
+          ownerGovtIdDoc: property.ownerGovtIdDoc || "",
+          ownerNegotiable: Boolean(property.ownerNegotiable),
+          ownerReadyToMeet: Boolean(property.ownerReadyToMeet),
+          city: property.city || "",
+          state: property.state || "",
+          locality: property.locality || "",
+          society: property.society || "",
+          address: property.address || "",
+          latitude: property.latitude ?? 0,
+          longitude: property.longitude ?? 0,
+          flatNumber: property.flatNumber || property.unitNumber || "",
+          villaNumber: property.villaNumber || property.unitNumber || "",
+          houseNumber: property.houseNumber || property.unitNumber || "",
+          unitNumber: property.unitNumber || property.flatNumber || property.villaNumber || property.houseNumber || "",
+          bedrooms: property.bedrooms ?? 0,
+          bathrooms: property.bathrooms ?? 0,
+          balconies: property.balconies ?? 0,
+          area: property.area ?? 0,
+          floor: property.floor ?? 0,
+          furnishing: property.furnishing || "",
+          parking: Boolean(property.parking),
+          amenities: Array.isArray(property.amenities) ? property.amenities : [],
+          price: property.price ?? 0,
+          description: property.description || "",
+          availableFrom: property.availableFrom ? (String(property.availableFrom).includes("T") ? String(property.availableFrom).split("T")[0] : String(property.availableFrom)) : "",
+          photos: [],
+          existingPhotos: property.photos || [],
+          neighbourhood: property.neighbourhood || {
+            nearbyPlaces: {
+              school: { enabled: false, name: "", distance: "" },
+              college: { enabled: false, name: "", distance: "" },
+              hospital: { enabled: false, name: "", distance: "" },
+              metro: { enabled: false, name: "", distance: "" },
+              busStand: { enabled: false, name: "", distance: "" },
+              airport: { enabled: false, name: "", distance: "" },
+              park: { enabled: false, name: "", distance: "" },
+              mall: { enabled: false, name: "", distance: "" },
+              temple: { enabled: false, name: "", distance: "" },
+            },
+            landmarks: [],
+            ratings: {
+              connectivity: 0,
+              safety: 0,
+              powerSupply: 0,
+              waterSupply: 0,
+              noiseLevel: 0,
+              internet: 0,
+              greenery: 0,
+            },
+            notes: "",
+          },
           carpetArea: property.carpetArea,
           totalFloors: property.totalFloors,
           plotArea: property.plotArea,
-          facing: property.facing,
+          facing: property.facing || "",
           length: property.length,
           width: property.width,
-          propertyAge: property.propertyAge,
-          plotFacing: property.plotFacing,
+          propertyAge: property.propertyAge || "",
+          plotFacing: property.plotFacing || "",
           roadWidth: property.roadWidth,
-          cornerPlot: property.cornerPlot,
-          boundaryWall: property.boundaryWall,
-          plotType: property.plotType,
-          landApproval: property.landApproval,
-          waterAvailability: property.waterAvailability,
-          electricityAvailability: property.electricityAvailability,
-          commercialType: property.commercialType,
+          cornerPlot: Boolean(property.cornerPlot),
+          boundaryWall: Boolean(property.boundaryWall),
+          plotType: property.plotType || "",
+          landApproval: property.landApproval || "",
+          waterAvailability: property.waterAvailability || "",
+          electricityAvailability: property.electricityAvailability || "",
+          commercialType: property.commercialType || "",
           washrooms: property.washrooms,
           entranceWidth: property.entranceWidth,
           powerLoad: property.powerLoad,
-          // New dynamic details fields
-          lift: property.lift,
-          powerBackup: property.powerBackup,
-          security: property.security,
-          society: property.society,
+          // Dynamic specifications
+          lift: Boolean(property.lift),
+          powerBackup: property.powerBackup || "",
+          security: property.security || "",
           maintenance: property.maintenance,
           frontage: property.frontage,
-          compoundWall: property.compoundWall,
-          garden: property.garden,
-          terrace: property.terrace,
-          borewell: property.borewell,
-          electricity: property.electricity,
-          solar: property.solar,
-          community: property.community,
-          privatePool: property.privatePool,
-          servantRoom: property.servantRoom,
-          gatedLayout: property.gatedLayout,
-          drainage: property.drainage,
-          roadAccess: property.roadAccess,
-          gps: property.gps,
-          surveyNumber: property.surveyNumber,
-          subdivisionNumber: property.subdivisionNumber,
-          landClassification: property.landClassification,
-          zoning: property.zoning,
-          taluk: property.taluk,
-          irrigation: property.irrigation,
-          crops: property.crops,
-          soilType: property.soilType,
-          farmhouse: property.farmhouse,
+          compoundWall: Boolean(property.compoundWall),
+          garden: Boolean(property.garden),
+          terrace: Boolean(property.terrace),
+          borewell: Boolean(property.borewell),
+          electricity: Boolean(property.electricity),
+          solar: Boolean(property.solar),
+          community: property.community || "",
+          privatePool: Boolean(property.privatePool),
+          servantRoom: Boolean(property.servantRoom),
+          gatedLayout: Boolean(property.gatedLayout),
+          drainage: Boolean(property.drainage),
+          roadAccess: property.roadAccess || "",
+          gps: property.gps || "",
+          surveyNumber: property.surveyNumber || "",
+          subdivisionNumber: property.subdivisionNumber || "",
+          landClassification: property.landClassification || "",
+          zoning: property.zoning || "",
+          layoutName: property.layoutName || "",
+          numberOfUnits: property.numberOfUnits,
+          fencing: Boolean(property.fencing),
+          taluk: property.taluk || "",
+          irrigation: property.irrigation || "",
+          crops: property.crops || "",
+          soilType: property.soilType || "",
+          farmhouse: Boolean(property.farmhouse),
           pricePerAcre: property.pricePerAcre,
           workstations: property.workstations,
           cabins: property.cabins,
           meetingRooms: property.meetingRooms,
-          reception: property.reception,
-          pantry: property.pantry,
-          serverRoom: property.serverRoom,
-          ac: property.ac,
-          internet: property.internet,
-          fireSafety: property.fireSafety,
+          reception: Boolean(property.reception),
+          pantry: Boolean(property.pantry),
+          serverRoom: Boolean(property.serverRoom),
+          ac: Boolean(property.ac),
+          internet: Boolean(property.internet),
+          fireSafety: Boolean(property.fireSafety),
           ceilingHeight: property.ceilingHeight,
-          mainRoadFacing: property.mainRoadFacing,
-          cornerShop: property.cornerShop,
+          mainRoadFacing: Boolean(property.mainRoadFacing),
+          cornerShop: Boolean(property.cornerShop),
           shutters: property.shutters,
-          signboard: property.signboard,
-          footfallEstimate: property.footfallEstimate,
-          suitableBusiness: property.suitableBusiness,
-          loadingUnloading: property.loadingUnloading,
-          dock: property.dock,
-          truckAccess: property.truckAccess,
-          storageCapacity: property.storageCapacity,
-          flooring: property.flooring,
+          signboard: Boolean(property.signboard),
+          footfallEstimate: property.footfallEstimate || "",
+          suitableBusiness: property.suitableBusiness || "",
+          loadingUnloading: Boolean(property.loadingUnloading),
+          dock: Boolean(property.dock),
+          truckAccess: property.truckAccess || "",
+          storageCapacity: property.storageCapacity || "",
+          flooring: property.flooring || "",
           officeArea: property.officeArea,
-          industrialType: property.industrialType,
-          transformer: property.transformer,
+          industrialType: property.industrialType || "",
+          transformer: Boolean(property.transformer),
           productionArea: property.productionArea,
-          crane: property.crane,
-          workerFacilities: property.workerFacilities,
-          pollutionCompliance: property.pollutionCompliance,
-          machineryIncluded: property.machineryIncluded,
+          crane: Boolean(property.crane),
+          workerFacilities: Boolean(property.workerFacilities),
+          pollutionCompliance: property.pollutionCompliance || "",
+          machineryIncluded: Boolean(property.machineryIncluded),
           numberOfRooms: property.numberOfRooms,
-          roomTypes: property.roomTypes,
-          restaurant: property.restaurant,
-          kitchen: property.kitchen,
-          banquetHall: property.banquetHall,
-          gym: property.gym,
-          occupancy: property.occupancy,
+          roomTypes: property.roomTypes || "",
+          restaurant: Boolean(property.restaurant),
+          kitchen: Boolean(property.kitchen),
+          banquetHall: Boolean(property.banquetHall),
+          gym: Boolean(property.gym),
+          occupancy: property.occupancy || "",
           revenue: property.revenue,
-          genderType: property.genderType,
+          genderType: property.genderType || "",
           totalBeds: property.totalBeds,
           availableBeds: property.availableBeds,
-          roomSharingType: property.roomSharingType,
+          roomSharingType: property.roomSharingType || "",
           rentPerBed: property.rentPerBed,
           deposit: property.deposit,
-          foodIncluded: property.foodIncluded,
-          laundry: property.laundry,
-          housekeeping: property.housekeeping,
-          rules: property.rules,
-          projectName: property.projectName,
+          foodIncluded: Boolean(property.foodIncluded),
+          laundry: Boolean(property.laundry),
+          housekeeping: Boolean(property.housekeeping),
+          rules: property.rules || "",
+          projectName: property.projectName || "",
           towers: property.towers,
           totalUnits: property.totalUnits,
           availableUnits: property.availableUnits,
-          bhkTypes: property.bhkTypes,
-          constructionStatus: property.constructionStatus,
-          possessionDate: property.possessionDate ? new Date(property.possessionDate).toISOString().split("T")[0] : "",
-          paymentPlan: property.paymentPlan,
+          bhkTypes: property.bhkTypes || "",
+          constructionStatus: property.constructionStatus || "",
+          possessionDate: property.possessionDate ? (String(property.possessionDate).includes("T") ? String(property.possessionDate).split("T")[0] : String(property.possessionDate)) : "",
+          paymentPlan: property.paymentPlan || "",
           pendingIssues: property.pendingIssues || { hasPendingIssues: "no", issues: [] },
           documents: property.documents || [],
           agreementDetails: property.agreementDetails || {},
@@ -397,13 +461,15 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
         toast.error("Error loading property details");
         router.push("/my-properties");
       } finally {
-        setLoadingEdit(false);
+        if (isMounted) setLoadingEdit(false);
       }
     };
 
-    if (user) {
-      fetchEditProperty();
-    }
+    fetchEditProperty();
+
+    return () => {
+      isMounted = false;
+    };
   }, [editId, user]);
 
   useEffect(() => {
@@ -669,7 +735,7 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
     }
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (bypassDuplicate: boolean = false) => {
     const allErrors = validateAllPropertySteps(formData, stepsList);
     const stepWithErrors = stepsList.find((s) => allErrors[s.id] && Object.keys(allErrors[s.id]).length > 0);
     if (stepWithErrors) {
@@ -870,6 +936,15 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
         payload.append("existingPhotos", JSON.stringify(formData.existingPhotos));
       }
 
+      if (formData.flatNumber) payload.append("flatNumber", formData.flatNumber);
+      if (formData.villaNumber) payload.append("villaNumber", formData.villaNumber);
+      if (formData.houseNumber) payload.append("houseNumber", formData.houseNumber);
+      if (formData.unitNumber) payload.append("unitNumber", formData.unitNumber);
+
+      if (bypassDuplicate) {
+        payload.append("confirmDuplicate", "true");
+      }
+
       let response;
       if (editId) {
         response = await api.put(`/properties/${editId}`, payload, {
@@ -883,6 +958,12 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
             "Content-Type": "multipart/form-data",
           },
         });
+      }
+
+      if (response.data.code === "POSSIBLE_DUPLICATE_DETECTED" && response.data.duplicateAnalysis) {
+        setDuplicateAnalysis(response.data.duplicateAnalysis);
+        setShowDuplicateModal(true);
+        return;
       }
 
       if (response.data.success) {
@@ -1341,6 +1422,19 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
           </motion.div>
         </div>
       </section>
+
+      {/* Duplicate Property Analysis Warning Modal */}
+      <DuplicatePropertyModal
+        open={showDuplicateModal}
+        onClose={() => setShowDuplicateModal(false)}
+        analysis={duplicateAnalysis}
+        onContinueAnyway={() => {
+          setShowDuplicateModal(false);
+          handleSubmit(true);
+        }}
+        loading={loadingSubmit}
+      />
+
       <Footer />
     </>
   );

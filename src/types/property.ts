@@ -66,6 +66,17 @@ export interface PropertyFormData {
   longitude?: number;
   serviceableAreaId?: string;
 
+  flatNumber?: string;
+  villaNumber?: string;
+  houseNumber?: string;
+  unitNumber?: string;
+
+  duplicateDetected?: boolean;
+  duplicateConfidence?: number;
+  duplicatePropertyId?: string;
+  duplicateDistance?: number;
+  duplicateCheckedAt?: string;
+
   bedrooms: number;
   bathrooms: number;
   balconies: number;
@@ -83,6 +94,7 @@ export interface PropertyFormData {
   availableFrom: string;
 
   photos: File[];
+  photoMeta?: import("./imageProcessing").ProcessedImageMeta[];
 
   neighbourhood: Neighbourhood;
   existingPhotos?: string[];
@@ -250,6 +262,11 @@ export interface Property {
   deleteRequested?: boolean;
   deleteRequestedReason?: string;
   deleteRequestedAt?: string;
+  duplicateDetected?: boolean;
+  duplicateConfidence?: number;
+  duplicatePropertyId?: string;
+  duplicateDistance?: number;
+  duplicateCheckedAt?: string;
   carpetArea?: number;
   totalFloors?: number;
   plotArea?: number;
@@ -405,4 +422,32 @@ export interface PgDetails {
   facilities?: string[];
   rules?: PgRules;
   charges?: PgCharges;
+}
+
+export interface DuplicatePropertyMatch {
+  propertyId: string;
+  title: string;
+  confidence: number;
+  distanceMeters: number | null;
+  matchedFields: string[];
+  source?: string;
+  excelPropertyNumber?: string;
+  details?: {
+    propertyType?: string;
+    locality?: string;
+    city?: string;
+    price?: number;
+    area?: number;
+    bedrooms?: number;
+  };
+}
+
+export interface DuplicatePropertyAnalysis {
+  isDuplicate: boolean;
+  confidence: number;
+  confidenceLevel: "none" | "possible" | "high";
+  distanceMeters: number | null;
+  matches: DuplicatePropertyMatch[];
+  checkedAt?: string | Date;
+  error?: string;
 }

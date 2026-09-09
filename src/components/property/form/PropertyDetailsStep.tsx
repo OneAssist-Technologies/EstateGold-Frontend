@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Bed,
@@ -107,6 +107,12 @@ export default function PropertyDetailsStep({
   const [showCustomBedrooms, setShowCustomBedrooms] = useState(formData.bedrooms > 4);
   const [showCustomBathrooms, setShowCustomBathrooms] = useState(formData.bathrooms > 4);
   const [showCustomBalconies, setShowCustomBalconies] = useState(formData.balconies > 3);
+
+  useEffect(() => {
+    setShowCustomBedrooms(formData.bedrooms > 4);
+    setShowCustomBathrooms(formData.bathrooms > 4);
+    setShowCustomBalconies(formData.balconies > 3);
+  }, [formData.bedrooms, formData.bathrooms, formData.balconies]);
 
   function getFieldNameFromLabel(label: string): string {
     const normalized = label.toLowerCase();
@@ -233,7 +239,7 @@ export default function PropertyDetailsStep({
             <input
               type="number"
               min={limit + 1}
-              value={value}
+              value={value || 0}
               onChange={(e) => {
                 const val = Math.max(limit + 1, Number(e.target.value));
                 onChange(val);
@@ -272,6 +278,7 @@ export default function PropertyDetailsStep({
     const fieldName = getFieldNameFromLabel(label);
     const errorMsg = fieldName ? errors?.[fieldName] : undefined;
     const cleanLabel = label.endsWith("*") ? label.slice(0, -1).trim() : label;
+    const displayValue = value !== undefined && value !== null ? value : "";
     return (
       <div>
         <label className="flex items-center gap-2 mb-2 text-xs font-bold text-gray-700 uppercase tracking-wider">
@@ -281,7 +288,7 @@ export default function PropertyDetailsStep({
         <input
           type={type}
           placeholder={placeholder}
-          value={value || ""}
+          value={displayValue}
           onChange={(e) => onChange(e.target.value)}
           className={`w-full h-12 px-4 rounded-xl border outline-none text-sm font-semibold text-gray-800 focus:border-[#C89B1C] bg-[#FFFDF9]/30 ${
             errorMsg ? "border-red-500 bg-red-50/10 focus:border-red-500" : "border-[#E5D8B3]"
@@ -307,6 +314,7 @@ export default function PropertyDetailsStep({
     const fieldName = getFieldNameFromLabel(label);
     const errorMsg = fieldName ? errors?.[fieldName] : undefined;
     const cleanLabel = label.endsWith("*") ? label.slice(0, -1).trim() : label;
+    const matchedOption = options.find((opt) => opt.toLowerCase() === (value || "").toLowerCase()) || value;
     return (
       <div>
         <label className="flex items-center gap-2 mb-2 text-xs font-bold text-gray-700 uppercase tracking-wider">
@@ -314,7 +322,7 @@ export default function PropertyDetailsStep({
           <span>{cleanLabel} <span className="text-red-500 font-bold">*</span></span>
         </label>
         <select
-          value={value || ""}
+          value={matchedOption || ""}
           onChange={(e) => onChange(e.target.value)}
           className={`w-full h-12 px-4 rounded-xl border outline-none text-sm font-bold text-gray-700 bg-white focus:border-[#C89B1C] cursor-pointer ${
             errorMsg ? "border-red-500 bg-red-50/10 focus:border-red-500" : "border-[#E5D8B3]"
@@ -431,7 +439,10 @@ export default function PropertyDetailsStep({
             )}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {renderInput("Flat / Door Number", formData.flatNumber || "", "e.g. 402 or Flat 4B", <Building2 size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, flatNumber: val, unitNumber: val })), "text"
+            )}
             {renderInput("Society / Association Name", (formData as any).society, "e.g. Greenfield Residency", <Building2 size={16} />, (val) =>
               setFormData((prev) => ({ ...prev, society: val })), "text"
             )}
@@ -483,6 +494,9 @@ export default function PropertyDetailsStep({
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {renderInput("House / Door Number", formData.houseNumber || "", "e.g. 14 or Door 12/A", <Building2 size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, houseNumber: val, unitNumber: val })), "text"
+            )}
             {renderInput("Plot Area (sq ft)", (formData as any).plotArea, "e.g. 1500", <Scan size={16} />, (val) =>
               setFormData((prev) => ({ ...prev, plotArea: Number(val) }))
             )}
@@ -555,6 +569,9 @@ export default function PropertyDetailsStep({
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {renderInput("Villa Number", formData.villaNumber || "", "e.g. Villa 12 or V-102", <Building2 size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, villaNumber: val, unitNumber: val })), "text"
+            )}
             {renderInput("Plot Area (sq ft)", (formData as any).plotArea, "e.g. 2000", <Scan size={16} />, (val) =>
               setFormData((prev) => ({ ...prev, plotArea: Number(val) }))
             )}
@@ -599,6 +616,9 @@ export default function PropertyDetailsStep({
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {renderInput("Flat / Unit Number", formData.flatNumber || "", "e.g. Floor 2 or Unit 2A", <Building2 size={16} />, (val) =>
+              setFormData((prev) => ({ ...prev, flatNumber: val, unitNumber: val })), "text"
+            )}
             {renderInput("Carpet Area (sq ft)", (formData as any).carpetArea, "e.g. 1200", <Scan size={16} />, (val) =>
               setFormData((prev) => ({ ...prev, carpetArea: Number(val) }))
             )}

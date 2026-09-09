@@ -94,6 +94,11 @@ export interface AdminProperty {
   deleteRequestedAt?: string;
   ownerNegotiable?: boolean;
   ownerReadyToMeet?: boolean;
+  duplicateDetected?: boolean;
+  duplicateConfidence?: number;
+  duplicatePropertyId?: string;
+  duplicateDistance?: number;
+  duplicateCheckedAt?: string;
 
  createdBy?: {
   _id: string;

@@ -27,6 +27,7 @@ import {
   Star,
   Info,
   Clock,
+  AlertTriangle,
 } from "lucide-react";
 
 import { AdminProperty } from "@/src/types/adminProperty";
@@ -151,6 +152,57 @@ export default function PropertyViewModal({
 
             {/* Scrollable Modal Content */}
             <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-6">
+
+              {/* Duplicate Property Alert Banner */}
+              {property.duplicateDetected && (
+                <div className={`p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                  (property.duplicateConfidence || 0) >= 80
+                    ? "bg-red-50 border-red-200 text-red-900"
+                    : "bg-amber-50 border-amber-200 text-amber-900"
+                }`}>
+                  <div className="flex items-start gap-3">
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${
+                      (property.duplicateConfidence || 0) >= 80
+                        ? "bg-red-100 text-red-600 border border-red-200"
+                        : "bg-amber-100 text-[#9A720C] border border-amber-200"
+                    }`}>
+                      <AlertTriangle size={18} />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-bold text-sm">
+                          {(property.duplicateConfidence || 0) >= 80 ? "High-Confidence Duplicate Flagged" : "Possible Duplicate Flagged"}
+                        </h4>
+                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                          (property.duplicateConfidence || 0) >= 80 ? "bg-red-600 text-white" : "bg-[#9A720C] text-white"
+                        }`}>
+                          {property.duplicateConfidence || 100}% Match
+                        </span>
+                      </div>
+                      <p className="text-xs mt-1 opacity-90 leading-relaxed">
+                        This property shares identical/similar location, address, pricing, and structural details with an existing listing in EstateGold.
+                        {property.duplicateDistance !== undefined && property.duplicateDistance !== null && (
+                          <span className="font-semibold block mt-0.5">
+                            Distance from matched listing: {property.duplicateDistance}m
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+
+                  {property.duplicatePropertyId && (
+                    <a
+                      href={`/property-detail/${property.duplicatePropertyId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-gray-200 hover:bg-gray-50 text-xs font-bold text-gray-800 transition-colors shadow-2xs shrink-0 self-start sm:self-center"
+                    >
+                      <ExternalLink size={13} />
+                      <span>View Matched Listing</span>
+                    </a>
+                  )}
+                </div>
+              )}
 
               {/* Deletion Request Alert Banner */}
               {property.deleteRequested && (

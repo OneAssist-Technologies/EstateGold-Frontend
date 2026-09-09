@@ -12,6 +12,7 @@ export interface SearchLocationResult {
   locality?: string;
   primaryName?: string;
   secondaryAddress?: string;
+  country?: string;
 }
 
 interface LocationSearchProps {
@@ -33,6 +34,7 @@ interface RecentLocation {
   locality?: string;
   primaryName: string;
   secondaryAddress: string;
+  country?: string;
 }
 
 const RECENT_STORAGE_KEY = "recent_property_locations";
@@ -189,6 +191,7 @@ export default function LocationSearch({
     const secondaryAddress = parts.slice(1).join(", ") || "";
 
     const addressObj = item.address || {};
+    const country = addressObj.country || item.country || "";
     const city =
       addressObj.city ||
       addressObj.town ||
@@ -205,13 +208,13 @@ export default function LocationSearch({
       addressObj.road ||
       primaryName;
 
-    return { primaryName, secondaryAddress, city, state, locality, fullAddress: rawName };
+    return { primaryName, secondaryAddress, city, state, locality, fullAddress: rawName, country };
   };
 
   const handleSelect = (item: any) => {
     const lat = parseFloat(item.lat || item.latitude);
     const lng = parseFloat(item.lon || item.longitude);
-    const { primaryName, secondaryAddress, city, state, locality, fullAddress } =
+    const { primaryName, secondaryAddress, city, state, locality, fullAddress, country } =
       parseAddressDetails(item);
 
     onChange(fullAddress);
@@ -227,6 +230,7 @@ export default function LocationSearch({
         locality,
         primaryName,
         secondaryAddress,
+        country,
       };
 
       saveToRecent(resultObj);
@@ -265,7 +269,7 @@ export default function LocationSearch({
           );
           const data = await res.json();
           if (data && data.address) {
-            const { primaryName, secondaryAddress, city, state, locality, fullAddress } =
+            const { primaryName, secondaryAddress, city, state, locality, fullAddress, country } =
               parseAddressDetails(data);
 
             onChange(fullAddress);
@@ -280,6 +284,7 @@ export default function LocationSearch({
               locality,
               primaryName,
               secondaryAddress,
+              country,
             };
 
             saveToRecent(resultObj);
@@ -313,8 +318,8 @@ export default function LocationSearch({
         Search Property Location <span className="text-red-500">*</span>
       </label>
 
-      {/* Clean input bar with small map button next to search input field */}
-      <div className="flex items-center gap-2.5">
+      {/* Clean input bar with Current Location and Map buttons next to search input field */}
+      <div className="flex items-center gap-2">
         <div className="relative flex-1">
           <Search
             size={18}
@@ -327,10 +332,10 @@ export default function LocationSearch({
             disabled={disabled}
             placeholder={
               disabled
-                ? "Please select Region & State first..."
+                ? "Please select Region & State first or use Current Location..."
                 : "Search for area, street, locality or landmark..."
             }
-            value={value}
+            value={value || ""}
             onChange={(e) => {
               onChange(e.target.value);
               setShowDropdown(true);
@@ -361,6 +366,26 @@ export default function LocationSearch({
           ) : null}
         </div>
 
+        {/* Use Current Location Button next to Map */}
+        <button
+          type="button"
+          onClick={handleUseCurrentLocation}
+          disabled={geoLoading}
+          className="h-12 px-3 sm:px-3.5 rounded-xl border border-[#E8E1D4] bg-[#FFFBF0] hover:bg-[#FFF5DB] text-[#8B630B] hover:text-[#9A720C] flex items-center gap-2 text-xs font-bold shrink-0 transition-colors shadow-xs group cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+          title="Use current GPS location"
+        >
+          <div className="w-6 h-6 rounded-full bg-[#C89B1C] text-white flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-xs">
+            {geoLoading ? (
+              <Loader2 size={13} className="animate-spin text-white" />
+            ) : (
+              <Navigation size={13} className="fill-white" />
+            )}
+          </div>
+          <span className="hidden sm:inline">
+            {geoLoading ? "Locating..." : "Current Location"}
+          </span>
+        </button>
+
         {/* Small Map logo button placed next to search input field */}
         <button
           type="button"
@@ -374,7 +399,7 @@ export default function LocationSearch({
               }
             }
           }}
-          className="h-12 px-3.5 rounded-xl border border-[#E8E1D4] bg-[#FFFBF0] hover:bg-[#FFF5DB] text-[#8B630B] hover:text-[#9A720C] flex items-center gap-2 text-xs font-bold shrink-0 transition-colors shadow-xs group cursor-pointer"
+          className="h-12 px-3 sm:px-3.5 rounded-xl border border-[#E8E1D4] bg-[#FFFBF0] hover:bg-[#FFF5DB] text-[#8B630B] hover:text-[#9A720C] flex items-center gap-2 text-xs font-bold shrink-0 transition-colors shadow-xs group cursor-pointer"
           title="Pick location on map"
         >
           <div className="w-6 h-6 rounded-full bg-[#C89B1C] text-white flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-xs">

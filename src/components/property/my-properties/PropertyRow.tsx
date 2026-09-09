@@ -18,6 +18,7 @@ import {
   ChevronDown,
   Tag,
   Check,
+  AlertTriangle,
 } from "lucide-react";
 
 import { Property } from "@/src/types/property";
@@ -199,13 +200,27 @@ export default function PropertyRow({
           />
 
           {/* Badge Overlay */}
-          <div className="absolute top-3 left-3 z-10">
+          <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5 items-start">
             <span
               className={`px-2.5 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 shadow-xs border ${statusColor}`}
             >
               <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />
               {statusLabel}
             </span>
+
+            {property.duplicateDetected && (
+              <span
+                title={`Duplicate property flagged (${property.duplicateConfidence || 100}% match)`}
+                className={`px-2 py-0.5 rounded-full text-[9px] font-bold flex items-center gap-1 shadow-xs border ${
+                  (property.duplicateConfidence || 0) >= 80
+                    ? "bg-red-500/90 text-white border-red-400"
+                    : "bg-amber-500/90 text-white border-amber-400"
+                }`}
+              >
+                <AlertTriangle size={10} />
+                Duplicate ({property.duplicateConfidence || 100}%)
+              </span>
+            )}
           </div>
         </div>
 

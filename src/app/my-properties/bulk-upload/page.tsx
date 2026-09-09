@@ -16,10 +16,14 @@ import {
   Image as ImageIcon,
   Building2,
   ShieldCheck,
+  ShieldAlert,
   X,
   HelpCircle,
   Loader2,
   Info,
+  MapPin,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 
@@ -27,6 +31,7 @@ import Navbar from "@/src/components/navbar/Navbar";
 import Footer from "@/src/components/footer/Footer";
 import { useAuth } from "@/src/hooks/useAuth";
 import api from "@/src/lib/api";
+import { DuplicatePropertyAnalysis } from "@/src/types/property";
 
 interface PublisherDetails {
   ownerName: string;
@@ -60,12 +65,15 @@ interface ValidatedProperty {
   zipImages?: string[];
   errors?: string[];
   pgDetails?: any;
+  duplicateAnalysis?: DuplicatePropertyAnalysis;
 }
 
 interface ValidationSummary {
   totalRows: number;
   readyToPublishCount: number;
   needsFixingCount: number;
+  possibleDuplicatesCount?: number;
+  highConfidenceDuplicatesCount?: number;
   unmappedFoldersCount: number;
   totalZipImagesFound: number;
 }
@@ -186,11 +194,23 @@ export default function BulkUploadPage() {
   const [publishReport, setPublishReport] = useState<{
     totalSubmitted: number;
     successfullyPublished: number;
+    possibleDuplicatesCount?: number;
+    blockedDuplicatesCount?: number;
     failedCount: number;
     totalImagesUploaded: number;
     publishedResults: any[];
+    blockedResults?: any[];
     failedResults: any[];
   } | null>(null);
+
+  const [expandedDuplicateRows, setExpandedDuplicateRows] = useState<Record<string, boolean>>({});
+
+  const toggleDuplicateExpand = (propNum: string) => {
+    setExpandedDuplicateRows((prev) => ({
+      ...prev,
+      [propNum]: !prev[propNum],
+    }));
+  };
 
   // Handler: Download Official Excel Template
   const handleDownloadTemplate = async () => {
@@ -305,9 +325,12 @@ export default function BulkUploadPage() {
         setPublishReport({
           totalSubmitted: res.data.summary.totalSubmitted,
           successfullyPublished: res.data.summary.successfullyPublished,
+          possibleDuplicatesCount: res.data.summary.possibleDuplicatesCount || 0,
+          blockedDuplicatesCount: res.data.summary.blockedDuplicatesCount || 0,
           failedCount: res.data.summary.failedCount,
           totalImagesUploaded: res.data.summary.totalImagesUploaded,
           publishedResults: res.data.publishedResults || [],
+          blockedResults: res.data.blockedResults || [],
           failedResults: res.data.failedResults || [],
         });
         setActiveStep(3);
@@ -693,28 +716,114 @@ export default function BulkUploadPage() {
                   <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wider">Eligible Properties ({readyToPublish.length})</h3>
                   {readyToPublish.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {readyToPublish.map((prop) => (
-                        <div key={prop.propertyNumber} className="bg-white border border-green-200 rounded-2xl p-4 sm:p-5 shadow-2xs space-y-3">
-                          <div className="flex items-center justify-between border-b border-gray-100 pb-2">
-                            <span className="text-xs font-bold text-green-700 bg-green-50 border border-green-200 px-2.5 py-0.5 rounded-full">
-                              Property #{prop.propertyNumber}
-                            </span>
-                            <span className="text-xs font-bold text-gray-600">{prop.purpose} • {prop.propertyType}</span>
+                      {readyToPublish.map((prop) => {
+                        const dup = prop.duplicateAnalysis;
+                        const isExpanded = !!expandedDuplicateRows[prop.propertyNumber];
+                        const isHigh = dup?.confidenceLevel === "high";
+                        const isPossible = dup?.confidenceLevel === "possible";
+
+                        return (
+                          <div
+                            key={prop.propertyNumber}
+                            className={`bg-white border rounded-2xl p-4 sm:p-5 shadow-2xs space-y-3 transition-all ${
+                              isHigh
+                                ? "border-red-300 bg-red-50/20"
+                                : isPossible
+                                ? "border-amber-300 bg-amber-50/20"
+                                : "border-green-200"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between border-b border-gray-100 pb-2">
+                              <span className="text-xs font-bold text-green-700 bg-green-50 border border-green-200 px-2.5 py-0.5 rounded-full">
+                                Property #{prop.propertyNumber}
+                              </span>
+                              <span className="text-xs font-bold text-gray-600">{prop.purpose} • {prop.propertyType}</span>
+                            </div>
+
+                            <div>
+                              <h4 className="text-sm font-bold text-gray-900 truncate">{prop.title}</h4>
+                              <p className="text-xs text-gray-500">{prop.locality}, {prop.city} — ₹{prop.price.toLocaleString("en-IN")}</p>
+                            </div>
+
+                            {/* DUPLICATE PROPERTY ANALYSIS STATUS BADGE */}
+                            {dup && (
+                              <div className="pt-1">
+                                {isHigh ? (
+                                  <div className="bg-red-50 border border-red-200 rounded-xl p-2.5 text-xs text-red-800 space-y-1.5">
+                                    <div className="flex items-center justify-between font-bold">
+                                      <span className="flex items-center gap-1.5 text-red-700">
+                                        <ShieldAlert size={14} className="text-red-600" />
+                                        🔴 High-Confidence Duplicate ({dup.confidence}% Match)
+                                      </span>
+                                      <button
+                                        type="button"
+                                        onClick={() => toggleDuplicateExpand(prop.propertyNumber)}
+                                        className="text-[11px] text-red-600 hover:underline cursor-pointer flex items-center gap-0.5"
+                                      >
+                                        {isExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                                        {isExpanded ? "Hide Details" : "Details"}
+                                      </button>
+                                    </div>
+                                    <p className="text-[11px] text-red-600">
+                                      Matches {dup.matches[0]?.source === "same_bulk_upload" ? `another row in this Excel (${dup.matches[0]?.title})` : `existing property: ${dup.matches[0]?.title}`}
+                                      {dup.distanceMeters !== null ? ` (${dup.distanceMeters}m away)` : ""}
+                                    </p>
+                                  </div>
+                                ) : isPossible ? (
+                                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-2.5 text-xs text-amber-900 space-y-1.5">
+                                    <div className="flex items-center justify-between font-bold">
+                                      <span className="flex items-center gap-1.5 text-amber-800">
+                                        <AlertTriangle size={14} className="text-amber-600" />
+                                        ⚠ Possible Duplicate ({dup.confidence}% Match)
+                                      </span>
+                                      <button
+                                        type="button"
+                                        onClick={() => toggleDuplicateExpand(prop.propertyNumber)}
+                                        className="text-[11px] text-amber-700 hover:underline cursor-pointer flex items-center gap-0.5"
+                                      >
+                                        {isExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                                        {isExpanded ? "Hide Details" : "Details"}
+                                      </button>
+                                    </div>
+                                    <p className="text-[11px] text-amber-700">
+                                      {dup.distanceMeters !== null ? `${dup.distanceMeters}m from existing listing: ` : "Similar to "}
+                                      {dup.matches[0]?.title}
+                                    </p>
+                                  </div>
+                                ) : (
+                                  <div className="bg-green-50/70 border border-green-200/80 rounded-xl px-2.5 py-1.5 text-xs text-green-700 flex items-center gap-1.5 font-semibold">
+                                    <CheckCircle2 size={13} className="text-green-600" />
+                                    ✓ No duplicate detected in database or Excel
+                                  </div>
+                                )}
+
+                                {/* Expandable Comparison Details */}
+                                {isExpanded && dup.matches.length > 0 && (
+                                  <div className="mt-2 p-2.5 bg-white border border-gray-200 rounded-xl text-xs space-y-2">
+                                    <span className="font-bold text-gray-700 block text-[11px] uppercase tracking-wider">Matched Attributes:</span>
+                                    <div className="flex flex-wrap gap-1">
+                                      {dup.matches[0]?.matchedFields.map((field) => (
+                                        <span key={field} className="bg-gray-100 text-gray-800 px-2 py-0.5 rounded-md text-[10px] font-bold">
+                                          {field}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            <div className="flex items-center justify-between text-xs pt-1 border-t border-gray-100">
+                              <span className="text-green-700 font-semibold flex items-center gap-1">
+                                <CheckCircle2 size={14} /> Property Data Valid
+                              </span>
+                              <span className="font-bold text-[#C89B1C] bg-[#FFF9EC] border border-[#E5D8B3] px-2 py-0.5 rounded-full">
+                                {prop.imagesCount} Images Found
+                              </span>
+                            </div>
                           </div>
-                          <div>
-                            <h4 className="text-sm font-bold text-gray-900 truncate">{prop.title}</h4>
-                            <p className="text-xs text-gray-500">{prop.locality}, {prop.city} — ₹{prop.price.toLocaleString("en-IN")}</p>
-                          </div>
-                          <div className="flex items-center justify-between text-xs pt-1 border-t border-gray-100">
-                            <span className="text-green-700 font-semibold flex items-center gap-1">
-                              <CheckCircle2 size={14} /> Property Data Valid
-                            </span>
-                            <span className="font-bold text-[#C89B1C] bg-[#FFF9EC] border border-[#E5D8B3] px-2 py-0.5 rounded-full">
-                              {prop.imagesCount} Images Found
-                            </span>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   ) : (
                     <div className="bg-white border border-gray-200 rounded-2xl p-8 text-center text-gray-400 text-sm">
@@ -801,22 +910,51 @@ export default function BulkUploadPage() {
                 </div>
 
                 {/* REPORT STATS */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
                   <div className="bg-[#FAF8F5] border border-[#E5D8B3] p-4 rounded-2xl">
                     <span className="text-xs text-gray-500 font-bold uppercase tracking-wider block">Successfully Published</span>
                     <span className="text-2xl font-extrabold text-green-600">{publishReport.successfullyPublished}</span>
                   </div>
 
                   <div className="bg-[#FAF8F5] border border-[#E5D8B3] p-4 rounded-2xl">
-                    <span className="text-xs text-gray-500 font-bold uppercase tracking-wider block">Images Uploaded & Attached</span>
-                    <span className="text-2xl font-extrabold text-[#C89B1C]">{publishReport.totalImagesUploaded}</span>
+                    <span className="text-xs text-gray-500 font-bold uppercase tracking-wider block">Possible Duplicates</span>
+                    <span className="text-2xl font-extrabold text-amber-600">{publishReport.possibleDuplicatesCount || 0}</span>
                   </div>
 
                   <div className="bg-[#FAF8F5] border border-[#E5D8B3] p-4 rounded-2xl">
-                    <span className="text-xs text-gray-500 font-bold uppercase tracking-wider block">Failed Properties</span>
-                    <span className="text-2xl font-extrabold text-red-600">{publishReport.failedCount}</span>
+                    <span className="text-xs text-gray-500 font-bold uppercase tracking-wider block">Blocked Duplicates</span>
+                    <span className="text-2xl font-extrabold text-red-600">{publishReport.blockedDuplicatesCount || 0}</span>
+                  </div>
+
+                  <div className="bg-[#FAF8F5] border border-[#E5D8B3] p-4 rounded-2xl">
+                    <span className="text-xs text-gray-500 font-bold uppercase tracking-wider block">Images Attached</span>
+                    <span className="text-2xl font-extrabold text-[#C89B1C]">{publishReport.totalImagesUploaded}</span>
                   </div>
                 </div>
+
+                {/* BLOCKED DUPLICATES LIST */}
+                {publishReport.blockedResults && publishReport.blockedResults.length > 0 && (
+                  <div className="space-y-3">
+                    <h3 className="text-xs font-bold text-red-700 uppercase tracking-wider flex items-center gap-1.5">
+                      <ShieldAlert size={14} className="text-red-600" />
+                      Blocked Duplicate Properties ({publishReport.blockedResults.length})
+                    </h3>
+                    <div className="divide-y divide-red-100 border border-red-200 rounded-xl overflow-hidden text-xs sm:text-sm bg-red-50/40">
+                      {publishReport.blockedResults.map((item, idx) => (
+                        <div key={idx} className="p-3.5 flex items-center justify-between">
+                          <div>
+                            <span className="font-bold text-red-900">Property #{item.propertyNumber}: </span>
+                            <span className="text-gray-800">{item.title}</span>
+                            <p className="text-xs text-red-700 mt-0.5">{item.reason}</p>
+                          </div>
+                          <span className="text-xs font-bold text-red-700 bg-red-100 px-2.5 py-0.5 rounded-full shrink-0">
+                            Blocked
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* PUBLISHED LIST */}
                 {publishReport.publishedResults.length > 0 && (
