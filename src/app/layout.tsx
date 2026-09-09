@@ -24,6 +24,13 @@ export const metadata: Metadata = {
     "Premium Apartments",
     "Real Estate India",
   ],
+  // SEO Site Verification
+  verification: {
+    google: "xHHuz5dH233rvCqQ41U-tOi1MZGchBuwkTM953pOuas",
+    other: {
+      "msvalidate.01": "E6F26031828E068BAB975DE59937A04C",
+    },
+  },
 };
 
 export default function RootLayout({
@@ -45,4 +52,4 @@ export default function RootLayout({
       </body>
     </html>
   );
-}
+}

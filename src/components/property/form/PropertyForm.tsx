@@ -27,6 +27,9 @@ import DocumentsStep from "./DocumentsStep";
 import AgreementDetailsStep from "./AgreementDetailsStep";
 import PgDetailsStep from "./PgDetailsStep";
 import PgRoomConfigStep from "./PgRoomConfigStep";
+import PgPricingChargesStep from "./PgPricingChargesStep";
+import PgFacilitiesStep from "./PgFacilitiesStep";
+import PgRulesStep from "./PgRulesStep";
 import ReviewSubmitStep from "./ReviewSubmitStep";
 import DuplicatePropertyModal from "./DuplicatePropertyModal";
 
@@ -123,7 +126,7 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
       nearbyPlaces: {
         school: { enabled: false, name: "", distance: "" },
         college: { enabled: false, name: "", distance: "" },
-        hospital: { enabled: false, name: "" },
+        hospital: { enabled: false, name: "", distance: "" },
         metro: { enabled: false, name: "", distance: "" },
         busStand: { enabled: false, name: "", distance: "" },
         airport: { enabled: false, name: "", distance: "" },
@@ -1384,7 +1387,7 @@ export default function PropertyForm({ mode, propertyId }: PropertyFormProps) {
                   <motion.button
                     whileHover={{ scale: 1.04 }}
                     whileTap={{ scale: 0.96 }}
-                    onClick={handleSubmit}
+                    onClick={() => handleSubmit()}
                     disabled={loadingSubmit}
                     className="bg-[#C89B1C] hover:bg-[#B58A16] text-white px-4 py-2 sm:px-8 sm:py-3 rounded-xl sm:rounded-2xl font-medium flex items-center gap-1.5 shadow-lg shadow-[#C89B1C]/20 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-xs sm:text-sm"
                   >

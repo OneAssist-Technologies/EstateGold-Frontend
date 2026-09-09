@@ -3,7 +3,8 @@
 import { useMemo, useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bell, Search, Menu, LogOut, User as UserIcon } from "lucide-react";
-import { useAuth } from "../../hooks/useAuth";;
+import { useAuth } from "../../hooks/useAuth";
+import NotificationCenter from "../notifications/NotificationCenter";
 
 export default function AdminNavbar() {
   const { user, logout } = useAuth();
@@ -78,20 +79,8 @@ export default function AdminNavbar() {
           />
         </div>
 
-        {/* Notification Button */}
-        <motion.button
-          onClick={() => {
-            try {
-              localStorage.setItem("admin_bell_read", "true");
-              window.dispatchEvent(new Event("storage"));
-            } catch (e) {}
-          }}
-          whileHover={{ y: -2, scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="relative h-10 w-10 sm:h-12 sm:w-12 rounded-xl border border-[#E8E1D4] bg-white flex items-center justify-center hover:border-[#C89B1C] hover:bg-[#FFF9EC] transition-all cursor-pointer"
-        >
-          <Bell size={19} />
-        </motion.button>
+        {/* Notification Center */}
+        <NotificationCenter isAdmin={true} />
 
         {/* Profile Dropdown */}
         <div ref={dropdownRef} className="relative">
