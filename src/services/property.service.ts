@@ -29,6 +29,14 @@ export const propertyApi = {
   // Property actions
   getSimilar: (id: string) => api.get(`/properties/${id}/similar`),
 
+  recordView: (id: string) => api.post(`/properties/${id}/view`),
+
+  recordContact: (id: string) => api.post(`/properties/${id}/contact`),
+
+  toggleShortlist: (id: string) => api.post(`/properties/${id}/shortlist`),
+
+  getEngagement: (id: string) => api.get(`/properties/${id}/engagement`),
+
   updateStatus: (id: string, data: Record<string, unknown>) =>
     api.patch(`/properties/${id}/status`, data),
 

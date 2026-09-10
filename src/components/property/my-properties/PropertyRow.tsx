@@ -19,6 +19,9 @@ import {
   Tag,
   Check,
   AlertTriangle,
+  Heart,
+  PhoneCall,
+  Activity,
 } from "lucide-react";
 
 import { Property } from "@/src/types/property";
@@ -254,36 +257,105 @@ export default function PropertyRow({
                 </span>
               ))}
             </div>
+
+            {/* Property Performance Card (Last 30 days - Real MongoDB Data) */}
+            <div className="bg-[#FFFDF6] border border-[#E8DCC1] rounded-xl p-3 sm:p-3.5 mt-3 shadow-3xs">
+              <div className="flex items-center justify-between gap-2 mb-2 pb-1.5 border-b border-[#ECE7DB]">
+                <div className="flex items-center gap-1.5">
+                  <Activity size={13} className="text-[#9A720C]" />
+                  <span className="text-[11px] font-bold text-gray-900 uppercase tracking-wider">
+                    Property Performance
+                  </span>
+                </div>
+                <span className="text-[10px] font-semibold text-gray-400">
+                  Last 30 days
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {/* 1. Views */}
+                <div className="bg-white border border-[#ECE7DB] rounded-lg p-2 flex flex-col justify-between shadow-2xs">
+                  <div className="flex items-center justify-between text-gray-400 mb-0.5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Views</span>
+                    <Eye size={12} className="text-[#9A720C]" />
+                  </div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-sm sm:text-base font-extrabold text-gray-900">
+                      {(property.performance?.views ?? property.views ?? 0).toLocaleString()}
+                    </span>
+                    <span className="text-[10px] font-semibold text-gray-400">
+                      {(property.performance?.views ?? property.views ?? 0) === 1 ? "view" : "views"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* 2. Enquiries */}
+                <div
+                  onClick={() => onViewEnquiries(property._id)}
+                  className="bg-white border border-[#ECE7DB] hover:border-[#D8B56A] rounded-lg p-2 flex flex-col justify-between shadow-2xs cursor-pointer transition-colors"
+                  title="View enquiries for this property"
+                >
+                  <div className="flex items-center justify-between text-gray-400 mb-0.5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Enquiries</span>
+                    <MessageSquare size={12} className="text-[#0DBB58]" />
+                  </div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-sm sm:text-base font-extrabold text-gray-900">
+                      {(property.performance?.enquiries ?? property.enquiries?.length ?? 0).toLocaleString()}
+                    </span>
+                    <span className="text-[10px] font-semibold text-gray-400">
+                      {(property.performance?.enquiries ?? property.enquiries?.length ?? 0) === 1 ? "enquiry" : "enquiries"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* 3. Call Initiated */}
+                <div className="bg-white border border-[#ECE7DB] rounded-lg p-2 flex flex-col justify-between shadow-2xs">
+                  <div className="flex items-center justify-between text-gray-400 mb-0.5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Calls</span>
+                    <PhoneCall size={12} className="text-[#3B82F6]" />
+                  </div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-sm sm:text-base font-extrabold text-gray-900">
+                      {(property.performance?.contactOwner ?? 0).toLocaleString()}
+                    </span>
+                    <span className="text-[10px] font-semibold text-gray-400">
+                      Call Initiated
+                    </span>
+                  </div>
+                </div>
+
+                {/* 4. Shortlisted */}
+                <div className="bg-white border border-[#ECE7DB] rounded-lg p-2 flex flex-col justify-between shadow-2xs">
+                  <div className="flex items-center justify-between text-gray-400 mb-0.5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Saved</span>
+                    <Heart size={12} className="text-rose-500" />
+                  </div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-sm sm:text-base font-extrabold text-gray-900">
+                      {(property.performance?.shortlisted ?? 0).toLocaleString()}
+                    </span>
+                    <span className="text-[10px] font-semibold text-gray-400">
+                      Shortlisted
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Footer stats metrics & Action Buttons */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 border-t border-gray-100">
-            {/* Left Metrics */}
-            <div className="flex flex-wrap items-center gap-3.5 text-xs text-gray-400 font-semibold">
-              <span className="flex items-center gap-1 hover:text-gray-600 transition-colors">
-                <Eye size={14} className="text-gray-400" />
-                {property.views || 0} views
-              </span>
-              {property.enquiries && property.enquiries.length > 0 ? (
-                <span
-                  onClick={() => onViewEnquiries(property._id)}
-                  className="flex items-center gap-1.5 hover:text-[#9A720C] text-[#C89B1C] transition-colors cursor-pointer bg-[#FFF9EC] px-2 py-0.5 rounded-full border border-[#FAF0D4]"
-                >
-                  <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse shrink-0" />
-                  <span className="font-black">{(property.enquiries?.length || 0)} enquiries</span>
-                </span>
-              ) : (
-                <span
-                  onClick={() => onViewEnquiries(property._id)}
-                  className="flex items-center gap-1 hover:text-gray-600 transition-colors cursor-pointer"
-                >
-                  <MessageSquare size={14} className="text-gray-400" />
-                  0 enquiries
-                </span>
-              )}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2 border-t border-gray-100">
+            {/* Left Tag Details */}
+            <div className="flex flex-wrap items-center gap-2 text-xs text-gray-400 font-semibold">
               {property.furnishing && !isPlot && (
                 <span className="px-2 py-0.5 rounded-md bg-[#FFF8EA] border border-[#E8DCC1] text-[#9D791E] text-[10px] font-bold capitalize">
                   {property.furnishing}
+                </span>
+              )}
+              {property.propertyAge && (
+                <span className="px-2 py-0.5 rounded-md bg-gray-50 border border-gray-200 text-gray-600 text-[10px] font-semibold">
+                  Age: {property.propertyAge}
                 </span>
               )}
             </div>

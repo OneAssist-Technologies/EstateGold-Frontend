@@ -17,6 +17,7 @@ interface Props {
   purpose?: string;
   onShare?: () => void;
   onFavourite?: () => void;
+  isFavourite?: boolean;
 }
 
 const isMediaVideo = (url: string) => {
@@ -37,6 +38,7 @@ export default function PropertyGallery({
   purpose = "Sale",
   onShare,
   onFavourite,
+  isFavourite = false,
 }: Props) {
   const images =
     photos && photos.length > 0
@@ -142,10 +144,12 @@ export default function PropertyGallery({
           <button
             type="button"
             onClick={onFavourite}
-            className="h-9 w-9 bg-white/90 backdrop-blur-xs rounded-full flex items-center justify-center text-gray-700 hover:text-red-500 shadow-2xs transition-colors cursor-pointer"
-            title="Save Property"
+            className={`h-9 w-9 bg-white/90 backdrop-blur-xs rounded-full flex items-center justify-center shadow-2xs transition-colors cursor-pointer ${
+              isFavourite ? "text-red-500 hover:text-red-600" : "text-gray-700 hover:text-red-500"
+            }`}
+            title={isFavourite ? "Remove from Shortlist" : "Save Property"}
           >
-            <Heart size={18} />
+            <Heart size={18} className={isFavourite ? "fill-red-500 text-red-500" : ""} />
           </button>
 
           <button
