@@ -30,6 +30,9 @@ import PgDetailsSection from "../../../components/property/detail/PgDetailsSecti
 
 import StickyContactCard from "../../../components/property/detail/StickyContactCard";
 
+import PropertyActivitySection from "../../../components/property/detail/PropertyActivitySection";
+import { propertyApi } from "@/src/services/property.service";
+
 import LoginRequiredModal from "../../../components/property/detail/LoginRequiredModal";
 import RequestCallbackModal from "../../../components/property/detail/RequestCallbackModal";
 import AgreementDetailsModal from "../../../components/property/detail/AgreementDetailsModal";
@@ -89,6 +92,7 @@ export default function PropertyDetailsPage() {
   const [showAgreementModal, setShowAgreementModal] = useState(false);
   const [isAgreementAccepted, setIsAgreementAccepted] = useState(false);
   const [pendingContactAction, setPendingContactAction] = useState<(() => void) | null>(null);
+  const [engagement, setEngagement] = useState<any>(null);
 
   const [matchScoreData, setMatchScoreData] = useState<any>(null);
 
@@ -107,11 +111,38 @@ export default function PropertyDetailsPage() {
     }
   }, [property]);
 
+  const fetchEngagement = async (targetId?: string) => {
+    const propId = targetId || id;
+    if (!propId) return;
+    try {
+      const res = await propertyApi.getEngagement(propId);
+      if (res.data?.success && res.data?.data) {
+        setEngagement(res.data.data);
+      }
+    } catch (err: any) {
+      console.debug("Property engagement fetch note:", err?.message);
+    }
+  };
+
   const fetchProperty = async () => {
     try {
       setLoading(true);
       const response = await api.get(`/properties/${id}`);
-      setProperty(response.data.data);
+      const propData = response.data.data;
+      setProperty(propData);
+
+      // Record non-blocking property view activity
+      if (propData?._id || propData?.id || id) {
+        const targetPropId = propData?._id || propData?.id || id;
+        propertyApi.recordView(targetPropId)
+          .then(() => {
+            fetchEngagement(targetPropId);
+          })
+          .catch((err) => {
+            // Silent fallback — view tracking failure must never break the property detail page
+            console.debug("Property view tracking note:", err.message);
+          });
+      }
     } catch (err) {
       console.error("Failed to fetch property:", err);
     } finally {
@@ -132,6 +163,7 @@ export default function PropertyDetailsPage() {
     if (!id) return;
     fetchProperty();
     fetchSimilar();
+    fetchEngagement();
   }, [id]);
 
   if (loading || authLoading) {
@@ -249,12 +281,37 @@ export default function PropertyDetailsPage() {
     }
   };
 
-  const handleFavourite = () => {
+  const handleFavourite = async () => {
     if (isGuest) {
       handleLoginRequired();
       return;
     }
-    alert("Saved to your wishlist!");
+    const targetPropId = property?._id || property?.id || id;
+    if (!targetPropId) return;
+
+    try {
+      const res = await propertyApi.toggleShortlist(targetPropId);
+      if (res.data?.success) {
+        const isNowShortlisted = res.data.isShortlisted;
+        if (isNowShortlisted) {
+          toast.success("Saved to your shortlist!");
+        } else {
+          toast.success("Removed from shortlist.");
+        }
+        setEngagement((prev: any) => {
+          if (!prev) return { shortlisted: isNowShortlisted ? 1 : 0, isShortlisted: isNowShortlisted };
+          return {
+            ...prev,
+            isShortlisted: isNowShortlisted,
+            shortlisted: isNowShortlisted
+              ? (prev.shortlisted || 0) + 1
+              : Math.max(0, (prev.shortlisted || 1) - 1),
+          };
+        });
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to update shortlist");
+    }
   };
 
   const isAgentPublished =
@@ -266,6 +323,21 @@ export default function PropertyDetailsPage() {
     const rawPhone = isAgentPublished
       ? (property.createdBy as any)?.phone || property.ownerPhone
       : property.ownerPhone || (property.createdBy as any)?.phone;
+
+    // Record contact owner activity asynchronously (non-blocking)
+    const targetPropId = property?._id || property?.id || id;
+    if (targetPropId) {
+      propertyApi.recordContact(targetPropId)
+        .then(() => {
+          setEngagement((prev: any) =>
+            prev ? { ...prev, contactOwner: (prev.contactOwner || 0) + 1 } : prev
+          );
+        })
+        .catch((err) => {
+          // Non-blocking fail-safe
+          console.debug("Contact owner tracking note:", err?.message);
+        });
+    }
 
     if (rawPhone) {
       const cleanPhone = String(rawPhone).replace(/[^\d+]/g, "");
@@ -363,9 +435,13 @@ export default function PropertyDetailsPage() {
               purpose={property.purpose}
               onShare={handleShare}
               onFavourite={handleFavourite}
+              isFavourite={engagement?.isShortlisted || false}
             />
 
             <PropertyInfo property={property} />
+
+            {/* Real Property Engagement Statistics (Step 2 - Zero hardcoded values) */}
+            <PropertyActivitySection engagement={engagement} />
 
             {/* View Agreement & Tenancy Terms Button for Rent & Lease Properties */}
             {((property.purpose || "").toLowerCase() === "rent" || (property.purpose || "").toLowerCase() === "lease") && property.agreementDetails && (

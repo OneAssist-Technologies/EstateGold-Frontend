@@ -84,29 +84,7 @@ export default function MyPropertiesPage() {
       rejected: 0
 
     });
-  // const totalViews=
 
-  // properties.reduce(
-
-  // (sum,item)=>
-
-  // sum+(item.views||0),
-
-  // 0
-
-  // );
-
-  // const totalEnquiries=
-
-  // properties.reduce(
-
-  // (sum,item)=>
-
-  // sum+(item.enquiries||0),
-
-  // 0
-
-  // );
   const fetchProperties = async (showLoading = true) => {
     try {
       if (showLoading) setLoading(true);
@@ -255,12 +233,12 @@ export default function MyPropertiesPage() {
   };
 
   const totalViews = properties.reduce(
-    (sum, item) => sum + (item.views || 0),
+    (sum, item) => sum + (item.performance?.views ?? item.views ?? 0),
     0
   );
 
   const totalEnquiries = properties.reduce(
-    (sum, item) => sum + (item.enquiries?.length || 0),
+    (sum, item) => sum + (item.performance?.enquiries ?? item.enquiries?.length ?? 0),
     0
   );
 

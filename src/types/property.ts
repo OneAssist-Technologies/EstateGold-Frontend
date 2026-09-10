@@ -214,7 +214,18 @@ export interface PropertyFormData {
   constructionStatus?: string;
   pgDetails?: PgDetails;
 }
+
+export interface PropertyPerformance {
+  propertyId: string;
+  period: string;
+  views: number;
+  enquiries: number;
+  contactOwner: number;
+  shortlisted: number;
+}
+
 export interface Property {
+  id: string;
   _id: string;
 
   ownerId?: string;
@@ -259,6 +270,7 @@ export interface Property {
   ownerReadyToMeet?: boolean;
   views?: number;
   enquiries?: any[];
+  performance?: PropertyPerformance;
   deleteRequested?: boolean;
   deleteRequestedReason?: string;
   deleteRequestedAt?: string;
