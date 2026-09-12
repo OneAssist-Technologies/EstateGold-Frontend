@@ -224,9 +224,19 @@ export interface PropertyPerformance {
   shortlisted: number;
 }
 
+export interface AvailabilityConfirmation {
+  lastConfirmedAt?: string | null;
+  nextConfirmationDueAt?: string | null;
+  confirmationStatus?: "NOT_DUE" | "DUE" | "CONFIRMED" | "NEEDS_CONFIRMATION";
+  missedConfirmationCount?: number;
+  lastConfirmationReason?: string | null;
+  lastReminderSentAt?: string | null;
+}
+
 export interface Property {
   id: string;
   _id: string;
+  title?: string;
 
   ownerId?: string;
   purpose: string;
@@ -265,6 +275,7 @@ export interface Property {
 
   status: string;
   availabilityStatus?: "on_sale" | "hold" | "sold" | "rented";
+  availabilityConfirmation?: AvailabilityConfirmation;
   role?: string;
   ownerNegotiable?: boolean;
   ownerReadyToMeet?: boolean;

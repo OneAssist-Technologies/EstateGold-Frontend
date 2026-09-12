@@ -22,6 +22,7 @@ import {
   Heart,
   PhoneCall,
   Activity,
+  Clock,
 } from "lucide-react";
 
 import { Property } from "@/src/types/property";
@@ -35,6 +36,7 @@ interface Props {
   onStatusChange?: () => void;
   onAvailabilityStatusChange?: (id: string, newStatus: string) => void;
   onViewEnquiries: (id: string) => void;
+  onConfirmAvailability?: (property: Property) => void;
 }
 
 function formatPrice(price?: number, purpose?: string): string {
@@ -63,12 +65,17 @@ export default function PropertyRow({
   onStatusChange,
   onAvailabilityStatusChange,
   onViewEnquiries,
+  onConfirmAvailability,
 }: Props) {
   const [currentAvailStatus, setCurrentAvailStatus] = useState<string>(
     property.availabilityStatus || "on_sale"
   );
   const [showStatusMenu, setShowStatusMenu] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState(false);
+
+  const confStatus = property.availabilityConfirmation?.confirmationStatus;
+  const isConfirmationRequired = confStatus === "DUE" || confStatus === "NEEDS_CONFIRMATION";
+  const lastConfirmedDate = property.availabilityConfirmation?.lastConfirmedAt;
 
   const isRent = (property.purpose || "").toLowerCase().includes("rent") || (property.purpose || "").toLowerCase().includes("lease");
 
@@ -258,6 +265,31 @@ export default function PropertyRow({
               ))}
             </div>
 
+            {/* Availability Confirmation Required Alert Banner */}
+            {isConfirmationRequired && (
+              <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 mt-2.5 shadow-2xs">
+                <div className="flex items-center gap-2">
+                  <span className="relative flex h-2.5 w-2.5 shrink-0">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
+                  </span>
+                  <span className="text-xs font-bold">
+                    {confStatus === "NEEDS_CONFIRMATION"
+                      ? "Action Required: Confirm property availability"
+                      : "Availability confirmation required"}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => onConfirmAvailability?.(property)}
+                  className="px-3 py-1 bg-[#9A720C] hover:bg-[#856108] text-white text-xs font-bold rounded-lg shadow-2xs transition-all cursor-pointer flex items-center gap-1.5"
+                >
+                  <Clock size={12} />
+                  <span>Confirm Availability</span>
+                </button>
+              </div>
+            )}
+
             {/* Property Performance Card (Last 30 days - Real MongoDB Data) */}
             <div className="bg-[#FFFDF6] border border-[#E8DCC1] rounded-xl p-3 sm:p-3.5 mt-3 shadow-3xs">
               <div className="flex items-center justify-between gap-2 mb-2 pb-1.5 border-b border-[#ECE7DB]">
@@ -356,6 +388,12 @@ export default function PropertyRow({
               {property.propertyAge && (
                 <span className="px-2 py-0.5 rounded-md bg-gray-50 border border-gray-200 text-gray-600 text-[10px] font-semibold">
                   Age: {property.propertyAge}
+                </span>
+              )}
+              {lastConfirmedDate && !isConfirmationRequired && (
+                <span className="px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-semibold flex items-center gap-1">
+                  <Check size={10} className="text-emerald-600" />
+                  Last confirmed: {new Date(lastConfirmedDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                 </span>
               )}
             </div>

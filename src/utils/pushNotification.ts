@@ -94,15 +94,22 @@ export async function subscribeToPush(): Promise<{
       throw new Error("VAPID public key not available from server.");
     }
 
-    // 4. Create or reuse browser PushSubscription
+    // 4. Create or renew browser PushSubscription with current server key
+    const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
     let subscription = await registration.pushManager.getSubscription();
-    if (!subscription) {
-      const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
-      subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: convertedVapidKey as unknown as ArrayBuffer,
-      });
+
+    if (subscription) {
+      try {
+        await subscription.unsubscribe();
+      } catch (e) {
+        // Continue to fresh subscribe
+      }
     }
+
+    subscription = await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: convertedVapidKey as unknown as ArrayBuffer,
+    });
 
     // 5. Send subscription details to backend
     const subJSON = subscription.toJSON();

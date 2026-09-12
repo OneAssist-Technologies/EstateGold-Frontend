@@ -1,15 +1,116 @@
 "use client";
 
-import React, { useState, useEffect, useRef, Suspense } from "react";
-import { Send, X, Sparkles } from "lucide-react";
+import React, { useState, useEffect, useRef, useCallback, Suspense } from "react";
+import { Send, X, Sparkles, MapPin, Bed, Bath, Car, ChevronRight, Calendar, Bookmark } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import api from "../../lib/api";
+
+/* ───────────── Types ───────────── */
+
+interface PropertyResult {
+  id: string;
+  title: string;
+  purpose?: string;
+  propertyType?: string;
+  city?: string;
+  locality?: string;
+  price?: number;
+  bedrooms?: number;
+  bathrooms?: number;
+  area?: number;
+  furnishing?: string;
+  parking?: boolean;
+  amenities?: string[];
+  photos?: string[];
+  matchScore?: number;
+}
 
 interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
+  properties?: PropertyResult[];
+  isStreaming?: boolean;
 }
+
+/* ───────────── Helpers ───────────── */
+
+function formatPrice(price: number | undefined): string {
+  if (!price) return "Price on request";
+  if (price >= 10000000) return `₹${(price / 10000000).toFixed(2).replace(/\.00$/, "")} Cr`;
+  if (price >= 100000) return `₹${(price / 100000).toFixed(1).replace(/\.0$/, "")} L`;
+  return `₹${price.toLocaleString("en-IN")}`;
+}
+
+/* ───────────── Property Card ───────────── */
+
+function PropertyCard({ property, onViewDetails }: { property: PropertyResult; onViewDetails: (id: string) => void }) {
+  const photoUrl = property.photos?.[0]
+    ? property.photos[0].startsWith("http")
+      ? property.photos[0]
+      : `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/uploads/${property.photos[0]}`
+    : null;
+
+  return (
+    <div className="bg-white border border-[#EBE3D5] rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+      {/* Photo */}
+      {photoUrl && (
+        <div className="h-28 w-full overflow-hidden bg-[#F5F0E8]">
+          <img src={photoUrl} alt={property.title} className="w-full h-full object-cover" />
+        </div>
+      )}
+
+      {/* Info */}
+      <div className="p-2.5">
+        <div className="flex items-start justify-between gap-1">
+          <p className="text-xs font-bold text-[#161616] leading-tight line-clamp-2">{property.title}</p>
+          {property.matchScore && (
+            <span className="shrink-0 text-[9px] font-bold bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded-full border border-emerald-200">
+              {property.matchScore}%
+            </span>
+          )}
+        </div>
+
+        <p className="text-sm font-bold text-[#9A720C] mt-1">{formatPrice(property.price)}</p>
+
+        <div className="flex items-center gap-2.5 mt-1.5 text-[10px] text-gray-500">
+          {property.bedrooms && (
+            <span className="flex items-center gap-0.5">
+              <Bed className="w-3 h-3" /> {property.bedrooms} BHK
+            </span>
+          )}
+          {property.bathrooms && (
+            <span className="flex items-center gap-0.5">
+              <Bath className="w-3 h-3" /> {property.bathrooms}
+            </span>
+          )}
+          {property.area && <span>{property.area} sq.ft</span>}
+          {property.parking && (
+            <span className="flex items-center gap-0.5">
+              <Car className="w-3 h-3" />
+            </span>
+          )}
+        </div>
+
+        {property.locality && (
+          <p className="flex items-center gap-0.5 text-[10px] text-gray-400 mt-1">
+            <MapPin className="w-2.5 h-2.5" />
+            {property.locality}{property.city ? `, ${property.city}` : ""}
+          </p>
+        )}
+
+        <button
+          onClick={() => onViewDetails(property.id)}
+          className="mt-2 w-full flex items-center justify-center gap-1 text-[10px] font-semibold text-[#9A720C] bg-[#FAF6EE] border border-[#E8DCC1] rounded-lg py-1.5 hover:bg-[#F0E8D5] transition-colors cursor-pointer"
+        >
+          View Details <ChevronRight className="w-3 h-3" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ───────────── Main Component ───────────── */
 
 function EyvaChatbotContent() {
   const router = useRouter();
@@ -20,21 +121,22 @@ function EyvaChatbotContent() {
     {
       id: "1",
       role: "assistant",
-      content: "Hi! I'm Eyva, your EstateGold AI property advisor 👋\nTell me what property you're looking for (e.g., '2 BHK in Coimbatore under 70 Lakhs').",
+      content: "Hi! I'm Eyva, your EstateGold AI property advisor 👋\nTell me what you're looking for — location, budget, bedrooms, or anything else!",
     },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [activeFilters, setActiveFilters] = useState<Record<string, any>>({});
+  const [conversationId, setConversationId] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<string[]>([
     "2 BHK in Coimbatore 🏢",
     "Villa under 80 Lakhs 🏡",
     "Rental house in Peelamedu 🔑",
-    "Plot / Land in Coimbatore 🌳",
+    "What documents do I need? 📄",
   ]);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   // Check URL param or event trigger
   useEffect(() => {
@@ -60,7 +162,13 @@ function EyvaChatbotContent() {
     }
   }, [messages, loading, isOpen]);
 
-  const handleSendMessage = async (textToSend?: string) => {
+  const handleViewDetails = useCallback((propertyId: string) => {
+    router.push(`/property/${propertyId}`);
+  }, [router]);
+
+  /* ───── Send Message with SSE Streaming ───── */
+
+  const handleSendMessage = useCallback(async (textToSend?: string) => {
     const text = (textToSend || input).trim();
     if (!text || loading) return;
 
@@ -73,84 +181,166 @@ function EyvaChatbotContent() {
       content: text,
     };
 
-    const updatedMessages = [...messages, userMsg];
-    setMessages(updatedMessages);
+    setMessages((prev) => [...prev, userMsg]);
     setLoading(true);
 
+    // Create placeholder assistant message for streaming
+    const assistantMsgId = (Date.now() + 1).toString();
+    setMessages((prev) => [
+      ...prev,
+      { id: assistantMsgId, role: "assistant", content: "", isStreaming: true },
+    ]);
+
     try {
-      const backendMessages = updatedMessages.map((m) => ({
-        role: m.role,
-        content: m.content,
-      }));
+      // Try SSE streaming first
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
-      const res = await api.post("/ai/eyva", {
-        messages: backendMessages,
-        filters: activeFilters,
-      });
-
-      if (res.data && res.data.success) {
-        const replyText = res.data.reply || "I found properties matching your request!";
-        const extractedFilters = res.data.filters || {};
-        setActiveFilters(extractedFilters);
-
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: (Date.now() + 1).toString(),
-            role: "assistant",
-            content: replyText,
-          },
-        ]);
-
-        if (res.data.suggestions && res.data.suggestions.length > 0) {
-          setSuggestions(res.data.suggestions);
-        }
-
-        // Navigate or update properties page with parameters if search criteria present
-        const params = new URLSearchParams();
-
-        if (extractedFilters.purpose) params.set("purpose", String(extractedFilters.purpose));
-        if (extractedFilters.city) params.set("city", String(extractedFilters.city));
-        if (extractedFilters.propertyType) params.set("type", String(extractedFilters.propertyType));
-        if (extractedFilters.bedrooms) params.set("bedrooms", String(extractedFilters.bedrooms));
-        if (extractedFilters.minPrice) params.set("minPrice", String(extractedFilters.minPrice));
-        if (extractedFilters.maxPrice) params.set("maxPrice", String(extractedFilters.maxPrice));
-        if (extractedFilters.search) params.set("search", String(extractedFilters.search));
-        if (extractedFilters.locality) params.set("locality", String(extractedFilters.locality));
-
-        const hasFilters = Object.keys(extractedFilters).some(
-          (k) => extractedFilters[k] !== undefined && extractedFilters[k] !== "" && extractedFilters[k] !== null
-        );
-
-        if (hasFilters) {
-          const queryString = params.toString();
-          const targetUrl = queryString ? `/property-listing?${queryString}` : `/property-listing`;
-          router.push(targetUrl);
-        }
-      } else {
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: (Date.now() + 1).toString(),
-            role: "assistant",
-            content: "Sorry, I couldn't process that. Please try again.",
-          },
-        ]);
-      }
-    } catch (err) {
-      console.error("Eyva AI Chat Error:", err);
-      setMessages((prev) => [
-        ...prev,
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1"}/ai/eyva/stream`,
         {
-          id: (Date.now() + 1).toString(),
-          role: "assistant",
-          content: "I'm having trouble connecting right now. Please try again shortly.",
-        },
-      ]);
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({
+            message: text,
+            conversationId,
+          }),
+        }
+      );
+
+      if (!response.ok || !response.body) {
+        throw new Error("Streaming not available");
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let streamedContent = "";
+      let streamedProperties: PropertyResult[] = [];
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split("\n");
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+
+          try {
+            const data = JSON.parse(line.slice(6));
+
+            switch (data.type) {
+              case "conversation_id":
+                setConversationId(data.conversationId);
+                break;
+
+              case "properties":
+                streamedProperties = [...streamedProperties, ...(data.properties || [])];
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.id === assistantMsgId
+                      ? { ...m, properties: streamedProperties }
+                      : m
+                  )
+                );
+                break;
+
+              case "text_delta":
+                streamedContent += data.content;
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.id === assistantMsgId
+                      ? { ...m, content: streamedContent }
+                      : m
+                  )
+                );
+                break;
+
+              case "text_end":
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.id === assistantMsgId
+                      ? { ...m, isStreaming: false }
+                      : m
+                  )
+                );
+                break;
+
+              case "done":
+                break;
+
+              case "error":
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.id === assistantMsgId
+                      ? { ...m, content: data.message || "Something went wrong.", isStreaming: false }
+                      : m
+                  )
+                );
+                break;
+            }
+          } catch {
+            // Skip malformed SSE lines
+          }
+        }
+      }
+
+      // Ensure streaming flag is removed
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === assistantMsgId ? { ...m, isStreaming: false } : m
+        )
+      );
+    } catch {
+      // Fallback to synchronous API if streaming fails
+      try {
+        const res = await api.post("/ai/eyva", {
+          message: text,
+          conversationId,
+        });
+
+        if (res.data?.success) {
+          setConversationId(res.data.conversationId || conversationId);
+
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === assistantMsgId
+                ? {
+                    ...m,
+                    content: res.data.reply || "I found some results!",
+                    properties: res.data.properties || [],
+                    isStreaming: false,
+                  }
+                : m
+            )
+          );
+        } else {
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === assistantMsgId
+                ? { ...m, content: res.data?.reply || "Sorry, something went wrong.", isStreaming: false }
+                : m
+            )
+          );
+        }
+      } catch {
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === assistantMsgId
+              ? { ...m, content: "I'm having trouble connecting. Please try again.", isStreaming: false }
+              : m
+          )
+        );
+      }
     } finally {
       setLoading(false);
     }
-  };
+  }, [input, loading, conversationId, router]);
+
+  /* ───── Render ───── */
 
   return (
     <>
@@ -187,7 +377,7 @@ function EyvaChatbotContent() {
       {/* Compact Popup Chatbot Window */}
       {isOpen && (
         <div
-          className="fixed right-4 sm:right-5 bottom-[85px] z-50 w-[calc(100vw-32px)] sm:w-[390px] h-[560px] max-h-[calc(100vh-105px)] bg-white rounded-2xl shadow-2xl border border-[#EBE3D5] flex flex-col overflow-hidden transition-all duration-300 animate-in fade-in slide-in-from-bottom-5"
+          className="fixed right-4 sm:right-5 bottom-[85px] z-50 w-[calc(100vw-32px)] sm:w-[420px] h-[600px] max-h-[calc(100vh-105px)] bg-white rounded-2xl shadow-2xl border border-[#EBE3D5] flex flex-col overflow-hidden transition-all duration-300 animate-in fade-in slide-in-from-bottom-5"
           style={{ boxShadow: "0 20px 50px rgba(0, 0, 0, 0.25)" }}
         >
           {/* Header */}
@@ -224,27 +414,42 @@ function EyvaChatbotContent() {
           {/* Messages Container */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3.5 bg-[#FAF6EE]">
             {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-              >
-                <div
-                  className={`max-w-[85%] px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm leading-relaxed whitespace-pre-wrap ${
-                    msg.role === "user"
-                      ? "bg-gradient-to-r from-[#B88A1A] via-[#C89B1C] to-[#9A720C] text-white rounded-tr-none shadow-md font-medium"
-                      : "bg-white text-[#161616] border border-[#EBE3D5] rounded-tl-none shadow-2xs"
-                  }`}
-                >
-                  {msg.content}
+              <div key={msg.id}>
+                <div className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                  <div
+                    className={`max-w-[85%] px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm leading-relaxed whitespace-pre-wrap ${
+                      msg.role === "user"
+                        ? "bg-gradient-to-r from-[#B88A1A] via-[#C89B1C] to-[#9A720C] text-white rounded-tr-none shadow-md font-medium"
+                        : "bg-white text-[#161616] border border-[#EBE3D5] rounded-tl-none shadow-2xs"
+                    }`}
+                  >
+                    {msg.content}
+                    {msg.isStreaming && (
+                      <span className="inline-block w-1.5 h-4 bg-[#C89B1C] ml-0.5 animate-pulse rounded-sm" />
+                    )}
+                  </div>
                 </div>
+
+                {/* Property Cards */}
+                {msg.properties && msg.properties.length > 0 && (
+                  <div className="mt-2 ml-1">
+                    <div className="flex overflow-x-auto gap-2.5 pb-1 no-scrollbar">
+                      {msg.properties.map((property) => (
+                        <div key={property.id} className="min-w-[200px] max-w-[220px] flex-shrink-0">
+                          <PropertyCard property={property} onViewDetails={handleViewDetails} />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
 
-            {loading && (
+            {loading && !messages[messages.length - 1]?.isStreaming && (
               <div className="flex justify-start">
                 <div className="bg-white border border-[#EBE3D5] px-4 py-3 rounded-2xl rounded-tl-none shadow-2xs flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-[#C89B1C] animate-spin" />
-                  <span className="text-xs text-gray-700 font-medium">Eyva is searching properties...</span>
+                  <span className="text-xs text-gray-700 font-medium">Eyva is thinking...</span>
                 </div>
               </div>
             )}
@@ -280,7 +485,7 @@ function EyvaChatbotContent() {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask Eyva for properties..."
+              placeholder="Ask Eyva anything..."
               className="flex-1 px-3.5 py-2.5 text-xs sm:text-sm bg-[#FAF6EE] border border-[#EBE3D5] rounded-xl focus:outline-none focus:border-[#C89B1C] focus:bg-white text-[#161616] placeholder:text-gray-400"
               disabled={loading}
             />

@@ -16,8 +16,12 @@ import PropertyRow from "@/src/components/property/my-properties/PropertyRow";
 import Pagination from "@/src/components/property/listing/Pagination";
 import DeletePropertyModal from "@/src/components/property/my-properties/DeletePropertyModal";
 import PropertyEnquiriesModal from "@/src/components/property/my-properties/PropertyEnquiriesModal";
+import AvailabilityConfirmationModal, {
+  DuePropertyItem,
+} from "@/src/components/property/my-properties/AvailabilityConfirmationModal";
+import { propertyApi } from "@/src/services/property.service";
 
-import { useAuth } from "@/src/hooks/useAuth";;
+import { useAuth } from "@/src/hooks/useAuth";
 import { Property } from "@/src/types/property";
 
 import {
@@ -69,21 +73,54 @@ export default function MyPropertiesPage() {
     useState(false);
 
   const [enquiriesPropertyId, setEnquiriesPropertyId] = useState<string | null>(null);
+  const [dueProperties, setDueProperties] = useState<DuePropertyItem[]>([]);
+  const [openConfirmationModal, setOpenConfirmationModal] = useState(false);
 
   const [counts, setCounts] =
     useState({
-
       all: 0,
-
       active: 0,
-
       pending: 0,
-
       inactive: 0,
-
-      rejected: 0
-
+      rejected: 0,
     });
+
+  const checkDueConfirmations = async () => {
+    try {
+      const res = await propertyApi.getDueAvailabilityConfirmations();
+      if (res.data?.success && Array.isArray(res.data?.data) && res.data.data.length > 0) {
+        setDueProperties(res.data.data);
+        setOpenConfirmationModal(true);
+      }
+    } catch (err: any) {
+      console.debug("Due confirmation check note:", err?.message);
+    }
+  };
+
+  const handleOpenConfirmationForProperty = (prop: Property) => {
+    const item: DuePropertyItem = {
+      propertyId: prop._id || prop.id,
+      _id: prop._id || prop.id,
+      title:
+        prop.title ||
+        `${prop.bedrooms ? `${prop.bedrooms} BHK ` : ""}${prop.propertyType || "Property"}${
+          prop.locality ? ` in ${prop.locality}` : ""
+        }`,
+      propertyType: prop.propertyType,
+      bedrooms: prop.bedrooms,
+      city: prop.city,
+      locality: prop.locality,
+      price: prop.price,
+      purpose: prop.purpose,
+      photos: prop.photos,
+      availabilityStatus: prop.availabilityStatus,
+      lastConfirmedAt: prop.availabilityConfirmation?.lastConfirmedAt,
+      nextConfirmationDueAt: prop.availabilityConfirmation?.nextConfirmationDueAt,
+      confirmationStatus: prop.availabilityConfirmation?.confirmationStatus,
+    };
+    setDueProperties([item]);
+    setOpenConfirmationModal(true);
+  };
 
   const fetchProperties = async (showLoading = true) => {
     try {
@@ -212,6 +249,12 @@ export default function MyPropertiesPage() {
 
     return () => clearTimeout(timer);
   }, [page, limit, search, status]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      checkDueConfirmations();
+    }
+  }, [isAuthenticated]);
   const fade = {
 
     initial: {
@@ -402,6 +445,7 @@ export default function MyPropertiesPage() {
                       onDelete={handleDelete}
                       onViewEnquiries={(id) => setEnquiriesPropertyId(id)}
                       onAvailabilityStatusChange={handleAvailabilityStatusChange}
+                      onConfirmAvailability={handleOpenConfirmationForProperty}
                       onStatusChange={() =>
                         handleStatusChange(
                           property
@@ -455,6 +499,18 @@ export default function MyPropertiesPage() {
           open={Boolean(enquiriesPropertyId)}
           propertyId={enquiriesPropertyId}
           onClose={() => setEnquiriesPropertyId(null)}
+        />
+
+        <AvailabilityConfirmationModal
+          open={openConfirmationModal}
+          dueProperties={dueProperties}
+          onClose={() => {
+            setOpenConfirmationModal(false);
+            setDueProperties([]);
+          }}
+          onConfirmed={() => {
+            fetchProperties(false);
+          }}
         />
 
       </div>
