@@ -43,9 +43,14 @@ function ListingContent() {
   const [purpose, setPurpose] = useState(""); // Default empty for All Properties
 
   const [city, setCity] = useState("");
+  const [locality, setLocality] = useState("");
+  const [localities, setLocalities] = useState("");
   const [propertyType, setPropertyType] = useState("");
   const [bedrooms, setBedrooms] = useState("");
   const [furnishing, setFurnishing] = useState("");
+  const [amenities, setAmenities] = useState("");
+  const [parking, setParking] = useState("");
+  const [powerBackup, setPowerBackup] = useState("");
 
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
@@ -64,20 +69,32 @@ function ListingContent() {
     if (!searchParams) return;
     const urlPurpose = searchParams.get("purpose");
     const urlCity = searchParams.get("city");
+    const urlLocality = searchParams.get("locality");
+    const urlLocalities = searchParams.get("localities");
     const urlType = searchParams.get("type") || searchParams.get("propertyType");
     const urlSearch = searchParams.get("search");
-    const urlBedrooms = searchParams.get("bedrooms");
+    const urlBedrooms = searchParams.get("bedrooms") || searchParams.get("bhk");
     const urlMinPrice = searchParams.get("minPrice");
     const urlMaxPrice = searchParams.get("maxPrice");
     const urlNearby = searchParams.get("nearby");
+    const urlAmenities = searchParams.get("amenities");
+    const urlParking = searchParams.get("parking");
+    const urlPowerBackup = searchParams.get("powerBackup");
+    const urlFurnishing = searchParams.get("furnishing");
 
     setPurpose(urlPurpose !== null ? urlPurpose : "");
     setCity(urlCity !== null ? urlCity : "");
+    setLocality(urlLocality !== null ? urlLocality : "");
+    setLocalities(urlLocalities !== null ? urlLocalities : "");
     setSearch(urlSearch !== null ? urlSearch : "");
     setBedrooms(urlBedrooms !== null ? urlBedrooms : "");
     setMinPrice(urlMinPrice !== null ? urlMinPrice : "");
     setMaxPrice(urlMaxPrice !== null ? urlMaxPrice : "");
     setShowNearby(urlNearby === "true");
+    setAmenities(urlAmenities !== null ? urlAmenities : "");
+    setParking(urlParking !== null ? urlParking : "");
+    setPowerBackup(urlPowerBackup !== null ? urlPowerBackup : "");
+    setFurnishing(urlFurnishing !== null ? urlFurnishing : "");
 
     if (urlType !== null) {
       if (urlType === "NewProjects") setPropertyType("Apartment / Flat");
@@ -96,6 +113,7 @@ function ListingContent() {
           const res = await api.post("/ai/parse-search", { query: search.trim() });
           if (res.data && res.data.success) {
             if (res.data.city) setCity(res.data.city);
+            if (res.data.locality) setLocality(res.data.locality);
             if (res.data.propertyType) setPropertyType(res.data.propertyType);
             if (res.data.bedrooms) setBedrooms(res.data.bedrooms);
             if (res.data.purpose) setPurpose(res.data.purpose);
@@ -116,7 +134,7 @@ function ListingContent() {
     // it means the component just mounted and has not hydrated/synced the URL params into the state yet.
     // We should skip syncing back in this case to prevent wiping out the URL query params.
     const urlHasParams = typeof window !== "undefined" && window.location.search && window.location.search.length > 1;
-    const statesAreEmpty = !search && !purpose && !city && !propertyType && !bedrooms && !furnishing && !minPrice && !maxPrice;
+    const statesAreEmpty = !search && !purpose && !city && !locality && !localities && !propertyType && !bedrooms && !furnishing && !minPrice && !maxPrice && !amenities && !parking && !powerBackup;
     if (urlHasParams && statesAreEmpty) {
       return;
     }
@@ -125,11 +143,16 @@ function ListingContent() {
     if (search) params.set("search", search);
     if (purpose) params.set("purpose", purpose);
     if (city) params.set("city", city);
+    if (locality) params.set("locality", locality);
+    if (localities) params.set("localities", localities);
     if (propertyType) params.set("propertyType", propertyType);
     if (bedrooms) params.set("bedrooms", bedrooms);
     if (furnishing) params.set("furnishing", furnishing);
     if (minPrice) params.set("minPrice", minPrice);
     if (maxPrice) params.set("maxPrice", maxPrice);
+    if (amenities) params.set("amenities", amenities);
+    if (parking) params.set("parking", parking);
+    if (powerBackup) params.set("powerBackup", powerBackup);
     if (roleFilter) params.set("role", roleFilter);
     if (page > 1) params.set("page", String(page));
     if (sort !== "latest") params.set("sort", sort);
@@ -144,11 +167,16 @@ function ListingContent() {
     search,
     purpose,
     city,
+    locality,
+    localities,
     propertyType,
     bedrooms,
     furnishing,
     minPrice,
     maxPrice,
+    amenities,
+    parking,
+    powerBackup,
     roleFilter,
     page,
     sort,
@@ -247,9 +275,14 @@ function ListingContent() {
           search,
           purpose,
           city,
+          locality,
+          localities,
           propertyType,
           bedrooms,
           furnishing,
+          amenities,
+          parking,
+          powerBackup,
           minPrice,
           maxPrice,
           sort,
@@ -303,9 +336,14 @@ function ListingContent() {
     search,
     purpose,
     city,
+    locality,
+    localities,
     propertyType,
     bedrooms,
     furnishing,
+    amenities,
+    parking,
+    powerBackup,
     minPrice,
     maxPrice,
     sort,
@@ -317,9 +355,14 @@ function ListingContent() {
     setSearch("");
     setPurpose("");
     setCity("");
+    setLocality("");
+    setLocalities("");
     setPropertyType("");
     setBedrooms("");
     setFurnishing("");
+    setAmenities("");
+    setParking("");
+    setPowerBackup("");
     setMinPrice("");
     setMaxPrice("");
     setSort("latest");
@@ -483,11 +526,11 @@ function ListingContent() {
                     📍
                   </div>
                   <h3 className="text-lg font-bold text-gray-900">
-                    No properties found
+                    No exact matching properties found
                   </h3>
-                  <p className="text-xs text-gray-500 max-w-md mt-2 leading-relaxed font-semibold">
+                  <p className="text-xs text-gray-500 max-w-md mt-2 leading-relaxed font-medium">
                     {!showNearby
-                      ? "We couldn't find properties matching your search. Try looking for nearby properties."
+                      ? "We couldn't find exact matches for your selected criteria. Try adjusting your budget, exploring nearby localities, or selecting different amenities."
                       : "We couldn't find any nearby properties matching your criteria."}
                   </p>
                   <div className="flex items-center gap-3 justify-center mt-5">
@@ -512,9 +555,14 @@ function ListingContent() {
 
                 {!showNearby && !search && suggestedProperties.length > 0 && (
                   <div className="space-y-4 pt-6 border-t border-[#ECE7DB]/60">
-                    <h3 className="text-lg font-bold text-gray-900 text-left">
-                      Explore Other Available Properties
-                    </h3>
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-bold text-gray-900 text-left">
+                        Other properties you may like
+                      </h3>
+                      <span className="text-[11px] font-semibold text-amber-800 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200">
+                        Suggested Recommendations
+                      </span>
+                    </div>
                     {view === "grid" ? (
                       <PropertyGrid properties={suggestedProperties} />
                     ) : (

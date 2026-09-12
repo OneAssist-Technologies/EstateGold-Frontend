@@ -43,6 +43,15 @@ export const propertyApi = {
   requestDelete: (id: string, reason: string) =>
     api.patch(`/properties/${id}/request-delete`, { reason }),
 
+  // Availability Confirmation
+  getDueAvailabilityConfirmations: () =>
+    api.get("/properties/availability-confirmations/due"),
+
+  submitAvailabilityConfirmation: (
+    propertyId: string,
+    data: { confirmation: "STILL_AVAILABLE" | "SOLD" | "RENTED" | "OTHER"; reason?: string }
+  ) => api.post(`/properties/${propertyId}/availability-confirmation`, data),
+
   // Mine
   getMine: (params?: Record<string, unknown>) =>
     api.get("/properties/mine", { params }),
